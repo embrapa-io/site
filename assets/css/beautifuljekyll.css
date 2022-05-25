@@ -1100,3 +1100,41 @@ pre {
     display: inline-block;
   }
 }
+
+/* --- embrapa.io custom styles --- */
+
+div.partners
+{
+	clear: both;
+	width: 100%;
+	margin: 0px;
+	border: 0px;
+	height: 104px;
+	margin-top: 50px;
+}
+
+div.partners div
+{
+	overflow: hidden;
+	background-position: top;
+	background-repeat: no-repeat;
+	cursor: pointer;
+}
+
+div.partners div.partner
+{
+	float: left;
+	width: 320px;
+	height: 50px;
+	background-image: url('../img/embrapa.png');
+	margin-top: 30px;
+}
+
+div.partners div.embrapa
+{
+	float: right;
+	width: 240px;
+	height: 104px;
+	background-image: url('../img/embrapa.png');
+	margin-top: 0px;
+}
