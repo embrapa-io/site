@@ -14,12 +14,12 @@ author: Embrapa
 # --- List of links in the navigation bar --- #
 
 navbar-links:
-  Sobre: "aboutme"
-  Dashboard: "https://dashboard.embrapa.io"
-  GitLab: "https://git.embrapa.io"
-  Resources:
-    - Beautiful Jekyll: "https://beautifuljekyll.com"
-    - Learn markdown: "https://www.markdowntutorial.com/"
+  Sobre: "about"
+  Documentação: "docs/preface"
+  Recursos:
+    - Dashboard: "https://dashboard.embrapa.io"
+    - GitLab: "https://git.embrapa.io"
+    - ErrBit: "https://bug.embrapa.io"
 
 # --- Logo --- #
 
@@ -55,7 +55,7 @@ social-network-links:
 #  snapchat: deanat78
 #  instagram: deanat78
 #  spotify: yourname
-#  telephone: +14159998888
+telephone: +14159998888
 #  steam: deanat78
 #  twitch: yourname
 #  yelp: yourname

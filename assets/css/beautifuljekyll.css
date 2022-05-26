@@ -1121,7 +1121,7 @@ div.partners div
 	cursor: pointer;
 }
 
-div.partners div.partner
+div.partners div.left
 {
 	float: left;
 	width: 300px;
@@ -1130,7 +1130,7 @@ div.partners div.partner
 	margin-top: 17px;
 }
 
-div.partners div.embrapa
+div.partners div.right
 {
 	float: right;
 	width: 300px;
