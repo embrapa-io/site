@@ -15,8 +15,6 @@ O **embrapa.io** é um ecossistema digital voltado a apoiar desenvolvedores de s
 - **Integração**: a plataforma irá fomentar a integração dos ativos e mitigar o sombreamento de esforços; e
 - **Monitoramento**: a plataforma possibilitará o monitoramento dos impactos e retorno (_feedback_) do público dos ativos desenvolvidos e ações de contingência, caso necessário.
 
-What else do you need?
+A plataforma pode ser utilizada pela comunidade de colaboradores internos e externos à Embrapa, sendo uma solução de código aberto e livre de licença.
 
-### My story
-
-To be honest, I'm having some trouble remembering right now, so why don't you just watch [my movie](https://en.wikipedia.org/wiki/The_Princess_Bride_%28film%29) and it will answer **all** your questions.
+Ficou interessado? Veja nossa [documentação detalhada]({{ site.baseurl }}/docs/preface) ou [comece a utilizar]({{ site.baseurl }}/docs/quickstart) a plataforma.

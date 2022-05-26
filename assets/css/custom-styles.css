@@ -1,0 +1,49 @@
+div.partners
+{
+	clear: both;
+	width: 100%;
+	margin: 0px;
+	border: 0px;
+	height: 104px;
+	margin-top: 50px;
+}
+
+div.partners div
+{
+	overflow: hidden;
+	background-position: top;
+	background-repeat: no-repeat;
+	cursor: pointer;
+}
+
+div.partners div.left
+{
+	float: left;
+	width: 300px;
+	height: 111px;
+	background-image: url('../img/embrapa.png');
+	margin-top: 17px;
+}
+
+div.partners div.right
+{
+	float: right;
+	width: 300px;
+	height: 145px;
+	background-image: url('../img/rnp.png');
+	margin-top: 0px;
+}
+
+.main-explain-area {
+  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  padding: 15px inherit;
+}
+
+.get-started-wrap {
+  text-align: center;
+}
+.get-started-btn {
+  padding: 15px 30px;
+  font-size: 26px;
+  margin-top: 10px;
+}
