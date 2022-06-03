@@ -8,25 +8,17 @@ subtitle: Prefácio da documentação técnica.
 
 - [Introdução]({{ site.baseurl }}/docs/introduction)
 - [Arquitetura]({{ site.baseurl }}/docs/architecture)
-- [Processos]({{ site.baseurl }}/docs/proccess)
-- [Estrutura de Diretórios]({{ site.baseurl }}/docs/structure)
-- [Usuários e Permissões]({{ site.baseurl }}/docs/authentication)
+- [_Squads_ de Desenvolvimento]({{ site.baseurl }}/docs/squads)
 - [Boas Práticas]({{ site.baseurl }}/docs/practices)
 
 ## Getting Start
 
 - [Quickstart]({{ site.baseurl }}/docs/quickstart)
-
-## Referências
-
-- [Barramento de Serviços RESTful]({{ site.baseurl }}/docs/api).
-
-## Tutoriais
-
-- ...
-
-## Deploy
-
-- [Configurando o ambiente]({{ site.baseurl }}/docs/environment) de desenvolvimento.
-- [Publicando sua instância]({{ site.baseurl }}/docs/deploy) em ambiente de _alpha_ (testes internos), _beta_ (testes externos) e _release_ (produção).
-- ...
+- [Acessando a _Dashboard_]({{ site.baseurl }}/docs/dashboard)
+- [Criando um Projeto]({{ site.baseurl }}/docs/project)
+- [Adicionando Aplicações ao Projeto]({{ site.baseurl }}/docs/app)
+- [Planejando o desenvolvimento por meio de _milestones_ e _issues_]({{ site.baseurl }}/docs/kanban)
+- [Configurando os Estágios da Aplicação]({{ site.baseurl }}/docs/build)
+- [Fazendo o _deploy_ das Builds]({{ site.baseurl }}/docs/deploy)
+- [Monitorando a Build]({{ site.baseurl }}/docs/health)
+- [Fazendo o _backup_ de uma Build]({{ site.baseurl }}/docs/backup)
