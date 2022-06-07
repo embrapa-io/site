@@ -17,8 +17,13 @@ subtitle: Prefácio da documentação técnica.
 - [Acessando a _Dashboard_]({{ site.baseurl }}/docs/dashboard)
 - [Criando um Projeto]({{ site.baseurl }}/docs/project)
 - [Adicionando Aplicações ao Projeto]({{ site.baseurl }}/docs/app)
-- [Planejando o desenvolvimento por meio de _milestones_ e _issues_]({{ site.baseurl }}/docs/kanban)
+- [Planejando e acompanhando o desenvolvimento]({{ site.baseurl }}/docs/kanban)
 - [Configurando os Estágios da Aplicação]({{ site.baseurl }}/docs/build)
 - [Fazendo o _deploy_ das Builds]({{ site.baseurl }}/docs/deploy)
 - [Monitorando a Build]({{ site.baseurl }}/docs/health)
 - [Fazendo o _backup_ de uma Build]({{ site.baseurl }}/docs/backup)
+
+## Avançado
+
+- [Criando e mantendo um _Boilerplate_]({{ site.baseurl }}/docs/boilerplate)
+- [Configurando e disponibilizando um _Cluster_]({{ site.baseurl }}/docs/cluster)
