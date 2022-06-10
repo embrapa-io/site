@@ -4,44 +4,44 @@ title: Introdução
 subtitle: Conceitos básicos da plataforma
 ---
 
-A plataforma **embrapa.io** permite que seja estruturado um novo projeto de **ativo digital** para a agropecuária, guiando os desenvolvedores em padrões e métodos bem definidos. Para isso, faz-se necessário compreender alguns conceitos inerentes à plataforma.
+A plataforma **embrapa.io** permite que sejam estruturados **projetos de software de ativos digitais para a agropecuária**, guiando os desenvolvedores em padrões e métodos bem definidos. Antes de utilizá-la, faz-se necessário compreender alguns conceitos inerentes à plataforma.
 
-Primeiramente, assume-se que cada ativo digital será formado por diversos softwares desacoplados, além de outros artefatos de software de apoio. Este conceito reflete o padrão atual de desenvolvimento de software, onde uma solução tem um _backend_ integrado ao banco de dados, um _frontend_ na Web, um aplicativo _mobile_, dentre outros (ou pode ainda ainda ser baseada em micro-serviços), com diversos "módulos" que seguem ciclos de vida independentes.
+Primeiramente, assume-se que cada ativo digital será formado por diversos softwares desacoplados, além de outros artefatos de apoio. Este conceito reflete o padrão atual de desenvolvimento de software, onde uma solução tem um _backend_ integrado ao banco de dados, um _frontend_ na Web, um aplicativo _mobile_, dentre outros (ou pode ainda ainda ser baseada em micro-serviços), com diversos "módulos" que seguem ciclos de vida independentes.
 
-Para consolidar estes conceitos, a seguir são apresentadas as principais entidades (e sua terminologia) que você encontrará na plataforma.
+Para consolidar estes conceitos, a seguir são apresentadas as principais entidades que você encontrará na plataforma e sua terminologia.
 
 ## Projeto
 
-Um **projeto** de ativo digital no **embrapa.io** corresponde a um grupo de repositório no [GitLab](https://git.embrapa.io) (similar a uma _organization_ do GitHub) e é, portanto, composto por diversos repositórios, que podem ser de 3 (três) tipos distintos:
+Um **projeto** de ativo digital no **embrapa.io** corresponde a um grupo de repositórios no [GitLab](https://git.embrapa.io) (similar a uma _organization_ do [GitHub](https://github.com)). É, portanto, composto por diversos repositórios que, por sua vez, podem ser de 3 (três) tipos distintos:
 
 - **repositório de código-fonte de aplicação**: que contém o código-fonte de um dos softwares que compõe o ativo digital, sendo gerado automaticamente pela plataforma a partir do código-fonte de um _boilerplate_ escolhido pelo usuário;
 - **repositório de suporte**: que são gerados automaticamente pela plataforma, seguindo padrões bem definidos, para prover o site técnico de divulgação pública do projeto, a documentação _online_ da API, o empacotamente para disponibilização em lojas virtuais, o diretório privado de documentação, os artefatos de identidade visual e/ou binários de compilações; e
-- **repositório de arquivos de apoio**: que nada mais são do que repositórios criados pelos mantenedores do projeto para guardar outros arquivos que não se enquadrem nos tipos anteriores.
+- **repositório de arquivos de apoio**: que nada mais são do que repositórios criados pelos mantenedores do projeto para armazenar e versionar outros arquivos que não se enquadrem nos tipos anteriores.
 
 Para criar um **projeto**, [acesse a _dashboard_]({{ site.baseurl }}/docs/dashboard) e [siga os passos na própria interface]({{ site.baseurl }}/docs/project).
 
 ## Aplicação
 
-Dentre os tipos de repositórios listados, o do código-fonte de **aplicação** (ou **app**) é o mais importante, pois permitirá que os desenvolvedores codifiquem cada módulo desacoplado do ativo em si e, posteriormente, faça a entrega deste módulo (_deploy_). Na plataforma **embrapa.io**, uma aplicação é sempre criada a partir de um código-fonte modelo, que atua como um _template_ de código ou **_boilerplate_**. Isto é fundamental para estruturar o códifo-fonte inicial da sua aplicação com padrões e diretrizes requeridos pela plataforma.
+Dentre os tipos de repositórios listados, o do código-fonte de **aplicação** (ou **app**) é o mais importante, pois permitirá que os desenvolvedores codifiquem cada módulo desacoplado do ativo em si e, posteriormente, façam a entrega deste módulo (_deploy_). Na plataforma **embrapa.io**, uma aplicação é sempre criada a partir de um código-fonte modelo, que atua como um _template_ de código ou **_boilerplate_**. Isto é fundamental para estruturar o códifo-fonte inicial da sua aplicação com padrões e diretrizes requeridos pela plataforma.
 
 Para entender melhor este processo, [siga os passos de criação de uma aplicação]({{ site.baseurl }}/docs/app).
 
 ## Boilerplate
 
-Uma **aplicação** pode ser criada na plataforma utilizando qualquer linguagem de programação, entretanto é necessário que ela seja baseada sempre em um _boilerplate_. Estes templates de código irão fornecer a estrutura de diretórios e arquivos incial da aplicação, bem como a sua conteinerização prévia respeitando os requisitos determinados pela plataforma.
+Uma **aplicação** pode ser criada na plataforma utilizando qualquer linguagem de programação, entretanto é necessário que ela seja baseada sempre em um _boilerplate_. Estes templates de código irão fornecer a estrutura inicial de diretórios e arquivos da aplicação, bem como a sua conteinerização prévia respeitando os requisitos determinados pela plataforma.
 
 Por exemplo, toda aplicação no **embrapa.io** precisa ter um diretório oculto na raiz denominado ```.embrapa```. Neste diretório estão metadados que são utilizados pela plataforma durante a configuração dos _builds_ e nas fases de CI/DI dos processos de DevOps.
 
 Na conteinerização também existem padrões a serem seguidos. Por exemplo, a plataforma espera ter disponível nas aplicações alguns serviços que são utilizados no _deploy_ e/ou monitoramento das _builds_ instanciadas, tal como:
 
-- _backup_: que [executa o backup das instâncias]({{ site.baseurl }}/docs/backup) e disponibiliza para os mantenedores do projeto;
-- _restore_: que possibilita restaurar um _backup_ específico;
-- _sanitize_: que executa um processo de higienização e/ou otimização na instância; e
-- _test_: que executa testes unitários na instância.
+- **_backup_**: que [executa o backup das instâncias]({{ site.baseurl }}/docs/backup) e disponibiliza para os mantenedores do projeto;
+- **_restore_**: que possibilita restaurar um _backup_ específico;
+- **_sanitize_**: que executa um processo de higienização e/ou otimização na instância; e
+- **_test_**: que executa testes unitários na instância.
 
 Veja mais sobre [como criar e manter _boilerplates_]({{ site.baseurl }}/docs/boilerplate) e seja assim um colaborador da plataforma.
 
-## Planejamento
+## Planejamento e Acompanhamento
 
 O [GitLab](https://git.embrapa.io) integrado à plataforma **embrapa.io** possui uma ferramenta embutida de gerencimento ágil de projetos (do inglês, _tracking and agile project management_). Esta ferramenta permite o planejamento das etapas de desenvolvimento por meio de _milestones_ e do registro de _issues_ associadas. Para entender melhor como fazer o planejamento e acompanhamento do projeto, [veja como utilizar a _Kanban board_ integrada]({{ site.baseurl }}/docs/kanban).
 
@@ -72,9 +72,9 @@ Para a entrega (_deploy_) de _builds_ é necessário, além de efetuar o _merge_
 
 > macro version . milestone year . milestone month - stage . patch
 
-Desta forma, a versão de uma determinada _build_ poderia ser, por exemplo, "**2.23.4-beta.7**". Neste exemplo, a _build_ em questão está na macro-versão "**2**", correspondente ao _milestone_ "**23.4**" (ou seja, um _sprint_ com entrega planejada para **abril de 2023**), no estágio de "**testes externos**" (_beta_) e no "**7º**" _patch_.
+Desta forma, a versão de uma determinada _build_ poderia ser, por exemplo, "**2.23.4-beta.7**". Neste exemplo, a _build_ em questão está na macro-versão "**2**", correspondente ao _milestone_ "**23.4**" (ou seja, com entrega planejada para **abril de 2023**), no estágio de "**testes externos**" (_beta_) e no "**7º**" _patch_.
 
-Ao versionar a _build_ de produção (_release_) há uma exceção: **é omitido o qualificador de estágio de maturidade**. Assim, um nome de versão válido para uma _build_ em produção seria "**2.23.4-3**" (versão final para produção do _sprint_ planejado para **abril de 2023** da aplicação em sua **2ª macro-versão**).
+Ao versionar a _build_ de produção (_release_) há uma exceção: **é omitido o qualificador de estágio de maturidade**. Assim, um nome de versão válido para uma _build_ em produção seria "**2.23.4-3**" (versão final para produção, planejada para **abril de 2023**, da aplicação em sua **2ª macro-versão**).
 
 Este padrão de nomes de versão é aderente ao padrão [SemVer 2.0.0](https://semver.org/). É importante frisar que a plataforma **embrapa.io** valida se as _tags_ estão sendo criadas com nomes válidos e nas _branches_ corretas, somente efetuando o _deploy_ se tudo estiver conforme o padrão.
 
