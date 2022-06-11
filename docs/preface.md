@@ -14,16 +14,17 @@ subtitle: Prefácio da documentação técnica.
 ## Getting Start
 
 - [Quickstart]({{ site.baseurl }}/docs/quickstart)
-- [Acessando a _Dashboard_]({{ site.baseurl }}/docs/dashboard)
-- [Criando um Projeto]({{ site.baseurl }}/docs/project)
-- [Adicionando Aplicações ao Projeto]({{ site.baseurl }}/docs/app)
+- [Acessando a _dashboard_]({{ site.baseurl }}/docs/dashboard)
+- [Criando um projeto]({{ site.baseurl }}/docs/project)
+- [Adicionando aplicações ao projeto]({{ site.baseurl }}/docs/app)
 - [Planejando e acompanhando o desenvolvimento]({{ site.baseurl }}/docs/kanban)
-- [Configurando os Estágios da Aplicação]({{ site.baseurl }}/docs/build)
-- [Fazendo o _deploy_ das Builds]({{ site.baseurl }}/docs/deploy)
-- [Monitorando a Build]({{ site.baseurl }}/docs/health)
-- [Fazendo o _backup_ de uma Build]({{ site.baseurl }}/docs/backup)
+- [Configurando o _error tracking_]({{ site.baseurl }}/docs/bug)
+- [Configurando os estágios da aplicação]({{ site.baseurl }}/docs/build)
+- [Fazendo o _deploy_ das _builds_]({{ site.baseurl }}/docs/deploy)
+- [Monitorando a _build_]({{ site.baseurl }}/docs/health)
+- [Fazendo o _backup_ de uma _build_]({{ site.baseurl }}/docs/backup)
 
 ## Avançado
 
-- [Criando e mantendo um _Boilerplate_]({{ site.baseurl }}/docs/boilerplate)
-- [Configurando e disponibilizando um _Cluster_]({{ site.baseurl }}/docs/cluster)
+- [Criando e mantendo um _boilerplate_]({{ site.baseurl }}/docs/boilerplate)
+- [Configurando e disponibilizando um _cluster_]({{ site.baseurl }}/docs/cluster)
