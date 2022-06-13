@@ -25,7 +25,7 @@ Um e-mail será enviado aos membros da equipe do projeto com os _logs_ do proces
 
 ```
 INFO > New tag found to build 'pbc/mobile@alpha'!
-INFO > Updating from 2.22.5-alpha.4 to 2.22.5-alpha.5, commited by Camilo Carromeu <camilo@carromeu.com> at 2022-06-13T09:34:57.000-04:00.
+INFO > Updating from 2.22.5-alpha.4 to 2.22.5-alpha.5, commited by Camilo Carromeu <camilo.carromeu@embrapa.br> at 2022-06-13T09:34:57.000-04:00.
 INFO > Checking if new tag has been created from branch 'alpha'... ok!
 WARNING > No related milestone found! Has good practice, a milestone named '2.22.5' is required to manage issues releated to this release.
 INFO > Trying to load '.embrapa/settings.json' from remote repository... done!
