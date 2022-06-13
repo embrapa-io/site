@@ -20,7 +20,7 @@ subtitle: Prefácio da documentação técnica.
 - [Planejando e acompanhando o desenvolvimento]({{ site.baseurl }}/docs/kanban)
 - [Configurando o _error tracking_]({{ site.baseurl }}/docs/bug)
 - [Configurando os estágios da aplicação]({{ site.baseurl }}/docs/build)
-- [Fazendo o _deploy_ das _builds_]({{ site.baseurl }}/docs/deploy)
+- [Fazendo o _deploy_ da _build_]({{ site.baseurl }}/docs/deploy)
 - [Monitorando a _build_]({{ site.baseurl }}/docs/health)
 - [Fazendo o _backup_ de uma _build_]({{ site.baseurl }}/docs/backup)
 

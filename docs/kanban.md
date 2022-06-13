@@ -27,3 +27,5 @@ Na _board_ do projeto mostrada na figura acima existem 6 (seis) colunas. São el
  - _Invalid_: Caso a execução da _issue_ tenha sido cancelada por qualquer motivo.
 
 ![Alteração de uma issue]({{ site.baseurl }}/assets/img/kanban/03.png)
+
+Como uma _issue_ inicial a ser registrada e atribuída, sugerimos a [configuração do _error tracking_]({{ site.baseurl }}/docs/bug) em cada aplicação do projeto. Uma vez configurado, os erros começarão a ser registrados mesmo em ambiente de desenvolvimento.

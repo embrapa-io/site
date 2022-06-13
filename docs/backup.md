@@ -1,5 +1,5 @@
 ---
 layout: page
 title: Backup
-subtitle: Executando e obtendo o _backup_ da _build_
+subtitle: Executando e obtendo o backup da build
 ---

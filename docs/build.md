@@ -78,3 +78,16 @@ Neste passo é possível atribuir à aplicação URLs mais "amigáveis" e semant
 No último passo o usuário deverá submeter as configurações da _build_ para validação.
 
 ![Validando a build]({{ site.baseurl }}/assets/img/build/08.png)
+
+O processo de validação é realizado em duas etapas:
+
+1. Uma validação inicial é realizada no momento em que as configurações da _build_ são enviadas, onde serão checados se todos os campos requeridos estão devidamente preenchidos; e
+2. Uma vez que a checagem inicial tenha sido bem sucedida, a _build_ entra em uma fila para validação pelo autômato de _deployer_. Esta validação irá testar as configurações finais da _build_ diretamente no orquestrador do _cluster_ em que ela será instanciada. Caso tenha interesse, [veja mais detalhes sobre os autômatos que compõem a plataforma no capítulo de arquitetura]({{ site.baseurl }}/docs/arch).
+
+![Build validada pelo autômato de deployer]({{ site.baseurl }}/assets/img/build/09.png)
+
+Quando o processo de validação da _build_ for executado, será enviado um e-mail para a equipe do projeto com o _log_ de execução:
+
+![e-Mail com o log da execução do processo de validação]({{ site.baseurl }}/assets/img/build/10.png)
+
+Uma vez que as configurações da _build_ estejam plenamente validadas, [já é possível realizar o seu _deploy_]({{ site.baseurl }}/docs/deploy).

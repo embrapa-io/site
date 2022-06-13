@@ -1,5 +1,5 @@
 ---
 layout: page
 title: Cluster
-subtitle: Configurando e disponibilizando um _cluster_
+subtitle: Configurando e disponibilizando um cluster
 ---

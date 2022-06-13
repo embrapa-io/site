@@ -1,5 +1,5 @@
 ---
 layout: page
 title: Monitoramento
-subtitle: Acompanhando a saúde do seu _build_ no servidor remoto
+subtitle: Acompanhando e gerindo a build no ambiente remoto
 ---

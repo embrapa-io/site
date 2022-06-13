@@ -1,5 +1,5 @@
 ---
 layout: page
 title: Boilerplate
-subtitle: Criando e mantendo um _boilerplate_
+subtitle: Criando e mantendo um boilerplate
 ---

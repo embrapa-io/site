@@ -1,5 +1,5 @@
 ---
 layout: page
 title: Roteador
-subtitle: Roteamento de subdomínio e _subpaths_
+subtitle: Roteamento de subdomínio e subpaths
 ---
