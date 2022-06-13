@@ -10,6 +10,7 @@ subtitle: Prefácio da documentação técnica.
 - [Arquitetura]({{ site.baseurl }}/docs/architecture)
 - [_Squads_ de Desenvolvimento]({{ site.baseurl }}/docs/squads)
 - [Boas Práticas]({{ site.baseurl }}/docs/practices)
+- [Integração de Ativos Digitais]({{ site.baseurl }}/docs/integration)
 
 ## Getting Start
 

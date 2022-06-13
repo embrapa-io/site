@@ -32,7 +32,7 @@ Uma **aplicação** pode ser criada na plataforma utilizando qualquer linguagem 
 
 Por exemplo, toda aplicação no **embrapa.io** precisa ter um diretório oculto na raiz denominado ```.embrapa```. Neste diretório estão metadados que são utilizados pela plataforma durante a configuração dos _builds_ e nas fases de CI/DI dos processos de DevOps.
 
-Na conteinerização também existem padrões a serem seguidos. Por exemplo, a plataforma espera ter disponível nas aplicações alguns serviços que são utilizados no _deploy_ e/ou monitoramento das _builds_ instanciadas, tal como:
+Na conteinerização também existem padrões a serem seguidos. Por exemplo, a plataforma espera ter disponível nas aplicações alguns serviços que são utilizados no _deploy_ e monitoramento das _builds_ instanciadas, tal como:
 
 - **_backup_**: que [executa o backup das instâncias]({{ site.baseurl }}/docs/backup) e disponibiliza para os mantenedores do projeto;
 - **_restore_**: que possibilita restaurar um _backup_ específico;
@@ -43,7 +43,7 @@ Veja mais sobre [como criar e manter _boilerplates_]({{ site.baseurl }}/docs/boi
 
 ## Planejamento e Acompanhamento
 
-O [GitLab](https://git.embrapa.io) integrado à plataforma **embrapa.io** possui uma ferramenta embutida de gerencimento ágil de projetos (do inglês, _tracking and agile project management_). Esta ferramenta permite o planejamento das etapas de desenvolvimento por meio de _milestones_ e do registro de _issues_ associadas. Para entender melhor como fazer o planejamento e acompanhamento do projeto, [veja como utilizar a _Kanban board_ integrada]({{ site.baseurl }}/docs/kanban).
+O [GitLab](https://git.embrapa.io) integrado à plataforma **embrapa.io** possui uma ferramenta embutida de gerencimento ágil de projetos (do inglês, _tracking and agile project management_). Esta ferramenta permite o planejamento das etapas de desenvolvimento por meio de marcos (_milestones_) e do registro de tarefas (_issues_) associadas. Para entender melhor como fazer o planejamento e acompanhamento do projeto, [veja como utilizar a _Kanban board_ integrada]({{ site.baseurl }}/docs/kanban).
 
 ## Estágios de Maturidade
 
@@ -64,7 +64,7 @@ A _build_ é uma instância de determinada aplicação em um estágio de maturid
 
 > project / app @ stage
 
-Quando uma [nova app é criada]({{ site.baseurl }}/docs/app), pode-se habilitar até 3 (três) _builds_ para ela: _alpha_, _beta_ e/ou _release_. Para isso, será necessário [configurar cada _build_ separadamente]({{ site.baseurl }}/docs/build). Para que uma _build_ seja instanciada na plataforma **embrapa.io** e, desta forma, disponibilizada publicamente, ela precisará primeiramente ter sua configuração validada. A configuração de uma _build_ envolve o _cluster_ em que ela será instanciada, os _volumes_ para armazenamento de dados, a definição das variáveis de ambiente da instância e a associação de URLs externas (_aliases_).
+Quando uma [nova app é criada]({{ site.baseurl }}/docs/app), pode-se habilitar até 3 (três) _builds_ para ela, cada uma relacionada a um dos estágios de maturidade: _alpha_, _beta_ e _release_. Para isso, será necessário [configurar cada _build_ separadamente]({{ site.baseurl }}/docs/build). Para que uma _build_ seja instanciada na plataforma **embrapa.io** e, desta forma, disponibilizada publicamente, ela precisará primeiramente ter sua configuração validada. A configuração de uma _build_ envolve o _cluster_ em que ela será instanciada, os _volumes_ para armazenamento de dados, a definição das variáveis de ambiente da instância e a associação de URLs externas (_aliases_).
 
 ## Versão
 
@@ -82,11 +82,11 @@ Veja como criar a _tag_ na _branch_ utilizando o cliente GIT e, desta forma, [ef
 
 ## Instância
 
-Uma vez que tenha sido realizado o _deploy_ de uma _build_ em determinado servidor remoto (_cluster_), teremos uma instância sendo executada e disponível para acesso pelos usuários. Os usuários poderão então acessar a instância por meio da URL do servidor e das portas alocadas (links permanentes) ou por meio de _aliases_ configurados previamente. Os mantenedores do projeto poderão [monitorar a instância]({{ site.baseurl }}/docs/health) e "disparar" determinados processos de gestão (tal como reiniciar os _containers_, agendar o higienizador/otimizador, suspender a instância e/ou [fazer backup dos dados da instância]({{ site.baseurl }}/docs/backup)).
+Uma vez que tenha sido realizado o _deploy_ de uma _build_ em determinado servidor remoto (_cluster_), teremos uma instância sendo executada e disponível para acesso pelos usuários. Os usuários poderão então acessar a instância por meio da URL do servidor e das portas alocadas (links permanentes) ou por meio de _aliases_ configurados previamente. Os mantenedores do projeto poderão [monitorar a instância]({{ site.baseurl }}/docs/health) e "disparar" determinados processos de gestão (tal como reiniciar os _containers_, agendar o higienizador/otimizador, suspender a instância e [fazer backup dos dados da instância]({{ site.baseurl }}/docs/backup)).
 
 ## Cluster
 
-Uma instância de uma _build_ pode ser instanciada em servidores (ou _clusters_) remotos internos e externos à Embrapa e com diferentes **orquestradores** de _containers_. Para isto, a plataforma **embrapa.io** adota uma estratégia de _deploy_ baseada em _drivers_. Assim, é possível ter um _driver_ para [Kubernetes](https://kubernetes.io) (que fará o _deploy_ e um _host_ com este orquestrador), outro para _deploy_ na [Microsoft Azure](https://azure.microsoft.com) (que fará o _deploy_ interagindo com a API desta plataforma), outro para [RedHat OpenShift](https://www.redhat.com/pt-br/technologies/cloud-computing/openshift), etc.
+Uma instância de uma _build_ pode ser instanciada em servidores (ou _clusters_) remotos internos e externos à Embrapa e com diferentes **orquestradores** de _containers_. Para isto, a plataforma **embrapa.io** adota uma estratégia de _deploy_ baseada em _drivers_. Assim, é possível ter um _driver_ para [Kubernetes](https://kubernetes.io) (que fará o _deploy_ em um _host_ com este orquestrador), outro para _deploy_ na [Microsoft Azure](https://azure.microsoft.com) (que fará o _deploy_ interagindo com a API desta plataforma), outro para [RedHat OpenShift](https://www.redhat.com/pt-br/technologies/cloud-computing/openshift), etc.
 
 Da mesma forma, é necessário gerenciar os servidores do tipo _storage_ onde serão montados os volumes para armazenamento de dados das aplicações. Neste caso também é adotado uma estratégia baseada em _drivers_, onde pode-se por exemplo ter para o orquestrador Kubernetes um _driver_ para NFS v3 e outro para o NFS v4. Ou ainda, ter um _driver_ para o orquestrador [Amazon AWS](https://aws.amazon.com) integrado a um _driver_ para _storage_ que monta os volumes no [Amazon EBS](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AmazonEBS.html).
 
