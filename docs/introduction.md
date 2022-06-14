@@ -4,9 +4,9 @@ title: Introdução
 subtitle: Conceitos básicos da plataforma
 ---
 
-A plataforma **embrapa.io** permite que sejam estruturados **projetos de software de ativos digitais para a agropecuária**, guiando os desenvolvedores em padrões e métodos bem definidos. Antes de utilizá-la, faz-se necessário compreender alguns conceitos inerentes à plataforma.
+A plataforma **embrapa.io** permite que sejam estruturados **projetos de software de ativos digitais para a agropecuária**, guiando os desenvolvedores em padrões e métodos bem definidos. Antes de utilizá-la, é necessário compreender alguns conceitos inerentes à plataforma.
 
-Primeiramente, assume-se que cada ativo digital será formado por diversos softwares desacoplados, além de outros artefatos de apoio. Este conceito reflete o padrão atual de desenvolvimento de software, onde uma solução tem um _backend_ integrado ao banco de dados, um _frontend_ na Web, um aplicativo _mobile_, dentre outros (ou pode ainda ainda ser baseada em micro-serviços), com diversos "módulos" que seguem ciclos de vida independentes.
+Primeiramente, assume-se que cada ativo digital será formado por diversos softwares desacoplados, além de outros artefatos de apoio. Este conceito reflete o padrão atual de desenvolvimento de software, onde uma solução tem um _backend_ integrado ao banco de dados, um _frontend_ na Web, um aplicativo _mobile_, dentre outros (ou pode ainda ainda ser baseada em [_microservices_](https://microservices.io) ou [_micro-frontends_](https://micro-frontends.org)), com diversos módulos, _plugins_, _packages_ e componentes que seguem ciclos de vida independentes.
 
 Para consolidar estes conceitos, a seguir são apresentadas as principais entidades que você encontrará na plataforma e sua terminologia.
 

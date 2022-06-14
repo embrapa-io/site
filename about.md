@@ -4,7 +4,7 @@ title: Sobre
 subtitle: Aprenda, colabore, desenvolva e distribua soluções digitais para o agro sustentável
 ---
 
-O **embrapa.io** é um ecossistema (ou plataforma) digital voltado a apoiar desenvolvedores de software na virtuosa tarefa de solucionar problemas da agropecuária. Seus pilares são:
+O **embrapa.io** é uma plataforma digital voltada a apoiar desenvolvedores de software na virtuosa tarefa de solucionar problemas da agropecuária. Seus pilares são:
 
 - **Aprendizado**: a plataforma guia o desenvolvedor por consagradas trilhas de conhecimento no estado da arte da tecnologia;
 - **Colaboração**: o ecossistema fomenta o desenvolvimento colaborativo e reuso de artefatos de software;
