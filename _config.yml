@@ -19,7 +19,7 @@ navbar-links:
   Recursos:
     - Dashboard: "https://dashboard.embrapa.io"
     - GitLab: "https://git.embrapa.io"
-    - ErrBit: "https://bug.embrapa.io"
+    - Sentry: "https://bug.embrapa.io"
     - Backup: "https://backup.embrapa.io"
   Licença: "license"
 
