@@ -1,5 +1,5 @@
 ---
 layout: page
 title: Integração
-subtitle: Política para fomentar a integração de ativos digitais
+subtitle: Estratégia de integração de ativos digitais
 ---

@@ -24,8 +24,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ## List of Contributors ##
 
-- [Camilo Carromeu](mailto:camilo.carromeu@embrapa.br)
-- [Fabiano Mariath D'Oliveira](mailto:fabiano.mariath@embrapa.br)
-- [Murilo Martins da Silva Junior](mailto:murilo.martins@embrapa.br)
-- [Rommel Teodoro de Oliveira](mailto:rommel.oliveira@embrapa.br)
-- ...
+- [Camilo Carromeu](https://www.embrapa.br/equipe/-/empregado/354215/camilo-carromeu)
+- [Fabiano Mariath D'Oliveira](https://www.embrapa.br/equipe/-/empregado/349285/fabiano-mariath-doliveira)
+- [Murilo Martins da Silva Junior](https://www.embrapa.br/equipe/-/empregado/301262/murilo-martins-da-silva-junior)
+- [Rommel Teodoro de Oliveira](https://www.embrapa.br/equipe/-/empregado/349627/rommel-teodoro-de-oliveira)
