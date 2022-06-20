@@ -71,7 +71,7 @@
       {% include ext-css.html css=css %}
     {% endfor %}
   {% endif %}
-  
+
   {% if page.css %}
     {% for css in page.css %}
       <link rel="stylesheet" href="{{ css | relative_url }}">
@@ -153,5 +153,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/icon/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/assets/icon/favicon-16x16.png">
   <link rel="manifest" href="/manifest.json">
+
+  <script src="https://kit.fontawesome.com/bbe2c816bd.js" crossorigin="anonymous"></script>
 
 </head>

@@ -51,3 +51,30 @@ div.partners div.right
 @media screen and (min-width: 0px) and (max-width: 720px) {
 	.mobile-hide{ display: none; }
 }
+
+.fa-android,.fa-angular,.fa-apple,.fa-code-branch,.fa-golang,.fa-java,.fa-js,.fa-microsoft,.fa-node-js,.fa-php,.fa-puzzle-piece,.fa-python,.fa-react,.fa-vuejs,.fa-wordpress {font-size:100px}
+
+.cell {
+	width: 136px;
+	margin: 2px;
+	padding: 5px 0px 5px 0px;
+	border: 3px solid #eee;
+	display: -moz-inline-stack;
+	display: inline-block;
+	vertical-align: top;
+	*display: inline;
+	text-align: center;
+	color: #666;
+}
+
+.subtile {
+	margin-top: 10px;
+	word-wrap: normal;
+	white-space: nowrap;
+	line-height: 14px;
+	font-size: 12px;
+	font-weight: bold;
+	color: #666;
+	font-family: 'Courier New', Courier, monospace;
+	display: inline-block;
+}
