@@ -19,7 +19,7 @@ subtitle: Prefácio da documentação técnica.
 - [Criando um projeto]({{ site.baseurl }}/docs/project)
 - [Adicionando aplicações ao projeto]({{ site.baseurl }}/docs/app)
 - [Planejando e acompanhando o desenvolvimento]({{ site.baseurl }}/docs/kanban)
-- [Configurando o _error tracking_]({{ site.baseurl }}/docs/bug)
+- [Utilizando o _error tracking_]({{ site.baseurl }}/docs/bug)
 - [Configurando os estágios da aplicação]({{ site.baseurl }}/docs/build)
 - [Fazendo o _deploy_ da _build_]({{ site.baseurl }}/docs/deploy)
 - [Monitorando a _build_]({{ site.baseurl }}/docs/health)
