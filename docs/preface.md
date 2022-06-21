@@ -10,7 +10,10 @@ subtitle: Prefácio da documentação técnica.
 - [Arquitetura]({{ site.baseurl }}/docs/architecture)
 - [_Squads_ de Desenvolvimento]({{ site.baseurl }}/docs/squads)
 - [Boas Práticas]({{ site.baseurl }}/docs/practices)
+- [Reúso de Componentes]({{ site.baseurl }}/docs/reuse)
 - [Integração de Ativos Digitais]({{ site.baseurl }}/docs/integration)
+- [Licenciamento]({{ site.baseurl }}/docs/licensing)
+- [Escalas TRL/MRL e distribuição de MVPs]({{ site.baseurl }}/docs/mvp)
 
 ## Getting Start
 

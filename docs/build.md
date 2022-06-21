@@ -10,7 +10,7 @@ Quando uma **aplicação** é disponibilizada em um determinado **ambiente de es
 
 > project / app @ stage
 
-Falamos mais sobre os [estágios de maturidade e a definição de _build_ no capítulo de introdução]({{ site.baseurl }}/docs/introduction).
+Falamos mais sobre os [estágios de maturidade e a definição de _build_ no capítulo de introdução]({{ site.baseurl }}/docs/introduction#stage).
 
 Uma vez que a **aplicação** tenha sido criada, já será possível configurar as _builds_ para cada **estágio de maturidade**. Para isso, será necessário a um **mantenedor do projeto** informar, por meio de um _wizard_, dados essenciais para o _deploy_ da _build_. Inicialmente, o usuário precisará clicar no ícone em forma de "engrenagem" ao lado do estágio de maturidade (_alpha_, _beta_ ou _release_) que deseja configurar para gerar a _build_.
 
@@ -30,7 +30,7 @@ No segundo passo o usuário deverá informa o _cluster_ onde será realizado o _
 
 > Atenção! Uma vez que tenha sido realizado o _deploy_ no _cluster_ escolhido, ele **não poderá mais ser alterado**.
 
-Os _clusters_ de _deploy_ de _builds_ podem estar em qualquer local (em Unidades da Embrapa, instituições parceiras ou serviços de _cloud_ terceirizados) e podem utilizar diversas tecnologias de orquestração de _containers_ homologadas para a plataforma. Falamos mais sobre _clusters_ no [capítulo de introdução]({{ site.baseurl }}/docs/introduction) e no tutorial sobre [como configurar e disponibilizar um _cluster_]({{ site.baseurl }}/docs/cluster).
+Os _clusters_ de _deploy_ de _builds_ podem estar em qualquer local (em Unidades da Embrapa, instituições parceiras ou serviços de _cloud_ terceirizados) e podem utilizar diversas tecnologias de orquestração de _containers_ homologadas para a plataforma. Falamos mais sobre _clusters_ no [capítulo de introdução]({{ site.baseurl }}/docs/introduction#cluster) e no tutorial sobre [como configurar e disponibilizar um _cluster_]({{ site.baseurl }}/docs/cluster).
 
 ![Escolha do cluster de deploy da build]({{ site.baseurl }}/assets/img/build/03.png)
 
