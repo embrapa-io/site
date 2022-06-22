@@ -11,6 +11,7 @@ subtitle: Criando e mantendo um boilerplate
 *[DSN]: Data Source Name
 *[SDK]: Software Development Kit
 *[IDE]: Integrated Development Environment
+*[BD]: Banco de Dados
 
 De forma geral, as aplicações da plataforma **embrapa.io** são _forks_ de repositórios pré-existentes denominados _boilerplates_. Estes respositórios são aplicações funcionais, em determinada linguagem de programação ou _framework_, já estruturadas para funcionar corretamente nos _pipelines_ e processos de DevOps da plataforma. A ideia é fomentar a padronização e o reuso de código-fonte. Neste tutorial veremos como configurar corretamente um novo _boilerplate_ para distribuí-lo no catálogo da plataforma, de modo a possibilitar que outras equipes de desenvolvimento de ativos digitais possam fazer uso.
 
@@ -18,12 +19,13 @@ Para criar e disponibilizar seu _boilerplate_, você precisará seguir os seguin
 
 1. [Crie uma "aplicação-base"](#base);
 2. [Integre ao _error tracking_](#bug);
-3. [Utilize as _keywords_ de customização](#keyword);
-4. [Conteinerize seu _boilerplate_](#docker);
-5. [Configure os metadados](#metadata); e
-6. [Distribua o _boilerplate_](#publish).
+3. [Crie os arquivos de _environment variables_](#env);
+4. [Utilize as _keywords_ de customização](#keyword);
+5. [Conteinerize seu _boilerplate_](#docker);
+6. [Configure os metadados](#metadata); e
+7. [Distribua o _boilerplate_](#publish).
 
-É possível [criar um repositório de aplicação]({{ site.baseurl }}/docs/app) sem utilizar um _boilerplate_. Esta função é útil para instanciar na plataforma sistemas que antecedem o próprio **embrapa.io**. Entretanto, será necessário criar manualmente um repositório no [GitLab](https://git.embrapa.io) e adaptar seu código fonte de forma que ele tenha **toda a estrutura de pastas e arquivos requeridos para um _boilerplate_** (ou seja, seguir os mesmos passos acima). Em seguida, no momento de criar a aplicação pela _dashboard_, selecione a opção de um "repositório pré-existente" (conforme a imagem abaixo).
+É possível [criar um repositório de aplicação]({{ site.baseurl }}/docs/app) sem utilizar um _boilerplate_. Esta função é útil para instanciar na plataforma sistemas que antecedem o próprio **embrapa.io**. Entretanto, será necessário criar manualmente um repositório no [GitLab](https://git.embrapa.io) e adaptar seu código fonte de forma que ele tenha **toda a estrutura de pastas e arquivos requeridos para um _boilerplate_** (ou seja, seguir os mesmos passos aqui descritos). Em seguida, no momento de criar a aplicação pela _dashboard_, selecione a opção de um "**repositório pré-existente**" (conforme a imagem abaixo).
 
 ![Criando uma aplicação sem o boilerplate]({{ site.baseurl }}/assets/img/boilerplate/01.png)
 
@@ -45,7 +47,9 @@ Caso esteja desenvolvendo o _boilerplate_ para uma **API Web**, comprometa-se em
 
 ## 2. Integre ao _error tracking_ {#bug}
 
-Conforme [já detalhado anteriomente]({{ site.baseurl }}/docs/bug), a plataforma **embrapa.io** é integrada à ferramenta [Sentry](https://sentry.io), de _error tracking_. Assim, no momento em que uma aplicação é criada pela [_dashboard_ da plataforma](https://dashboard.embrapa.io), o [autômato _Genesis_]({{ site.baseurl }}/docs/architecture#genesis) cria a entidade correlata na ferramenta Sentry. Pela _dashboard_ será então possível à equipe de desenvolvimento do ativo obter o DSN de _error tracking_.
+Conforme [já detalhado anteriomente]({{ site.baseurl }}/docs/bug), a plataforma **embrapa.io** é integrada à ferramenta [Sentry](https://sentry.io), de _error tracking_. Assim, no momento em que um projeto ou uma aplicação é criada pela [_dashboard_ da plataforma](https://dashboard.embrapa.io), o [autômato _Genesis_]({{ site.baseurl }}/docs/architecture#genesis) cria a entidade correlata na ferramenta Sentry e atribui a equipe. Pela _dashboard_ será então possível à equipe de desenvolvimento do ativo obter o DSN de _error tracking_.
+
+![Acesso ao DSN pelo card da aplicação]({{ site.baseurl }}/assets/img/bug/02.png)
 
 Para que funcione corretamente, será necessário preparar o _boilerplate_ para o Sentry. Este possui SDKs específicos para [diversas linguagens e arcabouços de programação](https://docs.sentry.io/platforms/). Por exemplo, para utilizar em um PWA em VueJS o seguinte trecho de código foi adicionado ao _bootstrap_ da aplicação:
 
@@ -68,9 +72,48 @@ Sentry.init({
 })
 ```
 
-Dentre as variáveis de ambiente acima, o **DSN**, a **versão da _build_** (no atributo `release`) e o **estágio de maturidade** (no atributo `environment`) são injetados em tempo de _deploy_ pela plataforma. A _keyword_ `%GENESIS_PROJECT_UNIX%` é alterada pelo autômato _Genesis_ no momento do provisionamento da aplicação a partir do _boilerplate_.
+Dentre as variáveis de ambiente acima, o **DSN**, a **versão da _build_** (no atributo `release`) e o **estágio de maturidade** (no atributo `environment`) [são injetados em tempo de _deploy_ pela plataforma](#env). A _keyword_ `%GENESIS_PROJECT_UNIX%` é [alterada pelo autômato _Genesis_ no momento do provisionamento da aplicação a partir do _boilerplate_](#keyword).
 
-## 3. Utilize as _keywords_ de customização {#keyword}
+## 3. Crie os arquivos de _environment variables_ {#env}
+
+Na plataforma as aplicações são parametrizadas por meio de **variáveis de ambiente**, que são injetadas diretamente durante os processos automatizados (_validate_, _deploy_, _backup_, _restart_, etc). Os principais arquivos utilizados são:
+
+- `.env.ci`: é injetado diretamente na chamada de linha de comando e, portanto, as variáveis neste arquivo terão precedência sobre todas as demais;
+- `.env.cli`: substitui o arquivo acima quando são chamados serviços do tipo CLI (`test`, `sanitize`, `backup` ou `restore`); e
+- `.env`: é carregado pelo Docker Compose ([veja abaixo](#docker)) a partir da raiz da aplicação.
+
+Estes arquivos, portanto, são gerados pela plataforma e **não devem constar no _boilerplate_**. Ao invés disso, devem estar listados no arquivo `.gitignore` de forma a <u>não serem versionados pelo GIT</u>. Assim, para disponibilização junto ao _boilerplate_, é recomendado criar os arquivos acima, porém com o sufixo `.example` (estes sim versionados pelo GIT). Desta forma, os desenvolvedores que utilizarem o _boilerplate_ iniciarão a customização da aplicação copiando e renomeando estes arquivos para remover o sufixo.
+
+As variáveis que compõem o arquivo `.env.ci.example` são:
+
+```bash
+SERVER=localhost
+STAGE=development
+COMPOSE_PROJECT_NAME=%GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%
+COMPOSE_PROFILES=development
+ENVIRONMENT=development
+VERSION=%GENESIS_VERSION%
+DEPLOYER=first.surname@embrapa.br
+SENTRY_DSN=GET_IN_DASHBOARD
+```
+
+Acima as variáveis estão sendo setadas com valores propícios ao ambiente de desenvolvimento. Repare na presença de _keywords_ (entre os caracteres '**%**'), que serão explicadas em seguida. Ao copiar e renomear o arquivo (retirando o sufixo `.example`) o desenvolvedor precisará ajustar estes valores, tal como [inserir o DSN correto no Sentry]({{ site.baseurl }}/docs/bug).
+
+As variáveis do arquivo `.enc.cli.example` serão idênticas às acima, com a exceção da variável `COMPOSE_PROFILES`, que deverá ser setada com o valor `cli`.
+
+As variáveis do arquivo `.env.example` deverão ser as mesmas que são pré-carregadas para a [configuração da _build_]({{ site.baseurl }}/docs/build). Isto será explicado mais adiante, no [passo de configuração dos metadados](#metadata). A equipe de criação do _boilerplate_ irá definir quais variáveis serão estas. Para fins de exemplificação, considere as seguintes variáveis do _boilerplate_ do [WordPress](https://br.wordpress.org/):
+
+```bash
+PORT=8081
+DB_ROOT_PASSWD=secret
+DB_PASSWD=secret
+DATA_WP=%GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%_wp
+BACKUP=%GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%_backup
+WP_DEBUG=true
+WP_ALLOW_MULTISITE=false
+```
+
+## 4. Utilize as _keywords_ de customização {#keyword}
 
 De forma a permitir ao [autômato _Genesis_]({{ site.baseurl }}/docs/architecture#genesis) realizar a customização de alguns aspectos da aplicação, são disponibilizadas algumas palavras-chave de uso reservado (_keywords_) que são substiuídas no momento do provisionamento a partir do _boilerplate_. São elas:
 
@@ -80,15 +123,15 @@ De forma a permitir ao [autômato _Genesis_]({{ site.baseurl }}/docs/architectur
 - `%GENESIS_ACTUAL_YEAR%`: Ano atual, com 4 dígitos; e
 - `%GENESIS_VERSION%`: Um número de versão fictício, no padrão "`0.YY.MM-dev.1`".
 
-Você pode optar por utilizar ou não estas _keywords_ no seu _boilerplate_. O autômato irá substituí-las em todos os arquivos não-ocultos (com exceção dos arquivos `.env.example` e `.env.ci.example`, onde também serão substituídas).
+Você pode optar por utilizar ou não estas _keywords_ no seu _boilerplate_. O autômato irá substituí-las em todos os arquivos não-ocultos (com exceção dos arquivos `.env.example`, `.env.ci.example` e `.env.cli.example`, onde também serão substituídas).
 
-## 4. Conteinerize seu _boilerplate_ {#docker}
+## 5. Conteinerize seu _boilerplate_ {#docker}
 
 Normalmente, no próprio site da linguagem ou arcabouço de desenvolvimento utilizado há documentação sobre como conteinerizar o software desenvolvido utilizando o [Docker](https://www.docker.com). Veja como exemplo o tutorial "[_Dockerize Vue.js App_](https://v2.vuejs.org/v2/cookbook/dockerize-vuejs-app.html)" na documentação oficial do VueJS.
 
-Algumas vezes, em ambiente de desenvolvimento, pode ser preferível não utilizar containers, porém para tornar a aplicação derivada do _boilerplate_ apta ao _deploy_ na plataforma, será necessário conteinerizar. Claro, <u>isto não se aplica a aplicações que naturalmente não serão distribuídas na Web</u>, tal como código nativo para Google Android (em Kotlin ou Java), código nativo para Apple iOS (em Swift ou Objective-C) ou artefatos de software especializados encapsulados em pacotes para gerenciadores de dependência, como citado anteriormente.
+Algumas vezes, em ambiente de desenvolvimento, pode ser preferível não utilizar containers, porém para tornar a aplicação derivada do _boilerplate_ apta ao _deploy_ na plataforma, será necessário conteinerizar. Claro, <u>isto não se aplica a aplicações que naturalmente não serão distribuídas na Web</u>, tal como código nativo para Google Android (em Kotlin ou Java), código nativo para Apple iOS (em Swift ou Objective-C) ou artefatos de software especializados encapsulados em pacotes para gerenciadores de dependência, [como citado anteriormente](#base).
 
-A plataforma **embrapa.io** é agnóstica quanto ao orquestrador de containers em nuvem, [podendo trabalhar com diversas soluções]({{ site.baseurl }}/docs/cluster). Mas padroniza o ambiente local de desenvolvimento com o uso de [Docker Compose](https://docs.docker.com/compose/), sendo este também é um dos _drivers_ de orquestração em nuvem. Assim, para fins desta documentação, <u>utilizaremos o Docker Compose para exemplificar o processo de contenerização</u>.
+A plataforma **embrapa.io** é agnóstica quanto ao orquestrador de containers em nuvem, [podendo trabalhar com diversas soluções]({{ site.baseurl }}/docs/cluster). Mas padroniza o ambiente local de desenvolvimento com o uso de [Docker Compose](https://docs.docker.com/compose/), sendo este também um dos _drivers_ de orquestração em nuvem. Assim, para fins desta documentação, <u>utilizaremos o Docker Compose para exemplificar o processo de contenerização</u>.
 
 Conforme comentado previamente no [capítulo de introdução]({{ site.baseurl }}/docs/introduction#boilerplate), existem alguns serviços que precisam ser disponibilizados no _stack_ de containers da aplicação: _backup_, _restore_, _sanitize_ e _test_. Para entender melhor o papel de cada um, observe o arquivo `docker-compose.yaml` de um _boilerplate_ para instanciar o [WordPress](https://br.wordpress.org/):
 
@@ -216,7 +259,19 @@ volumes:
     external: true
 ```
 
-## 5. Configure os metadados {#metadata}
+Observe que as variáveis de ambiente utilizadas acima são as mesmas injetadas pelos arquivos `.env` e `.env.ci`, [nos exemplos discutidos anteriormente](#env). Os serviços que serão chamados por linha de comando (`test`, `sanitize`, `backup` e `restore`) possuem o `profile: [ 'cli' ]`, indicando que serão carregados apenas quando o arquivo `.env.cli` for utilizado (onde é passado, especificamente, `COMPOSE_PROFILES=cli`). Um exemplo de chamada destes serviços seria portanto:
+
+```
+env $(cat .env.cli) docker-compose run --rm --no-deps backup
+```
+
+Quando for realizado o _deploy_ do _stack_ de containers, todos os demais serviços "não-CLI" serão carregados. Mais especificamente, o [autômato _Deployer_]({{ site.baseurl }}/docs/architecture#deployer) irá injetar as variáveis do arquivo `.env.ci` alterando conforme o _environment_. Assim, caso se trate de uma _build_ em estágio _alpha_ o `COMPOSE_PROFILES` terá o valor `alpha`. Isto possibilita que o usuário carregue determinados serviços apenas em determinados ambientes. Por exemplo, pode ser interessante ao desenvolvedor carregar a ferramenta [phpMyAdmin](https://www.phpmyadmin.net) para auditar seu BD quando a aplicação estiver em estágio _alpha_ ou _beta_, mas não (por questão de segurança) quando estiver em estágio _release_.
+
+É fortemente recomendado que todos os serviços "não-CLI" tenham o atributo de `healthcheck` devidamente configurado. Este atributo permite que [as aplicações sejam monitoradas]({{ site.baseurl }}/docs/health), agregando informação à [dashboard da plataforma](https://dashboard.embrapa.io). O atributo `restart` destes serviços deve estar setado para `unless-stopped`, de forma a garantir maior resiliência da aplicação.
+
+É muito importante que os **volumes** sejam configurados corretamente. Para uso com o _driver_ do Docker Compose, o autômato _Deployer_ da plataforma executa uma série de validações. Dentre elas, somente são aceitos volumes configurados com o atributo `external` igual à `true`.
+
+## 6. Configure os metadados {#metadata}
 
 Todo _boilerplate_ e, consequentemente, toda aplicação na plataforma **embrapa.io** possui um diretório na raiz denominado `.embrapa`.
 
@@ -240,6 +295,6 @@ No atributo ```icon``` os valores permitidos são:
 <li class="cell"><i class="fa-brands fa-vuejs"></i><div class="subtile">fa-brands<br />fa-vuejs</div></li>
 <li class="cell"><i class="fa-brands fa-wordpress"></i><div class="subtile">fa-brands<br />fa-wordpress</div></li>
 
-## 6. Distribua o _boilerplate_ {#publish}
+## 7. Distribua o _boilerplate_ {#publish}
 
 ...
