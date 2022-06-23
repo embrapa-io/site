@@ -38,7 +38,6 @@ SERVER=cluster.sede.embrapa.br
 STAGE=alpha
 COMPOSE_PROJECT_NAME=pbc_mobile_alpha
 COMPOSE_PROFILES=alpha
-ENVIRONMENT=test
 VERSION=2.22.5-alpha.5
 DEPLOYER=camilo@carromeu.com
 
