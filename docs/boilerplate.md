@@ -14,6 +14,8 @@ subtitle: Criando e mantendo um boilerplate
 *[BD]: Banco de Dados
 *[BDs]: Bancos de Dados
 *[PaaS]: Platform as a Service
+*[UI]: User Interface
+*[GPL]: General Public License
 
 De forma geral, as aplicações da plataforma **embrapa.io** são _forks_ de repositórios pré-existentes denominados _boilerplates_. Estes respositórios são aplicações funcionais, em determinada linguagem de programação ou _framework_, já estruturadas para funcionar corretamente nos _pipelines_ e processos de DevOps da plataforma. A ideia é fomentar a padronização e o reuso de código-fonte. Neste tutorial veremos como configurar corretamente um novo _boilerplate_ para distribuí-lo no catálogo da plataforma, de modo a possibilitar que outras equipes de desenvolvimento de ativos digitais possam fazer uso.
 
@@ -25,8 +27,9 @@ Para criar e disponibilizar seu _boilerplate_, você precisará seguir os seguin
 4. [Utilize as _keywords_ de customização](#keyword);
 5. [Conteinerize seu _boilerplate_](#docker);
 6. [Implemente os "serviços-padrões"](#cli): [_test_](#cli:test), [_backup_](#cli:backup), [_restore_](#cli:restore) e [_sanitize_](#cli:sanitize);
-7. [Configure os metadados](#metadata); e
-8. [Distribua o _boilerplate_](#publish).
+7. [Configure os metadados](#metadata);
+8. [Documente e inclua a licença](#readme); e
+9. [Distribua o _boilerplate_](#publish).
 
 É possível [criar um repositório de aplicação]({{ site.baseurl }}/docs/app) sem utilizar um _boilerplate_. Esta função é útil para instanciar na plataforma sistemas que antecedem o próprio **embrapa.io**. Entretanto, será necessário criar manualmente um repositório no [GitLab](https://git.embrapa.io) e adaptar seu código fonte de forma que ele tenha **toda a estrutura de pastas e arquivos requeridos para um _boilerplate_** (ou seja, seguir os mesmos passos aqui descritos). Em seguida, no momento de criar a aplicação pela _dashboard_, selecione a opção de um "**repositório pré-existente**" (conforme a imagem abaixo).
 
@@ -409,9 +412,27 @@ Repare que no "**3º Passo - Volumes**", mostrado na imagem acima, a listagem de
 
 Por fim, o atributo `orchestrators` lista os **orquestradores para os quais o _boilerplate_ está homologado**. Cada orquestrador irá exigir parâmetros específicos para permitir o _deploy_ das aplicações. Por exemplo, para que o _boilerplate_ esteja aderente ao [Kubernetes](https://kubernetes.io/pt-br/), espera-se que exista um diretório "`.embrapa/k8s`" contendo os arquivos de configuração necessários. A equipe mantenedora do _boilerplate_ deve, na medida do possível, configurá-lo e homologá-lo na maior quantidade possível de orquestradores aceitos pela plataforma **embrapa.io**.
 
-## 8. Distribua o _boilerplate_ {#publish}
+## 8. Documente e inclua a licença {#readme}
 
-Para distribuir o _boilerplate_ para uso pela comunidade de desenvolvedores, será necessário disponibilizá-lo no grupo de repositórios `/io/boilerplate` do [GitLab da plataforma](https://git.embrapa.io). Além disso, ele deverá constar e estar ativo na [listagem de _boilerplates_](http://localhost:8029/io/boilerplate/metadata/-/blob/main/boilerplates.json). Para ser inserido na listagem, os mantenedores precisarão passar para a [equipe de suporte do **embrapa.io**](mailto:io@embrapa.br) o nome _unix_ do _boilerplate_, um nome legível (rótulo), uma breve descrição (de uma linha) e um ícone que melhor represente as tecnologias utilizadas. Atualmente, os ícones permitidos são:
+É **extremamente importante** que, na raiz do repositório do _boilerplate_, tenha os arquivos `README.md` e `LICENSE`. O `README.md` conterá a documentação do _boilerplate_ voltada para os **usuários desenvolvedores**. Ou seja, os usuários que irão derivar seu código-fonte para criar as aplicações finais. Existem [modelos e _templates_](https://github.com/othneildrew/Best-README-Template) de uso livre que podem auxiliar nesta documentação. Neste arquivo estarão presentes informações sobre o _boilerplate_, tal como:
+
+- _prints_ das telas, caso ele possua uma UI;
+- as funcionalidades pré-implementadas, que são normalmente requisitos não-funcionais para as aplicações derivadas;
+- as tecnologias utilizadas, tal como a linguagem de programação (e sua versão), _frameworks_, bibliotecas, pacotes, etc;
+- uma seção de _Getting Started_, onde são listados os pré-requisitos e como realizar a instalação;
+- exemplos de uso do _boilerplate_ e de customizações possíveis;
+- um _roadmap_ com a lista do que já está implementado e de um eventual _backlog_;
+- o passo-a-passo de como os usuários podem participar da equipe de mantenedores do _boilerplate_;
+- informações de contato dos membros mantenedores; e
+- uma seção de referências para documentação externa dos principais componentes e material de apoio.
+
+Já no arquivo `LICENSE` estará presente a licença de uso e derivação do _boilerplate_ em si. É fundamental que esta licença seja de código-aberto e extremamente permissiva, de forma a não "contaminar" a aplicação derivada. Por exemplo, é indesejável o uso de uma licença do tipo GNU GPL v3, uma vez que ela obriga todo código-fonte derivado a ter a mesma licença do original (e, desta forma, ser também _opern source_). Como muitas aplicações aspiram a produtos com apelo mercadológico, o uso do _boilerplate_ seria impossibilitado. Falamos mais sobre este assunto no [capítulo de licenciamento]({{ site.baseurl }}/docs/licensing).
+
+Assim, como sugestão, recomendamos fortemente o uso da [licensa MIT](https://mit-license.org) em todo _boilerplate_ desenvolvido.
+
+## 9. Distribua o _boilerplate_ {#publish}
+
+Para distribuir o _boilerplate_ para uso pela comunidade de desenvolvedores, será necessário disponibilizá-lo no grupo de repositórios `/io/boilerplate` do [GitLab da plataforma](https://git.embrapa.io), onde estará **visível publicamente para todos os usuários**. Além disso, ele deverá constar e estar ativo no [catálogo de _boilerplates_](http://localhost:8029/io/boilerplate/metadata/-/blob/main/boilerplates.json). Para ser inserido na listagem, os mantenedores precisarão passar para a [equipe de suporte do **embrapa.io**](mailto:io@embrapa.br) o **nome _unix_** do _boilerplate_, um **nome legível** (rótulo), uma **breve descrição** (de uma linha) e um **ícone** que melhor represente as tecnologias utilizadas. Atualmente, os ícones permitidos são:
 
 <li class="cell"><i class="fa-brands fa-android"></i><div class="subtile">fa-brands<br />fa-android</div></li>
 <li class="cell"><i class="fa-brands fa-angular"></i><div class="subtile">fa-brands<br />fa-angular</div></li>
@@ -428,3 +449,7 @@ Para distribuir o _boilerplate_ para uso pela comunidade de desenvolvedores, ser
 <li class="cell"><i class="fa-brands fa-react"></i><div class="subtile">fa-brands<br />fa-react</div></li>
 <li class="cell"><i class="fa-brands fa-vuejs"></i><div class="subtile">fa-brands<br />fa-vuejs</div></li>
 <li class="cell"><i class="fa-brands fa-wordpress"></i><div class="subtile">fa-brands<br />fa-wordpress</div></li>
+
+**Parabéns!** 🥳 Tendo seguido estes passos você disponibilizou um novo _boilerplate_ que poderá ser utilizado pela comunidade **embrapa.io** no desenvolvimento de ativos digitais para a agropecuária.
+
+> **Obrigado pela sua contribuição!** <span style="font-style: normal;">🤗</span>
