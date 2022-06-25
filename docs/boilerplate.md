@@ -403,6 +403,7 @@ As variáveis definidas podem ser de cinco tipos:
 - **SECRET**: Utilizado para armazenar **chaves privadas**. Uma sequência de caracteres livre, porém **sem espaços** (`/^[^\s]*$/`). Caso não seja passado um valor padrão (atributo `value`), será atribuída uma _string_ randômica (`/^[a-zA-Z0-9]{256}$/`).
 - **PORT**: Utilizado para armazenar as **portas expostas publicamente** da aplicação. O valor desta variável será setado na [configuração da _build_]({{ site.baseurl }}/docs/build) considerando as portas vagas do _cluster_ escolhido para _deploy_.
 - **VOLUME**: Utilizado para referenciar os **volumes** da aplicação. Os valores inseridos aqui seerão utilizados na [configuração da _build_]({{ site.baseurl }}/docs/build), no passo de definição de volumes, para preencher automaticamente a lista dos volumes da aplicação.
+- **EMPTY**: Força o uso de uma _string_ vazia como valor da variável. Útil para desabilitar variáveis em determinados ambientes de _deploy_.
 
 ![Volumes pré-configurados a partir das variáveis de ambiente]({{ site.baseurl }}/assets/img/boilerplate/03.png)
 
