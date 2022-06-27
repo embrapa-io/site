@@ -31,4 +31,5 @@ subtitle: Prefácio da documentação técnica.
 ## Avançado
 
 - [Criando e mantendo um _boilerplate_]({{ site.baseurl }}/docs/boilerplate)
+- [Propondo melhorias a um _boilerplate_]({{ site.baseurl }}/docs/merge)
 - [Configurando e disponibilizando um _cluster_]({{ site.baseurl }}/docs/cluster)
