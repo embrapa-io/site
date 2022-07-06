@@ -4,17 +4,17 @@ title: Deploy
 subtitle: Fazendo o deploy da build no ambiente remoto
 ---
 
-Uma vez que a configuração da _build_ tenha sido validada com sucesso, ela está apta a entrar na fila de _deploy_ para ser instanciada no servidor remoto. Para o _deploy_ não é necessário utilizar a [_dashboard_ da plataforma](https://dashboard.embrapa.io), sendo o processo executado diretamente pelo GIT. Conforme já visto, quando uma nova aplicação é adicionada na plataforma são criadas 4 (quatro) _branches_ em seu repositório GIT: _main_, _alpha_, _beta_ e _release_. Como detalhado no [capítulo de introdução]({{ site.baseurl }}/docs/introduction#build), a _branch_ denominada "_main_" é o tronco (_trunk_) do repositório. As outras três _branches_ são utilizadas pela o _deploy_ de cada um dos estágios de maturidade da aplicação.
+Uma vez que a configuração da _build_ tenha sido validada com sucesso, ela está apta a entrar na fila de _deploy_ para ser instanciada no servidor remoto. Para o _deploy_ não é necessário utilizar a [_dashboard_ da plataforma](https://dashboard.embrapa.io), sendo o processo executado diretamente pelo [GitLab](https://git.embrapa.io) ou pelo cliente GIT de sua preferência. Conforme já visto, quando uma nova aplicação é adicionada na plataforma são criadas 4 (quatro) _branches_ em seu repositório GIT: _main_, _alpha_, _beta_ e _release_. Como detalhado no [capítulo de introdução]({{ site.baseurl }}/docs/introduction#build), a _branch_ denominada "_main_" é o tronco (_trunk_) do repositório. As outras três _branches_ são utilizadas pela o _deploy_ de cada um dos estágios de maturidade da aplicação.
 
 Assim, em linhas gerais, para realizar o _deploy_ de uma _build_, bastará ao desenvolvedor realizar o _merge_ da _branch_ "_main_" para a _branch_ do estágio de maturidade da _build_ e, em seguida, criar um _tag_ com o número de versão da _build_.
 
 > **Atenção!** A _tag_ com o número de versão da _build_ deve ser criada a partir da _branch_ de estágio de maturidade (_alpha_, _beta_ ou _release_).
 
-A plataforma é criteriosa quanto ao formato do número de versão da _tag_. Já explicamos a sintaxe do número de versão no [capítulo de introdução]({{ site.baseurl }}/docs/introduction#version). Caso a versão não esteja no formato requerido ou a _tag_ não seja originária da _branch_ de estágio de maturidade correlato, o _deploy_ **não** será realizado.
+A plataforma é criteriosa quanto ao formato do número de versão da _tag_. Já explicamos a sintaxe do número de versão no [capítulo de introdução]({{ site.baseurl }}/docs/introduction#version). Caso a versão não esteja no formato requerido ou a _tag_ não seja originária da _branch_ de estágio de maturidade correlato, o _deploy_ **não será realizado**.
 
 ![Realizando o deploy de uma versão de build]({{ site.baseurl }}/assets/img/deploy/01.gif)
 
-Ao fazer o _push_ da _tag_ para a _origin_, o autômato irá detectar a nova versão iniciar o processo de _deploy_ no ambiente. Este processo envolve as seguintes etapas:
+Ao fazer o _push_ da _tag_ para a _origin_, o autômato irá detectar a nova versão e iniciar o processo de _deploy_ no ambiente. Este processo envolve as seguintes etapas:
 
 1. Validação da _build_ na versão específica;
 2. Criação dos _volumes_ no servidor de _storage_;
@@ -70,7 +70,7 @@ INFO > The following PORTs have been exposed:
 https://cluster.sede.embrapa.br:49155 [https://test.sede.embrapa.br/pbc]
 ```
 
-Pela [dashboard da plataforma](https://dashboard.embrapa.io) todos os membros da equipe podem acompanhar as versões instanciadas de cada _build_. Pelo _card_ é possível também acessar a instância por meio dos links para as portar expostas publicamente.
+Pela [dashboard da plataforma](https://dashboard.embrapa.io) todos os membros da equipe podem acompanhar as versões instanciadas de cada _build_. Pelo _card_ é possível também acessar a instância por meio dos links para as portas expostas publicamente.
 
 ![Card da app com informações das versões das builds instanciadas]({{ site.baseurl }}/assets/img/deploy/02.png)
 

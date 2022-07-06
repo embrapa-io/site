@@ -10,11 +10,11 @@ Assim, para iniciar o planejamento do desenvolvimento, é recomendado estabelece
 
 ![Criação de um milestone]({{ site.baseurl }}/assets/img/kanban/01.png)
 
-As _issues_ que serão registradas para este _milestone_ são organizadas por meio de rótulos (_labels_). Quando um novo projeto é criado na plataforma, é atribuído um conjunto inicial de _labels_. Dentre elas, algumas _labels_ irão formar a _board_ do projeto, que popssíbilitará acompanhar a evolução das _issues_ de seu registro no _backlog_ até a conclusão.
+As _issues_ que serão registradas para este _milestone_ são organizadas por meio de rótulos (_labels_). Quando um novo projeto é criado na plataforma, é atribuído um conjunto inicial de _labels_. Dentre elas, algumas _labels_ irão formar a _board_ do projeto, que possibilitará acompanhar a evolução das _issues_ de seu registro no _backlog_ até a conclusão.
 
 ![Board do projeto]({{ site.baseurl }}/assets/img/kanban/02.png)
 
-Na _board_ do projeto mostrada na figura acima existem 6 (seis) colunas. São elas:
+Na _board_ do projeto, mostrada na figura acima, existem 6 (seis) colunas. São elas:
 
 1. **_Open_:** Esta é a coluna de _backlog_ do projeto e nela são registradas todas as demandas do projeto (que podem ou não ser atendidas). Existem dois _labels_ disponíveis para qualificar estas demandas: _Bug_ e _Request_.
 2. **_To Do_:** Quando a _issue_ sai da coluna de _backlog_ para esta coluna significa que ela será executada. É necessário, portanto, atribuir esta _issue_ a um _milestone_ aberto, atribuir um responsável da equipe pela execução e determinar o prazo limite.
