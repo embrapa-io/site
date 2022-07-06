@@ -16,7 +16,7 @@ Uma vez que a **aplicação** tenha sido criada, já será possível configurar 
 
 ![Iniciar a configuração de uma build]({{ site.baseurl }}/assets/img/build/01.png)
 
-#### Passo 1: _Disclaimer_ {#disclaimer}
+### Passo 1: _Disclaimer_ {#disclaimer}
 
 O _wizard_ de configuração da _build_ tem 6 (seis) passos nos quais o usuário deverá preencher informações requeridas. O primeiro é o _disclaimer_, o qual o mantenedor do projeto deverá estar ciente.
 
@@ -24,17 +24,17 @@ O _wizard_ de configuração da _build_ tem 6 (seis) passos nos quais o usuário
 
 Repare que no **canto superior direito** do _dialog_ do _wizard_ é indicado o nome da _build_ que está sendo configurada.
 
-#### Passo 2: _Cluster_ {#cluster}
+### Passo 2: _Cluster_ {#cluster}
 
 No segundo passo o usuário deverá informa o _cluster_ onde será realizado o _deploy_ desta _build_ da aplicação.
 
 > Atenção! Uma vez que tenha sido realizado o _deploy_ no _cluster_ escolhido, ele **não poderá mais ser alterado**.
 
-Os _clusters_ de _deploy_ de _builds_ podem estar em qualquer local (em Unidades da Embrapa, instituições parceiras ou serviços de _cloud_ terceirizados) e podem utilizar diversas tecnologias de orquestração de _containers_ homologadas para a plataforma. Falamos mais sobre _clusters_ no [capítulo de introdução]({{ site.baseurl }}/docs/introduction#cluster) e no tutorial sobre [como configurar e disponibilizar um _cluster_]({{ site.baseurl }}/docs/cluster).
+Os _clusters_ de _deploy_ de _builds_ podem estar em qualquer local (em Unidades da Embrapa, instituições e empresas parceiras ou serviços de _cloud_ terceirizados) e podem utilizar diversas tecnologias de orquestração de _containers_ homologadas para a plataforma. Falamos mais sobre _clusters_ no [capítulo de introdução]({{ site.baseurl }}/docs/introduction#cluster) e no tutorial sobre [como configurar e disponibilizar um _cluster_]({{ site.baseurl }}/docs/cluster).
 
 ![Escolha do cluster de deploy da build]({{ site.baseurl }}/assets/img/build/03.png)
 
-#### Passo 3: _Volumes_ {#volumes}
+### Passo 3: _Volumes_ {#volumes}
 
 Um _volume_ é uma **área de armazenamento independente** utilizada pelas aplicações para persistir dados criados em tempo de execução. Um exemplo comum são arquivos de _upload_ enviados para uma aplicação web. Nos _clusters_ estas áreas serão criadas em servidores do tipo _storage_, específicos para armazenar grandes quantidades de dados.
 
@@ -42,7 +42,7 @@ Ao acessar pela primeira vez este passo na configuração da _build_, a platafor
 
 ![Configuração dos volumes da build]({{ site.baseurl }}/assets/img/build/04.png)
 
-#### Passo 4: _Environment Variables_ {#variables}
+### Passo 4: _Environment Variables_ {#variables}
 
 Neste passo o usuário irá configurar as **variáveis de ambiente** da _build_. Da mesma forma que ocorre em _volumes_, aqui serão pré-carregadas "variáveis iniciais", proposta pela [equipe mantenedora do _boilerplate_]({{ site.baseurl }}/docs/boilerplate). O usuário poderá então remover, alterar e criar novas variáveis.
 
@@ -59,21 +59,31 @@ As variáveis de ambiente podem ser de 6 (seis) tipos:
 
 ![Configurando uma porta da aplicação como variável de ambiente]({{ site.baseurl }}/assets/img/build/06.png)
 
-#### Passo 5: _URLs_ {#urls}
+### Passo 5: _URLs_ {#urls}
 
 Quando é realizado o _deploy_ da _build_, o autômato de _deploy_ checa as portas válidas e as "expõe" publicamente no _cluster_. Assim, todas as variáveis do tipo ```PORT``` configuradas no passo anterior estarão acessíveis pelo domínio do _cluster_. Por exemplo, se o _cluster_ escolhido for ```cluster.cnpgc.embrapa.br``` e no passo anterior o usuário tiver configurado as portas ```55123``` para uma aplicação Web e ```55789``` para conexão com o banco de dados MySQL, a aplicação na _build_ estará disponível publicamente em ```http://cluster.cnpgc.embrapa.br:55123``` e os usuários poderão acessar diretamente o banco de dados MySQL da aplicação por meio do _host_ ```cluster.cnpgc.embrapa.br``` na porta ```55789```.
 
 > **Atenção!** Apesar de possível, não é indicado expor portas de serviços internos ao _container_, pois isto pode trazer riscos à segurança da aplicação.
 
-Neste passo é possível atribuir à aplicação URLs mais "amigáveis", com certificado SSL e semanticamente aderentes à sua finalidade. Há duas formas de fazer isso:
+Neste passo é possível atribuir à aplicação URLs mais "amigáveis", com certificado SSL e semanticamente aderentes à sua finalidade. Há três formas de fazer isso:
 
-- **URLs Auto-Geradas:** São subdomínio pré-conigurados no _cluster_ de _deploy_ da _build_, aos quais as portas expostas da aplicação podem ser mapeadas em _subpaths_. Por exemplo, no _cluster_ ```cluster.cnpgc.embrapa.br``` poderíamos ter o subdomínio ```api.cnpgc.embrapa.br``` configurado. Caso esteja fazendo a configuração de uma aplicação denominada, por exemplo, "**pasto-certo/backend**", que é a API do aplicativo Pasto Certo, o usuário poderia configurar uma URL ```https://api.cnpgc.embrapa.br/pasto-certo``` apontando para a o _host_ real na porta exposta. É importante ressaltar que os subdomínios são configurados em cada _cluster_ para cada estágio de maturidade, então um subdomínio disponível para as _builds_ em estágio de _release_ não estará disponível para os demais estágios (_alpha_ e _beta_). Os subdomínios são [configurados pela equipe mantenedora do _cluster_]({{ site.baseurl }}/docs/cluster).
+- **Subdomínio Auto-Gerado:** Todo _cluster_ na plataforma **embrapa.io** possui, para cada estágio de maturidade, uma coleção de domínios pré-configurados. Estes domínios têm por finalidade agregar valor semântico às URLs em que as aplicações são expostas. Por exemplo, no _cluster_ `cluster.cnpgc.embrapa.br` poderíamos ter o subdomínio `api.cnpgc.embrapa.br` pré-configurado. Caso esteja fazendo a configuração de uma aplicação denominada, por exemplo, "**pasto-certo/backend**", que é a API do aplicativo Pasto Certo, o usuário poderia configurar uma URL `https://pasto-certo.api.cnpgc.embrapa.br` associada à porta exposta na aplicação. É importante ressaltar que os subdomínios são configurados em cada _cluster_ para cada estágio de maturidade, então um subdomínio disponível para as _builds_ em estágio de _release_ não estará disponível para os demais estágios (_alpha_ e _beta_). Os subdomínios são [configurados pela equipe mantenedora do _cluster_]({{ site.baseurl }}/docs/cluster).
 
 - **URL Externa (_alias_):** Adicionalmente, é possível aos usuários configurarem seus próprios subdomínios em domínios de sua propriedade e apontá-los para as portas expostas da _build_. Para isso, basta ao usuário configurar um ```CNAME``` no DNS do domínio apontando para o host ```router.embrapa.io```. A plataforma irá então gerar os certificados SSL necessários e realizar as configurações necessárias para o roteamento do tráfego.
 
+- **Subpasta Auto-Gerada:** Os subdomínios pré-conigurados no _cluster_ podem ser utilizados também para mapear as portas das aplicações em subpastas (_subpaths_). Assim, como no exemplo acima, caso esteja fazendo a configuração de uma aplicação denominada "**pasto-certo/backend**", que é a API do aplicativo Pasto Certo, o usuário poderia configurar uma URL `https://api.cnpgc.embrapa.br/pasto-certo` associada à porta exposta na aplicação.
+
+> **Atenção!** É necessário ter cuidado ao utilizar subpastas (_subpaths_), pois muitas vezes as aplicações referenciam recursos por meio de caminhos absolutos. Assim, a importação de um JS ou CSS a partir do "/", por exemplo, não irá funcionar de forma automática, precisando ser configurado um `BASE_URL`. Se possível, <u>evite utilizar este tipo de URL par expor suas aplicações</u>.
+
 ![Configurando as URLs da build]({{ site.baseurl }}/assets/img/build/07.png)
 
-#### Passo 6: _Validate_ {#validate}
+No exemplo acima, a aplicação que está implantada no _cluster_ `cluster.embrapa.io` e exposta na porta `49153` estará disponível para acesso nas URLs:
+
+- https://pasto-certo.sandbox.embrapa.io;
+- https://sandbox.pastocerto.com; e
+- https://sandbox.embrapa.io/pasto-certo.
+
+### Passo 6: _Validate_ {#validate}
 
 No último passo o usuário deverá submeter as configurações da _build_ para validação.
 

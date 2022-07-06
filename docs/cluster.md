@@ -115,8 +115,20 @@ Pronto, agora basta montar as configurações em formato JSON e [enviar para a e
 
 Repare que o _cluster_ deve ser configurado especificamente para cada estágio de maturidade da aplicação. Assim, ele pode estar disponível para os estágios _alpha_, _beta_ e/ou _release_, ou seja, não necessariamente para todos. O `host` deverá apontar para o IP real do servidor ou VM. Os atributos `local` e `location` indicam a Unidade da Embrapa, instituição ou empresa e a sua localização geográfica.
 
-O `orchestrator` indica o _driver_ de orquestração que está sendo utilizado. O atributo `storage` contém o _driver_ de _storer_ e atributos relacionados. Por exemplo, para o estágio _alpha_ foi configurado um _storer_ utilizando o _driver_ **local** e, desta forma, os _volumes_ serão criados no diretório `/mnt/storer` indicado no atributo `path`. Já em estágio _beta_ e _release_ está sendo utilizado o _driver_ para **NFSv4** e, desta forma, os _volumes_ serão criados fisicamente no diretório remoto `/mnt/nfs` do _storage_ "storage.facom.ufms.br". Localmente no _cluster_ este diretório remoto será montado em `/mnt/storage.facom.ufms.br`.
+O `orchestrator` indica o _driver_ de orquestração que está sendo utilizado. O atributo `storage` contém o _driver_ de _storer_ e atributos relacionados. Por exemplo, para o estágio _alpha_ foi configurado um _storer_ utilizando o _driver_ `DockerLocal` e, desta forma, os _volumes_ serão criados no diretório `/mnt/storer` indicado no atributo `path`. Já em estágio _beta_ e _release_ está sendo utilizado o _driver_ para **NFSv4** e, desta forma, os _volumes_ serão criados fisicamente no diretório remoto `/mnt/nfs` do _storage_ "storage.facom.ufms.br". Localmente no _cluster_ este diretório remoto será montado em `/mnt/storage.facom.ufms.br`.
 
-Os `aliases` são subdomínios (CNAMEs) configurados pela Unidade, instituição ou empresa. Estes aliases **devem apontar**, necessariamente, para `router.embrapa.io`. Quando devidamente configurados, eles [possibilitarão alocar as aplicações em domínios mais condizentes semânticamente com a sua finalidade]({{ site.baseurl }}/docs/build#urls).
+Os `aliases` são subdomínios configurados pela Unidade da Embrapa, instituição ou empresa parceira que [possibilitam alocar as aplicações em domínios mais condizentes semânticamente com a sua finalidade]({{ site.baseurl }}/docs/build#urls). Estes aliases **devem ser configurados no DNS** da seguinte forma:
 
-Caso o atributo `disabled` sejá setado para `true`, o _cluster_ não aceitará novos _deploys_ naquele estágio específico, porém as _builds_ já instanciadas continuarão a serem geridas normalmente. Por fim, é possível estabelecer grupos diferentes de mantenedores para o _cluster_ em cada estágio de maturidade.
+1. Para cada _alias_, crie um registro do tipo `CNAME` apontando para `router.embrapa.io`; e
+2. Para cada _alias_, crie um _wildcard subdomain_ (registro do tipo `A`) apontando para o **IP** do `router.embrapa.io` (ou seja, `200.202.148.38`).
+
+Assim, para um _alias_ `app.cnpgc.embrapa.br`, teríamos:
+
+```
+Name                      Type     Value
+----------------------    -----    -----------------
+app.cnpgc.embrapa.br      CNAME    router.embrapa.io
+*.app.cnpgc.embrapa.br    A        200.202.148.38
+```
+
+Caso o atributo `disabled` sejá setado para `true`, o _cluster_ não aceitará novos _deploys_ naquele estágio específico, porém as _builds_ já instanciadas continuarão sendo geridas normalmente (inclusive recebendo _deploys_ de novas _tags_). Por fim, é possível estabelecer grupos diferentes de mantenedores para o _cluster_ em cada estágio de maturidade.
