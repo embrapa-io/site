@@ -7,13 +7,13 @@ subtitle: Prefácio da documentação técnica.
 ## Prólogo
 
 - [Introdução]({{ site.baseurl }}/docs/introduction)
-- [Arquitetura]({{ site.baseurl }}/docs/architecture)
-- [_Squads_ de Desenvolvimento]({{ site.baseurl }}/docs/squads)
-- [Boas Práticas]({{ site.baseurl }}/docs/practices)
-- [Reúso de Componentes]({{ site.baseurl }}/docs/reuse)
-- [Integração de Ativos Digitais]({{ site.baseurl }}/docs/integration)
-- [Licenciamento]({{ site.baseurl }}/docs/licensing)
-- [Escalas TRL/MRL e distribuição de MVPs]({{ site.baseurl }}/docs/mvp)
+- Arquitetura <!-- [Arquitetura]({{ site.baseurl }}/docs/architecture) -->
+- _Squads_ de Desenvolvimento <!-- [_Squads_ de Desenvolvimento]({{ site.baseurl }}/docs/squads) -->
+- Boas Práticas <!-- [Boas Práticas]({{ site.baseurl }}/docs/practices) -->
+- Reúso de Componentes <!-- [Reúso de Componentes]({{ site.baseurl }}/docs/reuse) -->
+- Integração de Ativos Digitais <!-- [Integração de Ativos Digitais]({{ site.baseurl }}/docs/integration) -->
+- Licenciamento <!-- [Licenciamento]({{ site.baseurl }}/docs/licensing) -->
+- Escalas TRL/MRL e distribuição de MVPs <!-- [Escalas TRL/MRL e distribuição de MVPs]({{ site.baseurl }}/docs/mvp) -->
 
 ## Getting Start
 
@@ -31,5 +31,10 @@ subtitle: Prefácio da documentação técnica.
 ## Avançado
 
 - [Criando e mantendo um _boilerplate_]({{ site.baseurl }}/docs/boilerplate)
-- [Propondo melhorias a um _boilerplate_]({{ site.baseurl }}/docs/merge)
+- Propondo melhorias a um _boilerplate_ <!-- [Propondo melhorias a um _boilerplate_]({{ site.baseurl }}/docs/merge) -->
 - [Configurando e disponibilizando um _cluster_]({{ site.baseurl }}/docs/cluster)
+
+## Recursos
+
+- _Clusters_
+- _Boilerplates_

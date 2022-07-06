@@ -16,7 +16,7 @@ Uma vez que a **aplicação** tenha sido criada, já será possível configurar 
 
 ![Iniciar a configuração de uma build]({{ site.baseurl }}/assets/img/build/01.png)
 
-#### Passo 1: _Disclaimer_
+#### Passo 1: _Disclaimer_ {#disclaimer}
 
 O _wizard_ de configuração da _build_ tem 6 (seis) passos nos quais o usuário deverá preencher informações requeridas. O primeiro é o _disclaimer_, o qual o mantenedor do projeto deverá estar ciente.
 
@@ -24,7 +24,7 @@ O _wizard_ de configuração da _build_ tem 6 (seis) passos nos quais o usuário
 
 Repare que no **canto superior direito** do _dialog_ do _wizard_ é indicado o nome da _build_ que está sendo configurada.
 
-#### Passo 2: _Cluster_
+#### Passo 2: _Cluster_ {#cluster}
 
 No segundo passo o usuário deverá informa o _cluster_ onde será realizado o _deploy_ desta _build_ da aplicação.
 
@@ -34,7 +34,7 @@ Os _clusters_ de _deploy_ de _builds_ podem estar em qualquer local (em Unidades
 
 ![Escolha do cluster de deploy da build]({{ site.baseurl }}/assets/img/build/03.png)
 
-#### Passo 3: _Volumes_
+#### Passo 3: _Volumes_ {#volumes}
 
 Um _volume_ é uma **área de armazenamento independente** utilizada pelas aplicações para persistir dados criados em tempo de execução. Um exemplo comum são arquivos de _upload_ enviados para uma aplicação web. Nos _clusters_ estas áreas serão criadas em servidores do tipo _storage_, específicos para armazenar grandes quantidades de dados.
 
@@ -42,7 +42,7 @@ Ao acessar pela primeira vez este passo na configuração da _build_, a platafor
 
 ![Configuração dos volumes da build]({{ site.baseurl }}/assets/img/build/04.png)
 
-#### Passo 4: _Environment Variables_
+#### Passo 4: _Environment Variables_ {#variables}
 
 Neste passo o usuário irá configurar as **variáveis de ambiente** da _build_. Da mesma forma que ocorre em _volumes_, aqui serão pré-carregadas "variáveis iniciais", proposta pela [equipe mantenedora do _boilerplate_]({{ site.baseurl }}/docs/boilerplate). O usuário poderá então remover, alterar e criar novas variáveis.
 
@@ -59,7 +59,7 @@ As variáveis de ambiente podem ser de 6 (seis) tipos:
 
 ![Configurando uma porta da aplicação como variável de ambiente]({{ site.baseurl }}/assets/img/build/06.png)
 
-#### Passo 5: _URLs_
+#### Passo 5: _URLs_ {#urls}
 
 Quando é realizado o _deploy_ da _build_, o autômato de _deploy_ checa as portas válidas e as "expõe" publicamente no _cluster_. Assim, todas as variáveis do tipo ```PORT``` configuradas no passo anterior estarão acessíveis pelo domínio do _cluster_. Por exemplo, se o _cluster_ escolhido for ```cluster.cnpgc.embrapa.br``` e no passo anterior o usuário tiver configurado as portas ```55123``` para uma aplicação Web e ```55789``` para conexão com o banco de dados MySQL, a aplicação na _build_ estará disponível publicamente em ```https://cluster.cnpgc.embrapa.br:55123``` e os usuários poderão acessar diretamente o banco de dados MySQL da aplicação por meio do _host_ ```cluster.cnpgc.embrapa.br``` na porta ```55789```.
 
@@ -73,7 +73,7 @@ Neste passo é possível atribuir à aplicação URLs mais "amigáveis" e semant
 
 ![Configurando as URLs da build]({{ site.baseurl }}/assets/img/build/07.png)
 
-#### Passo 6: _Validate_
+#### Passo 6: _Validate_ {#validate}
 
 No último passo o usuário deverá submeter as configurações da _build_ para validação.
 
