@@ -69,15 +69,25 @@ Este repositório (denominado ```io-twa```), quando criado, disponibilizará no 
 
 Esta é uma das formas de encapsular aplicações em JavaScript, mas existem outras como, por exemplo, utilizando o [CapacitorJS](https://capacitorjs.com) ou o [Apache Cordova](https://cordova.apache.org/).
 
-![Repositórios de suporte do projeto]({{ site.baseurl }}/assets/img/project/03.png)
+## Conferindo o GitLab
 
-Quando o usuário opta por todos os repositórios de suporte do projeto, o grupo inicial no [GitLab](https://git.embrapa.io) irá ser inicializado de forma semelhante à imagem acima.
-
-## Equipe do Projeto
-
-Quando o projeto é criado fica disponível como um _card_ na _dashboard_ do usuário. Por meio deste _card_ os **mantenedores do projeto** (do inglês, _maintainers_) poderão gerenciá-lo. Por exemplo, é possível ativar e desativar os repositórios de suporte.
+Quando o projeto é criado fica disponível como um _card_ na _dashboard_ do usuário. Por meio deste _card_ os **mantenedores do projeto** (do inglês, _maintainers_) poderão gerenciá-lo. Por exemplo, é possível ativar e desativar os repositórios de suporte e acessar as páginas de documentação pública do projeto e da API.
 
 ![Menu de contexto do projeto]({{ site.baseurl }}/assets/img/project/04.png)
+
+Por meio do _card_ podemos também acessar o [GitLab da plataforma](https://git.embrapa.io) e vericar se as entidades configuradas já foram criadas pelo autômato _Genesis_ (processo que pode demorar alguns minutos). Um ícone com _angle brackets_ (`< >`) permite o acesso direto ao grupo do projeto.
+
+![Acesso ao grupo do projeto no GitLab]({{ site.baseurl }}/assets/img/project/07.png)
+
+Caso esteja [acessando o GitLab](https://git.embrapa.io) pela primeira vez, atente-se ao seu tipo de usuário na **tela de _login_**. Empregados da Embrapa deverão utilizar a aba "**Embrapa**" na caixa de _login_ com a combinação "m + matrícula" e senha corporativa, enquanto que usuários externos deverão utilizar a aba "**Standard**" com a combinação de e-mail e senha (configurada por meio do e-mail de boas vindas do GitLab).
+
+![Caixa de login no GitLab]({{ site.baseurl }}/assets/img/project/08.png)
+
+Quando o usuário opta por todos os repositórios de suporte do projeto, o grupo inicial no [GitLab](https://git.embrapa.io) irá ser inicializado de forma semelhante à imagem abaixo:
+
+![Repositórios de suporte do projeto]({{ site.baseurl }}/assets/img/project/03.png)
+
+## Equipe do Projeto
 
 Outra funcionalidade disponível é a **gestão da equipe do projeto**. Inicialmente o projeto terá um único membro na equipe, que é o próprio usuário que o criou. Este usuário poderá então adicionar novos usuários que podem ser de dois tipos:
 
