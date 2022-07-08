@@ -28,7 +28,7 @@ Quando esta opção é selecionada, o autômato de criação de entidades da pla
 
 ```https://docs.embrapa.io/[nome unix do projeto]```
 
-Toda alteração realizada neste repositório e versionada (_pull_) é automaticamente atualizada no site do projeto. O tema padrão do site é o mesmo utilizado neste site de documentação da própria plataforma **embrapa.io**.
+Toda alteração realizada neste repositório e versionada (_commit_ e _push_) é automaticamente atualizada no site do projeto. O tema padrão do site é o mesmo utilizado neste site de documentação da própria plataforma **embrapa.io**.
 
 #### II. Documentação pública da API
 
