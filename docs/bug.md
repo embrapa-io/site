@@ -24,4 +24,28 @@ Adicionalmente, caso tenham sido corretamente configurados os atributos ```envir
 
 ![Agrupamento por releases no ambiente de error tracking]({{ site.baseurl }}/assets/img/bug/04.png)
 
+É possível melhorar a integração com o [GitLab](https://git.embrapa.io) de forma a possibilitar a criação de _issues_ no [Kanban do projeto]({{ site.baseurl }}/docs/kanban) diretamente pela interface de _error tracking_. Entretanto, neste momento, <u>este processo ainda é manual</u>. Para fazer a integração, acesse o [Sentry](https://bug.embrapa.io) e selecione um projeto (a _Organization_ no Sentry) do qual é **mantenedor**. Vá em "**Settings » Integrations » GitLab**" e clique no botão "**Add Installation**".
+
+![Configurando a integração com o GitLab: Add Installation]({{ site.baseurl }}/assets/img/bug/05.png)
+
+Leia as instruções na página que aparece. Você será direcionado a criar um nova _Application_ no seu [perfil do GitLab](https://git.embrapa.io/-/profile/applications). Ao prosseguir, você deverá inserir no Sentry os dados de integração, semelhante à imagem abaixo. Repare que no campo "**GitLab Group Path**" deverá ser inserido o nome _unix_ do projeto.
+
+![Configurando a integração com o GitLab: Connect Sentry]({{ site.baseurl }}/assets/img/bug/06.png)
+
+Caso as informações estejam corretas, você poderá informar ao Sentry quais repositórios estão associados à _Organization_.
+
+![Configurando a integração com o GitLab: Add Repositories]({{ site.baseurl }}/assets/img/bug/07.png)
+
+Agora, nas _issues_ do _error tracking_, aparecerá uma opção para _linkar_ a _issue_ do GitLab.
+
+![Configurando a integração com o GitLab: Link GitLab Issue]({{ site.baseurl }}/assets/img/bug/08.png)
+
+Esta função permite vincular o _bug_ a uma _issue_ pré-existente no GitLab ou criar uma nova _issue_ automaticamente. Escolha corretamente à qual aplicação a _issue_ deverá ser vinculada.
+
+![Configurando a integração com o GitLab: Configure GitLab Issue]({{ site.baseurl }}/assets/img/bug/09.png)
+
+Por fim, você pode acessar o [GitLab](https://git.embrapa.io) e complementar as informações da _issue_, tal como vincular um responsável, o estágio no _Kanban Board_, o _milestone_, um prazo de término, etc.
+
+![Configurando a integração com o GitLab: Edit GitLab Issue]({{ site.baseurl }}/assets/img/bug/10.png)
+
 Uma vez que esteja familiarizado com a ferramenta de _error tracking_, você já pode [configurar as _builds_ de _deploy_ da aplicação]({{ site.baseurl }}/docs/build).
