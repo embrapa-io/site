@@ -57,10 +57,13 @@ SUCCESS > The build was successfully backed up!
 INFO > Providing access to maintainers in build backup folder...
 INFO > Protecting build backup folder at 'http://backup.embrapa.io/orcamento-forrageiro' with a password... done!
 SUCCESS > All done! Access backup files at 'http://backup.embrapa.io/orcamento-forrageiro' with user 'orcamento-forrageiro' and password '************'.
+ATTENTION > All backup files are DELETED after ONE WEEK!
 ```
 
 Na última linha podem ser vistas as instruções de acesso aos arquivos de _backup_. Em resumo, eles estarão disponíveis no servidor [**http://backup.embrapa.io**](http://backup.embrapa.io), em uma pasta com o nome _unix_ do projeto.
 
-> **Atenção** A senha para acesso será alterada a cada nova execução do processo de _backup_.
+> **Atenção!** A senha para acesso será alterada a cada nova execução do processo de _backup_.
 
 ![Arquivos de backup da instância disponíveis para download]({{ site.baseurl }}/assets/img/backup/02.png)
+
+> **Atenção!** Os arquivos gerados permanecerão disponíveis para download por uma semana (7 dias). Findando este prazo, <u>são automaticamente apagados</u>.
