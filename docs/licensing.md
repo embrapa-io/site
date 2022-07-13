@@ -27,19 +27,40 @@ Assim, uma forma de viabilizar projetos deste tipo é justamente mantendo suas a
 Por exemplo, considere a seguinte licença abaixo para um software fictício denominado "AgroApp":
 
 ```
-AgroApp 1.0 - Copyright ⓒ 2022 Federal University of Mato Grosso do Sul (UFMS) and Brazilian Agricultural Research Corporation (Embrapa) and MMHCC Tecnologia da Informação LTDA-ME (OLIMPO). All rights reserved.
+AgroApp 1.0 - Copyright ⓒ 2022 Federal University of Mato Grosso do Sul (UFMS) and
+Brazilian Agricultural Research Corporation (Embrapa) and MMHCC Tecnologia da
+Informação LTDA-ME (OLIMPO). All rights reserved.
 
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
 
-1. Redistributions of source code must retain the above copyright notice, this list of conditions, the following disclaimer and the down lists of holders and contributors.
+1. Redistributions of source code must retain the above copyright notice, this list
+of conditions, the following disclaimer and the down lists of holders and
+contributors.
 
-2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, the following disclaimer and the down list of holders and contributors in the documentation and/or other materials provided with the distribution.
+2. Redistributions in binary form must reproduce the above copyright notice, this
+list of conditions, the following disclaimer and the down list of holders and
+contributors in the documentation and/or other materials provided with the
+distribution.
 
-3. Neither the name of the holders nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+3. Neither the name of the holders nor the names of its contributors may be used to
+endorse or promote products derived from this software without specific prior
+written permission.
 
-4. Products derived from this software should reference it, as well the specific version from which it derived and the down list of holders, only in the "about" screen and documentation.
+4. Products derived from this software should reference it, as well the specific
+version from which it derived and the down list of holders, only in the "about"
+screen and documentation.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
 
 List of Holders:
 
@@ -58,4 +79,17 @@ As duas primeiras claúsulas (1 e 2) se referem à redistribuição do próprio 
 
 Neste exemplo, vamos supor que o software será derivado por uma _startup_ de alunos egressos para a criação de um novo ativo digital. O software derivado deverá, portanto, ter em sua tela de _about_ e no manual algo do tipo: "Software derivado do ativo AgroApp 1.0 desenvolvido pela Embrapa, UFMS e Olimpo". Ademais, a licença é totalmente permissiva.
 
-Apesar de possuir uma licença de código-aberto, não é obrigatório a disponibilização do código-fonte publicamente. Portanto, após aplicá-la ao software, os interessados poderão fazer uma requisição via memorando a algum dos titulares utilizando a Lei de Acesso à Informação (LAI) e o código-fonte deverá ser fornecido sem restrições.
+Apesar de possuir uma licença de código-aberto, não é obrigatório a disponibilização do código-fonte publicamente. Portanto, após aplicá-la ao software, os interessados em obter seu código-fonte poderão fazer uma requisição via memorando a algum dos titulares utilizando a Lei de Acesso à Informação (LAI).
+
+Como estudo de caso, considere a imagem abaixo:
+
+![Ativo digital com múltiplas licenças de software]({{ site.baseurl }}/assets/img/licensing/02.png)
+
+Neste exemplo temos um ativo digital com diversas aplicações desacopladas, todas elas derivadas de _boilerplates_ com licença MIT. Dentre elas, a inovação tecnológica encontra-se no componente "**Simulador**", que é um algoritmo encapsulado em um [pacote NPM](https://www.npmjs.com/). Adicionalmente, foi criado um aplicativo cliente denominado "**PWA**", implementado em [VueJS](https://vuejs.org/), para possibilitar o uso antecipado do Simulador pelo público (_early access_), de forma a servir como vitrine da tecnologia. Foram criadas também duas outras aplicações _server-side_ utilizando o _framework_ [NodeJS](https://nodejs.dev/):
+
+- "**GraphQL API**", que implementa uma interface para o Simulador utilizando [_query language_](https://graphql.org/) e aderente ao [AgroAPI](https://www.agroapi.cnptia.embrapa.br/); e
+- "**RESTful API**", que implementa uma API privada para possibilitar a persistência de dados do aplicativo cliente PWA.
+
+O pacote NPM do simulador é então importado em todas as aplicações. Este pacote está protegido com uma licença de software privada (_copyright_). As demais aplicações são "cascas" que visam implementar camadas de interação com o Simulador e, portanto, dificilmente teriam aspectos de originalidade para caracterizar uma inovação tecnológica. Assim, é atribuído a todas elas uma licença BSD. Com isso, manutenções corretivas e evolutivas nestas aplicações de código-aberto podem ser realizadas por colaboradores, instituições e empresas parceiras sem a preocupação constante com as implicações à propriedade intelectual do ativo digital como um todo.
+
+Repare que, com o uso combinado de licenças privadas e de código-aberto, é possível pranejar melhor o ciclo-de-vida do ativo digital, protegendo de forma mais agressiva os componentes de inovação tecnológica e "abrindo" o restante para mitigar a complexidade na gestão da propriedade intelectual.
