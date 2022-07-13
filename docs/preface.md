@@ -11,9 +11,9 @@ subtitle: Prefácio da documentação técnica.
 - _Squads_ de Desenvolvimento <!-- [_Squads_ de Desenvolvimento]({{ site.baseurl }}/docs/squads) -->
 - Boas Práticas <!-- [Boas Práticas]({{ site.baseurl }}/docs/practices) -->
 - Reúso de Componentes <!-- [Reúso de Componentes]({{ site.baseurl }}/docs/reuse) -->
-- Integração de Ativos Digitais <!-- [Integração de Ativos Digitais]({{ site.baseurl }}/docs/integration) -->
 - [Licenciamento]({{ site.baseurl }}/docs/licensing)
 - [Escalas TRL/MRL e distribuição de MVPs]({{ site.baseurl }}/docs/mvp)
+- [Integração de Ativos Digitais]({{ site.baseurl }}/docs/integration)
 
 ## Getting Start
 
