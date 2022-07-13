@@ -80,7 +80,7 @@ As duas primeiras claúsulas (1 e 2) se referem à redistribuição do próprio 
 
 Neste exemplo, vamos supor que o software será derivado por uma _startup_ de alunos egressos para a criação de um novo ativo digital. O software derivado deverá, portanto, ter em sua tela de _about_ e no manual algo do tipo: "Software derivado do ativo AgroApp 1.0 desenvolvido pela Embrapa, UFMS e Olimpo". Ademais, a licença é totalmente permissiva.
 
-Apesar de possuir uma licença de código-aberto, não é obrigatório a disponibilização do código-fonte publicamente. Portanto, após aplicá-la ao software, os interessados em obter seu código-fonte poderão fazer uma requisição via memorando a algum dos titulares utilizando a Lei de Acesso à Informação (LAI).
+Apesar de possuir uma licença de código-aberto, não é obrigatório a disponibilização do código-fonte publicamente. Portanto, após aplicá-la ao software, os interessados em obter seu código-fonte poderão fazer uma requisição via memorando a algum dos titulares utilizando a [Lei de Acesso à Informação (LAI)](https://www.justica.gov.br/Acesso).
 
 Como estudo de caso, considere a imagem abaixo:
 
