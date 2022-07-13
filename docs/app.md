@@ -4,7 +4,7 @@ title: Aplicação
 subtitle: Adicionando uma aplicação ao projeto
 ---
 
-Conforme [explicitado no capítulo de introdução]({{ site.baseurl }}/docs/introduction#project), um **projeto de ativo digital** na plataforma pode ser composto por diversos softwares desacoplados. Assim, cada um destes softwares-componentes será uma **aplicação** independente no projeto, com seu código-fonte armazenado e versionado em um repositório específico no [GitLab](https://git.embrapa.io) e tendo um ciclo-de-vida próprio.
+Conforme [explicitado no capítulo de introdução]({{ site.baseurl }}/docs/introduction#project), um **projeto de ativo digital** na plataforma pode ser composto por diversos softwares desacoplados. Assim, cada um destes softwares-componentes será uma **aplicação** independente no projeto, com seu código-fonte armazenado e versionado em um repositório específico no [GitLab](https://git.embrapa.io) e tendo um ciclo de vida próprio.
 
 Para criar uma nova aplicação, um **usuário mantenedor** deverá clicar no botão "**Nova App**", no rodapé do _card_ do projeto. Isso iniciará um _wizard_ que guiará o usuário por alguns passos. Inicialmente é apresentado ao usuário um _disclaimer_, o qual ele deverá estar ciente.
 

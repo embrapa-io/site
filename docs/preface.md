@@ -13,7 +13,7 @@ subtitle: Prefácio da documentação técnica.
 - Reúso de Componentes <!-- [Reúso de Componentes]({{ site.baseurl }}/docs/reuse) -->
 - Integração de Ativos Digitais <!-- [Integração de Ativos Digitais]({{ site.baseurl }}/docs/integration) -->
 - [Licenciamento]({{ site.baseurl }}/docs/licensing)
-- Escalas TRL/MRL e distribuição de MVPs <!-- [Escalas TRL/MRL e distribuição de MVPs]({{ site.baseurl }}/docs/mvp) -->
+- [Escalas TRL/MRL e distribuição de MVPs]({{ site.baseurl }}/docs/mvp)
 
 ## Getting Start
 

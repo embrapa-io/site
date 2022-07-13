@@ -7,6 +7,7 @@ subtitle: Licenças de distribuição e derivação dos ativos digitais
 *[UI]: User Interface
 *[GPL]: GNU General Public License
 *[BSD]: Berkeley Software Distribution
+*[MIT]: Massachusetts Institute of Technology
 
 Um dos aspectos importantes com o qual precisamos nos atentar no desenvolvimento de ativos digitais é no que tange a licença de distribuição e derivação destes softwares. Durante o ciclo de vida de um ativo, seu código-fonte sofrerá inúmeras intervenções para que sejam realizadas manutenções corretivas e evolutivas. Além disso, o código-fonte como um todo ou partes dele tendem a ser reutilizadas na criação de outros ativos digitais. Por conta disso, é essencial termos uma definição clara dos autores e titulares do ativo e das regras para distribuí-lo e derivá-lo, de forma a proteger a Embrapa e seus parceiros.
 
@@ -92,4 +93,4 @@ Neste exemplo temos um ativo digital com diversas aplicações desacopladas, tod
 
 O pacote NPM do simulador é então importado em todas as aplicações. Este pacote está protegido com uma licença de software privada (_copyright_). As demais aplicações são "cascas" que visam implementar camadas de interação com o Simulador e, portanto, dificilmente teriam aspectos de originalidade para caracterizar uma inovação tecnológica. Assim, é atribuído a todas elas uma licença BSD. Com isso, manutenções corretivas e evolutivas nestas aplicações de código-aberto podem ser realizadas por colaboradores, instituições e empresas parceiras sem a preocupação constante com as implicações à propriedade intelectual do ativo digital como um todo.
 
-Repare que, com o uso combinado de licenças privadas e de código-aberto, é possível pranejar melhor o ciclo-de-vida do ativo digital, protegendo de forma mais agressiva os componentes de inovação tecnológica e "abrindo" o restante para mitigar a complexidade na gestão da propriedade intelectual.
+Repare que, com o uso combinado de licenças privadas e de código-aberto, é possível pranejar melhor o ciclo de vida do ativo digital, protegendo de forma mais agressiva os componentes de inovação tecnológica e "abrindo" o restante para mitigar a complexidade na gestão da propriedade intelectual.
