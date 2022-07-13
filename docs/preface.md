@@ -9,11 +9,16 @@ subtitle: Prefácio da documentação técnica.
 - [Introdução]({{ site.baseurl }}/docs/introduction)
 - Arquitetura <!-- [Arquitetura]({{ site.baseurl }}/docs/architecture) -->
 - _Squads_ de Desenvolvimento <!-- [_Squads_ de Desenvolvimento]({{ site.baseurl }}/docs/squads) -->
+- Trilha: _Zero to Hero_ <!-- [Trilha: _Zero to Hero_]({{ site.baseurl }}/docs/trail) -->
 - Boas Práticas <!-- [Boas Práticas]({{ site.baseurl }}/docs/practices) -->
 - Reúso de Componentes <!-- [Reúso de Componentes]({{ site.baseurl }}/docs/reuse) -->
 - [Licenciamento]({{ site.baseurl }}/docs/licensing)
 - [Escalas TRL/MRL e distribuição de MVPs]({{ site.baseurl }}/docs/mvp)
 - [Integração de Ativos Digitais]({{ site.baseurl }}/docs/integration)
+- _Marketplaces_ e ecossistemas digitais <!-- [_Marketplaces_ e ecossistemas digitais]({{ site.baseurl }}/docs/marketplace) -->
+- Gamificação <!-- [Gamificação]({{ site.baseurl }}/docs/gamefication) -->
+- Internet das Coisas <!-- [Internet das Coisas]({{ site.baseurl }}/docs/iot) -->
+- Gestão da Qualidade <!-- [Gestão da Qualidade]({{ site.baseurl }}/docs/quality) -->
 
 ## Getting Start
 
