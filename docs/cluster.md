@@ -27,9 +27,13 @@ Para realizar a integração, os mantenedores deverão configurar as máquinas, 
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCykAvX7CZmqw1bgOCOmRtgpfr55cjqO0v1+DImp4pKrITdFxZu0OqsJgHjio/yp4w5+KvWmFJa5woYbZry9inFciwKo3+rpGjBHJfNfDq70/q3VdSSInFrSMtWgBk0x5QZQ78ENkNkO9DRIdnnffN9bY1uibR6ZX0pCSSyTGgx3NlAakW47tYIzVcrrUGKGG8vZwSkl7GhEEXtNETp02WQpkUvYrNqgRrmw2lvv41QfRETIuNN7PDhJrDO4tYHtix5D+Pvd05IacgTVQxpi6vnMVdgrwbZ1RPw9TLLkoy3kZs45hLG9oipiYOiD6rxiIYC0f1iUaKz9PKZdfnF8Ya5XJFoL6NcBTPDGh01dkEBonOWt3lgpC/2SBM/SeClt8M2lI6KtqAkjPEKWhnirDP0lXzY2CYamnu2rD6p4z4OWAYG6ngQcCIK45vQvsSz8mfitWnJe89WCCaEVj+L1QO/hjnKJ+eKf5ze35HagFRhpIAB34FmGHO3N8yFCLqvHFNLw6dKl5IXU2cvJF1jwhL3coOx9oeFZLPk45Zze2e/Itjd9x84gWtmo60MvXVBsYGYlcZLzSgAbNGldMuxAFWs0ZvghNx+KZjg6fZ2hAlPHIg1MiAlztyLbbjV2Mjc6ke6sjBDvPkPZQde6G/T8Mp56cCtAb/77/dw78zruX5qyQ== embrapa.io
 ```
 
-Além disso, o **embrapa.io** expõe as aplicações instanciadas em portas na **faixa de 49152 a 65535**. Portanto, toda esta faixa de portas deverá ser exposta para acesso público nos servidores de aplicação que compõem o _cluster_ (p.e., os _Manager Nodes_ no [Docker Swarm](https://docs.docker.com/engine/swarm/)). Adicionalmente, é fortemente recomendado que seja [instalado o Portainer](https://docs.portainer.io/start/install) para auxiliar a equipe mantenedora de _clusters_ em [Docker Compose](https://docs.portainer.io/start/install/server/docker/linux), [Docker Swarm](https://docs.portainer.io/start/install/server/swarm/linux) ou [Kubernetes](https://docs.portainer.io/start/install/server/kubernetes/baremetal) em sua gestão. Por padrão, recomenda-se que este seja disponibilizado no HTTPS (porta 443) da URL do _cluster_, com o HTTP (porta 80) redirecionando para o HTTPS.
+Além disso, o **embrapa.io** expõe as aplicações instanciadas em portas na **faixa de 49152 a 65535**. Portanto, toda esta faixa de portas deverá ser exposta para acesso público nos servidores de aplicação que compõem o _cluster_ (p.e., os _Manager Nodes_ no [Docker Swarm](https://docs.docker.com/engine/swarm/)).
 
-## Docker Compose
+Adicionalmente, é fortemente recomendado que seja [instalado o Portainer](https://docs.portainer.io/start/install) para auxiliar a equipe mantenedora de _clusters_ em [Docker Compose](https://docs.portainer.io/start/install/server/docker/linux), [Docker Swarm](https://docs.portainer.io/start/install/server/swarm/linux) ou [Kubernetes](https://docs.portainer.io/start/install/server/kubernetes/baremetal) em sua gestão. Por padrão, recomenda-se que este seja disponibilizado no HTTPS (porta 443) da URL do _cluster_, com o HTTP (porta 80) redirecionando para o HTTPS.
+
+## Orquestradores e Storers Homologados
+
+### Docker Compose
 
 Para instalação deste orquestrador é recomendado o uso da distribuição [Linux Ubuntu Server 22.04 LTS](https://ubuntu.com/download/server). É necessário que seja utilizada a arquitetura **amd64**. No momento da instalação do SO, haverá a possibilidade de instalar pacotes adicionais. Neste momento, selecione o **SSH Server** e o **Docker**.
 
@@ -37,11 +41,17 @@ Para instalação deste orquestrador é recomendado o uso da distribuição [Lin
 
 Após acessar o servidor, adicione a chave pública SSH da plataforma, conforme já mencionado. Agora será necessário configurar um _storer_ associado ao _cluster_, que é o servidor físico onde serão armazenados os _volumes_ utilizados pelos containers para persistir dados:
 
-`DockerLocal`: Caso não haja uma VM ou um servidor do tipo _storage_ disponível, que seria o equipamento mais apropriado, é possível configurar um _storer_ local. Na prática será um diretório no próprio _cluster_ onde todos os _volumes_ serão criados fisicamente. Para isto, basta criar um diretório em qualquer local no servidor e atribuir permissões de escrita.
+- `DockerLocal`: Caso não haja uma VM ou um servidor do tipo _storage_ disponível, que seria o equipamento mais apropriado, é possível configurar um _storer_ local. Na prática será um diretório no próprio _cluster_ onde todos os _volumes_ serão criados fisicamente. Para isto, basta criar um diretório em qualquer local no servidor e atribuir permissões de escrita.
 
-`DockerNFSv4`: Havendo uma VM ou servidor físico de _storage_ disponível, os mantenedores poderão [instalar e/ou habilitar o NFS (versão 4)](https://phoenixnap.com/kb/ubuntu-nfs-server) nele. Assim como no caso do _cluster_, é necessário também configurar a chave SSH pública da plataforma no usuário `root`. É importante que no arquivo `/etc/exports` sejam parametrizados, pelo menos, as seguintes opções no diretório a ser montado: `rw`, `no_root_squash`, `sync`, `no_subtree_check` e `insecure`.
+- `DockerNFSv4`: Havendo uma VM ou servidor físico de _storage_ disponível, os mantenedores poderão [instalar e/ou habilitar o NFS (versão 4)](https://phoenixnap.com/kb/ubuntu-nfs-server) nele. Assim como no caso do _cluster_, é necessário também configurar a chave SSH pública da plataforma no usuário `root`. É importante que no arquivo `/etc/exports` sejam parametrizados, pelo menos, as seguintes opções no diretório a ser montado: `rw`, `no_root_squash`, `sync`, `no_subtree_check` e `insecure`.
 
-Pronto, agora basta montar as configurações em formato JSON e [enviar para a equipe de gestão da plataforma](mailto:io@embrapa.br). O exemplo abaixo demonstra como deverão ser as configurações:
+### Docker Swarm
+
+...
+
+## Disponibilizando no Catálogo
+
+Uma vez configurado o _cluster_, basta montar as configurações em formato JSON e [enviar para a equipe de gestão da plataforma](mailto:io@embrapa.br). O exemplo abaixo demonstra como deverão ser as configurações:
 
 ```
 {
@@ -133,4 +143,6 @@ app.cnpgc.embrapa.br      CNAME    router.embrapa.io
 *.app.cnpgc.embrapa.br    A        200.202.148.38
 ```
 
-Caso o atributo `disabled` sejá setado para `true`, o _cluster_ não aceitará novos _deploys_ naquele estágio específico, porém as _builds_ já instanciadas continuarão sendo geridas normalmente (inclusive recebendo _deploys_ de novas _tags_). Por fim, é possível estabelecer grupos diferentes de mantenedores para o _cluster_ em cada estágio de maturidade.
+Vale ressaltar que as aplicações instanciadas estarão sempre expostas por meio das portas atribuídas a elas em cada _cluster_. Em _clusters_ com múltiplos nós (_nodes_), as réplicas em cada nó poderão ser acessadas de forma distinta pelo endereço real do nó e porta específica. O _load balancer_ será automaticamente ativado quando um [_alias_, URL externa ou _subpath_ for configurado]({{ site.baseurl }}/docs/build#urls). Para isso, é utilizado o método [_least connected_ do Nginx](https://nginx.org/en/docs/http/load_balancing.html), onde a próxima solicitação é atribuída ao servidor com o menor número de conexões ativas.
+
+Caso o atributo `disabled` esteja setado como `true`, o _cluster_ não aceitará novos _deploys_ naquele _cluster_ para aquele estágio específico (ou seja, ele pode estar `disabled` para o estágio _release_, mas não para _alpha_ e _beta_), porém as _builds_ já instanciadas continuarão sendo geridas normalmente (inclusive recebendo _deploys_ de novas _tags_). Por fim, é possível estabelecer grupos diferentes de mantenedores para o _cluster_ em cada estágio de maturidade.
