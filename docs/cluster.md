@@ -93,7 +93,7 @@ Uma vez configurado o _cluster_, basta montar as configurações em formato JSON
       "disabled": false,
       "maintainers": [
         { "name": "Hercule Poirot", "email": "hercule.poirot@ufms.br", "phone": "+55 (67) 9 8888-7777" },
-        { "name": "Maria Capitolina Santiago", "email": "maria.capitu@ufms.br", "phone": "+55 (67) 9 6666-5555" }
+        { "name": "Maria Capitolina Santiago", "email": "capitu.santiago@ufms.br", "phone": "+55 (67) 9 6666-5555" }
       ]
     },
     {
@@ -147,7 +147,7 @@ Uma vez configurado o _cluster_, basta montar as configurações em formato JSON
       "disabled": false,
       "maintainers": [
         { "name": "Hercule Poirot", "email": "hercule.poirot@ufms.br", "phone": "+55 (67) 9 8888-7777" },
-        { "name": "Maria Capitolina Santiago", "email": "maria.capitu@ufms.br", "phone": "+55 (67) 9 6666-5555" }
+        { "name": "Maria Capitolina Santiago", "email": "capitu.santiago@ufms.br", "phone": "+55 (67) 9 6666-5555" }
       ]
     }
   ],
