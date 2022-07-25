@@ -11,6 +11,7 @@ Assim, é possível que uma aplicação, devidamente conteinerizada, seja instan
 Para possibilitar a "orquestração" dos ativos digitais nesta rede descentralizada de _clusters_, a plataforma implementa **_drivers_** de serviços. Estes _drivers_ podem ser de dois tipos:
 
 - **orquestrador**: que efetua tarefas de validação dos _stacks_ de _containers_, _deploy_/_undeploy_, _health check_, _backup_, sanitização, etc; e
+
 - **storer**: que instancia _volumes_ no próprio _cluster_ ou em servidores externos do tipo _storage_.
 
 O provisionamento de novos _clusters_, _storers_ e o desenvolvimento de _drivers_, estão alinhados com a estratégia de desenvolvimento colaborativo e manutenção compartilhada da plataforma. Assim, [da mesma forma que ocorre com os _boilerplates_]({{ site.baseurl }}/docs/boilerplate), _clusters_ são mantidos por equipes descentralizadas, que podem ser internas ou externas à Embrapa.
@@ -19,27 +20,36 @@ O provisionamento de novos _clusters_, _storers_ e o desenvolvimento de _drivers
 
 Desta forma, unidades descentralizadas, instituições e empresas parceiras da Embrapa podem compor a rede de _clusters_ do **embrapa.io**, integrando servidores reais ou VMs de seus próprios CPDs. Com isso, a gestão das aplicações nestes servidores físicos ou máquinas virtuais passa a ser realizada pelos processos de DevOps da plataforma.
 
-> **Atenção!** Os processos de automatizados de _backup_ nos _clusters_ são de atribuição da equipe de mantenedores, sendo que o **embrapa.io** aborda apenas o _backup_ sob demanda, [já detalhado anteriormente]({{ site.baseurl }}/docs/backup). Da mesma forma, recursos essenciais adicionais, tal como envio de e-mail (SMTP) devem ser disponibilizados na rede interna em que o servidor está instalado e devidamente informado na documentação do _cluster_.
+> **Atenção!** Os processos automatizados de _backup_ nos _clusters_ são de atribuição da equipe de mantenedores, sendo que o **embrapa.io** aborda apenas o _backup_ sob demanda, [já detalhado anteriormente]({{ site.baseurl }}/docs/backup). Da mesma forma, recursos essenciais adicionais, tal como envio de e-mail (SMTP) devem ser disponibilizados na rede interna em que o servidor está instalado e devidamente informado na documentação do _cluster_.
 
-Para realizar a integração, os mantenedores deverão configurar as máquinas, reais ou virtuais, conforme a instrução para o orquestrador e _storer_ escolhido. A seguir, são listados os _drivers_ já disponíveis para criação de _clusters_. Para diversos destes _drivers_ o **embrapa.io** realiza a conexão via SSH. Portanto é necessário, quando for este o caso, liberar o acesso do IP `200.202.148.38` na **porta 22** do servidor e adicionar a seguinte chave pública no arquivo `~/.ssh/authorized_keys` do `root`:
+Para realizar a integração, os mantenedores deverão configurar as máquinas, reais ou virtuais, conforme a instrução para o orquestrador e _storer_ escolhido. Na próxima seção, são listados os _drivers_ já disponíveis para criação de _clusters_. Para diversos destes _drivers_ o **embrapa.io** realiza a conexão via SSH. Portanto é necessário, quando for este o caso, liberar no _firewall_ o acesso do IP `200.202.148.38` na **porta 22** do servidor e adicionar a seguinte chave pública no arquivo `/root/.ssh/authorized_keys`:
 
 ```
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCykAvX7CZmqw1bgOCOmRtgpfr55cjqO0v1+DImp4pKrITdFxZu0OqsJgHjio/yp4w5+KvWmFJa5woYbZry9inFciwKo3+rpGjBHJfNfDq70/q3VdSSInFrSMtWgBk0x5QZQ78ENkNkO9DRIdnnffN9bY1uibR6ZX0pCSSyTGgx3NlAakW47tYIzVcrrUGKGG8vZwSkl7GhEEXtNETp02WQpkUvYrNqgRrmw2lvv41QfRETIuNN7PDhJrDO4tYHtix5D+Pvd05IacgTVQxpi6vnMVdgrwbZ1RPw9TLLkoy3kZs45hLG9oipiYOiD6rxiIYC0f1iUaKz9PKZdfnF8Ya5XJFoL6NcBTPDGh01dkEBonOWt3lgpC/2SBM/SeClt8M2lI6KtqAkjPEKWhnirDP0lXzY2CYamnu2rD6p4z4OWAYG6ngQcCIK45vQvsSz8mfitWnJe89WCCaEVj+L1QO/hjnKJ+eKf5ze35HagFRhpIAB34FmGHO3N8yFCLqvHFNLw6dKl5IXU2cvJF1jwhL3coOx9oeFZLPk45Zze2e/Itjd9x84gWtmo60MvXVBsYGYlcZLzSgAbNGldMuxAFWs0ZvghNx+KZjg6fZ2hAlPHIg1MiAlztyLbbjV2Mjc6ke6sjBDvPkPZQde6G/T8Mp56cCtAb/77/dw78zruX5qyQ== embrapa.io
 ```
 
-Além disso, o **embrapa.io** expõe as aplicações instanciadas em portas na **faixa de 49152 a 65535**. Portanto, toda esta faixa de portas deverá ser exposta para acesso público nos servidores de aplicação que compõem o _cluster_ (p.e., os _Manager Nodes_ no [Docker Swarm](https://docs.docker.com/engine/swarm/)).
+Além disso, o **embrapa.io** expõe as aplicações instanciadas em portas na **faixa de 49152 a 65535**. Portanto, toda esta faixa de portas deverá ser exposta para acesso público nos servidores de aplicação que compõem o _cluster_ (p.e., todos os nós _managers_ e _workers_ no [Docker Swarm](https://docs.docker.com/engine/swarm/)).
 
-Adicionalmente, é fortemente recomendado que seja [instalado o Portainer](https://docs.portainer.io/start/install) para auxiliar a equipe mantenedora de _clusters_ em [Docker Compose](https://docs.portainer.io/start/install/server/docker/linux), [Docker Swarm](https://docs.portainer.io/start/install/server/swarm/linux) ou [Kubernetes](https://docs.portainer.io/start/install/server/kubernetes/baremetal) em sua gestão. Por padrão, recomenda-se que este seja disponibilizado no HTTPS (porta 443) da URL do _cluster_, com o HTTP (porta 80) redirecionando para o HTTPS.
+Adicionalmente, é fortemente recomendado que seja [instalado o Portainer](https://docs.portainer.io/start/install) para auxiliar a equipe mantenedora de _clusters_ em [Docker Compose](https://docs.portainer.io/start/install/server/docker/linux), [Docker Swarm](https://docs.portainer.io/start/install/server/swarm/linux) ou [Kubernetes](https://docs.portainer.io/start/install/server/kubernetes/baremetal) em sua gestão. Por padrão, recomenda-se que este seja disponibilizado publicamente no HTTPS (porta 443) da URL do _cluster_, com o HTTP (porta 80) redirecionando para o HTTPS.
 
 ## Orquestradores e Storers Homologados
 
 ### Docker Compose
 
-Para instalação deste orquestrador é recomendado o uso da distribuição [Linux Ubuntu Server 22.04 LTS](https://ubuntu.com/download/server). É necessário que seja utilizada a arquitetura **amd64**. No momento da instalação do SO, haverá a possibilidade de instalar pacotes adicionais. Neste momento, selecione o **SSH Server** e o **Docker**.
+Para instalação do orquestrador em [Docker Compose](https://docs.docker.com/compose/) é necessário disponibilizar um único servidor dedicado (_bare metal_) ou máquina virtual. É recomendado o uso da distribuição [Linux Debian 11 Bullseye](https://www.debian.org/download) ou [Linux Ubuntu Server 22.04 LTS](https://ubuntu.com/download/server). <u>É necessário que seja utilizada a arquitetura <b>amd64</b></u>. No momento da instalação do SO, haverá a possibilidade de instalar pacotes adicionais. Neste momento, selecione o **SSH Server** e o **Docker**.
 
 ![Pacote do Docker selecionado para instalação]({{ site.baseurl }}/assets/img/cluster/03.png)
 
-Após acessar o servidor, adicione a chave pública SSH da plataforma, conforme já mencionado. Agora será necessário configurar um _storer_ associado ao _cluster_, que é o servidor físico onde serão armazenados os _volumes_ utilizados pelos containers para persistir dados:
+Para instalar o **Docker Compose**, é recomendado utilizar o [repositório oficial](https://github.com/docker/compose/releases) para obtê-lo em sua versão mais recente:
+
+```bash
+sudo su -
+curl -L "https://github.com/docker/compose/releases/download/2.7.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+docker-compose --version
+```
+
+Adicione a chave pública SSH da plataforma **embrapa.io** no arquivo `/root/.ssh/authorized_keys`, conforme mencionado na seção inicial desta página. Agora será necessário configurar um _storer_ associado ao _cluster_, que é o servidor físico onde serão armazenados os _volumes_ utilizados pelos containers para persistir dados:
 
 - `DockerLocal`: Caso não haja uma VM ou um servidor do tipo _storage_ disponível, que seria o equipamento mais apropriado, é possível configurar um _storer_ local. Na prática será um diretório no próprio _cluster_ onde todos os _volumes_ serão criados fisicamente. Para isto, basta criar um diretório em qualquer local no servidor e atribuir permissões de escrita.
 
@@ -47,13 +57,21 @@ Após acessar o servidor, adicione a chave pública SSH da plataforma, conforme 
 
 ### Docker Swarm
 
-...
+Para instalação do orquestrador em [Docker Swarm](https://docs.docker.com/engine/swarm/) é necessário disponibilizar três ou mais servidores dedicados (_bare metal_) ou máquinas virtuais. Em cada uma delas deverá ser instalado, preferencialmente, a distribuição [Linux Debian 11 Bullseye](https://www.debian.org/download) ou [Linux Ubuntu Server 22.04 LTS](https://ubuntu.com/download/server). <u>É necessário que seja utilizada a arquitetura <b>amd64</b></u>. No momento da instalação do SO, haverá a possibilidade de instalar pacotes adicionais. Neste momento, selecione o **SSH Server** e o **Docker**. Siga os passos da seção anterior para instalar também o **Docker Compose** em sua versão mais recente em cada um dos servidores que compõem o _cluster_.
+
+Adicione a chave pública SSH da plataforma **embrapa.io** no arquivo `/root/.ssh/authorized_keys` de todos os nós do _cluster_, conforme mencionado na seção inicial desta página.
+
+Para instalar o **Docker Swarm**, [siga os passos da documentação oficial](https://docs.docker.com/engine/swarm/swarm-tutorial/). Você deverá definir a quantidade de servidores que atuará como _manager nodes_ e como _worker nodes_. Considere a [orientação da docuemntação oficial](https://docs.docker.com/engine/swarm/admin_guide/#distribute-manager-nodes) para otimizar a tolerância à falhas, onde o número de _managers_ deverá ser sempre ímpar. Assim, caso tenha 4 servidores/VMs em seu _cluster_, considere criar 3 _manager nodes_ e 1 _worker node_. Por fim, [adicione todos os nós ao _swarm_](https://docs.docker.com/engine/swarm/swarm-tutorial/add-nodes/).
+
+Configure agora um _storer_ associado ao _cluster_, que é o servidor físico onde serão armazenados os _volumes_ utilizados pelos containers para persistir dados:
+
+- `SwarmNFSv4`: Será necessário ter um servidor de _storage_ dedicado ao _cluster_ em **Docker Swarm**. Nele, os mantenedores deverão [instalar e/ou habilitar o NFS (versão 4)](https://phoenixnap.com/kb/ubuntu-nfs-server). Assim como no caso dos nós do _cluster_, é necessário também configurar a chave SSH pública da plataforma no usuário `root`. É importante que no arquivo `/etc/exports` sejam parametrizados, pelo menos, as seguintes opções no diretório a ser montado: `rw`, `no_root_squash`, `sync`, `no_subtree_check` e `insecure`. Todos os nós do _cluster_ devem ser capazes de montar o _storage_ NFS.
 
 ## Disponibilizando no Catálogo
 
 Uma vez configurado o _cluster_, basta montar as configurações em formato JSON e [enviar para a equipe de gestão da plataforma](mailto:io@embrapa.br). O exemplo abaixo demonstra como deverão ser as configurações:
 
-```
+```json
 {
   "release": [
     {
@@ -74,8 +92,40 @@ Uma vez configurado o _cluster_, basta montar as configurações em formato JSON
       ],
       "disabled": false,
       "maintainers": [
-        { "name": "José da Silva", "email": "jose.silva@ufms.br", "phone": "+55 (67) 9 8888-7777" },
-        { "name": "Maria do Rosário", "email": "maria.rosario@ufms.br", "phone": "+55 (67) 9 6666-5555" }
+        { "name": "Hercule Poirot", "email": "hercule.poirot@ufms.br", "phone": "+55 (67) 9 8888-7777" },
+        { "name": "Maria Capitolina Santiago", "email": "maria.capitu@ufms.br", "phone": "+55 (67) 9 6666-5555" }
+      ]
+    },
+    {
+      "host": "cluster.cnpgc.embrapa.br",
+      "nodes": {
+        "manager": [
+          "manager1.cnpgc.embrapa.br",
+          "manager2.cnpgc.embrapa.br"
+        ],
+        "worker": [
+          "worker1.cnpgc.embrapa.br"
+        ]
+      },
+      "local": "Embrapa Gado de Corte",
+      "location": "Campo Grande - MS",
+      "orchestrator": "DockerSwarm",
+      "storage": {
+        "type": "SwarmNFSv4",
+        "host": "storer.cnpgc.embrapa.br",
+        "path": "/swarm"
+      },
+      "aliases": [
+        "app.cnpgc.embrapa.br",
+        "manager.cnpgc.embrapa.br",
+        "api.cnpgc.embrapa.br",
+        "portal.cnpgc.embrapa.br"
+      ],
+      "disabled": false,
+      "maintainers": [
+        { "name": "Dorothy Gale", "email": "dorothy.gale@embrapa.br", "phone": "+55 (67) 3368-1122" },
+        { "name": "Bras Cubas", "email": "bras.cubas@embrapa.br", "phone": "+55 (67) 3368-3344" },
+        { "name": "Tyler Durden", "email": "tyler.durden@embrapa.br", "phone": "+55 (67) 3368-5566" }
       ]
     }
   ],
@@ -96,8 +146,8 @@ Uma vez configurado o _cluster_, basta montar as configurações em formato JSON
       ],
       "disabled": false,
       "maintainers": [
-        { "name": "José da Silva", "email": "jose.silva@ufms.br", "phone": "+55 (67) 9 8888-7777" },
-        { "name": "Maria do Rosário", "email": "maria.rosario@ufms.br", "phone": "+55 (67) 9 6666-5555" }
+        { "name": "Hercule Poirot", "email": "hercule.poirot@ufms.br", "phone": "+55 (67) 9 8888-7777" },
+        { "name": "Maria Capitolina Santiago", "email": "maria.capitu@ufms.br", "phone": "+55 (67) 9 6666-5555" }
       ]
     }
   ],
@@ -117,9 +167,9 @@ Uma vez configurado o _cluster_, basta montar as configurações em formato JSON
       ],
       "disabled": false,
       "maintainers": [
-        { "name": "José da Silva", "email": "jose.silva@ufms.br", "phone": "+55 (67) 9 8888-7777" },
-        { "name": "Pedro da Rocha", "email": "pedro.rocha@ufms.br", "phone": "+55 (67) 9 4444-3333" },
-        { "name": "Bruno Albuquerque", "email": "bruno.albuquerque@ufms.br", "phone": "+55 (67) 9 2222-1111" }
+        { "name": "Hercule Poirot", "email": "hercule.poirot@ufms.br", "phone": "+55 (67) 9 8888-7777" },
+        { "name": "Elizabeth Bennet", "email": "elizabeth.bennet@ufms.br", "phone": "+55 (67) 9 4444-3333" },
+        { "name": "Fitzwilliam Darcy", "email": "fitzwilliam.darcy@ufms.br", "phone": "+55 (67) 9 2222-1111" }
       ]
     }
   ]
@@ -127,7 +177,9 @@ Uma vez configurado o _cluster_, basta montar as configurações em formato JSON
 
 Repare que o _cluster_ deve ser configurado especificamente para cada estágio de maturidade da aplicação. Assim, ele pode estar disponível para os estágios _alpha_, _beta_ e/ou _release_, ou seja, não necessariamente para todos. O `host` deverá apontar para o IP real do servidor ou VM. Os atributos `local` e `location` indicam a Unidade da Embrapa, instituição ou empresa e a sua localização geográfica.
 
-O `orchestrator` indica o _driver_ de orquestração que está sendo utilizado. O atributo `storage` contém o _driver_ de _storer_ e atributos relacionados. Por exemplo, para o estágio _alpha_ foi configurado um _storer_ utilizando o _driver_ `DockerLocal` e, desta forma, os _volumes_ serão criados no diretório `/mnt/storer` indicado no atributo `path`. Já em estágio _beta_ e _release_ está sendo utilizado o _driver_ para **NFSv4** e, desta forma, os _volumes_ serão criados fisicamente no diretório remoto `/mnt/nfs` do _storage_ "storage.facom.ufms.br". Localmente no _cluster_ este diretório remoto será montado em `/mnt/storage.facom.ufms.br`.
+O `orchestrator` indica o _driver_ de orquestração que está sendo utilizado. No exemplo acima, o _cluster_ `io.facom.ufms.br` está configurado com o orquestrador **Docker Compose** e, portanto, é composto por um único servidor. Já o _cluster_ `cluster.cnpgc.embrapa.br` está configurado com o orquestrador **Docker Swarm** e é, portanto, composto por diversos nós. Neste caso, no atributo `host` deverá ser referenciado um _manager node_ principal, que no nosso exemplo é o `cluster`. No atributo `node` estão declarados explicitamente os demais nós, sendo `manager1` e `manager2` como _manager nodes_ e `worker1` como um _worker node_, totalizando assim os 4 (quatro) nós que formam o _cluster_.
+
+O atributo `storage` contém o _driver_ de _storer_ e atributos relacionados. Por exemplo, para o estágio _alpha_ foi configurado um _storer_ utilizando o _driver_ `DockerLocal` e, desta forma, os _volumes_ serão criados no diretório `/mnt/storer` indicado no atributo `path`. Já em estágio _beta_ e _release_ está sendo utilizado o _driver_ para **NFSv4** e, desta forma, os _volumes_ serão criados fisicamente no diretório remoto `/mnt/nfs` do _storage_ `storage.facom.ufms.br`.
 
 Os `aliases` são subdomínios configurados pela Unidade da Embrapa, instituição ou empresa parceira que [possibilitam alocar as aplicações em domínios mais condizentes semânticamente com a sua finalidade]({{ site.baseurl }}/docs/build#urls). Estes aliases **devem ser configurados no DNS** da seguinte forma:
 
