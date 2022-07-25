@@ -28,7 +28,7 @@ Para criar e disponibilizar seu _boilerplate_, você precisará seguir os seguin
 5. [Conteinerize seu _boilerplate_](#docker);
 6. [Implemente os "serviços-padrões"](#cli): [_test_](#cli:test), [_backup_](#cli:backup), [_restore_](#cli:restore) e [_sanitize_](#cli:sanitize);
 7. [Configure os metadados](#metadata);
-8. [Configure outros orquestradores](#orquestrator);
+8. [Configure outros orquestradores](#orchestrator);
 9. [Documente e inclua a licença](#readme); e
 10. [Distribua o _boilerplate_](#publish).
 
@@ -592,7 +592,7 @@ Ao contrário do `deployment.yaml`, na declaração dos serviços **CLI** o atri
 - informações de contato dos membros mantenedores; e
 - uma seção de referências para documentação externa dos principais componentes e material de apoio.
 
-Já no arquivo `LICENSE` estará presente a licença de uso e derivação do _boilerplate_ em si. É fundamental que esta licença seja de código-aberto e extremamente permissiva, de forma a não "contaminar" a aplicação derivada. Por exemplo, é indesejável o uso de uma licença do tipo GNU GPL v3, uma vez que ela obriga todo código-fonte derivado a ter a mesma licença do original (e, desta forma, ser também _opern source_). Como muitas aplicações aspiram a produtos com apelo mercadológico, o uso do _boilerplate_ seria impossibilitado. Falamos mais sobre este assunto no [capítulo de licenciamento]({{ site.baseurl }}/docs/licensing).
+Já no arquivo `LICENSE` estará presente a licença de uso e derivação do _boilerplate_ em si. É fundamental que esta licença seja de código-aberto e extremamente permissiva, de forma a não "contaminar" a aplicação derivada. Por exemplo, é indesejável o uso de uma licença do tipo GNU GPL v3, uma vez que ela obriga todo código-fonte derivado a ter a mesma licença do original (e, desta forma, ser também _open source_). Como muitas aplicações aspiram a produtos com apelo mercadológico, o uso do _boilerplate_ seria impossibilitado. Falamos mais sobre este assunto no [capítulo de licenciamento]({{ site.baseurl }}/docs/licensing).
 
 Assim, como sugestão, recomendamos fortemente o uso da [licensa MIT](https://mit-license.org) em todo _boilerplate_ desenvolvido.
 
