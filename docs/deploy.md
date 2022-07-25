@@ -34,12 +34,15 @@ INFO > Metadata info of boilerplates, clusters and types loaded!
 INFO > New version will be deployed as 'container' using orchestrator 'DockerCompose' at server 'cluster.sede.embrapa.br'!
 INFO > CI/DI environment variables:
 
-SERVER=cluster.sede.embrapa.br
-STAGE=alpha
 COMPOSE_PROJECT_NAME=pbc_mobile_alpha
 COMPOSE_PROFILES=alpha
-VERSION=2.22.5-alpha.5
-DEPLOYER=camilo@carromeu.com
+IO_SERVER=cluster.sede.embrapa.br
+IO_PROJECT=pbc
+IO_APP=mobile
+IO_STAGE=development
+IO_VERSION=2.22.5-alpha.5
+IO_DEPLOYER=camilo@carromeu.com
+SENTRY_DSN=https://6389eb20b717423344fea535c489ef93@bug.embrapa.io/47
 
 INFO > Trying to clone app... done!
 INFO > Checking SSH connection to host 'cluster.sede.embrapa.br'... ok!

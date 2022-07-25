@@ -28,8 +28,9 @@ Para criar e disponibilizar seu _boilerplate_, você precisará seguir os seguin
 5. [Conteinerize seu _boilerplate_](#docker);
 6. [Implemente os "serviços-padrões"](#cli): [_test_](#cli:test), [_backup_](#cli:backup), [_restore_](#cli:restore) e [_sanitize_](#cli:sanitize);
 7. [Configure os metadados](#metadata);
-8. [Documente e inclua a licença](#readme); e
-9. [Distribua o _boilerplate_](#publish).
+8. [Configure outros orquestradores](#orquestrator);
+9. [Documente e inclua a licença](#readme); e
+10. [Distribua o _boilerplate_](#publish).
 
 É possível [criar um repositório de aplicação]({{ site.baseurl }}/docs/app) sem utilizar um _boilerplate_. Esta função é útil para instanciar na plataforma sistemas que antecedem o próprio **embrapa.io**. Entretanto, será necessário criar manualmente um repositório no [GitLab](https://git.embrapa.io) e adaptar seu código fonte de forma que ele tenha **toda a estrutura de pastas e arquivos requeridos para um _boilerplate_** (ou seja, seguir os mesmos passos aqui descritos). Em seguida, no momento de criar a aplicação pela _dashboard_, selecione a opção de um "**repositório pré-existente**" (conforme a imagem abaixo).
 
@@ -93,12 +94,14 @@ Estes arquivos, portanto, são gerados pela plataforma e **não devem constar no
 As variáveis que compõem o arquivo `.env.ci.example` são:
 
 ```bash
-SERVER=localhost
-STAGE=development
 COMPOSE_PROJECT_NAME=%GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%
 COMPOSE_PROFILES=development
-VERSION=%GENESIS_VERSION%
-DEPLOYER=first.surname@embrapa.br
+IO_SERVER=localhost
+IO_PROJECT=%GENESIS_PROJECT_UNIX%
+IO_APP=%GENESIS_APP_UNIX%
+IO_STAGE=development
+IO_VERSION=%GENESIS_VERSION%
+IO_DEPLOYER=first.surname@embrapa.br
 SENTRY_DSN=GET_IN_DASHBOARD
 ```
 
@@ -147,24 +150,31 @@ services:
   db:
     image: mariadb:latest
     restart: unless-stopped
+    volumes:
+      - data_db:/var/lib/mysql
+    networks:
+      - stack
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWD}
-      MYSQL_DATABASE: %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%
+      MYSQL_DATABASE: ${IO_PROJECT}_${IO_APP}
       MYSQL_USER: wordpress
       MYSQL_PASSWORD: ${DB_PASSWD}
     healthcheck:
-      test: mysql %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX% --user=wordpress --password='${DB_PASSWD}' --silent --execute "SELECT 1;"
-      interval: 1m30s
+      test: mysql ${IO_PROJECT}_${IO_APP} --user=wordpress --password='${DB_PASSWD}' --silent --execute "SELECT 1;"
+      interval: 20s
       timeout: 10s
-      start_period: 30s
-      retries: 4
+      start_period: 20s
+      retries: 5
 
   wordpress:
+    image: 127.0.0.1:5000/${IO_PROJECT}_${IO_APP}_${IO_STAGE}_wordpress
     build: .
     depends_on:
       - db
     volumes:
       - data_wp:/var/www/html
+    networks:
+      - stack
     ports:
       - ${PORT}:80
     restart: unless-stopped
@@ -172,27 +182,27 @@ services:
       WORDPRESS_DB_HOST: db
       WORDPRESS_DB_USER: wordpress
       WORDPRESS_DB_PASSWORD: ${DB_PASSWD}
-      WORDPRESS_DB_NAME: %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%
+      WORDPRESS_DB_NAME: ${IO_PROJECT}_${IO_APP}
       WORDPRESS_CONFIG_EXTRA: |
         define('WP_DEBUG', ${WP_DEBUG});
         define('WP_ALLOW_MULTISITE', ${WP_ALLOW_MULTISITE});
         define('WP_SENTRY_PHP_DSN', '${SENTRY_DSN}');
         define('WP_SENTRY_ERROR_TYPES', E_ALL & ~E_DEPRECATED & ~E_NOTICE & ~E_USER_DEPRECATED);
-        define('WP_SENTRY_VERSION', @array_shift(explode('-', '${VERSION}')));
-        define('WP_SENTRY_ENV', '${STAGE}' );
+        define('WP_SENTRY_VERSION', @array_shift(explode('-', '${IO_VERSION}')));
+        define('WP_SENTRY_ENV', '${IO_STAGE}' );
     healthcheck:
       test: curl --fail -s http://localhost:80/ || exit 1
-      interval: 1m30s
+      interval: 20s
       timeout: 10s
       start_period: 30s
-      retries: 4
+      retries: 5
 
   backup:
     image: mariadb:latest
     restart: "no"
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWD}
-      MYSQL_DATABASE: %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%
+      MYSQL_DATABASE: ${IO_PROJECT}_${IO_APP}
       MYSQL_USER: wordpress
       MYSQL_PASSWORD: ${DB_PASSWD}
     depends_on:
@@ -202,11 +212,13 @@ services:
     volumes:
       - data_backup:/backup
       - data_wp:/var/www/html
+    networks:
+      - stack
     command: >
       sh -c  "set -ex &&
-        export BACKUP_DIR=${COMPOSE_PROJECT_NAME}_${VERSION}_$$(date +'%Y-%m-%d_%H-%M-%S') &&
+        export BACKUP_DIR=${IO_PROJECT}_${IO_APP}_${IO_STAGE}_${IO_VERSION}_$$(date +'%Y-%m-%d_%H-%M-%S') &&
         cd /backup && mkdir $$BACKUP_DIR &&
-        mysqldump --host db -uroot -p${DB_ROOT_PASSWD} %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX% > $$BACKUP_DIR/db.sql &&
+        mysqldump --host db -uroot -p${DB_ROOT_PASSWD} ${IO_PROJECT}_${IO_APP} > $$BACKUP_DIR/db.sql &&
         cp -R /var/www/html $$BACKUP_DIR/ &&
         tar -czf $$BACKUP_DIR.tar.gz $$BACKUP_DIR &&
         rm -rf /backup/$$BACKUP_DIR"
@@ -218,7 +230,7 @@ services:
     restart: "no"
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWD}
-      MYSQL_DATABASE: %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%
+      MYSQL_DATABASE: ${IO_PROJECT}_${IO_APP}
       MYSQL_USER: wordpress
       MYSQL_PASSWORD: ${DB_PASSWD}
     depends_on:
@@ -228,13 +240,15 @@ services:
     volumes:
       - data_backup:/backup
       - data_wp:/var/www/html
+    networks:
+      - stack
     command: >
       sh -c  "set -ex &&
         export FILE_TO_RESTORE=${BACKUP_FILE_TO_RESTORE:-no_file_to_restore} &&
         test -f /backup/$$FILE_TO_RESTORE &&
         RESTORE_DIR=$$(mktemp) &&
         tar -xf /backup/$$FILE_TO_RESTORE -C $$RESTORE_DIR --strip-components=1 &&
-        mysql %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX% < $$RESTORE_DIR/db.sql &&
+        mysql --host db -uroot -p${DB_ROOT_PASSWD} ${IO_PROJECT}_${IO_APP} < $$RESTORE_DIR/db.sql &&
         cp -Rf $$RESTORE_DIR/html/. /var/www/html &&
         find /var/www/html -type d -exec chmod 755 {} \; &&
         find /var/www/html -type f -exec chmod 644 {} \; &&
@@ -249,14 +263,25 @@ services:
       - db
     links:
       - db
+    networks:
+      - stack
     command: >
-      sh -c  "mysqlcheck --host db -uroot -p${DB_ROOT_PASSWD} -o --auto-repair --flush %GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%"
+      sh -c  "mysqlcheck --host db -uroot -p${DB_ROOT_PASSWD} -o --auto-repair --flush ${IO_PROJECT}_${IO_APP}"
     profiles:
       - cli
+
+networks:
+  stack:
+    external: true
+    name: ${IO_PROJECT}_${IO_APP}_${IO_STAGE}
 
 volumes:
   data_wp:
     name: ${DATA_WP}
+    external: true
+
+  data_db:
+    name: ${DATA_DB}
     external: true
 
   data_backup:
@@ -274,10 +299,13 @@ Quando for realizado o _deploy_ do _stack_ de containers, todos os demais servi�
 
 É fortemente recomendado que todos os serviços "não-CLI" tenham o atributo de `healthcheck` devidamente configurado. Este atributo permite que [as aplicações sejam monitoradas]({{ site.baseurl }}/docs/health), agregando informação à [dashboard da plataforma](https://dashboard.embrapa.io). O atributo `restart` destes serviços deve estar setado para `unless-stopped`, de forma a garantir maior resiliência da aplicação.
 
-É muito importante que os **volumes** sejam configurados corretamente. Para uso com o _driver_ do Docker Compose, o autômato _Deployer_ da plataforma executa uma série de validações. Dentre elas, somente são aceitos volumes configurados com o atributo `external` igual à `true`. Assim, para instanciar a aplicação em amebiente de desenvolvimento, os desenvolvedores precisarão, por exemplo, fazer algo do tipo:
+É muito importante que os **volumes** e a **network** sejam configurados corretamente. Para uso com os _drivers_ do **Docker Compose** ou **Docker Swarm**, o autômato _Deployer_ da plataforma executa uma série de validações. Dentre elas, somente são aceitos _volumes_ e _networks_ configurados com o atributo `external` igual à `true`. Assim, para instanciar a aplicação em amebiente de desenvolvimento, os desenvolvedores precisarão fazer algo do tipo:
 
 ```bash
+docker network create agroproj_agroapp_development
+docker volume create agroproj_agroapp_db
 docker volume create --driver local --opt type=none --opt device=$(pwd)/data/wp --opt o=bind agroproj_agroapp_wp
+docker volume create --driver local --opt type=none --opt device=$(pwd)/data/backup --opt o=bind agroproj_agroapp_backup
 ```
 
 Em ambientes de _deploy_ (_alpha_, _beta_ e _release_) o volume será criado automaticamente utilizando o _driver_ de _storer_ configurado no _cluster_. Por exemplo, para um [_cluster_ com orquestrador **Docker Compose** utilizando como _storer_ o **NFSv4**]({{ site.baseurl }}/docs/cluster), teríamos algo do tipo:
@@ -286,13 +314,15 @@ Em ambientes de _deploy_ (_alpha_, _beta_ e _release_) o volume será criado aut
 docker volume create --driver local --opt type=nfs --opt o=addr=storage.sede.embrapa.br,rw --opt device=:/mnt/nfs/cluster.sede.embrapa.br/agroproj_agroapp_alpha_wp agroproj_agroapp_alpha_wp
 ```
 
-Por segurança, todos os volumes alocados no _stack_ de containers são checados antes do _deploy_. Assim, **não é possível uma aplicação referenciar e acessar o volume de outra aplicação**. Uma vez que os volumes estejam criados, o desenvolvedor da aplicação poderá instanciá-la com o seguinte comando:
+Por segurança, todos os _volumes_ e a _network_ alocados no _stack_ de containers são checados antes do _deploy_. Assim, **não é possível uma aplicação referenciar e acessar o _volume_ e/ou _network_ de outra aplicação**. Uma vez que os _volumes_ e a _network_ estejam criados, o desenvolvedor da aplicação poderá instanciá-la com o seguinte comando:
 
 ```bash
 env $(cat .env.ci) docker-compose up --force-recreate --build --remove-orphans -d --wait
 ```
 
 Em ambientes de _deploy_ que utilizem o _driver_ do Docker Compose o comando será semelhante, porém existem algumas garantias para assegurar que não sejam, por exemplo, chamados serviços do tipo CLI.
+
+Adicionalmente, repare no exemplo acima o serviço `wordpress`. Este serviço é buildado em tempo de _deploy_, ou seja, existe um arquivo `Dockerfile` para possibilitar sua _build_. Entretanto foi configurada uma imagem com o valor `127.0.0.1:5000/${IO_PROJECT}_${IO_APP}_${IO_STAGE}_wordpress`. Este recurso é utilizado para possibilitar o _deploy_ em outros orquestradores, tal como o **Docker Swarm**. Neste caso, além de realizar a _build_, o **Docker Compose** irá registrar a imagem gerada no [servidor de registro local do _cluster_](https://docs.docker.com/registry/), possibilitando o _deploy_ no _swarm_ na sequência.
 
 ## 6. Implemente os "serviços-padrões" {#cli}
 
@@ -346,7 +376,7 @@ No `docker-compose.yaml` do [exemplo da seção anterior](#docker) é utilizada 
 
 ## 7. Configure os metadados {#metadata}
 
-Todo _boilerplate_ e, consequentemente, toda aplicação na plataforma **embrapa.io** possui um diretório na raiz denominado `.embrapa`. Neste diretório ficam armazenados todos os metadados necessários à parametrização dos processos de DevOps da plataforma. Assim, com exceção do orquestrador [Docker Compose](https://docs.docker.com/compose/), cujo arquivo de configuração fica na raiz da aplicação pois também é utilizado em ambiente de desenvolvimento, recomenda-se fortemente que as configurações que parametrizam as ferramentas de orquestração de containers ([Docker Swarm](https://docs.docker.com/engine/swarm/), [Kubernetes](https://kubernetes.io/pt-br/), [LXC](https://linuxcontainers.org), etc) e PaaS ([RedHat OpenShift](https://www.redhat.com/pt-br/technologies/cloud-computing/openshift), [AWS](https://www.datamation.com/cloud-computing/amazon-web-services.html), [Microsoft Azure](https://www.datamation.com/cloud-computing/microsoft-azure.html), [Google Cloud](https://www.datamation.com/cloud-computing/google-cloud-platform.html), [Heroku](https://www.heroku.com), etc) fiquem, quando possível, neste diretório.
+Todo _boilerplate_ e, consequentemente, toda aplicação na plataforma **embrapa.io** possui um diretório na raiz denominado `.embrapa`. Neste diretório ficam armazenados todos os metadados necessários à parametrização dos processos de DevOps da plataforma. Assim, com exceção do orquestrador [Docker Compose](https://docs.docker.com/compose/), cujo arquivo de configuração fica na raiz da aplicação pois também é utilizado em ambiente de desenvolvimento, as configurações que parametrizam as ferramentas de orquestração de containers ([Docker Swarm](https://docs.docker.com/engine/swarm/), [Kubernetes](https://kubernetes.io/pt-br/), [LXC](https://linuxcontainers.org), etc) e PaaS ([RedHat OpenShift](https://www.redhat.com/pt-br/technologies/cloud-computing/openshift), [AWS](https://www.datamation.com/cloud-computing/amazon-web-services.html), [Microsoft Azure](https://www.datamation.com/cloud-computing/microsoft-azure.html), [Google Cloud](https://www.datamation.com/cloud-computing/google-cloud-platform.html), [Heroku](https://www.heroku.com), etc) devem estar, sempre que possível, neste diretório.
 
 Além disso, neste diretório fica o arquivo `settings.json`, que possui informações necessárias utilizadas pelos [diversos componentes do **embrapa.io**]({{ site.baseurl }}/docs/architecture). Para cada _boilerplate_ criado, será necessário configurar corretamente este arquivo. Vamos tomar como exemplo o _boilerplate_ para WordPress:
 
@@ -378,7 +408,7 @@ Além disso, neste diretório fica o arquivo `settings.json`, que possui informa
       { "name": "WP_DEBUG", "value": "false", "type": "TEXT" }
     ]
   },
-  "orchestrators": [ "DockerCompose" ]
+  "orchestrators": [ "DockerCompose", "DockerSwarm" ]
 }
 ```
 
@@ -415,7 +445,140 @@ Repare que no "**3º Passo - Volumes**", mostrado na imagem acima, a listagem de
 
 Por fim, o atributo `orchestrators` lista os **orquestradores para os quais o _boilerplate_ está homologado**. Cada orquestrador irá exigir parâmetros específicos para permitir o _deploy_ das aplicações. Por exemplo, para que o _boilerplate_ esteja aderente ao [Kubernetes](https://kubernetes.io/pt-br/), espera-se que exista um diretório "`.embrapa/k8s`" contendo os arquivos de configuração necessários. A equipe mantenedora do _boilerplate_ deve, na medida do possível, configurá-lo e homologá-lo na maior quantidade possível de orquestradores aceitos pela plataforma **embrapa.io**.
 
-## 8. Documente e inclua a licença {#readme}
+## 8. Configure outros orquestradores {#orchestrator}
+
+Conforme é detalhado no [capítulo sobre a configuração de _clusters_]({{ site.baseurl }}/docs/cluster), o **embrapa.io** trabalha, por padrão, com o orquestrador **Docker Compose** no ambiente de desenvolvimento, mas outros orquestradores podem ser utilizados nos ambientes remotos de _deploy_. Estas configurações de _deployment_ para cada _driver_ de orquestração deverão estar disponibilizadas no diretório de metadados `.embrapa`.
+
+#### a) Docker Swarm
+
+As configurações para _deploy_ da aplicação em _clusters_ com **Docker Swarm** deverão ser disponibilizadas na pasta `.embrapa/swarm`. Um arquivo principal de _deploy_, denominado `deployment.yaml` deverá estar na raiz desta pasta. Este arquivo deverá ser uma cópia dos `docker-compose.yaml` no diretório raiz da aplicação, porém somente com os serviços do _profile_ de _deploy_.
+
+Todos os serviços deverão ter uma imagem vinculada. Esta imagem deverá ser exatamente a mesma na declaração do serviço nos arquivos `docker-compose.yaml` e `.embrapa/swarm/deployment.yaml`. Em serviços que são buildados em tempo de _deploy_, as imagens geradas deverão ser registradas no [servidor local do Docker Registry](https://docs.docker.com/registry/). Por exemplo, considere o arquivo `docker-compose.yaml` mostrado no [passo de conteinerização do _boilerplate_](#docker). Os arquivo `deployment.yaml` correlato seria:
+
+```yaml
+version: '3.9'
+
+services:
+  db:
+    image: mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWD}
+      MYSQL_DATABASE: ${IO_PROJECT}_${IO_APP}
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: ${DB_PASSWD}
+    volumes:
+      - data_db:/var/lib/mysql
+    networks:
+      - stack
+    healthcheck:
+      test: mysql ${IO_PROJECT}_${IO_APP} --user=wordpress --password='${DB_PASSWD}' --silent --execute "SELECT 1;"
+      interval: 1m30s
+      timeout: 10s
+      start_period: 30s
+      retries: 4
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  wordpress:
+    image: 127.0.0.1:5000/${IO_PROJECT}_${IO_APP}_${IO_STAGE}_wordpress
+    depends_on:
+      - db
+    volumes:
+      - data_wp:/var/www/html
+    ports:
+      - ${PORT}:80
+    networks:
+      - stack
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: ${DB_PASSWD}
+      WORDPRESS_DB_NAME: ${IO_PROJECT}_${IO_APP}
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_DEBUG', ${WP_DEBUG});
+        define('WP_ALLOW_MULTISITE', ${WP_ALLOW_MULTISITE});
+        define('WP_SENTRY_PHP_DSN', '${SENTRY_DSN}');
+        define('WP_SENTRY_ERROR_TYPES', E_ALL & ~E_DEPRECATED & ~E_NOTICE & ~E_USER_DEPRECATED);
+        define('WP_SENTRY_VERSION', @array_shift(explode('-', '${IO_VERSION}')));
+        define('WP_SENTRY_ENV', '${IO_STAGE}' );
+    healthcheck:
+      test: curl --fail -s http://localhost:80/ || exit 1
+      interval: 1m30s
+      timeout: 10s
+      start_period: 30s
+      retries: 4
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+networks:
+  stack:
+    external: true
+    name: ${IO_PROJECT}_${IO_APP}_${IO_STAGE}
+
+volumes:
+  data_wp:
+    name: ${DATA_WP}
+    external: true
+
+  data_backup:
+    name: ${BACKUP}
+    external: true
+
+  data_db:
+    name: ${DATA_DB}
+    external: true
+```
+
+No serviço `wordpress` é declarada a imagem `127.0.0.1:5000/${IO_PROJECT}_${IO_APP}_${IO_STAGE}_wordpress`. Assim, o `docker-compose.yaml` será utilizado para realizar o _build_ da aplicação e registrar as imagens que serão depois utilizadas no _swarm_.
+
+O atributo `deploy` no arquivo `deployment.yaml` é específico do **Docker Swarm**. A plataforma **embrapa.io** restringe o que pode ser configurado neste atributo. Neste momento, é necessário que o valor de `restart-policy` seja `condition: on-failure`. O `mode`, caso seja setado, deve ter o valor `global` (mas é recomendado <u>não configurá-lo</u>). Os atributos `resources` e `replicas` não devem existir.
+
+Os serviços do tipo **CLI** (`backup`, `restore`, `sanitize` e `test`), por sua vez, deverão estar separados em arquivos **YAML** próprios na pasta `.embrapa/swarm/cli`. Por exemplo, para um arquivo `backup.yaml` nesta pasta, teríamos:
+
+```yaml
+version: '3.9'
+
+services:
+  backup:
+    image: mariadb:latest
+    volumes:
+      - data_backup:/backup
+      - data_wp:/var/www/html
+    command: >
+      sh -c  "set -ex &&
+        export BACKUP_DIR=${IO_PROJECT}_${IO_APP}_${IO_STAGE}_${IO_VERSION}_$$(date +'%Y-%m-%d_%H-%M-%S') &&
+        cd /backup && ls -l && mkdir $$BACKUP_DIR &&
+        mysqldump --host db -uroot -p${DB_ROOT_PASSWD} ${IO_PROJECT}_${IO_APP} > $$BACKUP_DIR/db.sql &&
+        cp -R /var/www/html $$BACKUP_DIR/ &&
+        tar -czf $$BACKUP_DIR.tar.gz $$BACKUP_DIR &&
+        ls -la /var/www/html &&
+        rm -rf /backup/$$BACKUP_DIR"
+    networks:
+      - stack
+    deploy:
+      restart_policy:
+        condition: none
+
+networks:
+  stack:
+    external: true
+    name: ${IO_PROJECT}_${IO_APP}_${IO_STAGE}
+
+volumes:
+  data_wp:
+    name: ${DATA_WP}
+    external: true
+
+  data_backup:
+    name: ${BACKUP}
+    external: true
+```
+
+Ao contrário do `deployment.yaml`, na declaração dos serviços **CLI** o atributo `restart_policy` deve ter `condition: none`, uma vez que estes são _one-shot containers_.
+
+## 9. Documente e inclua a licença {#readme}
 
 É **extremamente importante** que, na raiz do repositório do _boilerplate_, tenha os arquivos `README.md` e `LICENSE`. O `README.md` conterá a documentação do _boilerplate_ voltada para os **usuários desenvolvedores**. Ou seja, os usuários que irão derivar seu código-fonte para criar as aplicações finais. Existem [modelos e _templates_](https://github.com/othneildrew/Best-README-Template) de uso livre que podem auxiliar nesta documentação. Neste arquivo estarão presentes informações sobre o _boilerplate_, tal como:
 
@@ -433,7 +596,7 @@ Já no arquivo `LICENSE` estará presente a licença de uso e derivação do _bo
 
 Assim, como sugestão, recomendamos fortemente o uso da [licensa MIT](https://mit-license.org) em todo _boilerplate_ desenvolvido.
 
-## 9. Distribua o _boilerplate_ {#publish}
+## 10. Distribua o _boilerplate_ {#publish}
 
 Para distribuir o _boilerplate_ para uso pela comunidade de desenvolvedores, será necessário disponibilizá-lo no grupo de repositórios `/io/boilerplate` do [GitLab da plataforma](https://git.embrapa.io), onde estará **visível publicamente para todos os usuários**.
 
