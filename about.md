@@ -17,4 +17,4 @@ O **embrapa.io** é uma plataforma digital voltada a apoiar desenvolvedores de s
 
 A plataforma pode ser utilizada pela comunidade de colaboradores internos e externos à Embrapa, sendo uma solução [livre e de código aberto]({{ site.baseurl }}/license).
 
-Ficou interessado? Veja nossa [documentação detalhada]({{ site.baseurl }}/docs/preface) ou [comece a utilizar]({{ site.baseurl }}/docs/quickstart) a plataforma.
+Ficou interessado? Veja nossa [documentação detalhada]({{ site.baseurl }}/docs/preface) e [comece a utilizar]({{ site.baseurl }}/docs/quickstart) a plataforma.

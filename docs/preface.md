@@ -7,8 +7,8 @@ subtitle: Prefácio da documentação técnica.
 ## Prólogo
 
 - [Introdução]({{ site.baseurl }}/docs/introduction)
-- Arquitetura <!-- [Arquitetura]({{ site.baseurl }}/docs/architecture) -->
-- _Squads_ de Desenvolvimento <!-- [_Squads_ de Desenvolvimento]({{ site.baseurl }}/docs/squads) -->
+- [Arquitetura]({{ site.baseurl }}/docs/architecture)
+- [_Squads_ de Desenvolvimento]({{ site.baseurl }}/docs/squads)
 - Trilha: _Zero to Hero_ <!-- [Trilha: _Zero to Hero_]({{ site.baseurl }}/docs/trail) -->
 - Boas Práticas <!-- [Boas Práticas]({{ site.baseurl }}/docs/practices) -->
 - Reúso de Componentes <!-- [Reúso de Componentes]({{ site.baseurl }}/docs/reuse) -->

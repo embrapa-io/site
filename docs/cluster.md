@@ -38,6 +38,8 @@ Adicionalmente, é fortemente recomendado que seja [instalado o Portainer](https
 
 Para instalação do orquestrador em [Docker Compose](https://docs.docker.com/compose/) é necessário disponibilizar um único servidor dedicado (_bare metal_) ou máquina virtual. É recomendado o uso da distribuição [Linux Debian 11 Bullseye](https://www.debian.org/download) ou [Linux Ubuntu Server 22.04 LTS](https://ubuntu.com/download/server). <u>É necessário que seja utilizada a arquitetura <b>amd64</b></u>. No momento da instalação do SO, haverá a possibilidade de instalar pacotes adicionais. Neste momento, selecione o **SSH Server** e o **Docker**.
 
+> **Atenção!** É fortemente recomendado efetuar o [login no Docker](https://docs.docker.com/engine/reference/commandline/login/) utilizando uma conta institucional. O uso do Docker não-autenticado pode resultar em erros durante o processo de _deploy_ (p.e., `Temporary failure in name resolution`).
+
 ![Pacote do Docker selecionado para instalação]({{ site.baseurl }}/assets/img/cluster/03.png)
 
 Para instalar o **Docker Compose**, é recomendado utilizar o [repositório oficial](https://github.com/docker/compose/releases) para obtê-lo em sua versão mais recente:
@@ -58,6 +60,8 @@ Adicione a chave pública SSH da plataforma **embrapa.io** no arquivo `/root/.ss
 ### Docker Swarm
 
 Para instalação do orquestrador em [Docker Swarm](https://docs.docker.com/engine/swarm/) é necessário disponibilizar três ou mais servidores dedicados (_bare metal_) ou máquinas virtuais. Em cada uma delas deverá ser instalado, preferencialmente, a distribuição [Linux Debian 11 Bullseye](https://www.debian.org/download) ou [Linux Ubuntu Server 22.04 LTS](https://ubuntu.com/download/server). <u>É necessário que seja utilizada a arquitetura <b>amd64</b></u>. No momento da instalação do SO, haverá a possibilidade de instalar pacotes adicionais. Neste momento, selecione o **SSH Server** e o **Docker**. Siga os passos da seção anterior para instalar também o **Docker Compose** em sua versão mais recente em cada um dos servidores que compõem o _cluster_.
+
+> **Atenção!** É fortemente recomendado efetuar o [login no Docker](https://docs.docker.com/engine/reference/commandline/login/) utilizando uma conta institucional. O uso do Docker não-autenticado pode resultar em erros durante o processo de _deploy_ (p.e., `Temporary failure in name resolution`).
 
 Adicione a chave pública SSH da plataforma **embrapa.io** no arquivo `/root/.ssh/authorized_keys` de todos os nós do _cluster_, conforme mencionado na seção inicial desta página.
 
