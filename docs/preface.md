@@ -8,17 +8,23 @@ subtitle: Prefácio da documentação técnica.
 
 - [Introdução]({{ site.baseurl }}/docs/introduction)
 - [Arquitetura]({{ site.baseurl }}/docs/architecture)
+- Parceiros <!-- [Parceiros]({{ site.baseurl }}/docs/partners) -->
+- Priorização dos Ativos <!-- [Priorização dos Ativos]({{ site.baseurl }}/docs/pool) -->
 - [_Squads_ de Desenvolvimento]({{ site.baseurl }}/docs/squads)
 - Trilha: _Zero to Hero_ <!-- [Trilha: _Zero to Hero_]({{ site.baseurl }}/docs/trail) -->
+
+## Tópicos Relevantes
+
 - Boas Práticas <!-- [Boas Práticas]({{ site.baseurl }}/docs/practices) -->
 - Reúso de Componentes <!-- [Reúso de Componentes]({{ site.baseurl }}/docs/reuse) -->
+- Teste de Software <!-- [Teste de Software]({{ site.baseurl }}/docs/test) -->
 - [Licenciamento]({{ site.baseurl }}/docs/licensing)
 - [Escalas TRL/MRL e distribuição de MVPs]({{ site.baseurl }}/docs/mvp)
+- Proteção de Dados Pessoais <!-- [Proteção de Dados Pessoais]({{ site.baseurl }}/docs/lgpd) -->
 - [Integração de Ativos Digitais]({{ site.baseurl }}/docs/integration)
 - _Marketplaces_ e ecossistemas digitais <!-- [_Marketplaces_ e ecossistemas digitais]({{ site.baseurl }}/docs/marketplace) -->
-- Gamificação <!-- [Gamificação]({{ site.baseurl }}/docs/gamefication) -->
-- Internet das Coisas <!-- [Internet das Coisas]({{ site.baseurl }}/docs/iot) -->
 - Gestão da Qualidade <!-- [Gestão da Qualidade]({{ site.baseurl }}/docs/quality) -->
+- Gestão da Segurança <!-- [Gestão da Segurança]({{ site.baseurl }}/docs/security) -->
 
 ## Getting Start
 
@@ -43,3 +49,10 @@ subtitle: Prefácio da documentação técnica.
 
 - _Clusters_
 - _Boilerplates_
+
+## Disciplinas Especializadas
+
+- Aprendizado de Máquina
+- _Blockchain_
+- Gamificação <!-- [Gamificação]({{ site.baseurl }}/docs/gamefication) -->
+- Internet das Coisas <!-- [Internet das Coisas]({{ site.baseurl }}/docs/iot) -->
