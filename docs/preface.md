@@ -56,3 +56,23 @@ subtitle: Prefácio da documentação técnica.
 - _Blockchain_
 - Gamificação <!-- [Gamificação]({{ site.baseurl }}/docs/gamefication) -->
 - Internet das Coisas <!-- [Internet das Coisas]({{ site.baseurl }}/docs/iot) -->
+
+<!--
+Regimento da Supervisão de Ativos Digitais:
+
+a) Definir processos alinhados a estratégia organizacional para priorização e aprovação de demandas de ativos digitais de inovação para a agricultura.
+b) Desenvolver ativos digitais com parceiros que assegurem a manutenção do seu ciclo de vida e a transferência de conhecimento tecnológico.
+c) Definir e implantar diretrizes para a garantia da qualidade e segurança de ativos digitais e o alinhamento à legislação vigente.
+d) Prospectar, avaliar e implantar diretrizes para adoção de soluções digitais, usando padrões de mercado.
+e) Gerenciar a força de trabalho de forma a otimizar equipes no desenvolvimento de soluções digitais.
+f) Definir diretrizes, normativos e instruções de boas práticas no desenvolvimento de ativos.
+g) Definir e implantar diretrizes para sustentar o ciclo de vida dos ativos.
+h) Definir e implantar indicadores que garantam o monitoramento dos impactos dos ativos digitais.
+i) Elaborar e executar planos de capacitação continuada em tecnologias habilitadoras.
+j) Definir e implantar diretrizes para a integração de ativos digitais nos ecossistemas digitais das cadeias de produção agropecuária.
+k) Revisar continuamente diretrizes, políticas e metodologias de desenvolvimento de ativos digitais.
+l) Contribuir com a classificação de ativos digitais segundo a escala MRL/TRL e definir o seu estágio de maturidade de entrega, conforme diretrizes da Diretoria de Negócios.
+m) Definir e implantar diretrizes de contigenciamento em caso de impactos negativos dos ativos digitais ou de segurança da informação.
+n) Garantir a entrega de ativos pelas equipes assegurando uma qualidade mínima de artefatos digitais, documentação e aderência metodológica.
+o) Definir e implantar diretrizes para orientar a disponibilização e sustentação dos ativos digitais em catálogos digitais, lojas virtuais e marketplaces.
+-->
