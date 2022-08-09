@@ -15,6 +15,7 @@ subtitle: Prefácio da documentação técnica.
 
 ## Tópicos Relevantes
 
+- Ferramentas de Desenvolvimento <!-- [Ferramentas de Desenvolvimento]({{ site.baseurl }}/docs/tools) -->
 - Boas Práticas <!-- [Boas Práticas]({{ site.baseurl }}/docs/practices) -->
 - Reúso de Componentes <!-- [Reúso de Componentes]({{ site.baseurl }}/docs/reuse) -->
 - Teste de Software <!-- [Teste de Software]({{ site.baseurl }}/docs/test) -->
@@ -47,15 +48,15 @@ subtitle: Prefácio da documentação técnica.
 
 ## Recursos
 
-- _Clusters_
-- _Boilerplates_
+- _Clusters_ <!-- [_Clusters_]({{ site.baseurl }}/resources/clusters) -->
+- _Boilerplates_ <!-- [_Boilerplates_]({{ site.baseurl }}/resources/boilerplates) -->
 
 ## Disciplinas Especializadas
 
-- Aprendizado de Máquina
-- _Blockchain_
-- Gamificação <!-- [Gamificação]({{ site.baseurl }}/docs/gamefication) -->
-- Internet das Coisas <!-- [Internet das Coisas]({{ site.baseurl }}/docs/iot) -->
+- Aprendizado de Máquina <!-- [Aprendizado de Máquina]({{ site.baseurl }}/special/learning) -->
+- _Blockchain_ <!-- [_Blockchain_]({{ site.baseurl }}/special/blockchain) -->
+- Gamificação <!-- [Gamificação]({{ site.baseurl }}/special/gamefication) -->
+- Internet das Coisas <!-- [Internet das Coisas]({{ site.baseurl }}/special/iot) -->
 
 <!--
 Regimento da Supervisão de Ativos Digitais:
