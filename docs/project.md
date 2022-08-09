@@ -71,7 +71,7 @@ Esta é uma das formas de encapsular aplicações em JavaScript, mas existem out
 
 ## Conferindo o GitLab
 
-Quando o projeto é criado fica disponível como um _card_ na _dashboard_ do usuário. Por meio deste _card_ os **mantenedores do projeto** (do inglês, _maintainers_) poderão gerenciá-lo. Por exemplo, é possível ativar e desativar os repositórios de suporte e acessar as páginas de documentação pública do projeto e da API.
+Quando o projeto é criado fica disponível como um _card_ na _dashboard_ do usuário. Por meio deste _card_ os _Architects_ (**Arquitetos da Solução**, como [explicado na página de _Squads_]({{ site.baseurl }}/docs/squads)) poderão gerenciá-lo. Por exemplo, é possível ativar e desativar os repositórios de suporte e acessar as páginas de documentação pública do projeto e da API.
 
 ![Menu de contexto do projeto]({{ site.baseurl }}/assets/img/project/04.png)
 
@@ -89,12 +89,13 @@ Quando o usuário opta por todos os repositórios de suporte do projeto, o grupo
 
 ## Equipe do Projeto
 
-Outra funcionalidade disponível é a **gestão da equipe do projeto**. Inicialmente o projeto terá um único membro na equipe, que é o próprio usuário que o criou. Este usuário poderá então adicionar novos usuários que podem ser de dois tipos:
+Outra funcionalidade disponível é a **gestão da equipe do projeto**, que possibilita inserir usuários ao projeto [atribuindo-lhes papéis]({{ site.baseurl }}/docs/squads). Inicialmente o projeto terá um único membro na equipe (do tipo [_Architect_]({{ site.baseurl }}/docs/squads#architect)), que é o próprio usuário que o criou. Este poderá então adicionar novos usuários, que podem ser de dois tipos:
 
-- **Mantenedores:** Possuem diversas permissões especiais, tal como adicionar novos membros à equipe, relalizar o _deploy_ em produção, o _backup_ de uma _build_ ou 'derrubar' uma instância; ou
-- **Desenvolvedores:** Podem fazer _pull_ para a _branch_ ```main``` e o _deploy_ em ambiente _alpha_ e _beta_ (testes internos e externos, respectivamente).
+- **Arquiteto da Solução (_Architect_):** Possuem diversas permissões especiais, tal como adicionar novos membros à equipe, relalizar o _deploy_ em produção, o _backup_ de uma _build_ ou 'derrubar' uma instância; ou
 
-> **Atenção!** Somente empregados da Embrapa podem ser **mantenedores**.
+- **Outro (_Engineer_, _Analyst_, _Manager_, _Specialist_ ou _Programmer_):** Podem fazer _pull_ para a _branch_ ```main``` e o _deploy_ em ambiente _alpha_ e _beta_ (testes internos e externos, respectivamente).
+
+> **Atenção!** Somente empregados da Embrapa podem ser _Architects_.
 
 ![Adicionando um usuário externo à equipe do projeto]({{ site.baseurl }}/assets/img/project/05.png)
 

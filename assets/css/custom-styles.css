@@ -78,3 +78,7 @@ div.partners div.right
 	font-family: 'Courier New', Courier, monospace;
 	display: inline-block;
 }
+
+table {
+	width: 100%;
+}
