@@ -42,7 +42,7 @@ Adicionalmente, atuará como o secretário executivo do projeto de desenvolvimen
 
 ### _Sponsor_: Analista do Negócio {#sponsor}
 
-Desempenha o papel de patrocinador em um projeto (ou _business owner_), procurando orientar o desenvolvimento de forma a atender melhor o interesse da empresa. É responsável por agendar as _strategy review meeting_ (quinzenais) que, no âmbito do projeto, buscam a transferência mercadológica do ativo, discutindo modelos de negócios, parcerias, licenças e registro de software, etc. Assume este "chapéu" profissionais da área de negócios da Embrapa e dos parceiros envolvidos.
+Desempenha o papel de patrocinador em um projeto (ou _business owner_), procurando orientar o desenvolvimento de forma a atender melhor o interesse da empresa. É responsável por agendar as _strategy review meeting_ (quinzenais) que, no âmbito do projeto, buscam a transferência mercadológica do ativo, discutindo modelos de negócios, parcerias, licenças e registro de software, etc. Assumem este "chapéu" profissionais da área de negócios da Embrapa e dos parceiros envolvidos.
 
 ### _Specialist_: Especialista em TI {#specialist}
 
