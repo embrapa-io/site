@@ -32,13 +32,13 @@ Responsável pelo lavantamento de requisitos, criação de _mockups_ e validaç�
 
 ### _Manager_: Gestor do Domínio de Negócio {#manager}
 
-Normalmente os pesquisadores ou analistas (da área de PD&I) da Embrapa que demandaram a solução (e/ou lideram o projeto/atividade de pesquisa associado). É um profissional da agropecuária, tal como um zootecnista, agrônomo, biólogo ou veterinário. No contexto da metodologia, faz o papel de _product owner_ da solução, responsável por maximizar o valor do produto final.
+Normalmente os pesquisadores ou analistas da área de PD&I da Embrapa que demandaram a solução (e/ou lideram o projeto/atividade de pesquisa associado). É um profissional da agropecuária, tal como um zootecnista, agrônomo, biólogo ou veterinário. No contexto da metodologia, faz o papel de _product owner_ da solução, responsável por maximizar o valor do produto final.
 
 > **Atenção!** É fortemente recomendado que todo ativo digital em desenvolvimento tenha pelo menos dois membros com este papel (um titular e um suplente).
 
-É o responsável por providenciar os requisitos da solução e os dados experimentais necessários para seus desenvolvimento (tal como dados rotulados a serem utilizados pelos [_Specialist_](#specialist) para o treinamento de algoritmos de aprendizado de máquina). Também será responsável pelos testes da solução junto ao público-alvo (articulando, p.e., junto a associações de produtores), bem como aprovar as versões das _builds_ antes de promovê-las a novos estágios de maturidade.
+É o responsável por providenciar os requisitos da solução e os dados experimentais necessários para seu desenvolvimento (tal como dados rotulados a serem utilizados pelos [_Specialist_](#specialist) para o treinamento de algoritmos de aprendizado de máquina). Também será responsável pelos testes da solução junto ao público-alvo (articulando, p.e., junto a associações de produtores), bem como aprovar as versões das _builds_ antes de promovê-las a novos estágios de maturidade.
 
-Adicionalmente, atuará como o secretário executivo do projeto de desenvolvimento do ativo digital: (_a_) gerenciando a agenda de reuniões do projeto; (_b_) demandando recursos externos, tal como a logo e identidade visual para a área de comunicação; (_c_) articulando com a área de negócios da Embrapa e dos parceiros a eventual transferência do ativo; e, (_d_) encabeçando a redação de contratos com agentes externos, formulários e relatórios para outras instâncias, tal como os comitês de propriedade intelectual ou de uso de animais.
+Adicionalmente, atuará como o secretário executivo do projeto de desenvolvimento do ativo digital: (_a_) gerenciando a agenda de reuniões do projeto; (_b_) demandando recursos externos, tal como a logo e identidade visual para a área de comunicação; (_c_) articulando com o [_Sponsor_](#sponsor) e a área de negócios da Embrapa e dos parceiros a transferência do ativo para o mercado; e, (_d_) encabeçando a redação de contratos com agentes externos, formulários e relatórios para outras instâncias, tal como os comitês de propriedade intelectual, ética ou de uso de animais.
 
 ### _Sponsor_: Analista do Negócio {#sponsor}
 
