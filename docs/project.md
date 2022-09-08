@@ -101,6 +101,8 @@ Outra funcionalidade disponível é a **gestão da equipe do projeto**, que poss
 
 Podem ser incluídos na equipe do projeto usuários que já estejam cadastrados na plataforma ou não. Neste último caso, quando o usuário se cadastrar ele será automaticamente vinculado ao projeto.
 
+> **Atenção!** Empregados da Embrapa devem também [acessar diretamente o GitLab](https://git.embrapa.io) pelo menos uma vez para que seu perfil seja importado do diretório de usuários corporativos. Somente após este acesso ele será vinculado ao grupo de repositórios no GitLab e à organização no Sentry.
+
 ![Membros da equipe do projeto]({{ site.baseurl }}/assets/img/project/06.png)
 
 Uma vez que o projeto tenha sido criado e esteja devidamente configurado, os usuários mantenedores poderão agora [adicionar aplicações]({{ site.baseurl }}/docs/app) por meio do botão "**Nova App**" disponível no _card_.
