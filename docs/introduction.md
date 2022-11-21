@@ -45,6 +45,14 @@ Veja mais sobre [como criar e manter _boilerplates_]({{ site.baseurl }}/docs/boi
 
 O [GitLab](https://git.embrapa.io) integrado à plataforma **embrapa.io** possui uma ferramenta embutida de gerencimento ágil de projetos (do inglês, _tracking and agile project management_). Esta ferramenta permite o planejamento das etapas de desenvolvimento por meio de marcos (_milestones_) e do registro de tarefas (_issues_) associadas. Para entender melhor como fazer o planejamento e acompanhamento do projeto, [veja como utilizar a _Kanban board_ integrada]({{ site.baseurl }}/docs/kanban).
 
+## Rodadas Evolutivas {#round}
+
+Durante o ciclo-de-vida da **aplicação**, seu código-fonte passará por diversas evoluções. Quando estas intervenções compreendem esforços que alteram significativamente o software, atribuindo-lhe novas funcionalidades, interfaces, refatorações e/ou integrações, dizemos que trata-se de uma nova **rodada evolutiva** e, portanto, uma nova **macro-versão** da aplicação. Toda vez que uma nova **rodada evolutiva** tem início, uma [equipe (_squad_)]({{ site.baseurl }}/docs/squads) será provisionada com especialistas e profissionais que viabilizem os requisitos funcionais de suas novas _features_.
+
+Na plataforma **embrapa.io** uma **app** pode ser criada visando a entrega de uma **prova de conceito** (do inglês, _Proof of Concept - PoC_), um **protótipo** ou um **produto viável mínimo** (do inglês, _Minimum Viable Product - MVP_), ou seja, uma versão inicial da aplicação em [Escala TRL/MRL]({{ site.baseurl }}/docs/mvp) 5, 6 ou 7, respectivamente. Nesta empreitada, o _squad_ de desenvolvimento irá implementar a macro-versão "0" (zero) desta aplicação. Em uma nova rodada evolutiva, visando a evolução da aplicação para um produto pleno e em produção, teríamos a macro-versão "1". Havendo novas funcionalidades a serem implementadas, poderia-se provisionar novamente uma equipe e desenvolver a macro-versão "2", e assim sucessivamente.
+
+Assim, a cada nova rodada evolutiva, a macro-versão da aplicação é incrementada, prefixando o [nome de versão](#version) do software desenvolvido.
+
 ## Estágios de Maturidade {#stage}
 
 Toda aplicação no **embrapa.io** possui 4 (quatro) estágios de maturidade:
@@ -72,7 +80,7 @@ Para a entrega (_deploy_) de _builds_ é necessário, além de efetuar o _merge_
 
 > macro version . milestone year . milestone month - stage . patch
 
-Desta forma, a versão de uma determinada _build_ poderia ser, por exemplo, "**2.23.4-beta.7**". Neste exemplo, a _build_ em questão está na macro-versão "**2**", correspondente ao _milestone_ "**23.4**" (ou seja, com entrega planejada para **abril de 2023**), no estágio de "**testes externos**" (_beta_) e no "**7º**" _patch_.
+Desta forma, a versão de uma determinada _build_ poderia ser, por exemplo, "**2.23.4-beta.7**". Neste exemplo, a _build_ em questão está na [macro-versão](#round) "**2**", correspondente ao _milestone_ "**23.4**" (ou seja, com entrega planejada para **abril de 2023**), no estágio de "**testes externos**" (_beta_) e no "**7º**" _patch_.
 
 Ao versionar a _build_ de produção (_release_) há uma exceção: **é omitido o qualificador de estágio de maturidade**. Assim, um nome de versão válido para uma _build_ em produção seria "**2.23.4-3**" (versão final para produção, planejada para **abril de 2023**, da aplicação em sua **2ª macro-versão**).
 
