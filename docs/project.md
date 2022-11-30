@@ -16,7 +16,7 @@ No segundo passo o usuário poderá escolher um **nome legível para o projeto**
 
 ![Configuração do projeto]({{ site.baseurl }}/assets/img/project/02.png)
 
-## Repositórios de Suporte
+## Repositórios de Suporte {#support}
 
 Os repositórios de suporte podem ser de 6 (seis) tipos distintos:
 
@@ -87,7 +87,7 @@ Quando o usuário opta por todos os repositórios de suporte do projeto, o grupo
 
 ![Repositórios de suporte do projeto]({{ site.baseurl }}/assets/img/project/03.png)
 
-## Equipe do Projeto
+## Equipe do Projeto {#team}
 
 Outra funcionalidade disponível é a **gestão da equipe do projeto**, que possibilita inserir usuários ao projeto [atribuindo-lhes papéis]({{ site.baseurl }}/docs/squads). Inicialmente o projeto terá um único membro na equipe (do tipo [_Architect_]({{ site.baseurl }}/docs/squads#architect)), que é o próprio usuário que o criou. Este poderá então adicionar novos usuários, que podem ser de dois tipos:
 

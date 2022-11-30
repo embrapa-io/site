@@ -39,6 +39,7 @@ subtitle: Prefácio da documentação técnica.
 - [Fazendo o _deploy_ da _build_]({{ site.baseurl }}/docs/deploy)
 - [Monitorando a _build_]({{ site.baseurl }}/docs/health)
 - [Fazendo o _backup_ de uma _build_]({{ site.baseurl }}/docs/backup)
+- [Arquivando um projeto]({{ site.baseurl }}/docs/archive)
 
 ## Avançado
 
