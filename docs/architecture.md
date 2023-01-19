@@ -8,7 +8,7 @@ O **embrapa.io** é uma [plataforma de software de código-aberto]({{ site.baseu
 
 ![Arquitetura do embrapa.io]({{ site.baseurl }}/assets/img/arch.png)
 
-Os círculos numerados na imagem representam as interfaces disponíveis para os desenvolvedores, sendo elas:
+Os círculos numerados representam as interfaces disponíveis para os desenvolvedores, sendo elas:
 
 1. [https://dashboard.embrapa.io](https://dashboard.embrapa.io)
 2. [https://git.embrapa.io](https://git.embrapa.io)
