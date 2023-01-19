@@ -104,7 +104,7 @@ Vue.use(VueMatomo, {
 })
 ```
 
-Dentre as variáveis de ambiente acima, o **siteId**, o **estágio de maturidade** e a **versão da _build_** [são injetados em tempo de _deploy_ pela plataforma](#env).
+Dentre as variáveis de ambiente acima, o **siteId**, o **estágio de maturidade** e a **versão da _build_** são [injetados em tempo de _deploy_ pela plataforma](#env).
 
 ## 4. Crie os arquivos de _environment variables_ {#env}
 
@@ -154,8 +154,9 @@ De forma a permitir ao [autômato _Genesis_]({{ site.baseurl }}/docs/architectur
 - `%GENESIS_PROJECT_UNIX%`: Nome _unix_ do projeto;
 - `%GENESIS_PROJECT_NAME%`: Nome legível do projeto;
 - `%GENESIS_APP_UNIX%`: Nome _unix_ da aplicação;
-- `%GENESIS_ACTUAL_YEAR%`: Ano atual, com 4 dígitos; e
-- `%GENESIS_VERSION%`: Um número de versão fictício, no padrão "`0.YY.MM-dev.1`".
+- `%GENESIS_ACTUAL_YEAR%`: Ano atual, com 4 dígitos;
+- `%GENESIS_VERSION%`: Um número de versão fictício, no padrão "`0.YY.MM-dev.1`"; e
+- `%GENESIS_MATOMO_ID%`: Identificador único gerado e utilizado pelo [Matomo](#analytics).
 
 Você pode optar por utilizar ou não estas _keywords_ no seu _boilerplate_. O autômato irá substituí-las em todos os arquivos não-ocultos (com exceção dos arquivos `.env.example`, `.env.ci.example` e `.env.cli.example`, onde também serão substituídas).
 
