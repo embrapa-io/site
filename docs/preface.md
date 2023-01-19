@@ -38,8 +38,8 @@ subtitle: Prefácio da documentação técnica.
 - [Configurando os estágios da aplicação]({{ site.baseurl }}/docs/build)
 - [Fazendo o _deploy_ da _build_]({{ site.baseurl }}/docs/deploy)
 - [Monitorando a _build_]({{ site.baseurl }}/docs/health)
-- [Monitorando o acesso de usuários]({{ site.baseurl }}/docs/analytics)
 - [Fazendo o _backup_ de uma _build_]({{ site.baseurl }}/docs/backup)
+- [Monitorando o acesso de usuários]({{ site.baseurl }}/docs/analytics)
 - [Atualizando uma aplicação a partir do seu _boilerplate_]({{ site.baseurl }}/docs/upgrade)
 - [Arquivando um projeto]({{ site.baseurl }}/docs/archive)
 

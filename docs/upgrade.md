@@ -8,7 +8,7 @@ subtitle: Como manter suas apps atualizadas em relação ao boilerplate?
 
 Uma das maiores capacidades do **embrapa.io** é o de fomentar o **desenvolvimento colaborativo de ativos digitais**. Para isso, a plataforma faz uso intensivo dos recursos do [GIT](https://git-scm.com/), possibilitando que manutenções corretivas e evolutivas no código-fonte de diferentes aplicações em projetos distintos possam ser compartilhadas. Este recurso está fortemente embasado no [conceito de _boilerplates_]({{ site.baseurl }}/docs/boilerplate) inerente à plataforma, que faz com que toda aplicação criada seja na realidade um [_fork_ de um repositório-base](https://docs.gitlab.com/ee/user/project/repository/forking_workflow.html). Desta forma, uma vez estabelecido um vínculo entre o repositório-base (_upstream_) e o derivado (_fork_), torna-se possível que alterações sejam mescladas (do inglês, _merged_) do primeiro para o segundo e vice-versa.
 
-É possível, portanto, que erros encontrados ou melhorias identificadas que remetam ao _boilerplate_ [sejam corrigidos e retroalimentem o repositório-base]({{ site.baseurl }}/docs/merge), de forma que novos projetos derivados do mesmo _boilerplate_ se beneficiem destas alterações. Da mesma forma, repositórios derivados já existentes podem ser atualizados a partir das novas revisões do repositório-base, recebendo manutenções corretivas e evolutivas que tenham sido realizadas após sua criação a partir do _boilerplate_.
+É possível, portanto, que erros encontrados ou melhorias identificadas nas apps que remetam ao _boilerplate_ [sejam corrigidos e retroalimentem o repositório-base]({{ site.baseurl }}/docs/merge), de forma que novos projetos derivados do mesmo _boilerplate_ se beneficiem destas alterações. Da mesma forma, repositórios derivados já existentes podem ser atualizados a partir das novas revisões do repositório-base, recebendo manutenções corretivas e evolutivas que tenham sido realizadas após sua criação a partir do _boilerplate_.
 
 Os repositórios de _boilerplates_ são projetos públicos no [GitLab da plataforma **embrapa.io**](https://git.embrapa.io) e podem ser acessados por qualquer usuário da plataforma:
 
@@ -24,7 +24,11 @@ Utilizando seu cliente GIT, abra o repositório da sua aplicação. Primeirament
 
 ![Adicionando o boilerplate como remote]({{ site.baseurl }}/assets/img/upgrade/52.png)
 
-Desta forma, seu repositório estará agora com dois _remotes_: o `origin` e o `upstream`. Em seguida, sincronize a _branch_ `main` do _boilerplate_ (_remote_ `upstream` recém adicionado) criando uma _branch_ local denominada `boilerplate`. Faça agora o _merge_ da _branch_ `boilerplate` para a _branch_ `main` (ou seja, na prática será um _merge_ da _branch_ `main` do _remote_ `upstream` para a _branch_ `main` do _remote_ `origin`), resolvendo os conflitos um-a-um.
+Desta forma, seu repositório estará agora com dois _remotes_: o `origin` e o `upstream`. Em seguida, sincronize a _branch_ `main` do _boilerplate_ (_remote_ `upstream` recém adicionado) criando uma _branch_ local denominada `boilerplate`:
+
+![Branch 'boilerplate' criada a partir da 'main' do remote 'upstream']({{ site.baseurl }}/assets/img/upgrade/54.png)
+
+Faça agora o _merge_ da _branch_ `boilerplate` para a _branch_ `main` (ou seja, na prática será um _merge_ da _branch_ `main` do _remote_ `upstream` para a _branch_ `main` do _remote_ `origin`), resolvendo os conflitos um-a-um:
 
 ![Commitando o merge]({{ site.baseurl }}/assets/img/upgrade/53.png)
 
