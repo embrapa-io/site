@@ -69,7 +69,7 @@ Este repositório (denominado ```io-twa```), quando criado, disponibilizará no 
 
 Esta é uma das formas de encapsular aplicações em JavaScript, mas existem outras como, por exemplo, utilizando o [CapacitorJS](https://capacitorjs.com) ou o [Apache Cordova](https://cordova.apache.org/).
 
-## Conferindo o GitLab
+## Conferindo o GitLab {#git}
 
 Quando o projeto é criado fica disponível como um _card_ na _dashboard_ do usuário. Por meio deste _card_ os _Architects_ (**Arquitetos da Solução**, como [explicado na página de _Squads_]({{ site.baseurl }}/docs/squads)) poderão gerenciá-lo. Por exemplo, é possível ativar e desativar os repositórios de suporte e acessar as páginas de documentação pública do projeto e da API.
 
