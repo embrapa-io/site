@@ -16,4 +16,4 @@ Este _dialog_ apresenta um sumário com as informações mais relevantes, mas os
 
 ![Relatórios completos no Matomo]({{ site.baseurl }}/assets/img/analytics/02.png)
 
-Os relatórios permitem aferir a qualidade geral da aplicação e a recepção do público. Estão presentes informações como o tempo de renderização, o engajamento dos usuários e sua fidelidade, com base em seu uso recorrente.
+Os relatórios permitem aferir a "qualidade percebida" da aplicação e a recepção do público. Estão presentes informações como o tempo de renderização, o engajamento dos usuários e sua fidelidade, com base no uso recorrente.

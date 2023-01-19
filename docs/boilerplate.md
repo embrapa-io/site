@@ -23,14 +23,15 @@ Para criar e disponibilizar seu _boilerplate_, você precisará seguir os seguin
 
 1. [Crie uma "aplicação-base"](#base);
 2. [Integre ao _error tracking_](#bug);
-3. [Crie os arquivos de _environment variables_](#env);
-4. [Utilize as _keywords_ de customização](#keyword);
-5. [Conteinerize seu _boilerplate_](#docker);
-6. [Implemente os "serviços-padrões"](#cli): [_test_](#cli:test), [_backup_](#cli:backup), [_restore_](#cli:restore) e [_sanitize_](#cli:sanitize);
-7. [Configure os metadados](#metadata);
-8. [Configure outros orquestradores](#orchestrator);
-9. [Documente e inclua a licença](#readme); e
-10. [Distribua o _boilerplate_](#publish).
+3. [Integre ao _analytics_](#analytics);
+4. [Crie os arquivos de _environment variables_](#env);
+5. [Utilize as _keywords_ de customização](#keyword);
+6. [Conteinerize seu _boilerplate_](#docker);
+7. [Implemente os "serviços-padrões"](#cli): [_test_](#cli:test), [_backup_](#cli:backup), [_restore_](#cli:restore) e [_sanitize_](#cli:sanitize);
+8. [Configure os metadados](#metadata);
+9. [Configure outros orquestradores](#orchestrator);
+10. [Documente e inclua a licença](#readme); e
+11. [Distribua o _boilerplate_](#publish).
 
 É possível [criar um repositório de aplicação]({{ site.baseurl }}/docs/app) sem utilizar um _boilerplate_. Esta função é útil para instanciar na plataforma sistemas que antecedem o próprio **embrapa.io**. Entretanto, será necessário criar manualmente um repositório no [GitLab](https://git.embrapa.io) e adaptar seu código fonte de forma que ele tenha **toda a estrutura de pastas e arquivos requeridos para um _boilerplate_** (ou seja, seguir os mesmos passos aqui descritos). Em seguida, no momento de criar a aplicação pela _dashboard_, selecione a opção de um "**repositório pré-existente**" (conforme a imagem abaixo).
 
@@ -66,13 +67,13 @@ import { BrowserTracing } from '@sentry/tracing'
 
 Sentry.init({
   Vue,
-  dsn: process.env.SENTRY_DSN,
-  release: '%GENESIS_PROJECT_UNIX%@' + process.env.VERSION.split('-')[0],
-  environment: process.env.STAGE,
+  dsn: process.env.VUE_APP_SENTRY_DSN,
+  release: process.env.VUE_APP_VERSION.split('-')[0],
+  environment: process.env.VUE_APP_STAGE,
   integrations: [
     new BrowserTracing({
       routingInstrumentation: Sentry.vueRouterInstrumentation(router),
-      tracingOrigins: ['localhost',  window.location.host, /^\//]
+      tracingOrigins: ['localhost', window.location.hostname, /^\//]
     })
   ],
   tracesSampleRate: 1.0
@@ -81,7 +82,31 @@ Sentry.init({
 
 Dentre as variáveis de ambiente acima, o **DSN**, a **versão da _build_** (no atributo `release`) e o **estágio de maturidade** (no atributo `environment`) [são injetados em tempo de _deploy_ pela plataforma](#env). A _keyword_ `%GENESIS_PROJECT_UNIX%` é [alterada pelo autômato _Genesis_ no momento do provisionamento da aplicação a partir do _boilerplate_](#keyword).
 
-## 3. Crie os arquivos de _environment variables_ {#env}
+## 3. Integre ao _analytics_ {#analytics}
+
+Similar ao _error tracking_ e conforme também [já detalhado anteriomente]({{ site.baseurl }}/docs/analytics), a plataforma **embrapa.io** é integrada à ferramenta [Matomo](https://matomo.org), utilizada para rastrear e analisar ações de usuários nas aplicações. Assim, no momento em que um projeto ou uma aplicação é criada pela [_dashboard_ da plataforma](https://dashboard.embrapa.io), o [autômato _Genesis_]({{ site.baseurl }}/docs/architecture#genesis) cria a entidade correlata na ferramenta Matomo e atribui a equipe. Pela _dashboard_ será então possível à equipe de desenvolvimento do ativo obter o identificador único de rastreamento ("Matomo Site ID").
+
+![Sumário dos relatórios analíticos]({{ site.baseurl }}/assets/img/analytics/01.png)
+
+Para que funcione corretamente, será necessário preparar o _boilerplate_ para o Matomo [incluindo um código de rastreamento](https://developer.matomo.org/guides/tracking-introduction). Por exemplo, para utilizar em um PWA em VueJS o seguinte trecho de código foi adicionado ao _router_ da aplicação (`/src/router/index.js`):
+
+```js
+import VueMatomo from 'vue-matomo'
+
+Vue.use(VueMatomo, {
+  host: 'https://hit.embrapa.io',
+  siteId: process.env.VUE_APP_MATOMO_ID,
+  router: router,
+  preInitActions: [
+    ['setCustomDimension', 1, process.env.VUE_APP_STAGE],
+    ['setCustomDimension', 2, process.env.VUE_APP_VERSION]
+  ]
+})
+```
+
+Dentre as variáveis de ambiente acima, o **siteId**, o **estágio de maturidade** e a **versão da _build_** [são injetados em tempo de _deploy_ pela plataforma](#env).
+
+## 4. Crie os arquivos de _environment variables_ {#env}
 
 Na plataforma as aplicações são parametrizadas por meio de **variáveis de ambiente**, que são injetadas diretamente durante os processos automatizados (_validate_, _deploy_, _backup_, _restart_, etc). Os principais arquivos utilizados são:
 
@@ -103,6 +128,7 @@ IO_STAGE=development
 IO_VERSION=%GENESIS_VERSION%
 IO_DEPLOYER=first.surname@embrapa.br
 SENTRY_DSN=GET_IN_DASHBOARD
+MATOMO_ID=%GENESIS_MATOMO_ID%
 ```
 
 Acima as variáveis estão sendo setadas com valores propícios ao ambiente de desenvolvimento. Para distribuição do seu _boilerplate_, sugere-se utilizar algo semelhante. Repare na presença de _keywords_ (entre os caracteres '**%**'), que serão explicadas em seguida. Ao copiar e renomear o arquivo (retirando o sufixo `.example`) o desenvolvedor da aplicação precisará ajustar estes valores, tal como [inserir o DSN correto no Sentry]({{ site.baseurl }}/docs/bug).
@@ -121,7 +147,7 @@ WP_DEBUG=true
 WP_ALLOW_MULTISITE=false
 ```
 
-## 4. Utilize as _keywords_ de customização {#keyword}
+## 5. Utilize as _keywords_ de customização {#keyword}
 
 De forma a permitir ao [autômato _Genesis_]({{ site.baseurl }}/docs/architecture#genesis) realizar a customização de alguns aspectos da aplicação, são disponibilizadas algumas palavras-chave de uso reservado (_keywords_) que são substiuídas no momento do provisionamento a partir do _boilerplate_. São elas:
 
@@ -133,7 +159,7 @@ De forma a permitir ao [autômato _Genesis_]({{ site.baseurl }}/docs/architectur
 
 Você pode optar por utilizar ou não estas _keywords_ no seu _boilerplate_. O autômato irá substituí-las em todos os arquivos não-ocultos (com exceção dos arquivos `.env.example`, `.env.ci.example` e `.env.cli.example`, onde também serão substituídas).
 
-## 5. Conteinerize seu _boilerplate_ {#docker}
+## 6. Conteinerize seu _boilerplate_ {#docker}
 
 Normalmente, no próprio site da linguagem ou arcabouço de desenvolvimento utilizado há documentação sobre como conteinerizar o software desenvolvido utilizando o [Docker](https://www.docker.com). Veja como exemplo o tutorial "[_Dockerize Vue.js App_](https://v2.vuejs.org/v2/cookbook/dockerize-vuejs-app.html)" na documentação oficial do VueJS.
 
@@ -324,7 +350,7 @@ Em ambientes de _deploy_ que utilizem o _driver_ do Docker Compose o comando ser
 
 Adicionalmente, repare no exemplo acima o serviço `wordpress`. Este serviço é buildado em tempo de _deploy_, ou seja, existe um arquivo `Dockerfile` para possibilitar sua _build_. Entretanto foi configurada uma imagem com o valor `127.0.0.1:5000/${IO_PROJECT}_${IO_APP}_${IO_STAGE}_wordpress`. Este recurso é utilizado para possibilitar o _deploy_ em outros orquestradores, tal como o **Docker Swarm**. Neste caso, além de realizar a _build_, o **Docker Compose** irá registrar a imagem gerada no [servidor de registro local do _cluster_](https://docs.docker.com/registry/), possibilitando o _deploy_ no _swarm_ na sequência.
 
-## 6. Implemente os "serviços-padrões" {#cli}
+## 7. Implemente os "serviços-padrões" {#cli}
 
 Conforme já comentado, existem alguns serviços do tipo CLI que são requeridos pela plataforma em todas as aplicações instanciadas. Assim, os _boilerplates_ devem prover uma versão inicial destes serviços no _stack_ de containers, que poderá ser aprimorada pelo desenvolvedor da aplicação posteriormente. Detalharemos mais cada um deles a seguir.
 
@@ -374,7 +400,7 @@ A plataforma **embrapa.io** implementa um [processo de higienização/otimizaç�
 
 No `docker-compose.yaml` do [exemplo da seção anterior](#docker) é utilizada a ferramenta de linha de comando `mysqlcheck` para efetuar a [manutenção das tabelas](https://mariadb.com/kb/en/mysqlcheck/) do banco de dados [MariaDB](https://mariadb.org) utilizado no [WordPress](https://br.wordpress.org). Outras ferramentas e comandos similares que podem ser utilizadas neste serviço são o [_vacuum_ do PostgreSQL](https://www.postgresql.org/docs/current/sql-vacuum.html), o [_shrink_ do SQL Server](https://docs.microsoft.com/en-us/sql/relational-databases/databases/shrink-a-database), o [_compact_ do MongoDB](https://www.mongodb.com/docs/manual/reference/command/compact/), etc.
 
-## 7. Configure os metadados {#metadata}
+## 8. Configure os metadados {#metadata}
 
 Todo _boilerplate_ e, consequentemente, toda aplicação na plataforma **embrapa.io** possui um diretório na raiz denominado `.embrapa`. Neste diretório ficam armazenados todos os metadados necessários à parametrização dos processos de DevOps da plataforma. Assim, com exceção do orquestrador [Docker Compose](https://docs.docker.com/compose/), cujo arquivo de configuração fica na raiz da aplicação pois também é utilizado em ambiente de desenvolvimento, as configurações que parametrizam as ferramentas de orquestração de containers ([Docker Swarm](https://docs.docker.com/engine/swarm/), [Kubernetes](https://kubernetes.io/pt-br/), [LXC](https://linuxcontainers.org), etc) e PaaS ([RedHat OpenShift](https://www.redhat.com/pt-br/technologies/cloud-computing/openshift), [AWS](https://www.datamation.com/cloud-computing/amazon-web-services.html), [Microsoft Azure](https://www.datamation.com/cloud-computing/microsoft-azure.html), [Google Cloud](https://www.datamation.com/cloud-computing/google-cloud-platform.html), [Heroku](https://www.heroku.com), etc) devem estar, sempre que possível, neste diretório.
 
@@ -445,7 +471,7 @@ Repare que no "**3º Passo - Volumes**", mostrado na imagem acima, a listagem de
 
 Por fim, o atributo `orchestrators` lista os **orquestradores para os quais o _boilerplate_ está homologado**. Cada orquestrador irá exigir parâmetros específicos para permitir o _deploy_ das aplicações. Por exemplo, para que o _boilerplate_ esteja aderente ao [Kubernetes](https://kubernetes.io/pt-br/), espera-se que exista um diretório "`.embrapa/k8s`" contendo os arquivos de configuração necessários. A equipe mantenedora do _boilerplate_ deve, na medida do possível, configurá-lo e homologá-lo na maior quantidade possível de orquestradores aceitos pela plataforma **embrapa.io**.
 
-## 8. Configure outros orquestradores {#orchestrator}
+## 9. Configure outros orquestradores {#orchestrator}
 
 Conforme é detalhado no [capítulo sobre a configuração de _clusters_]({{ site.baseurl }}/docs/cluster), o **embrapa.io** trabalha, por padrão, com o orquestrador **Docker Compose** no ambiente de desenvolvimento, mas outros orquestradores podem ser utilizados nos ambientes remotos de _deploy_. Estas configurações de _deployment_ para cada _driver_ de orquestração deverão estar disponibilizadas no diretório de metadados `.embrapa`.
 
@@ -578,7 +604,7 @@ volumes:
 
 Ao contrário do `deployment.yaml`, na declaração dos serviços **CLI** o atributo `restart_policy` deve ter `condition: none`, uma vez que estes são _one-shot containers_.
 
-## 9. Documente e inclua a licença {#readme}
+## 10. Documente e inclua a licença {#readme}
 
 É **extremamente importante** que, na raiz do repositório do _boilerplate_, tenha os arquivos `README.md` e `LICENSE`. O `README.md` conterá a documentação do _boilerplate_ voltada para os **usuários desenvolvedores**. Ou seja, os usuários que irão derivar seu código-fonte para criar as aplicações finais. Existem [modelos e _templates_](https://github.com/othneildrew/Best-README-Template) de uso livre que podem auxiliar nesta documentação. Neste arquivo estarão presentes informações sobre o _boilerplate_, tal como:
 
@@ -596,7 +622,7 @@ Já no arquivo `LICENSE` estará presente a licença de uso e derivação do _bo
 
 Assim, como sugestão, recomendamos fortemente o uso da [licensa MIT](https://mit-license.org) em todo _boilerplate_ desenvolvido.
 
-## 10. Distribua o _boilerplate_ {#publish}
+## 11. Distribua o _boilerplate_ {#publish}
 
 Para distribuir o _boilerplate_ para uso pela comunidade de desenvolvedores, será necessário disponibilizá-lo no grupo de repositórios `/io/boilerplate` do [GitLab da plataforma](https://git.embrapa.io), onde estará **visível publicamente para todos os usuários**.
 
