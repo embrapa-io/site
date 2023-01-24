@@ -106,6 +106,29 @@ Vue.use(VueMatomo, {
 
 Dentre as variáveis de ambiente acima, o **siteId**, o **estágio de maturidade** e a **versão da _build_** são [injetados em tempo de _deploy_ pela plataforma](#env).
 
+Caso esteja configurando o Matomo em um _boilerplate_ para aplicações do tipo _server-side_, é possível passar o `token_auth` no código de rastreamento para gerar relatórios analíticos mais detalhados. O **embrapa.io** injeta a variável de ambiente `MATOMO_TOKEN` com a chave para a API. Esta chave tem **permissão de escrita** no site e, por conta disso, é um dado sensível para a segurança das aplicações. Assim, valor real do `token_auth` é injetado apenas nos serviços de _deploy_ e _restart_ das aplicações. Nos demais serviços (tal como de `validate` ou `backup`) o valor injetado na variável `MATOMO_TOKEN` é uma chave aleatória, sem real permissão de acesso à API do Matomo.
+
+> **Atenção!** Por questão de segurança, **jamais utilize a variável `MATOMO_TOKEN` em aplicações de _frontend_ ou exponha seu valor na interface do usuário!**
+
+Um exemplo de uso do `token_auth` do Matomo injetado pelo **embrapa.io** pode ser visto no código PHP abaixo:
+
+```php
+require __DIR__ . '/vendor/autoload.php';
+
+if (defined ('MATOMO_ID') && defined ('MATOMO_URL') && defined ('MATOMO_STAGE') && defined ('MATOMO_VERSION')) {
+	$matomo = new MatomoTracker((int) MATOMO_ID, MATOMO_URL);
+
+	if (defined ('MATOMO_TOKEN') && trim (MATOMO_TOKEN) != '') $matomo->setTokenAuth (MATOMO_TOKEN);
+
+	$matomo->setCustomDimension(1, MATOMO_STAGE);
+	$matomo->setCustomDimension(2, MATOMO_VERSION);
+
+	$matomo->doTrackPageView($pageTitle);
+}
+```
+
+Neste código está sendo utilizado o pacote [Matomo PHP Tracker](https://github.com/matomo-org/matomo-php-tracker), instalado via [PHP Composer](https://getcomposer.org/), que permite realizar [requisições específicas à API de rastreamento do Matomo](https://developer.matomo.org/api-reference/PHP-Matomo-Tracker).
+
 ## 4. Crie os arquivos de _environment variables_ {#env}
 
 Na plataforma as aplicações são parametrizadas por meio de **variáveis de ambiente**, que são injetadas diretamente durante os processos automatizados (_validate_, _deploy_, _backup_, _restart_, etc). Os principais arquivos utilizados são:
@@ -129,6 +152,7 @@ IO_VERSION=%GENESIS_VERSION%
 IO_DEPLOYER=first.surname@embrapa.br
 SENTRY_DSN=GET_IN_DASHBOARD
 MATOMO_ID=%GENESIS_MATOMO_ID%
+MATOMO_TOKEN=
 ```
 
 Acima as variáveis estão sendo setadas com valores propícios ao ambiente de desenvolvimento. Para distribuição do seu _boilerplate_, sugere-se utilizar algo semelhante. Repare na presença de _keywords_ (entre os caracteres '**%**'), que serão explicadas em seguida. Ao copiar e renomear o arquivo (retirando o sufixo `.example`) o desenvolvedor da aplicação precisará ajustar estes valores, tal como [inserir o DSN correto no Sentry]({{ site.baseurl }}/docs/bug).
@@ -217,6 +241,11 @@ services:
         define('WP_SENTRY_ERROR_TYPES', E_ALL & ~E_DEPRECATED & ~E_NOTICE & ~E_USER_DEPRECATED);
         define('WP_SENTRY_VERSION', @array_shift(explode('-', '${IO_VERSION}')));
         define('WP_SENTRY_ENV', '${IO_STAGE}' );
+        define('WP_MATOMO_URL', 'https://hit.embrapa.io');
+        define('WP_MATOMO_ID', ${MATOMO_ID});
+        define('WP_MATOMO_TOKEN', '${MATOMO_TOKEN}');
+        define('WP_MATOMO_STAGE', '${IO_STAGE}');
+        define('WP_MATOMO_VERSION', '${IO_VERSION}');
     healthcheck:
       test: curl --fail -s http://localhost:80/ || exit 1
       interval: 20s
@@ -529,6 +558,11 @@ services:
         define('WP_SENTRY_ERROR_TYPES', E_ALL & ~E_DEPRECATED & ~E_NOTICE & ~E_USER_DEPRECATED);
         define('WP_SENTRY_VERSION', @array_shift(explode('-', '${IO_VERSION}')));
         define('WP_SENTRY_ENV', '${IO_STAGE}' );
+        define('WP_MATOMO_URL', 'https://hit.embrapa.io');
+        define('WP_MATOMO_ID', ${MATOMO_ID});
+        define('WP_MATOMO_TOKEN', '${MATOMO_TOKEN}');
+        define('WP_MATOMO_STAGE', '${IO_STAGE}');
+        define('WP_MATOMO_VERSION', '${IO_VERSION}');
     healthcheck:
       test: curl --fail -s http://localhost:80/ || exit 1
       interval: 1m30s

@@ -44,6 +44,7 @@ IO_VERSION=2.22.5-alpha.5
 IO_DEPLOYER=camilo@carromeu.com
 SENTRY_DSN=https://6389eb20b717423344fea535c489ef93@bug.embrapa.io/47
 MATOMO_ID=2
+MATOMO_TOKEN=e4c42495a19e1c63ecaa7e1c7285d599
 
 INFO > Trying to clone app... done!
 INFO > Checking SSH connection to host 'cluster.sede.embrapa.br'... ok!
