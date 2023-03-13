@@ -4,6 +4,8 @@ title: Sobre
 subtitle: Aprenda, colabore, desenvolva e distribua soluções digitais para o agro sustentável
 ---
 
+<iframe width="730" height="410" src="https://www.youtube.com/embed/NwZ6kwrbnL4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 O **embrapa.io** é uma plataforma digital voltada a apoiar desenvolvedores de software na virtuosa tarefa de solucionar problemas da agropecuária. Seus pilares são:
 
 - **Aprendizado**: a plataforma guia o desenvolvedor por consagradas trilhas de conhecimento no estado da arte da tecnologia;

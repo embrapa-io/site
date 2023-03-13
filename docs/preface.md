@@ -1,11 +1,12 @@
 ---
 layout: page
 title: Prefácio
-subtitle: Prefácio da documentação técnica.
+subtitle: Prefácio da documentação técnica
 ---
 
 ## Prólogo
 
+- [Macroprocesso]({{ site.baseurl }}/docs/macroprocess)
 - [Introdução]({{ site.baseurl }}/docs/introduction)
 - [Arquitetura]({{ site.baseurl }}/docs/architecture)
 - Parceiros <!-- [Parceiros]({{ site.baseurl }}/docs/partners) -->

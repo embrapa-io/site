@@ -82,3 +82,8 @@ div.partners div.right
 table {
 	width: 100%;
 }
+
+iframe, object, embed {
+	max-width: 100%;
+	max-height: 100%;
+}
