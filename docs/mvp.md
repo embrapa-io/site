@@ -22,7 +22,7 @@ Enquanto se mantiver na fase de MVP, é altamente recomendado "sinalizar" aos us
 
 ![Faixa de Beta Release]({{ site.baseurl }}/assets/img/mvp/01.png)
 
-> **Atenção!** É importante não confundir este qualificador do ativo com o [estágio de maturidade homônimo]({{ site.baseurl }}/docs/introduction#stage) presente nos ciclos de desenvolvimento das aplicações. Ou seja, uma <u>aplicação</u> pode estar em estágio de maturidade _alpha_, _beta_ ou _release_ apesar de compor um MVP, ou seja, um <u>ativo digital</u> em _Beta Release_.
+> **Atenção!** É importante não confundir este qualificador do ativo com o [estágio homônimo]({{ site.baseurl }}/docs/introduction#stage) presente nos ciclos de desenvolvimento das aplicações. Ou seja, uma <u>aplicação</u> pode estar em estágio _alpha_, _beta_ ou _release_ apesar de compor um MVP, ou seja, um <u>ativo digital</u> em _Beta Release_.
 
 Uma vez que o objetivo é transferir o ativo, é importante que sejam disponibilizados canais de comunicação de forma que empresas possam entrar em contato para iniciar tratativas de um potencial acordo comercial. Assim, ao clicar sobre o _ribbon_, os usuários tem acesso aos detalhes do nível de maturidade do ativo e informações de contato:
 

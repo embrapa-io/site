@@ -76,7 +76,7 @@ h) Definir e implantar indicadores que garantam o monitoramento dos impactos dos
 i) Elaborar e executar planos de capacitação continuada em tecnologias habilitadoras.
 j) Definir e implantar diretrizes para a integração de ativos digitais nos ecossistemas digitais das cadeias de produção agropecuária.
 k) Revisar continuamente diretrizes, políticas e metodologias de desenvolvimento de ativos digitais.
-l) Contribuir com a classificação de ativos digitais segundo a escala MRL/TRL e definir o seu estágio de maturidade de entrega, conforme diretrizes da Diretoria de Negócios.
+l) Contribuir com a classificação de ativos digitais segundo a escala MRL/TRL e definir o seu estágio de entrega, conforme diretrizes da Diretoria de Negócios.
 m) Definir e implantar diretrizes de contigenciamento em caso de impactos negativos dos ativos digitais ou de segurança da informação.
 n) Garantir a entrega de ativos pelas equipes assegurando uma qualidade mínima de artefatos digitais, documentação e aderência metodológica.
 o) Definir e implantar diretrizes para orientar a disponibilização e sustentação dos ativos digitais em catálogos digitais, lojas virtuais e marketplaces.

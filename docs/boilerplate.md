@@ -80,7 +80,7 @@ Sentry.init({
 })
 ```
 
-Dentre as variáveis de ambiente acima, o **DSN**, a **versão da _build_** (no atributo `release`) e o **estágio de maturidade** (no atributo `environment`) [são injetados em tempo de _deploy_ pela plataforma](#env). A _keyword_ `%GENESIS_PROJECT_UNIX%` é [alterada pelo autômato _Genesis_ no momento do provisionamento da aplicação a partir do _boilerplate_](#keyword).
+Dentre as variáveis de ambiente acima, o **DSN**, a **versão da _build_** (no atributo `release`) e o **estágio** (no atributo `environment`) [são injetados em tempo de _deploy_ pela plataforma](#env). A _keyword_ `%GENESIS_PROJECT_UNIX%` é [alterada pelo autômato _Genesis_ no momento do provisionamento da aplicação a partir do _boilerplate_](#keyword).
 
 ## 3. Integre ao _analytics_ {#analytics}
 
@@ -104,7 +104,7 @@ Vue.use(VueMatomo, {
 })
 ```
 
-Dentre as variáveis de ambiente acima, o **siteId**, o **estágio de maturidade** e a **versão da _build_** são [injetados em tempo de _deploy_ pela plataforma](#env).
+Dentre as variáveis de ambiente acima, o **siteId**, o **estágio** e a **versão da _build_** são [injetados em tempo de _deploy_ pela plataforma](#env).
 
 Caso esteja configurando o Matomo em um _boilerplate_ para aplicações do tipo _server-side_, é possível passar o `token_auth` no código de rastreamento para gerar relatórios analíticos mais detalhados. O **embrapa.io** injeta a variável de ambiente `MATOMO_TOKEN` com a chave para a API. Esta chave tem **permissão de escrita** no site e, por conta disso, é um dado sensível para a segurança das aplicações. Assim, valor real do `token_auth` é injetado apenas nos serviços de _deploy_ e _restart_ das aplicações. Nos demais serviços (tal como de `validate` ou `backup`) o valor injetado na variável `MATOMO_TOKEN` é uma chave aleatória, sem real permissão de acesso à API do Matomo.
 
@@ -478,7 +478,7 @@ Os atributos `label`, `description`, `references` e `maintainers` (auto-explicat
 
 ![Renderização das infos do boilerplate]({{ site.baseurl }}/assets/img/boilerplate/02.png)
 
-No atributo `variables` são inseridas as _environment variables_ que parametrizam a aplicação, ou seja, as mesmas contidas no arquivo `.env`. A plataforma **embrapa.io** carrega estas variáveis, com seus respectivos valores padrão, no momento da [configuração da _build_]({{ site.baseurl }}/docs/build). Serão carregadas primeiro as variáveis do atributo `default` e, em seguida, sobreescrevendo estas, as variáveis dos atributos homônimos ao estágio de maturidade da _build_ que está sendo configurada (`alpha`, `beta` ou `release`). No exemplo acima, está sendo habilitado por padrão o _debug_ (variável `WP_DEBUG`) para as _builds_ em estágio de testes internos (_alpha_) e externos (_beta_), e desabilitado para as _builds_ em produção (_release_).
+No atributo `variables` são inseridas as _environment variables_ que parametrizam a aplicação, ou seja, as mesmas contidas no arquivo `.env`. A plataforma **embrapa.io** carrega estas variáveis, com seus respectivos valores padrão, no momento da [configuração da _build_]({{ site.baseurl }}/docs/build). Serão carregadas primeiro as variáveis do atributo `default` e, em seguida, sobreescrevendo estas, as variáveis dos atributos homônimos ao estágio da _build_ que está sendo configurada (`alpha`, `beta` ou `release`). No exemplo acima, está sendo habilitado por padrão o _debug_ (variável `WP_DEBUG`) para as _builds_ em estágio de testes internos (_alpha_) e externos (_beta_), e desabilitado para as _builds_ em produção (_release_).
 
 Outro exemplo de uso é para setar o _environment_ interno aos arcabouços de programação. Por exemplo, uma aplicação [ASP.NET](https://docs.microsoft.com/pt-br/aspnet/core/) aceita os seguintes valores para a variável `ASPNETCORE_ENVIRONMENT`: `Development`, `Staging`, `Staging_2` e `Production` ([conforme a documentação](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments)). Assim, poderia ser configurado no arquivo `.env.example` do _boilerplate_ a variável `ASPNETCORE_ENVIRONMENT=Development`, de forma que os desenvolvedores, ao renomearem o arquivo para iniciar a customização da aplicação, já usariam o valor correto para o _environment_ de desenvolvimento. Nas configurações de metadados do _boilerplate_ no arquivo `settings.json`, esta variável poderia ser setada no subgrupo `alpha` como `Staging`, em `beta` como `Staging_2` e em `release` como `Production`. A mesma estratégia pode pode ser utilizada para a variável `NODE_ENV`, [comumente utilizada em projetos em JavaScript](https://www.geeksforgeeks.org/what-is-node_env-in-node-js/), e demais correlatas em outras linguagens e arcabouços de programação.
 

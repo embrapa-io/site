@@ -4,6 +4,8 @@ title: Projetos
 subtitle: Como criar um novo projeto de ativo digital?
 ---
 
+<iframe width="730" height="410" src="https://www.youtube.com/embed/BK7kfxDNofo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 Ao [acessar a _dashboard_]({{ site.baseurl }}/docs/dashboard) da plataforma, o usuário verá na barra superior um **botão para criar um novo projeto**.
 
 > **Atenção!** Somente empregados da Embrapa podem criar novos projetos.

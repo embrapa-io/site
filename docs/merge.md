@@ -57,7 +57,7 @@ Utilizando um cliente GIT ou a própria interface do GitLab, faça o _checkout_ 
 
 ![Merge request: fazendo as alterações no código-fonte]({{ site.baseurl }}/assets/img/merge/04.png)
 
-Faça agora o _merge_ da sua _branch_ de correção para o troco do projeto (_main_). Teste em ambiente de desenvolvimento. Estando tudo certo, faça o _merge_ da _main_ para a _branch_ de estágio de maturidade _alpha_ e [realize o _deploy_ criando uma nova _tag_]({{ site.baseurl }}/docs/deploy). No nosso exemplo, uma vez que o _deploy_ da _build_ `agroapp/api@alpha` tenha sido realizado com sucesso, iremos testar novamente o serviço de _backup_ diretamente no ambiente de testes internos.
+Faça agora o _merge_ da sua _branch_ de correção para o troco do projeto (_main_). Teste em ambiente de desenvolvimento. Estando tudo certo, faça o _merge_ da _main_ para a _branch_ de estágio _alpha_ e [realize o _deploy_ criando uma nova _tag_]({{ site.baseurl }}/docs/deploy). No nosso exemplo, uma vez que o _deploy_ da _build_ `agroapp/api@alpha` tenha sido realizado com sucesso, iremos testar novamente o serviço de _backup_ diretamente no ambiente de testes internos.
 
 Uma vez que esteja tudo funcionando corretamente, iremos realizar um _merge request_ da nossa _branch_ de correção para o repositório-base (ou seja, do _boileplate_), que no nosso estudo de caso é `io/boilerplate/nodejs-mongodb-jwt-password-less` (veja a primeira imagem desta página). Para isso, crie um _merge request_ tendo como _source_ a _branch_ de correção e como _target_ o tronco do repositório do _boilerplate_:
 

@@ -4,6 +4,8 @@ title: Introdução
 subtitle: Conceitos básicos da plataforma
 ---
 
+<iframe width="730" height="410" src="https://www.youtube.com/embed/yEaiqeUxyu8" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 A plataforma **embrapa.io** permite que sejam estruturados **projetos de software de ativos digitais para a agropecuária**, guiando os desenvolvedores em padrões e métodos bem definidos. Antes de utilizá-la, é necessário compreender alguns conceitos inerentes à plataforma.
 
 Primeiramente, assume-se que cada ativo digital será formado por diversos softwares desacoplados, além de outros artefatos de apoio. Este conceito reflete o padrão atual de desenvolvimento de software, onde uma solução tem um _backend_ integrado ao banco de dados, um _frontend_ na Web, um aplicativo _mobile_, dentre outros (ou pode ainda ainda ser baseada em [_microservices_](https://microservices.io) ou [_micro-frontends_](https://micro-frontends.org)), com diversos módulos, _plugins_, _packages_ e componentes que seguem ciclos de vida independentes.
@@ -53,9 +55,9 @@ Na plataforma **embrapa.io** uma **app** pode ser criada visando a entrega de um
 
 Assim, a cada nova rodada evolutiva, a macro-versão da aplicação é incrementada, prefixando o [nome de versão](#version) do software desenvolvido.
 
-## Estágios de Maturidade {#stage}
+## Estágios {#stage}
 
-Toda aplicação no **embrapa.io** possui 4 (quatro) estágios de maturidade:
+O desenvolvimento de novas funcionalidades e manutenções corretivas e evolutivas de uma aplicação no **embrapa.io** evolui por 4 (quatro) estágios:
 
 - **_development_**: Estágio de **desenvolvimento**, que roda apenas na estação de trabalho dos desenvolvedores;
 - **_alpha_**: Estágio de **testes internos**, apto ao _deploy_ na plataforma;
@@ -64,25 +66,25 @@ Toda aplicação no **embrapa.io** possui 4 (quatro) estágios de maturidade:
 
 Quando uma nova **app** é criada em um **projeto** a partir de um _boilerplate_, na prática o **embrapa.io** faz um _fork_ do repositório do [GitLab](https://git.embrapa.io) do _boilerplate_ para dentro do projeto. Neste momento, o _boilerplate_ é customizado com algumas informações do projeto e são criadas automaticamente 4 (quatro) _branches_: _main_, _alpha_, _beta_ e _release_.
 
-A metodologia de controle de versões adotada pelo **embrapa.io** segue a diretriz de "_Trunk Based Development_", onde há uma _branch_ principal, neste caso denominada "_main_", onde todas as _revisions_ devem ser concentradas. Assim, qualquer ramificação deve ter sua origem no tronco (_main_) e retornar a ele. Quando uma nova versão precisa ser entregue (_deploy_), é feito um _merge_ do tronco (_main_) para uma _branch_ de estágio de maturidade (_alpha_, _beta_ ou _release_). A _branch_ de estágio de maturidade é então tagueada para a versão específica. Veremos mais sobre isso no [passo de _deploy_ de _builds_]({{ site.baseurl }}/docs/deploy).
+A metodologia de controle de versões adotada pelo **embrapa.io** segue a diretriz de "_Trunk Based Development_", onde há uma _branch_ principal, neste caso denominada "_main_", onde todas as _revisions_ devem ser concentradas. Assim, qualquer ramificação deve ter sua origem no tronco (_main_) e retornar a ele. Quando uma nova versão precisa ser entregue (_deploy_), é feito um _merge_ do tronco (_main_) para uma _branch_ do estágio (_alpha_, _beta_ ou _release_). A _branch_ do estágio é então tagueada para a versão específica. Veremos mais sobre isso no [passo de _deploy_ de _builds_]({{ site.baseurl }}/docs/deploy).
 
 ## Build {#build}
 
-A _build_ é uma instância de determinada aplicação em um estágio de maturidade específico. Seu nome é formado pelo padrão:
+A _build_ é uma instância de determinada aplicação em um estágio específico. Seu nome é formado pelo padrão:
 
 > project / app @ stage
 
-Quando uma [nova app é criada]({{ site.baseurl }}/docs/app), pode-se habilitar até 3 (três) _builds_ para ela, cada uma relacionada a um dos estágios de maturidade: _alpha_, _beta_ e _release_. Para isso, será necessário [configurar cada _build_ separadamente]({{ site.baseurl }}/docs/build). Para que uma _build_ seja instanciada na plataforma **embrapa.io** e, desta forma, disponibilizada publicamente, ela precisará primeiramente ter sua configuração validada. A configuração de uma _build_ envolve o _cluster_ em que ela será instanciada, os _volumes_ para armazenamento de dados, a definição das variáveis de ambiente da instância e a associação de URLs externas (_aliases_).
+Quando uma [nova app é criada]({{ site.baseurl }}/docs/app), pode-se habilitar até 3 (três) _builds_ para ela, cada uma relacionada a um estágio: _alpha_, _beta_ e _release_. Para isso, será necessário [configurar cada _build_ separadamente]({{ site.baseurl }}/docs/build). Para que uma _build_ seja instanciada na plataforma **embrapa.io** e, desta forma, disponibilizada publicamente, ela precisará primeiramente ter sua configuração validada. A configuração de uma _build_ envolve o _cluster_ em que ela será instanciada, os _volumes_ para armazenamento de dados, a definição das variáveis de ambiente da instância e a associação de URLs externas (_aliases_).
 
 ## Versão {#version}
 
-Para a entrega (_deploy_) de _builds_ é necessário, além de efetuar o _merge_ da _branch_ "_main_" na _branch_ de estágio de maturidade (_alpha_, _beta_ ou _release_), criar uma _tag_ nesta última _branch_ de forma a informar à plataforma **embrapa.io** que existe uma nova versão da _build_ a ser instanciada no servidor remoto. Para nomear esta _tag_, a plataforma institui um padrão bem definido de nome de versão:
+Para a entrega (_deploy_) de _builds_ é necessário, além de efetuar o _merge_ da _branch_ "_main_" na _branch_ de estágio (_alpha_, _beta_ ou _release_), criar uma _tag_ nesta última _branch_ de forma a informar à plataforma **embrapa.io** que existe uma nova versão da _build_ a ser instanciada no servidor remoto. Para nomear esta _tag_, a plataforma institui um padrão bem definido de nome de versão:
 
 > macro version . milestone year . milestone month - stage . patch
 
 Desta forma, a versão de uma determinada _build_ poderia ser, por exemplo, "**2.23.4-beta.7**". Neste exemplo, a _build_ em questão está na [macro-versão](#round) "**2**", correspondente ao _milestone_ "**23.4**" (ou seja, com entrega planejada para **abril de 2023**), no estágio de "**testes externos**" (_beta_) e no "**7º**" _patch_.
 
-Ao versionar a _build_ de produção (_release_) há uma exceção: **é omitido o qualificador de estágio de maturidade**. Assim, um nome de versão válido para uma _build_ em produção seria "**2.23.4-3**" (versão final para produção, planejada para **abril de 2023**, da aplicação em sua **2ª macro-versão**).
+Ao versionar a _build_ de produção (_release_) há uma exceção: **é omitido o qualificador de estágio**. Assim, um nome de versão válido para uma _build_ em produção seria "**2.23.4-3**" (versão final para produção, planejada para **abril de 2023**, da aplicação em sua **2ª macro-versão**).
 
 Este padrão de nomes de versão é aderente ao padrão [SemVer 2.0.0](https://semver.org/). É importante frisar que a plataforma **embrapa.io** valida se as _tags_ estão sendo criadas com nomes válidos e nas _branches_ corretas, somente efetuando o _deploy_ se tudo estiver conforme o padrão.
 
