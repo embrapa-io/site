@@ -4,13 +4,15 @@ title: Aplicação
 subtitle: Adicionando uma aplicação ao projeto
 ---
 
+<iframe width="730" height="410" src="https://www.youtube.com/embed/ZAkhZT7K5h8" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 Conforme [explicitado no capítulo de introdução]({{ site.baseurl }}/docs/introduction#project), um **projeto de ativo digital** na plataforma pode ser composto por diversos softwares desacoplados. Assim, cada um destes softwares-componentes será uma **aplicação** independente no projeto, com seu código-fonte armazenado e versionado em um repositório específico no [GitLab](https://git.embrapa.io) e tendo um ciclo de vida próprio.
 
-Para criar uma nova aplicação, um **usuário mantenedor** deverá clicar no botão "**Nova App**", no rodapé do _card_ do projeto. Isso iniciará um _wizard_ que guiará o usuário por alguns passos. Inicialmente é apresentado ao usuário um _disclaimer_, o qual ele deverá estar ciente.
+Para criar uma nova aplicação, um **arquiteto da solução** do projeto deverá clicar no botão "**Nova App**", no rodapé do _card_ do projeto. Isso iniciará um _wizard_ que guiará o usuário por alguns passos. Inicialmente é apresentado ao usuário um _disclaimer_, o qual ele deverá estar ciente.
 
 ![Disclaimer de criação de app]({{ site.baseurl }}/assets/img/app/01.png)
 
-No segundo passo, o usuário deverá selecionar o _boilerplate_ que será utilizado para gerar o código-fonte inicial da aplicação. Conforme foi [explicado no capítulo de introdução]({{ site.baseurl }}/docs/introduction#boilerplate), o _boilerplate_ é necessário para estruturar a aplicação no padrão requerido pelo **embrapa.io**. Na maioria das vezes o _boilerplate_ será apenas uma espécie de ```Hello Word```, ou seja, o menor conjunto de código-fonte possível para instanciar uma aplicação em determinada linguagem de programação ou _framework_ de desenvolvimento.
+No segundo passo, o usuário deverá selecionar o _boilerplate_ que será utilizado para gerar o código-fonte inicial da aplicação. Conforme foi [explicado no capítulo de introdução]({{ site.baseurl }}/docs/introduction#boilerplate), o _boilerplate_ é necessário para estruturar a aplicação no padrão requerido pelo **embrapa.io**. Na maioria das vezes o _boilerplate_ será apenas uma espécie de ```Hello Word```, ou seja, o menor conjunto de código-fonte possível para instanciar uma aplicação em determinada linguagem de programação ou _framework_ de desenvolvimento, porém estruturado com os requisitos para torná-lo aderente aos _pipelines_ de DevOps do Embrapa I/O.
 
 É possível criar uma aplicação sem utilizar um _boilerplate_ como base. Para isso deverá ser utilizada a opção "**repositório pré-existente**" no campo de seleção. Neste caso, o repositório da aplicação deverá ser criado de antemão e possuir a mesma estrutura requerida por um _boilerplate_, [conforme explicado no tutorial de criação de _boilerplates_]({{ site.baseurl }}/docs/boilerplate).
 
