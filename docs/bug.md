@@ -4,6 +4,8 @@ title: Error Tracking
 subtitle: Monitorando e rastreando erros nas aplicações
 ---
 
+<iframe width="730" height="410" src="https://www.youtube.com/embed/rEtBufZGcBQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 Como parte da plataforma **embrapa.io**, há uma ferramenta de _error tracking_ integrada, denominada [Sentry](https://sentry.io), que é automaticamente configurada no momento da criação de [projetos]({{ site.baseurl }}/docs/project) e [aplicações]({{ site.baseurl }}/docs/app). Ela está disponível para acesso em:
 
 <div style="margin: 0 auto; text-align: center;">

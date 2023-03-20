@@ -4,6 +4,8 @@ title: Build
 subtitle: Preparando um estágio da aplicação para deploy
 ---
 
+<iframe width="730" height="410" src="https://www.youtube.com/embed/xg819nDYAT0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 Conforme [detalhado anteriormente]({{ site.baseurl }}/docs/kanban), a plataforma **embrapa.io** adota uma metodologia de desenvolvimento baseada na entrega de melhorias contínuas e graduais. Desta forma, uma vez que o [processo de codificação das aplicações]({{ site.baseurl }}/docs/app) se inicie, já é possível configurar os ambientes de estágio para entrega da aplicação para **testadores internos** (_alpha testers_), **testadores externos** (_beta testers_) e para os **usuários finais** em produção (_release users_).
 
 Quando uma **aplicação** é disponibilizada em um determinado **ambiente de estágio**, denominamos esta combinação como uma ***build*** da aplicação. Seu nome será dado pela junção do nome _unix_ do projeto (_namespace_), o nome _unix_ da aplicação e o estágio (_alpha_, _beta_ ou _release_):

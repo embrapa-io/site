@@ -4,6 +4,8 @@ title: Planejamento
 subtitle: Registrando e acompanhando milestones e issues do projeto
 ---
 
+<iframe width="730" height="410" src="https://www.youtube.com/embed/vEeXAqRBTaw" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 O GitLab da plataforma **embrapa.io** está adisponível para acesso em:
 
 <div style="margin: 0 auto; text-align: center;">
