@@ -4,6 +4,8 @@ title: Monitoramento
 subtitle: Acompanhando e gerindo a build no ambiente remoto
 ---
 
+<iframe width="730" height="410" src="https://www.youtube.com/embed/0skE1rcQVI4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 Após realizar o [_deploy_ de uma _build_ em ambiente remoto]({{ site.baseurl }}/docs/deploy), novas funções estarão disponíveis no _card_ da aplicação no [_dashboard_ da plataforma]({{ site.baseurl }}/docs/dashboard) para auxiliar a equipe de desenvolvimento no monitoramento e gestão da instância.
 
 ![Dialog de monitoramento e gestão da instância]({{ site.baseurl }}/assets/img/health/01.png)

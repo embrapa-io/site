@@ -4,6 +4,8 @@ title: Backup
 subtitle: Executando e obtendo o backup da build
 ---
 
+<iframe width="730" height="410" src="https://www.youtube.com/embed/0y14G711KnI" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 Pela tela de [monitoramento de gestão da instância]({{ site.baseurl }}/docs/health) é possível realizar o _backup_ dos dados da aplicação.
 
 ![Executando o processo de backup de instância]({{ site.baseurl }}/assets/img/backup/01.png)
