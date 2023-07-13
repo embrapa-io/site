@@ -49,6 +49,7 @@ subtitle: Prefácio da documentação técnica
 - [Criando e mantendo um _boilerplate_]({{ site.baseurl }}/docs/boilerplate)
 - [Propondo melhorias a um _boilerplate_]({{ site.baseurl }}/docs/merge)
 - [Configurando e disponibilizando um _cluster_]({{ site.baseurl }}/docs/cluster)
+- [Releaser: _deploy_ de _builds_ em _clusters_ externos]({{ site.baseurl }}/docs/releaser)
 
 ## Recursos
 

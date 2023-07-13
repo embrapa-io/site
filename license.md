@@ -1,10 +1,10 @@
 ---
 layout: page
 title: Licença
-subtitle: Licença de software do embrapa.io, 1ª Versão.
+subtitle: Licença de software do Embrapa I/O, 1ª Versão.
 ---
 
-Copyright © 2022, Brazilian Agricultural Research Corporation (Embrapa). All rights reserved.
+Copyright © 2021-2023, Brazilian Agricultural Research Corporation (Embrapa). All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
@@ -20,11 +20,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ## List of Holders ##
 
-- **Brazilian Agricultural Research Corporation (Embrapa)**: through the Digital Asset Development Supervision.
+- **Brazilian Agricultural Research Corporation (Embrapa)**: through the Digital Assets Development Supervision.
 
 ## List of Contributors ##
 
 - [Camilo Carromeu](https://www.embrapa.br/equipe/-/empregado/354215/camilo-carromeu)
 - [Fabiano Mariath D'Oliveira](https://www.embrapa.br/equipe/-/empregado/349285/fabiano-mariath-doliveira)
 - [Murilo Martins da Silva Junior](https://www.embrapa.br/equipe/-/empregado/301262/murilo-martins-da-silva-junior)
+- [Ricardo Fonseca Araujo](https://www.embrapa.br/group/intranet/pessoas/-/empregado/354239/ricardo-fonseca-araujo)
 - [Rommel Teodoro de Oliveira](https://www.embrapa.br/equipe/-/empregado/349627/rommel-teodoro-de-oliveira)
