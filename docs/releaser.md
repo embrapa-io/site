@@ -14,15 +14,11 @@ Devido a estes pontos, foi criada uma ferramenta, denominada **Releaser**, visan
 
 - como um **serviço executando em segundo plano (_daemon_)**, mantendo as _builds_ atualizadas para a sua versão mais recente e executando periodicamente os processos de _backup_ e _sanitize_.
 
+É importante ressaltar que a ferramenta **Releaser** implementa alguns dos _pipelines_ de DevOps do **Embrapa I/O**, mas não todos. A responsabilidade pela configuração de rotas, das URLs (CNAMEs), balanceamento de carga e certificados SSL (criação e atualização periódica), por exemplo, ficarão a cargo de um administrador da rede, que deverá realizar estas tarefas manualmente.
+
 ## Instalação
 
-A ferramenta está disponível publicamente como uma imagem no [Docker Hub](https://hub.docker.com):
-
-<div style="margin: 0 auto; text-align: center;">
-    <a class="btn btn-info btn-lg" href="https://hub.docker.com/r/embrapa/releaser" target="_blank">embrapa/releaser</a>
-</div>
-
-Para utilizá-la, primeiramente **crie um diretório** onde serão colocados os **arquivos de configuração**:
+A ferramenta está [disponível publicamente como uma imagem no **Docker Hub**](https://hub.docker.com/r/embrapa/releaser). Para utilizá-la, primeiramente **crie um diretório** onde serão colocados os **arquivos de configuração**:
 
 ```bash
 mkdir ~/embrapa-io-releaser
@@ -30,7 +26,9 @@ mkdir ~/embrapa-io-releaser
 cd ~/embrapa-io-releaser
 ```
 
-> **Atenção!** Neste diretório serão configuradas as chaves de acesso à plataforma **Embrapa I/O** e todas as informações necessárias para o _deploy_ das _builds_. Assim, em caso de restauração do ambiente, estes arquivos serão essenciais. Portanto, garanta o _backup_ deste diretório sempre que houver alterações nestas configurações.
+Neste diretório serão configuradas as chaves de acesso à plataforma **Embrapa I/O** e todas as informações necessárias para o _deploy_ das _builds_. Assim, em caso de restauração do ambiente, estes arquivos serão essenciais.
+
+> **Atenção!** É fortemente recomendado o _backup_ deste diretório sempre que houver alterações nestas configurações.
 
 Atualmente a ferramenta **Releaser** funciona com dois orquestradores de containers: [Docker Compose](https://docs.docker.com/compose/) e [Docker Swarm](https://docs.docker.com/engine/swarm/).
 
@@ -44,7 +42,13 @@ docker run --name releaser \
   embrapa/releaser
 ```
 
-Para utilizar em um servidor com **Docker Swarm**, ela deverá ser instanciada como um serviço em um nó do tipo _manager_:
+Para utilizar em um servidor com **Docker Swarm**, primeiramente você deve ter um [Docker Registry](https://docs.docker.com/registry/) rodando localmente:
+
+```bash
+docker service create --name registry --publish published=5000,target=5000 registry:2
+```
+
+Em seguida, instancie a ferramenta **Releaser** como um serviço em um nó do tipo _manager_:
 
 ```bash
 docker service create --name releaser \
@@ -70,7 +74,7 @@ docker exec -it releaser io
 docker exec -it $(docker ps -q -f name=releaser) io
 ```
 
-Caso o diretório de configuração (`~/embrapa-io-releaser` neste exemplo) esteja vazio, você será orientado no preenchimento das variáveis de ambiente necessárias ao funcionamento da ferramenta. Ao final de uma série de perguntas, será criado um arquivo `.env` com um conteúdo semelhante ao abaixo:
+Caso o diretório de configuração (`~/embrapa-io-releaser`, neste exemplo) esteja vazio, você será orientado no preenchimento das variáveis de ambiente necessárias ao funcionamento da ferramenta. Ao final de uma série de perguntas, será criado um arquivo `.env` com um conteúdo semelhante ao abaixo:
 
 ```bash
 SERVER=cloud.cnpgc.embrapa.br
@@ -90,9 +94,9 @@ O `GITLAB_TOKEN` deve ser obtido por meio da interface do [GitLab do Embrapa I/O
 
 > **Atenção!** O usuário que irá gerar o **Access Token** deverá ter acesso a todos os projetos que terão apps instanciadas pela ferramenta **Releaser** neste servidor.
 
-As variáveis com o prefixo `SMTP` são necessárias para configuração do envio de e-mails. A ferramenta **Releaser**, quando rodando no modo _daemon_, envia um e-mail de log sempre que ocorre a atualização de uma aplicação para uma nova versão (ou em caso de erro). Conforme será visto abaixo, pode-se configurar para cada _build_ o time que irá receber estes e-mails. Além disso, deve-se configurar um e-mail padrão de log (variável `LOG_MAIL`) que também recebe todos os e-mails enviados.
+As variáveis com o prefixo `SMTP` são necessárias para configuração do envio de e-mails. A ferramenta **Releaser**, quando rodando no modo _daemon_, envia um e-mail de _log_ sempre que ocorre a atualização de uma aplicação para uma nova versão (ou em caso de erro). Conforme será visto abaixo, pode-se configurar para cada _build_ o time que irá receber estes e-mails. Além disso, deve-se configurar um e-mail padrão de _log_ (variável `LOG_MAIL`) que também recebe todos os e-mails enviados.
 
-Além disso, caso não exista, será gerado um par de chaves SSH. Estas chaves são necessárias para a sincronização do código-fonte das aplicações. Você deve acessar novamente seu _profile_ no GitLab da plataforma e ir na opção [SSH Keys](https://git.embrapa.io/-/profile/keys). Cadastre então o conteúdo da chave pública gerada (arquivo `ssh.pub`).
+Além disso, será gerado um par de chaves SSH, caso não exista. Estas chaves são necessárias para a sincronização do código-fonte das aplicações. Você deve acessar novamente seu _profile_ no GitLab da plataforma e ir na opção [SSH Keys](https://git.embrapa.io/-/profile/keys). Cadastre então o conteúdo da chave pública gerada (arquivo `ssh.pub`).
 
 Por fim, você deverá configurar as [_builds_ das aplicações]({{ site.baseurl }}/docs/introduction#build) que serão gerenciadas pela ferramenta **Releaser**. Para cada _build_ deverá haver uma entrada no arquivo `builds.json`. Por exemplo:
 
@@ -117,6 +121,12 @@ Por fim, você deverá configurar as [_builds_ das aplicações]({{ site.baseurl
       "deploy": true,
       "backup": false,
       "sanitize": false
+    },
+    "env": {
+      "PORT": "49152",
+      "VUE_APP_API": "https://test.cnpgc.embrapa.br/pasto-certo/api",
+      "VUE_APP_TOKEN": "sPOve29ZnLmtNAiLRLjh5EzKrS2Unnno",
+      "VUE_APP_ANALYTICS": "UA-123456789-0"
     }
   },
   {
@@ -137,6 +147,20 @@ Por fim, você deverá configurar as [_builds_ das aplicações]({{ site.baseurl
       "deploy": true,
       "backup": true,
       "sanitize": true
+    },
+    "env": {
+      "PORT": "49153",
+      "ENVIRONMENT": "test",
+      "SECRET": "dOpSqbFtj4Yzqa7lAR0jt3mRDgw09JsA",
+      "SMTP_HOST": "smtp.cnpgc.embrapa.br",
+      "SMTP_PORT": "587",
+      "SMTP_SECURE": "yes",
+      "EXPRESS_PORT": "49154",
+      "MONGO_NON_ROOT_USERNAME": "user",
+      "MONGO_ROOT_PASSWORD": "secret",
+      "MONGO_NON_ROOT_PASSWORD": "secret",
+      "MONGO_DATA": "andro-certo_api_alpha_db",
+      "BACKUP": "andro-certo_api_alpha_backup"
     }
   }
 ]
@@ -144,19 +168,19 @@ Por fim, você deverá configurar as [_builds_ das aplicações]({{ site.baseurl
 
 No exemplo acima foram configuradas duas _builds_: `pasto-certo/pwa@release` e `andro-certo/api@beta`. O atributo `team` lista os e-mails que irão receber os _logs_ do processo de _deploy_ correlatos a cada _build_. O atributo _auto_ permite ativar os serviços que serão executados de forma periódica, sendo eles:
 
-- ***deploy***: Executa a cada **15 minutos** a busca por novas versões, ou seja, _tags_ na _branch_ do estágio da _build_. Caso encontre, executa o processo de _deploy_ da nova _tag_ e envia, tendo sucesso ou não, um e-mail de _log_;
+- ***deploy***: Executa a cada **15 minutos** a busca por novas versões, ou seja, _tags_ na _branch_ do estágio da _build_. Caso encontre, executa o processo de _deploy_ da nova _tag_ e envia um e-mail de _log_ (informando o sucesso ou eventuais erros no procedimento);
 
 - ***backup***: Executa **diariamente** o serviço de _backup_ da _stack_ de _containers_ da _build_. É fundamental que o [serviço de _backup_]({{ site.baseurl }}/docs/backup) esteja corretamente configurado na aplicação. Os arquivos de backup serão salvos no volume externo de _backup_; e
 
 - ***sanitize***: Executa **mensalmente** o serviço de sanitização, caso esteja corretamenta configurado na _stack_ de _containers_ da _build_. Mais informações sobre os processos de higienização/otimização dos _containers_ podem ser encontradas [no tutorial de criação de _boilerplates_]({{ site.baseurl }}/docs/boilerplate).
 
-Além de configurar as _builds_ no arquivo `builds.json`, será necessário também criar um diretório para cada _build_ dentro da pasta `apps/`. O conteúdo deste diretório será copiado para o código-fonte clonado da _build_ antes da execução do processo de _deploy_. Nesta pasta deverá haver, pelo menos, o arquivo `.env` que configura as variáveis de ambiente da _build_. O nome deste diretório deverá ser no padrão `[project]_[app]_[stage]`, ou seja, como o nome da _build_, porém substituindo os caracteres `/` e `@` por `_`.
+No atributo `env` devem ser listadas as variáveis de ambiente que serão injetadas no momento do _deploy_. Mais especificamente, será gerado um arquivo `.env` na raiz do diretório clonado da aplicação, de forma idêntica à utilizada para instanciar a aplicação em ambiente local de desenvolvimento.
 
 Pronto! Caso tenha seguido corretamente os passos acima, a ferramenta estará pronta para ser executada.
 
 ## Utilização
 
-Para utilizar a ferramenta, execute o seguinte comando...
+Para utilizar a ferramenta, execute a seguinte instrução...
 
 ...no **Docker Compose**:
 
@@ -181,9 +205,21 @@ Os comandos disponíveis são:
 - ***sanitize***: Executa o processo de higienização/otimização da _build_; e
 - ***info***: Exibe a versão de cada _build_ instanciada e outros comandos úteis do orquestrador que podem ser utilizados.
 
+Por exemplo, para **validar** todas as _builds_ configuradas em um servidor com **Docker Compose**, faríamos:
+
+```bash
+docker exec -it releaser io validate --all
+```
+
+Para fazer o ***rollback*** da _build_ `pasto-certo/pwa@release` para a versão `4.23.7-15` em um _cluster_ com **Docker Swarm**, faríamos:
+
+```bash
+docker exec -it $(docker ps -q -f name=releaser) io rollback pasto-certo/pwa@release 4.23.7-15
+```
+
 ## Atualização
 
-Para atualizar a ferramenta **Releaser** para a última versão, acesse o diretório de configuração (`~/embrapa-io-releaser` no exemplo acima) e execute...
+Para atualizar a ferramenta **Releaser** para a última versão, acesse o diretório de configuração (`~/embrapa-io-releaser`, no exemplo acima) e execute...
 
 ...no **Docker Compose**:
 
@@ -222,6 +258,8 @@ docker exec -it $(docker ps -q -f name=releaser) io
 A ferramenta **Releaser** é de código-aberto e está [disponível publicamente no GitHub](https://github.com/embrapa-io/releaser). Ela utiliza a distribuição [Alpine Linux](https://www.alpinelinux.org) como sistema operacional.
 
 Para acessar o sistema de arquivos do _container_ da ferramenta, execute...
+
+...no **Docker Compose**:
 
 ```bash
 docker exec -it releaser bash
