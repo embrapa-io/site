@@ -244,6 +244,8 @@ docker stop releaser && docker rm releaser
 
 docker pull embrapa/releaser
 
+cd ~/releaser
+
 docker run --name releaser \
   -v $(pwd):/data \
   -v /var/run/docker.sock:/var/run/docker.sock \
@@ -259,6 +261,8 @@ docker exec -it releaser io
 docker service rm releaser
 
 docker pull embrapa/releaser
+
+cd ~/releaser
 
 docker service create --name releaser \
   --constraint=node.hostname==$(hostname) \
