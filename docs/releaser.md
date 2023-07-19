@@ -290,3 +290,74 @@ docker exec -it releaser bash
 ```bash
 docker exec -it $(docker ps -q -f name=releaser) bash
 ```
+
+## Dicas
+
+A seguir são listadas algumas dicas complementares para uso da ferramenta **Releaser**.
+
+### Backup
+
+Por padrão, os _boilerplates_ de aplicações da plataforma **Embrapa I/O** [implementam um serviço de _backup_]({{ site.baseurl }}/docs/boilerplate#cli:backup). Caso a aplicação instanciada pelo **Releaser** tenha este serviço na _stack_ de _containers_, pode-se habilitá-lo para ser executado diariamente (veja acima).
+
+A dica é utilizar um único volume de _backup_ para todas as aplicações instanciadas no servidor. Com isso ficará mais fácil implementar um _script_ que copie todos os novos arquivos gerados para, p.e., um _storage_ remoto.
+
+No exemplo abaixo criamos um volume denominado `backup` que será utilizado por todas as _builds_ instanciadas:
+
+```bash
+docker volume create --driver local --opt type=none --opt device=/root/backup --opt o=bind backup
+```
+
+Basta agora informar este volume no momento de configurar as _environment variables_ no arquivo `builds.json`.
+
+### Domínios e certificados SSL/TLS
+
+Conforme mencionado acima, o **Releaser** implementa diversos _pipelines_ de _DevOps_ do **Embrapa I/O**, porém alguns processos importantes não estão contemplados. Por exemplo, uma vez que a aplicação tenha sido implantada pela ferramenta **Releaser** em seu servidor, ela estará acessível apenas pelas portas expostas pelo Docker. Faz-se necessário configurar manualmente um ou mais domínios e seus respectivos certificados SSL/TLS para publicar a aplicação de forma amigável.
+
+A dica aqui é o uso do servidor web [Nginx](https://nginx.org/) associado com certificados gerados pelo [Let's Encrypt](https://letsencrypt.org). O primeiro passo para esta configuração é a criação de um registro `CNAME` no servidor DNS do domínio escolhido. 
+
+Por exemplo, vamos supor que esteja sendo disponibilizada a _build_ `pasto-certo/pwa@beta` no servidor `cloud.cnpgc.embrapa.br`. Neste exemplo a aplicação implantada no servidor foi exposta na porta **49152**. Queremos que esta aplicação fique acessível por meio do subdomínio `https://beta.pastocerto.com`. O primeiro passo será cadastrar no servidor DNS que gerencia o domínio `pastocerto.com` uma entrada do tipo `CNAME` apontando para `cloud.cnpgc.embrapa.br`.
+
+No servidor `cloud.cnpgc.embrapa.br` deverá estar instalado, além do Docker, o servidor web Nginx. Deverá também estar disponível o utilitário de linha de comando `certbot`, [conforme instruções de instalação para o sistema operacional do servidor](https://certbot.eff.org). Atendidos estes requisitos, podemos fazer:
+
+```bash
+certbot certonly --nginx --domains beta.pastocerto.com
+```
+
+Este comando irá gerar as chaves TLS necessárias. Em seguida, podemos configurar o subdomínio no Nginx adicionando um arquivo de configuração denominado `pasto-certo_pwa_beta.conf` (normalmente em `/etc/nginx/sites-available/`) com o seguinte conteúdo:
+
+```conf
+server {
+  listen 443 ssl http2;
+  listen [::]:443 ssl http2;
+
+  ssl_certificate /etc/letsencrypt/live/beta.pastocerto.com/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/beta.pastocerto.com/privkey.pem;
+  ssl_protocols TLSv1.2 TLSv1.3;
+
+  server_name beta.pastocerto.com;
+
+  location / {
+    resolver 127.0.0.1 [::1];
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_cache_bypass $http_upgrade;
+    proxy_ssl_session_reuse off;
+    proxy_pass http://127.0.0.1:49152;
+  }
+}
+```
+
+Por fim, habilite esta configuração, teste-a e reinicie o servidor Nginx:
+
+```bash
+ln -s /etc/nginx/sites-available/pasto-certo_pwa_beta.conf /etc/nginx/sites-enabled/
+
+nginx -t
+
+/etc/init.d/nginx reload && /etc/init.d/nginx restart
+```
