@@ -89,6 +89,7 @@ GITLAB_TOKEN=z2dK8wqkMDc7O1FucoYW
 SMTP_HOST=smtp.cnpgc.embrapa.br
 SMTP_PORT=587
 SMTP_SECURE=yes
+SMTP_FROM=no-reply@embrapa.br
 SMTP_USER=cixin.liu@embrapa.br
 SMTP_PASS=secret
 LOG_MAIL=cnpgc.suporte@embrapa.br
