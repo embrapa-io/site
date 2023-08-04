@@ -15,6 +15,7 @@ Os círculos numerados representam as interfaces disponíveis para os desenvolve
 3. [https://bug.embrapa.io](https://bug.embrapa.io)
 4. [https://hit.embrapa.io](https://hit.embrapa.io)
 5. [https://backup.embrapa.io](https://backup.embrapa.io)
+6. [https://hub.docker.com/r/embrapa/releaser](https://hub.docker.com/r/embrapa/releaser)
 
 Cada componente da _big picture_ acima é descrito a seguir:
 
@@ -53,3 +54,7 @@ Ferramenta responsável pelo rastreamento de erros (do inglês, _error tracking_
 ## Matomo {#analytics}
 
 Ferramenta responsável pelo monitoramento e análise estatística de uso das aplicações, [disponível para acesso pelos desenvolvedores]({{ site.baseurl }}/docs/analytics).
+
+## Releaser {#releaser}
+
+Ferramenta "avulsa" à plataforma, que permite a entrega (_deploy_) de aplicações em ambientes externos, tal como servidores em _data centers_ de parceiros ou em nuvens privadas. A ferramenta está [disponível publicamente para uso pelos desenvolvedores]({{ site.baseurl }}/docs/releaser).
