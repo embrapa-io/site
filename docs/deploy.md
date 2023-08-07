@@ -19,9 +19,15 @@ A plataforma é criteriosa quanto ao formato do número de versão da _tag_. Já
 Ao fazer o _push_ da _tag_ para a _origin_, o autômato irá detectar a nova versão e iniciar o processo de _deploy_ no ambiente. Este processo envolve as seguintes etapas:
 
 1. Validação da _build_ na versão específica;
-2. Criação dos _volumes_ no servidor de _storage_;
-3. Backup dos dados da instância atual da _build_; e
-4. Provisionamento da nova versão no _cluster_.
+2. Criação da _network_ da _stack_ de containers;
+3. Criação dos _volumes_ no servidor de _storage_;
+4. Backup dos dados da instância atual da _build_;
+5. Construção (p.e., `docker compose build`) dos serviços da _stack_ de containers; e
+6. Inicialização (p.e., `docker compose run`) dos serviços no _cluster_.
+
+> **Atenção (a)!** A execução do **backup** durante o processo de deploy (item 4) possui um tempo limite de **1 hora**. Caso não seja concluído neste período, a execução do backup é interrompida, mas o processo de deploy continua.
+
+> **Atenção (b)!** A **construção dos serviços** (item 5) possui um tempo limite de **15 minutos**. Caso não seja concluído neste período, o processo de deploy é interrompido e a build é marcada como inválida.
 
 Um e-mail será enviado aos membros da equipe do projeto com os _logs_ do processo executado, semelhante ao abaixo:
 
