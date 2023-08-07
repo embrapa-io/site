@@ -18,7 +18,7 @@ A plataforma é criteriosa quanto ao formato do número de versão da _tag_. Já
 
 Ao fazer o _push_ da _tag_ para a _origin_, o autômato irá detectar a nova versão e iniciar o processo de _deploy_ no ambiente. Este processo envolve as seguintes etapas:
 
-1. Validação da _build_ na versão específica;
+1. Revalidação da _build_ na versão específica;
 2. Criação da _network_ da _stack_ de containers;
 3. Criação dos _volumes_ no servidor de _storage_;
 4. Backup dos dados da instância atual da _build_;
