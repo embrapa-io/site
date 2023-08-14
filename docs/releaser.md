@@ -49,7 +49,10 @@ docker run --name releaser \
 Para utilizar em um servidor com **Docker Swarm**, primeiramente você deve ter um [Docker Registry](https://docs.docker.com/registry/) rodando localmente:
 
 ```bash
-docker service create --name registry --publish published=5000,target=5000 registry:2
+docker service create \
+  --name registry \
+  --publish published=5000,target=5000 \
+  registry:2
 ```
 
 Em seguida, instancie a ferramenta **Releaser** como um serviço em um nó do tipo _manager_:
@@ -231,7 +234,9 @@ docker exec -it releaser io validate --all
 Para fazer o ***rollback*** da _build_ `pasto-certo/pwa@release` para a versão `4.23.7-15` em um _cluster_ com **Docker Swarm**, faríamos:
 
 ```bash
-docker exec -it $(docker ps -q -f name=releaser) io rollback pasto-certo/pwa@release 4.23.7-15
+docker exec -it $(docker ps -q -f name=releaser) io rollback \
+  pasto-certo/pwa@release \
+  4.23.7-15
 ```
 
 ## Atualização
@@ -305,7 +310,12 @@ A dica é utilizar um único volume de _backup_ para todas as aplicações insta
 No exemplo abaixo criamos um volume denominado `backup` que será utilizado por todas as _builds_ instanciadas:
 
 ```bash
-docker volume create --driver local --opt type=none --opt device=/root/backup --opt o=bind backup
+docker volume create \
+  --driver local \
+  --opt type=none \
+  --opt device=/root/backup \
+  --opt o=bind \
+  backup
 ```
 
 Basta agora informar este volume no momento de configurar as _environment variables_ no arquivo `builds.json`.
@@ -356,7 +366,9 @@ server {
 Por fim, habilite esta configuração, teste-a e reinicie o servidor Nginx:
 
 ```bash
-ln -s /etc/nginx/sites-available/pasto-certo_pwa_beta.conf /etc/nginx/sites-enabled/
+ln -s \
+  /etc/nginx/sites-available/pasto-certo_pwa_beta.conf \
+  /etc/nginx/sites-enabled/
 
 nginx -t
 
