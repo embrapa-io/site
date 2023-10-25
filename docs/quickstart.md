@@ -1,10 +1,10 @@
 ---
 layout: page
 title: Quickstart
-subtitle: Iniciando com o embrapa.io em poucos passos
+subtitle: Iniciando com o Embrapa I/O em poucos passos
 ---
 
-Para começar a utilizar o **embrapa.io** para o desenvolvimento de suas próprias soluções para a agricultura digital, [leia nossa introdução]({{ site.baseurl }}/docs/introduction). Se já estiver familiarizado com a terminologia da plataforma, [acesse a _dashboard_]({{ site.baseurl }}/docs/dashboard) e execute os seguintes passos:
+Para começar a utilizar o **Embrapa I/O** para o desenvolvimento de suas próprias soluções para a agricultura digital, [leia nossa introdução]({{ site.baseurl }}/docs/introduction). Se já estiver familiarizado com a terminologia da plataforma, [acesse a _dashboard_]({{ site.baseurl }}/docs/dashboard) e execute os seguintes passos:
 
 1. [Crie um novo projeto de software para desenvolvimento do seu ativo digital]({{ site.baseurl }}/docs/project);
 2. [Adicione apps ao seu projeto]({{ site.baseurl }}/docs/app);
@@ -15,6 +15,6 @@ Para começar a utilizar o **embrapa.io** para o desenvolvimento de suas própri
 7. [Gerencie e monitore o estado das instâncias de suas apps]({{ site.baseurl }}/docs/health); e
 8. [Obtenha relatórios analíticos de acesso e ações de usuários nas apps]({{ site.baseurl }}/docs/analytics).
 
-Para informações mais detalhadas e uso avançado da plataforma, acesse a [documentação completa do **embrapa.io**]({{ site.baseurl }}/docs/preface).
+Para informações mais detalhadas e uso avançado da plataforma, acesse a [documentação completa do **Embrapa I/O**]({{ site.baseurl }}/docs/preface).
 
-Para ajudar no desenvolvimento da plataforma, [compreenda sua arquitetura]({{ site.baseurl }}/docs/architecture), [acesse o projeto no GitHub](https://github.com/embrapa-io) e siga os passos para instanciar o **embrapa.io** em ambiente local de desenvolvimento.
+Para ajudar no desenvolvimento da plataforma, [compreenda sua arquitetura]({{ site.baseurl }}/docs/architecture), [acesse o projeto no GitHub](https://github.com/embrapa-io) e siga os passos para instanciar o **Embrapa I/O** em ambiente local de desenvolvimento.

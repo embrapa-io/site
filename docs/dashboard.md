@@ -6,7 +6,7 @@ subtitle: Acessando o painel de gestão de projetos e aplicações
 
 <iframe width="730" height="410" src="https://www.youtube.com/embed/wnN1tiGVcu4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
-A _dashboard_ do **embrapa.io** está disponível em:
+A _dashboard_ do **Embrapa I/O** está disponível em:
 
 <div style="margin: 0 auto; text-align: center;">
     <a class="btn btn-info btn-lg" href="https://dashboard.embrapa.io" target="_blank">dashboard.embrapa.io</a>

@@ -24,13 +24,13 @@ Os repositórios de suporte podem ser de 6 (seis) tipos distintos:
 
 #### I. Site de informações públicas do projeto {#web}
 
-Todo projeto **embrapa.io** pode instanciar um **site público de documentação**. Esta funcionalidade é baseada no [GitHub Pages](https://pages.github.com) e funciona de forma muito similar. Na prática o desenvolvedor pode documentar as aplicações que compõem o projeto utilizando [linguagem Markdown](https://www.markdownguide.org) de forma bastante simplificada.
+Todo projeto **Embrapa I/O** pode instanciar um **site público de documentação**. Esta funcionalidade é baseada no [GitHub Pages](https://pages.github.com) e funciona de forma muito similar. Na prática o desenvolvedor pode documentar as aplicações que compõem o projeto utilizando [linguagem Markdown](https://www.markdownguide.org) de forma bastante simplificada.
 
 Quando esta opção é selecionada, o autômato de criação de entidades da plataforma irá criar um novo repositório (denominado ```io-web```) no grupo do projeto no [GitLab](https://git.embrapa.io) com o código-fonte inicial desta página. Ao mesmo tempo, o autômato de _deploy_ da plataforma irá instanciar a página e disponibilizá-la publicamente no endereço:
 
 ```https://docs.embrapa.io/[nome unix do projeto]```
 
-Toda alteração realizada neste repositório e versionada (_commit_ e _push_) é automaticamente atualizada no site do projeto. O tema padrão do site é o mesmo utilizado neste site de documentação da própria plataforma **embrapa.io**.
+Toda alteração realizada neste repositório e versionada (_commit_ e _push_) é automaticamente atualizada no site do projeto. O tema padrão do site é o mesmo utilizado neste site de documentação da própria plataforma **Embrapa I/O**.
 
 #### II. Documentação pública da API {#api}
 

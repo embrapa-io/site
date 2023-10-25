@@ -17,7 +17,7 @@ subtitle: Criando e mantendo um boilerplate
 *[UI]: User Interface
 *[GPL]: General Public License
 
-De forma geral, as aplicações da plataforma **embrapa.io** são _forks_ de repositórios pré-existentes denominados _boilerplates_. Estes respositórios são aplicações funcionais, em determinada linguagem de programação ou _framework_, já estruturadas para funcionar corretamente nos _pipelines_ e processos de DevOps da plataforma. A ideia é fomentar a padronização e o reuso de código-fonte. Neste tutorial veremos como configurar corretamente um novo _boilerplate_ para distribuí-lo no catálogo da plataforma, de modo a possibilitar que outras equipes de desenvolvimento de ativos digitais possam fazer uso.
+De forma geral, as aplicações da plataforma **Embrapa I/O** são _forks_ de repositórios pré-existentes denominados _boilerplates_. Estes respositórios são aplicações funcionais, em determinada linguagem de programação ou _framework_, já estruturadas para funcionar corretamente nos _pipelines_ e processos de DevOps da plataforma. A ideia é fomentar a padronização e o reuso de código-fonte. Neste tutorial veremos como configurar corretamente um novo _boilerplate_ para distribuí-lo no catálogo da plataforma, de modo a possibilitar que outras equipes de desenvolvimento de ativos digitais possam fazer uso.
 
 Para criar e disponibilizar seu _boilerplate_, você precisará seguir os seguintes passos:
 
@@ -33,7 +33,7 @@ Para criar e disponibilizar seu _boilerplate_, você precisará seguir os seguin
 10. [Documente e inclua a licença](#readme); e
 11. [Distribua o _boilerplate_](#publish).
 
-É possível [criar um repositório de aplicação]({{ site.baseurl }}/docs/app) sem utilizar um _boilerplate_. Esta função é útil para instanciar na plataforma sistemas que antecedem o próprio **embrapa.io**. Entretanto, será necessário criar manualmente um repositório no [GitLab](https://git.embrapa.io) e adaptar seu código fonte de forma que ele tenha **toda a estrutura de pastas e arquivos requeridos para um _boilerplate_** (ou seja, seguir os mesmos passos aqui descritos). Em seguida, no momento de criar a aplicação pela _dashboard_, selecione a opção de um "**repositório pré-existente**" (conforme a imagem abaixo).
+É possível [criar um repositório de aplicação]({{ site.baseurl }}/docs/app) sem utilizar um _boilerplate_. Esta função é útil para instanciar na plataforma sistemas que antecedem o próprio **Embrapa I/O**. Entretanto, será necessário criar manualmente um repositório no [GitLab](https://git.embrapa.io) e adaptar seu código fonte de forma que ele tenha **toda a estrutura de pastas e arquivos requeridos para um _boilerplate_** (ou seja, seguir os mesmos passos aqui descritos). Em seguida, no momento de criar a aplicação pela _dashboard_, selecione a opção de um "**repositório pré-existente**" (conforme a imagem abaixo).
 
 ![Criando uma aplicação sem o boilerplate]({{ site.baseurl }}/assets/img/boilerplate/01.png)
 
@@ -49,13 +49,13 @@ Todos os _boilerplates_ da plataforma ficam disponíveis **publicamente** no mes
 
 Após criar a aplicação-base, você deverá customizá-la. Antes de começar a alterá-la, entretanto, verifique se existem ferramentas do tipo **_linter_** e **_fomatter_** devidamente configuradas em sua IDE para a linguagem de programação que está utilizando. Falamos mais sobre isso na [seção de boas práticas de desenvolvimento]({{ site.baseurl }}/docs/practices).
 
-Inicie a customização da aplicação-base incluindo aspectos que são comumente utilizados nos ativos digitais da Embrapa. Por exemplo, uma identidade visual aderente aos padrões estabelecidos pela área de comunicação, a logo da Empresa conforme o manual de uso, estrutura de menus, cabeçalho e rodapé, e telas que são normalmente padronizadas (p.e., a tela de "Sobre"). Adicionalmente, inclua funcionalidades mais complexas que caracterizem seu _boilerplate_, tal como requisitos não-funcionais (p.e., registro e _login_ de usuários) ou mesmo funcionais (p.e., cadastro e gestão de fazendas). O domínio de negócio dos ativos digitais da plataforma **embrapa.io** é abrangente, porém bem definida: "**o agronegócio**". Portanto, <u>existem requisitos funcionais que serão de uso comum</u>.
+Inicie a customização da aplicação-base incluindo aspectos que são comumente utilizados nos ativos digitais da Embrapa. Por exemplo, uma identidade visual aderente aos padrões estabelecidos pela área de comunicação, a logo da Empresa conforme o manual de uso, estrutura de menus, cabeçalho e rodapé, e telas que são normalmente padronizadas (p.e., a tela de "Sobre"). Adicionalmente, inclua funcionalidades mais complexas que caracterizem seu _boilerplate_, tal como requisitos não-funcionais (p.e., registro e _login_ de usuários) ou mesmo funcionais (p.e., cadastro e gestão de fazendas). O domínio de negócio dos ativos digitais da plataforma **Embrapa I/O** é abrangente, porém bem definida: "**o agronegócio**". Portanto, <u>existem requisitos funcionais que serão de uso comum</u>.
 
 Caso esteja desenvolvendo o _boilerplate_ para uma **API Web**, comprometa-se em torná-lo aderente ao [AgroAPI](https://www.agroapi.cnptia.embrapa.br), de forma que as aplicações criadas a partir dele possam compor o catálogo da Embrapa quando forem publicadas. Simuladores, algoritmos de aprendizado de máquina, visão computacional e **artefatos de software especializados** de forma geral, <u>devem ser encapsulados em componentes específicos</u>. Neste caso, recomenda-se que tenham seu próprio repositório de código e sejam integrados nas aplicações na forma de **pacotes privados** (gerenciados por _dependency managers_, tal como o [composer](https://getcomposer.org/), o [npm](https://www.npmjs.com/), o [gradle](https://gradle.org) ou o [maven](https://maven.apache.org/)). Assim, um _boilerplate_ para uma aplicação [TensorFlow.js](https://www.tensorflow.org/js), por exemplo, seria na verdade um pacote NPM. No [capítulo sobre integração]({{ site.baseurl }}/docs/integration) são detalhados outros formatos de aplicação, tal como [_remotes_ para compor _micro-frontends_](https://ruairidh.dev/introduction-to-micro-frontends/).
 
 ## 2. Integre ao _error tracking_ {#bug}
 
-Conforme [já detalhado anteriomente]({{ site.baseurl }}/docs/bug), a plataforma **embrapa.io** é integrada à ferramenta [Sentry](https://sentry.io), de _error tracking_. Assim, no momento em que um projeto ou uma aplicação é criada pela [_dashboard_ da plataforma](https://dashboard.embrapa.io), o [autômato _Genesis_]({{ site.baseurl }}/docs/architecture#genesis) cria a entidade correlata na ferramenta Sentry e atribui a equipe. Pela _dashboard_ será então possível à equipe de desenvolvimento do ativo obter o DSN de _error tracking_.
+Conforme [já detalhado anteriomente]({{ site.baseurl }}/docs/bug), a plataforma **Embrapa I/O** é integrada à ferramenta [Sentry](https://sentry.io), de _error tracking_. Assim, no momento em que um projeto ou uma aplicação é criada pela [_dashboard_ da plataforma](https://dashboard.embrapa.io), o [autômato _Genesis_]({{ site.baseurl }}/docs/architecture#genesis) cria a entidade correlata na ferramenta Sentry e atribui a equipe. Pela _dashboard_ será então possível à equipe de desenvolvimento do ativo obter o DSN de _error tracking_.
 
 ![Acesso ao DSN pelo card da aplicação]({{ site.baseurl }}/assets/img/bug/02.png)
 
@@ -84,7 +84,7 @@ Dentre as variáveis de ambiente acima, o **DSN**, a **versão da _build_** (no 
 
 ## 3. Integre ao _analytics_ {#analytics}
 
-Similar ao _error tracking_ e conforme também [já detalhado anteriomente]({{ site.baseurl }}/docs/analytics), a plataforma **embrapa.io** é integrada à ferramenta [Matomo](https://matomo.org), utilizada para rastrear e analisar ações de usuários nas aplicações. Assim, no momento em que um projeto ou uma aplicação é criada pela [_dashboard_ da plataforma](https://dashboard.embrapa.io), o [autômato _Genesis_]({{ site.baseurl }}/docs/architecture#genesis) cria a entidade correlata na ferramenta Matomo e atribui a equipe. Pela _dashboard_ será então possível à equipe de desenvolvimento do ativo obter o identificador único de rastreamento ("Matomo Site ID").
+Similar ao _error tracking_ e conforme também [já detalhado anteriomente]({{ site.baseurl }}/docs/analytics), a plataforma **Embrapa I/O** é integrada à ferramenta [Matomo](https://matomo.org), utilizada para rastrear e analisar ações de usuários nas aplicações. Assim, no momento em que um projeto ou uma aplicação é criada pela [_dashboard_ da plataforma](https://dashboard.embrapa.io), o [autômato _Genesis_]({{ site.baseurl }}/docs/architecture#genesis) cria a entidade correlata na ferramenta Matomo e atribui a equipe. Pela _dashboard_ será então possível à equipe de desenvolvimento do ativo obter o identificador único de rastreamento ("Matomo Site ID").
 
 ![Sumário dos relatórios analíticos]({{ site.baseurl }}/assets/img/analytics/01.png)
 
@@ -106,11 +106,11 @@ Vue.use(VueMatomo, {
 
 Dentre as variáveis de ambiente acima, o **siteId**, o **estágio** e a **versão da _build_** são [injetados em tempo de _deploy_ pela plataforma](#env).
 
-Caso esteja configurando o Matomo em um _boilerplate_ para aplicações do tipo _server-side_, é possível passar o `token_auth` no código de rastreamento para gerar relatórios analíticos mais detalhados. O **embrapa.io** injeta a variável de ambiente `MATOMO_TOKEN` com a chave para a API. Esta chave tem **permissão de escrita** no site e, por conta disso, é um dado sensível para a segurança das aplicações. Assim, valor real do `token_auth` é injetado apenas nos serviços de _deploy_ e _restart_ das aplicações. Nos demais serviços (tal como de `validate` ou `backup`) o valor injetado na variável `MATOMO_TOKEN` é uma chave aleatória, sem real permissão de acesso à API do Matomo.
+Caso esteja configurando o Matomo em um _boilerplate_ para aplicações do tipo _server-side_, é possível passar o `token_auth` no código de rastreamento para gerar relatórios analíticos mais detalhados. O **Embrapa I/O** injeta a variável de ambiente `MATOMO_TOKEN` com a chave para a API. Esta chave tem **permissão de escrita** no site e, por conta disso, é um dado sensível para a segurança das aplicações. Assim, valor real do `token_auth` é injetado apenas nos serviços de _deploy_ e _restart_ das aplicações. Nos demais serviços (tal como de `validate` ou `backup`) o valor injetado na variável `MATOMO_TOKEN` é uma chave aleatória, sem real permissão de acesso à API do Matomo.
 
 > **Atenção!** Por questão de segurança, **jamais utilize a variável `MATOMO_TOKEN` em aplicações de _frontend_ ou exponha seu valor na interface do usuário!**
 
-Um exemplo de uso do `token_auth` do Matomo injetado pelo **embrapa.io** pode ser visto no código PHP abaixo:
+Um exemplo de uso do `token_auth` do Matomo injetado pelo **Embrapa I/O** pode ser visto no código PHP abaixo:
 
 ```php
 require __DIR__ . '/vendor/autoload.php';
@@ -133,13 +133,13 @@ Neste código está sendo utilizado o pacote [Matomo PHP Tracker](https://github
 
 Na plataforma as aplicações são parametrizadas por meio de **variáveis de ambiente**, que são injetadas diretamente durante os processos automatizados (_validate_, _deploy_, _backup_, _restart_, etc). Os principais arquivos utilizados são:
 
-- `.env.ci`: é injetado diretamente na chamada de linha de comando e, portanto, as variáveis neste arquivo terão precedência sobre todas as demais;
-- `.env.cli`: substitui o arquivo acima quando são chamados serviços do tipo CLI (`test`, `sanitize`, `backup` ou `restore`); e
+- `.env.io`: é injetado diretamente na chamada de linha de comando e, portanto, as variáveis neste arquivo terão precedência sobre todas as demais;
+- `.env.sh`: substitui o arquivo acima quando são chamados serviços do tipo CLI (`test`, `sanitize`, `backup` ou `restore`); e
 - `.env`: é carregado pelo Docker Compose ([veja abaixo](#docker)) a partir da raiz da aplicação.
 
 Estes arquivos, portanto, são gerados pela plataforma e **não devem constar no _boilerplate_**. Ao invés disso, devem estar listados no arquivo `.gitignore` de forma a <u>não serem versionados pelo GIT</u>. Assim, para disponibilização junto ao _boilerplate_, é recomendado criar os arquivos acima, porém com o sufixo `.example` (estes sim versionados pelo GIT). Desta forma, os desenvolvedores que utilizarem o _boilerplate_ iniciarão a customização da aplicação copiando e renomeando estes arquivos para remover o sufixo.
 
-As variáveis que compõem o arquivo `.env.ci.example` são:
+As variáveis que compõem o arquivo `.env.io.example` são:
 
 ```bash
 COMPOSE_PROJECT_NAME=%GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%
@@ -182,7 +182,7 @@ De forma a permitir ao [autômato _Genesis_]({{ site.baseurl }}/docs/architectur
 - `%GENESIS_VERSION%`: Um número de versão fictício, no padrão "`0.YY.MM-dev.1`"; e
 - `%GENESIS_MATOMO_ID%`: Identificador único gerado e utilizado pelo [Matomo](#analytics).
 
-Você pode optar por utilizar ou não estas _keywords_ no seu _boilerplate_. O autômato irá substituí-las em todos os arquivos não-ocultos (com exceção dos arquivos `.env.example`, `.env.ci.example` e `.env.cli.example`, onde também serão substituídas).
+Você pode optar por utilizar ou não estas _keywords_ no seu _boilerplate_. O autômato irá substituí-las em todos os arquivos não-ocultos (com exceção dos arquivos `.env.example`, `.env.io.example` e `.env.sh.example`, onde também serão substituídas).
 
 ## 6. Conteinerize seu _boilerplate_ {#docker}
 
@@ -190,7 +190,7 @@ Normalmente, no próprio site da linguagem ou arcabouço de desenvolvimento util
 
 Algumas vezes, em ambiente de desenvolvimento, pode ser preferível não utilizar containers, porém para tornar a aplicação derivada do _boilerplate_ apta ao _deploy_ na plataforma, será necessário conteinerizar. Claro, <u>isto não se aplica a aplicações que naturalmente não serão distribuídas na Web</u>, tal como código nativo para Google Android (em Kotlin ou Java), código nativo para Apple iOS (em Swift ou Objective-C) ou artefatos de software especializados encapsulados em pacotes para gerenciadores de dependência, [como citado anteriormente](#base).
 
-A plataforma **embrapa.io** é agnóstica quanto ao orquestrador de containers em nuvem, [podendo trabalhar com diversas soluções]({{ site.baseurl }}/docs/cluster). Mas padroniza o ambiente local de desenvolvimento com o uso de [Docker Compose](https://docs.docker.com/compose/), sendo este também um dos _drivers_ de orquestração em nuvem. Assim, para fins desta documentação, <u>utilizaremos o Docker Compose para exemplificar o processo de contenerização</u>.
+A plataforma **Embrapa I/O** é agnóstica quanto ao orquestrador de containers em nuvem, [podendo trabalhar com diversas soluções]({{ site.baseurl }}/docs/cluster). Mas padroniza o ambiente local de desenvolvimento com o uso de [Docker Compose](https://docs.docker.com/compose/), sendo este também um dos _drivers_ de orquestração em nuvem. Assim, para fins desta documentação, <u>utilizaremos o Docker Compose para exemplificar o processo de contenerização</u>.
 
 Conforme comentado previamente no [capítulo de introdução]({{ site.baseurl }}/docs/introduction#boilerplate), existem alguns serviços que precisam ser disponibilizados no _stack_ de containers da aplicação: _backup_, _restore_, _sanitize_ e _test_. Para entender melhor o papel de cada um, observe o arquivo `docker-compose.yaml` de um _boilerplate_ para instanciar o [WordPress](https://br.wordpress.org/):
 
@@ -345,13 +345,13 @@ volumes:
     external: true
 ```
 
-Observe que as variáveis de ambiente utilizadas acima são as mesmas injetadas pelos arquivos `.env` e `.env.ci`, [nos exemplos discutidos anteriormente](#env). Os serviços que serão chamados por linha de comando (`test`, `sanitize`, `backup` e `restore`) possuem o `profile: [ 'cli' ]`, indicando que serão carregados apenas quando o arquivo `.env.cli` for utilizado (onde é passado, especificamente, `COMPOSE_PROFILES=cli`). Um exemplo de chamada destes serviços seria portanto:
+Observe que as variáveis de ambiente utilizadas acima são as mesmas injetadas pelos arquivos `.env` e `.env.io`, [nos exemplos discutidos anteriormente](#env). Os serviços que serão chamados por linha de comando (`test`, `sanitize`, `backup` e `restore`) possuem o `profile: [ 'cli' ]`, indicando que serão carregados apenas quando o arquivo `.env.sh` for utilizado (onde é passado, especificamente, `COMPOSE_PROFILES=cli`). Um exemplo de chamada destes serviços seria portanto:
 
 ```bash
-env $(cat .env.cli) docker-compose run --rm --no-deps backup
+env $(cat .env.sh) docker-compose run --rm --no-deps backup
 ```
 
-Quando for realizado o _deploy_ do _stack_ de containers, todos os demais serviços "não-CLI" serão carregados. Mais especificamente, o [autômato _Deployer_]({{ site.baseurl }}/docs/architecture#deployer) irá injetar as variáveis do arquivo `.env.ci` alterando conforme o _environment_. Assim, caso se trate de uma _build_ em estágio _alpha_ o `COMPOSE_PROFILES` terá o valor `alpha`. Isto possibilita que o usuário carregue determinados serviços apenas em determinados ambientes. Por exemplo, pode ser interessante ao desenvolvedor carregar a ferramenta [phpMyAdmin](https://www.phpmyadmin.net) para auditar seu BD quando a aplicação estiver em estágio _alpha_ ou _beta_, mas não (por questão de segurança) quando estiver em estágio _release_.
+Quando for realizado o _deploy_ do _stack_ de containers, todos os demais serviços "não-CLI" serão carregados. Mais especificamente, o [autômato _Deployer_]({{ site.baseurl }}/docs/architecture#deployer) irá injetar as variáveis do arquivo `.env.io` alterando conforme o _environment_. Assim, caso se trate de uma _build_ em estágio _alpha_ o `COMPOSE_PROFILES` terá o valor `alpha`. Isto possibilita que o usuário carregue determinados serviços apenas em determinados ambientes. Por exemplo, pode ser interessante ao desenvolvedor carregar a ferramenta [phpMyAdmin](https://www.phpmyadmin.net) para auditar seu BD quando a aplicação estiver em estágio _alpha_ ou _beta_, mas não (por questão de segurança) quando estiver em estágio _release_.
 
 É fortemente recomendado que todos os serviços "não-CLI" tenham o atributo de `healthcheck` devidamente configurado. Este atributo permite que [as aplicações sejam monitoradas]({{ site.baseurl }}/docs/health), agregando informação à [dashboard da plataforma](https://dashboard.embrapa.io). O atributo `restart` destes serviços deve estar setado para `unless-stopped`, de forma a garantir maior resiliência da aplicação.
 
@@ -373,7 +373,7 @@ docker volume create --driver local --opt type=nfs --opt o=addr=storage.sede.emb
 Por segurança, todos os _volumes_ e a _network_ alocados no _stack_ de containers são checados antes do _deploy_. Assim, **não é possível uma aplicação referenciar e acessar o _volume_ e/ou _network_ de outra aplicação**. Uma vez que os _volumes_ e a _network_ estejam criados, o desenvolvedor da aplicação poderá instanciá-la com o seguinte comando:
 
 ```bash
-env $(cat .env.ci) docker-compose up --force-recreate --build --remove-orphans -d --wait
+env $(cat .env.io) docker-compose up --force-recreate --build --remove-orphans -d --wait
 ```
 
 Em ambientes de _deploy_ que utilizem o _driver_ do Docker Compose o comando será semelhante, porém existem algumas garantias para assegurar que não sejam, por exemplo, chamados serviços do tipo CLI.
@@ -408,33 +408,33 @@ Este serviço executa entre os processos de _build_ e _deploy_ do [autômato de 
 
 #### b) _backup_ {#cli:backup}
 
-A plataforma **embrapa.io** fornece, por meio da _dashboard_, uma [funcionalidade para geração de _backups_ por demanda]({{ site.baseurl }}/docs/backup) para os mantenedores dos projetos de ativos digitais. Para que funcione corretamente, é necessário que exista o serviço _backup_ na _stack_ de containers da aplicação. Além disso, deve-se configurar um volume utilizando a palavra reservada `backup`. [Veremos a seguir](#metadata) como deixar pré-estabelecido no _boilerplate_ este volume.
+A plataforma **Embrapa I/O** fornece, por meio da _dashboard_, uma [funcionalidade para geração de _backups_ por demanda]({{ site.baseurl }}/docs/backup) para os mantenedores dos projetos de ativos digitais. Para que funcione corretamente, é necessário que exista o serviço _backup_ na _stack_ de containers da aplicação. Além disso, deve-se configurar um volume utilizando a palavra reservada `backup`. [Veremos a seguir](#metadata) como deixar pré-estabelecido no _boilerplate_ este volume.
 
 De forma geral, o serviço deverá gerar os _dumps_ de todos os BDs, copiar os arquivos de _upload_ e tudo mais que for necessário para possibilitar a restauração do estado atual da aplicação, compactar em um arquivo no formato `%GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%_${STAGE}_${VERSION}_$$(date +'%Y-%m-%d_%H-%M-%S').tar.gz` e salvar no volume `backup`.
 
 Na [seção anterior](#docker) é possível observar este e os demais serviços CLI devidamente configurados no `docker-compose.yaml` para um _boilerplate_ do [WordPress](https://br.wordpress.org). Repare que naquele exemplo é realizado o _dump_ do [MariaDB](https://mariadb.org) e é copiada integralmente a pasta `/var/www/html`, com todos os arquivos do WordPress. Quando da execução do processo de _backup_, o arquivo `.tar.gz` resultante é copiado para o volume `backup` que é então montado pelo [autômato _Doctor_]({{ site.baseurl }}/docs/architecture#doctor), que atribui uma URL (protegida por login e senha de acesso) e informa os mantenedores do projeto via e-mail.
 
-Repare que este serviço é essencial para manter a autonomia dos mantenedores dos projetos de ativos digitais, reforçando as diretrizes de DevOps adotadas pela plataforma **embrapa.io**.
+Repare que este serviço é essencial para manter a autonomia dos mantenedores dos projetos de ativos digitais, reforçando as diretrizes de DevOps adotadas pela plataforma **Embrapa I/O**.
 
 #### c) _restore_ {#cli:restore}
 
 O serviço de _restore_ objetiva, principalmente, auxiliar os mantenedores do projeto tornando rápida e fácil a recuperação do _backup_ da aplicação. Mais especificamente, este serviço irá receber um arquivo do tipo `.tar.gz` por meio da variável de ambiente `BACKUP_FILE_TO_RESTORE`, passada por linha de comando, descompactar e restaurar todos os dados nos containers que formam a aplicação:
 
 ```bash
-env $(cat .env.cli) BACKUP_FILE_TO_RESTORE=agroproj_agroapp_alpha_1.22.7-alpha.34_2022-06-23_09-30-04.tar.gz docker-compose run --rm --no-deps restore
+env $(cat .env.sh) BACKUP_FILE_TO_RESTORE=agroproj_agroapp_alpha_1.22.7-alpha.34_2022-06-23_09-30-04.tar.gz docker-compose run --rm --no-deps restore
 ```
 
 #### d) _sanitize_ {#cli:sanitize}
 
-A plataforma **embrapa.io** implementa um [processo de higienização/otimização das aplicações]({{ site.baseurl }}/docs/health). Este processo pode ser relevante para aplicações que tenham tarefas de _garbage collection_, análise/reparação/otimização de esquemas em seus BDs, limpeza de cache, etc. Nada impede, obviamente, a equipe de desenvolvimento da aplicação desenvolver seus próprios _schedular jobs_ para executar as mesmas tarefas na forma de containers no _stack_ da aplicação. Entretanto, este serviço visa simplificar este trabalho.
+A plataforma **Embrapa I/O** implementa um [processo de higienização/otimização das aplicações]({{ site.baseurl }}/docs/health). Este processo pode ser relevante para aplicações que tenham tarefas de _garbage collection_, análise/reparação/otimização de esquemas em seus BDs, limpeza de cache, etc. Nada impede, obviamente, a equipe de desenvolvimento da aplicação desenvolver seus próprios _schedular jobs_ para executar as mesmas tarefas na forma de containers no _stack_ da aplicação. Entretanto, este serviço visa simplificar este trabalho.
 
 No `docker-compose.yaml` do [exemplo da seção anterior](#docker) é utilizada a ferramenta de linha de comando `mysqlcheck` para efetuar a [manutenção das tabelas](https://mariadb.com/kb/en/mysqlcheck/) do banco de dados [MariaDB](https://mariadb.org) utilizado no [WordPress](https://br.wordpress.org). Outras ferramentas e comandos similares que podem ser utilizadas neste serviço são o [_vacuum_ do PostgreSQL](https://www.postgresql.org/docs/current/sql-vacuum.html), o [_shrink_ do SQL Server](https://docs.microsoft.com/en-us/sql/relational-databases/databases/shrink-a-database), o [_compact_ do MongoDB](https://www.mongodb.com/docs/manual/reference/command/compact/), etc.
 
 ## 8. Configure os metadados {#metadata}
 
-Todo _boilerplate_ e, consequentemente, toda aplicação na plataforma **embrapa.io** possui um diretório na raiz denominado `.embrapa`. Neste diretório ficam armazenados todos os metadados necessários à parametrização dos processos de DevOps da plataforma. Assim, com exceção do orquestrador [Docker Compose](https://docs.docker.com/compose/), cujo arquivo de configuração fica na raiz da aplicação pois também é utilizado em ambiente de desenvolvimento, as configurações que parametrizam as ferramentas de orquestração de containers ([Docker Swarm](https://docs.docker.com/engine/swarm/), [Kubernetes](https://kubernetes.io/pt-br/), [LXC](https://linuxcontainers.org), etc) e PaaS ([RedHat OpenShift](https://www.redhat.com/pt-br/technologies/cloud-computing/openshift), [AWS](https://www.datamation.com/cloud-computing/amazon-web-services.html), [Microsoft Azure](https://www.datamation.com/cloud-computing/microsoft-azure.html), [Google Cloud](https://www.datamation.com/cloud-computing/google-cloud-platform.html), [Heroku](https://www.heroku.com), etc) devem estar, sempre que possível, neste diretório.
+Todo _boilerplate_ e, consequentemente, toda aplicação na plataforma **Embrapa I/O** possui um diretório na raiz denominado `.embrapa`. Neste diretório ficam armazenados todos os metadados necessários à parametrização dos processos de DevOps da plataforma. Assim, com exceção do orquestrador [Docker Compose](https://docs.docker.com/compose/), cujo arquivo de configuração fica na raiz da aplicação pois também é utilizado em ambiente de desenvolvimento, as configurações que parametrizam as ferramentas de orquestração de containers ([Docker Swarm](https://docs.docker.com/engine/swarm/), [Kubernetes](https://kubernetes.io/pt-br/), [LXC](https://linuxcontainers.org), etc) e PaaS ([RedHat OpenShift](https://www.redhat.com/pt-br/technologies/cloud-computing/openshift), [AWS](https://www.datamation.com/cloud-computing/amazon-web-services.html), [Microsoft Azure](https://www.datamation.com/cloud-computing/microsoft-azure.html), [Google Cloud](https://www.datamation.com/cloud-computing/google-cloud-platform.html), [Heroku](https://www.heroku.com), etc) devem estar, sempre que possível, neste diretório.
 
-Além disso, neste diretório fica o arquivo `settings.json`, que possui informações necessárias utilizadas pelos [diversos componentes do **embrapa.io**]({{ site.baseurl }}/docs/architecture). Para cada _boilerplate_ criado, será necessário configurar corretamente este arquivo. Vamos tomar como exemplo o _boilerplate_ para WordPress:
+Além disso, neste diretório fica o arquivo `settings.json`, que possui informações necessárias utilizadas pelos [diversos componentes do **Embrapa I/O**]({{ site.baseurl }}/docs/architecture). Para cada _boilerplate_ criado, será necessário configurar corretamente este arquivo. Vamos tomar como exemplo o _boilerplate_ para WordPress:
 
 ```json
 {
@@ -478,7 +478,7 @@ Os atributos `label`, `description`, `references` e `maintainers` (auto-explicat
 
 ![Renderização das infos do boilerplate]({{ site.baseurl }}/assets/img/boilerplate/02.png)
 
-No atributo `variables` são inseridas as _environment variables_ que parametrizam a aplicação, ou seja, as mesmas contidas no arquivo `.env`. A plataforma **embrapa.io** carrega estas variáveis, com seus respectivos valores padrão, no momento da [configuração da _build_]({{ site.baseurl }}/docs/build). Serão carregadas primeiro as variáveis do atributo `default` e, em seguida, sobreescrevendo estas, as variáveis dos atributos homônimos ao estágio da _build_ que está sendo configurada (`alpha`, `beta` ou `release`). No exemplo acima, está sendo habilitado por padrão o _debug_ (variável `WP_DEBUG`) para as _builds_ em estágio de testes internos (_alpha_) e externos (_beta_), e desabilitado para as _builds_ em produção (_release_).
+No atributo `variables` são inseridas as _environment variables_ que parametrizam a aplicação, ou seja, as mesmas contidas no arquivo `.env`. A plataforma **Embrapa I/O** carrega estas variáveis, com seus respectivos valores padrão, no momento da [configuração da _build_]({{ site.baseurl }}/docs/build). Serão carregadas primeiro as variáveis do atributo `default` e, em seguida, sobreescrevendo estas, as variáveis dos atributos homônimos ao estágio da _build_ que está sendo configurada (`alpha`, `beta` ou `release`). No exemplo acima, está sendo habilitado por padrão o _debug_ (variável `WP_DEBUG`) para as _builds_ em estágio de testes internos (_alpha_) e externos (_beta_), e desabilitado para as _builds_ em produção (_release_).
 
 Outro exemplo de uso é para setar o _environment_ interno aos arcabouços de programação. Por exemplo, uma aplicação [ASP.NET](https://docs.microsoft.com/pt-br/aspnet/core/) aceita os seguintes valores para a variável `ASPNETCORE_ENVIRONMENT`: `Development`, `Staging`, `Staging_2` e `Production` ([conforme a documentação](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments)). Assim, poderia ser configurado no arquivo `.env.example` do _boilerplate_ a variável `ASPNETCORE_ENVIRONMENT=Development`, de forma que os desenvolvedores, ao renomearem o arquivo para iniciar a customização da aplicação, já usariam o valor correto para o _environment_ de desenvolvimento. Nas configurações de metadados do _boilerplate_ no arquivo `settings.json`, esta variável poderia ser setada no subgrupo `alpha` como `Staging`, em `beta` como `Staging_2` e em `release` como `Production`. A mesma estratégia pode pode ser utilizada para a variável `NODE_ENV`, [comumente utilizada em projetos em JavaScript](https://www.geeksforgeeks.org/what-is-node_env-in-node-js/), e demais correlatas em outras linguagens e arcabouços de programação.
 
@@ -495,15 +495,15 @@ As variáveis definidas podem ser de cinco tipos:
 
 ![Volumes pré-configurados a partir das variáveis de ambiente]({{ site.baseurl }}/assets/img/boilerplate/03.png)
 
-Repare que no "**3º Passo - Volumes**", mostrado na imagem acima, a listagem de volumes foi pré-carregada de acordo com a variáveis deste tipo declaradas nos metadados do _boilerplate_ utilizado na aplicação. Da mesma forma, todas as variáveis serão pre-carregadas no "**4º Passo - Variáveis**" com os valores definidos no `settings.json` ou gerados automaticamente. Na imagem abaixo é mostrado um exemplo da lista de variáveis pré-carregada (desconsidere as variáveis do tipo **SERVER**, que são aquelas presentes no arquivo `.env.ci` e injetadas em tempo de _deploy_).
+Repare que no "**3º Passo - Volumes**", mostrado na imagem acima, a listagem de volumes foi pré-carregada de acordo com a variáveis deste tipo declaradas nos metadados do _boilerplate_ utilizado na aplicação. Da mesma forma, todas as variáveis serão pre-carregadas no "**4º Passo - Variáveis**" com os valores definidos no `settings.json` ou gerados automaticamente. Na imagem abaixo é mostrado um exemplo da lista de variáveis pré-carregada (desconsidere as variáveis do tipo **SERVER**, que são aquelas presentes no arquivo `.env.io` e injetadas em tempo de _deploy_).
 
 ![Lista de variáveis pré-carregadas com base nos metadados]({{ site.baseurl }}/assets/img/boilerplate/04.png)
 
-Por fim, o atributo `orchestrators` lista os **orquestradores para os quais o _boilerplate_ está homologado**. Cada orquestrador irá exigir parâmetros específicos para permitir o _deploy_ das aplicações. Por exemplo, para que o _boilerplate_ esteja aderente ao [Kubernetes](https://kubernetes.io/pt-br/), espera-se que exista um diretório "`.embrapa/k8s`" contendo os arquivos de configuração necessários. A equipe mantenedora do _boilerplate_ deve, na medida do possível, configurá-lo e homologá-lo na maior quantidade possível de orquestradores aceitos pela plataforma **embrapa.io**.
+Por fim, o atributo `orchestrators` lista os **orquestradores para os quais o _boilerplate_ está homologado**. Cada orquestrador irá exigir parâmetros específicos para permitir o _deploy_ das aplicações. Por exemplo, para que o _boilerplate_ esteja aderente ao [Kubernetes](https://kubernetes.io/pt-br/), espera-se que exista um diretório "`.embrapa/k8s`" contendo os arquivos de configuração necessários. A equipe mantenedora do _boilerplate_ deve, na medida do possível, configurá-lo e homologá-lo na maior quantidade possível de orquestradores aceitos pela plataforma **Embrapa I/O**.
 
 ## 9. Configure outros orquestradores {#orchestrator}
 
-Conforme é detalhado no [capítulo sobre a configuração de _clusters_]({{ site.baseurl }}/docs/cluster), o **embrapa.io** trabalha, por padrão, com o orquestrador **Docker Compose** no ambiente de desenvolvimento, mas outros orquestradores podem ser utilizados nos ambientes remotos de _deploy_. Estas configurações de _deployment_ para cada _driver_ de orquestração deverão estar disponibilizadas no diretório de metadados `.embrapa`.
+Conforme é detalhado no [capítulo sobre a configuração de _clusters_]({{ site.baseurl }}/docs/cluster), o **Embrapa I/O** trabalha, por padrão, com o orquestrador **Docker Compose** no ambiente de desenvolvimento, mas outros orquestradores podem ser utilizados nos ambientes remotos de _deploy_. Estas configurações de _deployment_ para cada _driver_ de orquestração deverão estar disponibilizadas no diretório de metadados `.embrapa`.
 
 #### a) Docker Swarm
 
@@ -594,7 +594,7 @@ volumes:
 
 No serviço `wordpress` é declarada a imagem `127.0.0.1:5000/${IO_PROJECT}_${IO_APP}_${IO_STAGE}_wordpress`. Assim, o `docker-compose.yaml` será utilizado para realizar o _build_ da aplicação e registrar as imagens que serão depois utilizadas no _swarm_.
 
-O atributo `deploy` no arquivo `deployment.yaml` é específico do **Docker Swarm**. A plataforma **embrapa.io** restringe o que pode ser configurado neste atributo. Neste momento, é necessário que o valor de `restart-policy` seja `condition: on-failure`. O `mode`, caso seja setado, deve ter o valor `global` (mas é recomendado <u>não configurá-lo</u>). Os atributos `resources` e `replicas` não devem existir.
+O atributo `deploy` no arquivo `deployment.yaml` é específico do **Docker Swarm**. A plataforma **Embrapa I/O** restringe o que pode ser configurado neste atributo. Neste momento, é necessário que o valor de `restart-policy` seja `condition: on-failure`. O `mode`, caso seja setado, deve ter o valor `global` (mas é recomendado <u>não configurá-lo</u>). Os atributos `resources` e `replicas` não devem existir.
 
 Os serviços do tipo **CLI** (`backup`, `restore`, `sanitize` e `test`), por sua vez, deverão estar separados em arquivos **YAML** próprios na pasta `.embrapa/swarm/cli`. Por exemplo, para um arquivo `backup.yaml` nesta pasta, teríamos:
 
@@ -663,7 +663,7 @@ Para distribuir o _boilerplate_ para uso pela comunidade de desenvolvedores, ser
 
 > **Atenção!** Após efetuar o _fork_ da aplicação, criando o _boilerplate_, é necessário **remover o vínculo com a aplicação origem** (Settings &raquo; General &raquo; Advanced &raquo; Remove fork relationship) e **alterar a visibilidade no _boilerplate_ para 'Public'** (Settings &raquo; General &raquo; Visibility, project features, permissions &raquo; Project visibility).
 
-Além disso, ele deverá constar e estar ativo no [catálogo de _boilerplates_](http://localhost:8029/io/boilerplate/metadata/-/blob/main/boilerplates.json). Para ser inserido na listagem, os mantenedores precisarão passar para a [equipe de suporte do **embrapa.io**](mailto:io@embrapa.br) o **nome _unix_** do _boilerplate_, um **nome legível** (rótulo), uma **breve descrição** (de uma linha) e um **ícone** que melhor represente as tecnologias utilizadas. Atualmente, os ícones permitidos são:
+Além disso, ele deverá constar e estar ativo no [catálogo de _boilerplates_](http://localhost:8029/io/boilerplate/metadata/-/blob/main/boilerplates.json). Para ser inserido na listagem, os mantenedores precisarão passar para a [equipe de suporte do **Embrapa I/O**](mailto:io@embrapa.br) o **nome _unix_** do _boilerplate_, um **nome legível** (rótulo), uma **breve descrição** (de uma linha) e um **ícone** que melhor represente as tecnologias utilizadas. Atualmente, os ícones permitidos são:
 
 <li class="cell"><i class="fa-brands fa-android"></i><div class="subtile">fa-brands<br />fa-android</div></li>
 <li class="cell"><i class="fa-brands fa-angular"></i><div class="subtile">fa-brands<br />fa-angular</div></li>
@@ -681,6 +681,6 @@ Além disso, ele deverá constar e estar ativo no [catálogo de _boilerplates_](
 <li class="cell"><i class="fa-brands fa-vuejs"></i><div class="subtile">fa-brands<br />fa-vuejs</div></li>
 <li class="cell"><i class="fa-brands fa-wordpress"></i><div class="subtile">fa-brands<br />fa-wordpress</div></li>
 
-**Parabéns!** 🥳 Tendo seguido estes passos você disponibilizou um novo _boilerplate_ que poderá ser utilizado pela comunidade **embrapa.io** no desenvolvimento de ativos digitais para a agropecuária.
+**Parabéns!** 🥳 Tendo seguido estes passos você disponibilizou um novo _boilerplate_ que poderá ser utilizado pela comunidade **Embrapa I/O** no desenvolvimento de ativos digitais para a agropecuária.
 
 > **Obrigado pela sua contribuição!** <span style="font-style: normal;">🤗</span>

@@ -4,9 +4,9 @@ title: Arquitetura
 subtitle: Módulos que compõem a plataforma
 ---
 
-O **embrapa.io** é uma [plataforma de software de código-aberto]({{ site.baseurl }}/license), [disponível publicamente](https://github.com/embrapa-io), composta por diversos componentes desacoplados:
+O **Embrapa I/O** é uma [plataforma de software de código-aberto]({{ site.baseurl }}/license), [disponível publicamente](https://github.com/embrapa-io), composta por diversos componentes desacoplados:
 
-![Arquitetura do embrapa.io]({{ site.baseurl }}/assets/img/arch.png)
+![Arquitetura do Embrapa I/O]({{ site.baseurl }}/assets/img/arch.png)
 
 Os círculos numerados representam as interfaces disponíveis para os desenvolvedores, sendo elas:
 

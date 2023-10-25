@@ -53,8 +53,8 @@ INFO > Trying to make backup of version '0.22.6-alpha.2' deployed as 'container'
 INFO > Trying to clone app... done!
 INFO > Checking SSH connection to host 'cluster.sede.embrapa.br'... ok!
 INFO > Trying to execute backup service...
-COMMAND > env $(cat .env.cli) DOCKER_HOST="ssh://root@cluster.sede.embrapa.br" /usr/bin/docker-compose build --force-rm --no-cache backup
-COMMAND > env $(cat .env.cli) DOCKER_HOST="ssh://root@cluster.sede.embrapa.br" /usr/bin/docker-compose run --rm --no-deps backup
+COMMAND > env $(cat .env.sh) DOCKER_HOST="ssh://root@cluster.sede.embrapa.br" /usr/bin/docker-compose build --force-rm --no-cache backup
+COMMAND > env $(cat .env.sh) DOCKER_HOST="ssh://root@cluster.sede.embrapa.br" /usr/bin/docker-compose run --rm --no-deps backup
 SUCCESS > The build was successfully backed up!
 INFO > Providing access to maintainers in build backup folder...
 INFO > Protecting build backup folder at 'http://backup.embrapa.io/orcamento-forrageiro' with a password... done!

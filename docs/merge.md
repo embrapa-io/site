@@ -4,14 +4,14 @@ title: Merge Request
 subtitle: Propondo melhorias aos boilerplates
 ---
 
-Um dos [objetivos]({{ site.baseurl }}/about) da plataforma **embrapa.io** é fomentar o <u>desenvolvimento colaborativo</u> junto à comunidade de desenvolvedores. Assim, os artefatos de software que compõem os projetos são, em grande parte, _forks_ de repositórios-base no [GitLab da plataforma](https://git.embrapa.io).
+Um dos [objetivos]({{ site.baseurl }}/about) da plataforma **Embrapa I/O** é fomentar o <u>desenvolvimento colaborativo</u> junto à comunidade de desenvolvedores. Assim, os artefatos de software que compõem os projetos são, em grande parte, _forks_ de repositórios-base no [GitLab da plataforma](https://git.embrapa.io).
 
 Esta estratégia possibilita que qualquer problema encontrado nas derivações destes repositórios (seja no momento de desenvolver uma aplicação, ou quando estiver customizando um repositório de suporte) possam ser corrigidos pela própria equipe que identificou o problema e, em seguida, retroalimentar o repositório-base, corrigindo o problema também em sua origem. A partir daí, todos os demais repositórios que foram derivados a partir desta origem, poderão também ser corrigidos por um processo simples de _merge_ no GIT.
 
 Para demonstrar como isso pode ser realizado, vamos exemplificar por meio de um estudo de caso. Imagine que, ao tentar realizar o [processo de _backup_ por demanda]({{ site.baseurl }}/docs/backup) em uma _build_ denominada `agroapp/api@alpha`, o seguinte erro tenha sido emitido:
 
 ```bash
-COMMAND > env $(cat .env.cli) DOCKER_HOST="ssh://root@cluster.agro.rocks" /usr/bin/docker-compose run --rm --no-deps backup
+COMMAND > env $(cat .env.sh) DOCKER_HOST="ssh://root@cluster.agro.rocks" /usr/bin/docker-compose run --rm --no-deps backup
 sh: syntax error: unexpected "&&"
 CRITICAL > Impossibe to backup build. Backup service failed to RUN!
 ```

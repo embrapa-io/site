@@ -10,7 +10,7 @@ Após realizar o [_deploy_ de uma _build_ em ambiente remoto]({{ site.baseurl }}
 
 ![Dialog de monitoramento e gestão da instância]({{ site.baseurl }}/assets/img/health/01.png)
 
-Conforme [detalhado na arquitetura da plataforma]({{ site.baseurl }}/docs/arch), o **embrapa.io** possui um autômato de _health check_ das instâncias denominado _Doctor_. Este agente executa um processo a cada minuto atualizando as informações sobre o _status_ de execução de cada _container_ em cada _stack_ de cada aplicação instanciada pela plataforma. O resultado deste monitoramento pode ser visto no _dialog_ mostrado na imagem acima.
+Conforme [detalhado na arquitetura da plataforma]({{ site.baseurl }}/docs/arch), o **Embrapa I/O** possui um autômato de _health check_ das instâncias denominado _Doctor_. Este agente executa um processo a cada minuto atualizando as informações sobre o _status_ de execução de cada _container_ em cada _stack_ de cada aplicação instanciada pela plataforma. O resultado deste monitoramento pode ser visto no _dialog_ mostrado na imagem acima.
 
 Além de exibir o **estado de saúde** de todos os _containers_ da instância, é possível executar algumas ações de gestão:
 

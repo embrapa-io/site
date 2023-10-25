@@ -4,9 +4,9 @@ title: Arquivar
 subtitle: Como arquivar um projeto?
 ---
 
-Atualmente não é possível apagar completamente um projeto do **embrapa.io**. Ocorre que a remoção de dados é um tema sensível, que deve ser tratado com extremo cuidado. Por conta disso, neste momento, um projeto criado na plataforma permanecerá ocupando permanentemente o nome _unix_ que tenha sido alocado e seus dados, tal como código-fonte, documentação e as instâncias das _builds_, permanecerão disponíveis.
+Atualmente não é possível apagar completamente um projeto do **Embrapa I/O**. Ocorre que a remoção de dados é um tema sensível, que deve ser tratado com extremo cuidado. Por conta disso, neste momento, um projeto criado na plataforma permanecerá ocupando permanentemente o nome _unix_ que tenha sido alocado e seus dados, tal como código-fonte, documentação e as instâncias das _builds_, permanecerão disponíveis.
 
-Entretanto, por diversos motivos e visando manter o painel do **embrapa.io** organizado, pode ser necessário **arquivar um projeto**. O arquivamento de projetos atua executando 3 ações:
+Entretanto, por diversos motivos e visando manter o painel do **Embrapa I/O** organizado, pode ser necessário **arquivar um projeto**. O arquivamento de projetos atua executando 3 ações:
 
 1. Desabilita os [repositórios de suporte]({{ site.baseurl }}/docs/project#support) do projeto;
 2. Desativa todas as [instâncias de _builds_]({{ site.baseurl }}/docs/health) de todas as aplicações; e

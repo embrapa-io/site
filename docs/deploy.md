@@ -57,27 +57,27 @@ MATOMO_TOKEN=e4c42495a19e1c63ecaa7e1c7285d599
 INFO > Trying to clone app... done!
 INFO > Checking SSH connection to host 'cluster.sede.embrapa.br'... ok!
 INFO > Validating Docker Compose file:
-COMMAND > env $(cat .env.ci) DOCKER_HOST="ssh://root@cluster.sede.embrapa.br" /usr/bin/docker-compose config
+COMMAND > env $(cat .env.io) DOCKER_HOST="ssh://root@cluster.sede.embrapa.br" /usr/bin/docker-compose config
 INFO > Trying to validate declared VOLUMEs and PORTs...
 INFO > All published PORTs are valid!
-COMMAND > env $(cat .env.cli) DOCKER_HOST="ssh://root@cluster.sede.embrapa.br" /usr/bin/docker-compose config --services
+COMMAND > env $(cat .env.sh) DOCKER_HOST="ssh://root@cluster.sede.embrapa.br" /usr/bin/docker-compose config --services
 WARNING > Some CLI recomended services are NOT FOUND at docker-compose.yaml: restore, sanitize, test! Please, check configuration.
 WARNING > File docker-compose.yaml is VALID, but has some alerts to fix!
 INFO > Trying to execute backup service before deploy...
-COMMAND > env $(cat .env.cli) DOCKER_HOST="ssh://root@cluster.sede.embrapa.br" /usr/bin/docker-compose build --force-rm --no-cache backup
-COMMAND > env $(cat .env.cli) DOCKER_HOST="ssh://root@cluster.sede.embrapa.br" /usr/bin/docker-compose run --rm --no-deps backup
+COMMAND > env $(cat .env.sh) DOCKER_HOST="ssh://root@cluster.sede.embrapa.br" /usr/bin/docker-compose build --force-rm --no-cache backup
+COMMAND > env $(cat .env.sh) DOCKER_HOST="ssh://root@cluster.sede.embrapa.br" /usr/bin/docker-compose run --rm --no-deps backup
 Creating pbc_mobile_alpha_backup_run ...
 Creating pbc_mobile_alpha_backup_run ... done
 SUCCESS > Backup service executed successfully!
 INFO > Building application with Docker Compose...
-COMMAND > set -e && env $(cat .env.ci) DOCKER_HOST="ssh://root@cluster.sede.embrapa.br" /usr/bin/docker-compose up --force-recreate --build --no-start && echo "Exit code: $?"
+COMMAND > set -e && env $(cat .env.io) DOCKER_HOST="ssh://root@cluster.sede.embrapa.br" /usr/bin/docker-compose up --force-recreate --build --no-start && echo "Exit code: $?"
 Successfully built c0ddfaae85a5
 Successfully tagged pbc_mobile_alpha_pwa:latest
 Exit code: 0
 INFO > Getting valid services (will ignore: backup, restore, sanitize, test)...
-COMMAND > env $(cat .env.ci) DOCKER_HOST="ssh://root@cluster.sede.embrapa.br" /usr/bin/docker-compose config --services
+COMMAND > env $(cat .env.io) DOCKER_HOST="ssh://root@cluster.sede.embrapa.br" /usr/bin/docker-compose config --services
 INFO > Starting application with Docker Compose...
-COMMAND > env $(cat .env.ci) DOCKER_HOST="ssh://root@cluster.sede.embrapa.br" /usr/bin/docker-compose start pwa
+COMMAND > env $(cat .env.io) DOCKER_HOST="ssh://root@cluster.sede.embrapa.br" /usr/bin/docker-compose start pwa
 SUCCESS > All done! Version '2.22.5-alpha.5' in 'alpha' stage of application 'pbc/mobile' is DEPLOYED!
 INFO > The following PORTs have been exposed:
 https://cluster.sede.embrapa.br:49155 [https://test.sede.embrapa.br/pbc]
