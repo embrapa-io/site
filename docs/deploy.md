@@ -23,7 +23,7 @@ Ao fazer o _push_ da _tag_ para a _origin_, o autômato irá detectar a nova ver
 3. Criação dos _volumes_ no servidor de _storage_;
 4. Backup dos dados da instância atual da _build_;
 5. Construção (p.e., `docker compose build`) dos serviços da _stack_ de containers; e
-6. Inicialização (p.e., `docker compose run`) dos serviços no _cluster_.
+6. Inicialização (p.e., `docker compose start`) dos serviços no _cluster_.
 
 > **Atenção (a)!** A execução do **backup** durante o processo de deploy (item 4) possui um tempo limite de **1 hora**. Caso não seja concluído neste período, a execução do backup é interrompida, mas o processo de deploy continua.
 
