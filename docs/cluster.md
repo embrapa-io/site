@@ -36,20 +36,11 @@ Adicionalmente, é fortemente recomendado que seja [instalado o Portainer](https
 
 ### Docker Compose
 
-Para instalação do orquestrador em [Docker Compose](https://docs.docker.com/compose/) é necessário disponibilizar um único servidor dedicado (_bare metal_) ou máquina virtual. É recomendado o uso da distribuição [Linux Debian 11 Bullseye](https://www.debian.org/download) ou [Linux Ubuntu Server 22.04 LTS](https://ubuntu.com/download/server). <u>É necessário que seja utilizada a arquitetura <b>amd64</b></u>. No momento da instalação do SO, haverá a possibilidade de instalar pacotes adicionais. Neste momento, selecione o **SSH Server** e o **Docker**.
+Para instalação do orquestrador em [Docker Compose](https://docs.docker.com/compose/) é necessário disponibilizar um único servidor dedicado (_bare metal_) ou máquina virtual. É recomendado o uso da distribuição [Linux Debian 12 Bookworm](https://www.debian.org/download) ou [Linux Ubuntu Server 22.04 LTS](https://ubuntu.com/download/server). <u>É necessário que seja utilizada a arquitetura <b>amd64</b></u>. No momento da instalação do SO, haverá a possibilidade de instalar pacotes adicionais. Neste momento, selecione o **SSH Server** e o **Docker**.
 
 > **Atenção!** É fortemente recomendado efetuar o [login no Docker](https://docs.docker.com/engine/reference/commandline/login/) utilizando uma conta institucional. O uso do Docker não-autenticado pode resultar em erros durante o processo de _deploy_ (p.e., `Temporary failure in name resolution`).
 
 ![Pacote do Docker selecionado para instalação]({{ site.baseurl }}/assets/img/cluster/03.png)
-
-Para instalar o **Docker Compose**, é recomendado utilizar o [repositório oficial](https://github.com/docker/compose/releases) para obtê-lo em sua versão mais recente:
-
-```bash
-sudo su -
-curl -L "https://github.com/docker/compose/releases/download/2.7.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-chmod +x /usr/local/bin/docker-compose
-docker-compose --version
-```
 
 Adicione a chave pública SSH da plataforma **Embrapa I/O** no arquivo `/root/.ssh/authorized_keys`, conforme mencionado na seção inicial desta página. Agora será necessário configurar um _storer_ associado ao _cluster_, que é o servidor físico onde serão armazenados os _volumes_ utilizados pelos containers para persistir dados:
 
@@ -59,7 +50,7 @@ Adicione a chave pública SSH da plataforma **Embrapa I/O** no arquivo `/root/.s
 
 ### Docker Swarm
 
-Para instalação do orquestrador em [Docker Swarm](https://docs.docker.com/engine/swarm/) é necessário disponibilizar três ou mais servidores dedicados (_bare metal_) ou máquinas virtuais. Em cada uma delas deverá ser instalado, preferencialmente, a distribuição [Linux Debian 11 Bullseye](https://www.debian.org/download) ou [Linux Ubuntu Server 22.04 LTS](https://ubuntu.com/download/server). <u>É necessário que seja utilizada a arquitetura <b>amd64</b></u>. No momento da instalação do SO, haverá a possibilidade de instalar pacotes adicionais. Neste momento, selecione o **SSH Server** e o **Docker**. Siga os passos da seção anterior para instalar também o **Docker Compose** em sua versão mais recente em cada um dos servidores que compõem o _cluster_.
+Para instalação do orquestrador em [Docker Swarm](https://docs.docker.com/engine/swarm/) é necessário disponibilizar três ou mais servidores dedicados (_bare metal_) ou máquinas virtuais. Em cada uma delas deverá ser instalado, preferencialmente, a distribuição [Linux Debian 12 Bookworm](https://www.debian.org/download) ou [Linux Ubuntu Server 22.04 LTS](https://ubuntu.com/download/server). <u>É necessário que seja utilizada a arquitetura <b>amd64</b></u>. No momento da instalação do SO, haverá a possibilidade de instalar pacotes adicionais. Neste momento, selecione o **SSH Server** e o **Docker**. Siga os passos da seção anterior para instalar também o **Docker Compose** em sua versão mais recente em cada um dos servidores que compõem o _cluster_.
 
 > **Atenção!** É fortemente recomendado efetuar o [login no Docker](https://docs.docker.com/engine/reference/commandline/login/) utilizando uma conta institucional. O uso do Docker não-autenticado pode resultar em erros durante o processo de _deploy_ (p.e., `Temporary failure in name resolution`).
 
