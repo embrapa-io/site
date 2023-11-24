@@ -661,7 +661,7 @@ Assim, como sugestão, recomendamos fortemente o uso da [licensa MIT](https://mi
 
 Para distribuir o _boilerplate_ para uso pela comunidade de desenvolvedores, será necessário disponibilizá-lo no grupo de repositórios `/io/boilerplate` do [GitLab da plataforma](https://git.embrapa.io), onde estará **visível publicamente para todos os usuários**.
 
-> **Atenção!** Após efetuar o _fork_ da aplicação, criando o _boilerplate_, é necessário **remover o vínculo com a aplicação origem** (Settings &raquo; General &raquo; Advanced &raquo; Remove fork relationship) e **alterar a visibilidade no _boilerplate_ para 'Public'** (Settings &raquo; General &raquo; Visibility, project features, permissions &raquo; Project visibility).
+> **Atenção!** Após efetuar o _fork_ da aplicação, criando o _boilerplate_, é necessário **alterar a visibilidade no _boilerplate_ para 'Public'** (Settings &raquo; General &raquo; Visibility, project features, permissions &raquo; Project visibility).
 
 Além disso, ele deverá constar e estar ativo no [catálogo de _boilerplates_](http://localhost:8029/io/boilerplate/metadata/-/blob/main/boilerplates.json). Para ser inserido na listagem, os mantenedores precisarão passar para a [equipe de suporte do **Embrapa I/O**](mailto:io@embrapa.br) o **nome _unix_** do _boilerplate_, um **nome legível** (rótulo), uma **breve descrição** (de uma linha) e um **ícone** que melhor represente as tecnologias utilizadas. Atualmente, os ícones permitidos são:
 
