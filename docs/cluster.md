@@ -48,6 +48,15 @@ Adicione a chave pública SSH da plataforma **Embrapa I/O** no arquivo `/root/.s
 
 - `DockerNFSv4`: Havendo uma VM ou servidor físico de _storage_ disponível, os mantenedores poderão [instalar e/ou habilitar o NFS (versão 4)](https://phoenixnap.com/kb/ubuntu-nfs-server) nele. Assim como no caso do _cluster_, é necessário também configurar a chave SSH pública da plataforma no usuário `root`. É importante que no arquivo `/etc/exports` sejam parametrizados, pelo menos, as seguintes opções no diretório a ser montado: `rw`, `no_root_squash`, `sync`, `no_subtree_check` e `insecure`.
 
+É fortemente recomendado ajustar alguns parâmetros do Linux (`sysctl`). Normalmente estes parâmetros são ajustados editando o arquivo `/etc/sysctl.d/99-sysctl.conf` (ou diretamente o `/etc/sysctl.conf` em distribuições mais antigas). Considere os seguintes parâmetros e correspondentes valores mínimos:
+
+```bash
+fs.file-max=98000
+kernel.pid_max=64000
+kernel.threads-max=64000
+vm.max_map_count=262144
+```
+
 ### Docker Swarm
 
 Para instalação do orquestrador em [Docker Swarm](https://docs.docker.com/engine/swarm/) é necessário disponibilizar três ou mais servidores dedicados (_bare metal_) ou máquinas virtuais. Em cada uma delas deverá ser instalado, preferencialmente, a distribuição [Linux Debian 12 Bookworm](https://www.debian.org/download) ou [Linux Ubuntu Server 22.04 LTS](https://ubuntu.com/download/server). <u>É necessário que seja utilizada a arquitetura <b>amd64</b></u>. No momento da instalação do SO, haverá a possibilidade de instalar pacotes adicionais. Neste momento, selecione o **SSH Server** e o **Docker**. Siga os passos da seção anterior para instalar também o **Docker Compose** em sua versão mais recente em cada um dos servidores que compõem o _cluster_.
