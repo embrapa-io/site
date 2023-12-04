@@ -32,6 +32,71 @@ Além disso, o **Embrapa I/O** expõe as aplicações instanciadas em portas na 
 
 Adicionalmente, é fortemente recomendado que seja [instalado o Portainer](https://docs.portainer.io/start/install) para auxiliar a equipe mantenedora de _clusters_ em [Docker Compose](https://docs.portainer.io/start/install/server/docker/linux), [Docker Swarm](https://docs.portainer.io/start/install/server/swarm/linux) ou [Kubernetes](https://docs.portainer.io/start/install/server/kubernetes/baremetal) em sua gestão. Por padrão, recomenda-se que este seja disponibilizado publicamente no HTTPS (porta 443) da URL do _cluster_, com o HTTP (porta 80) redirecionando para o HTTPS.
 
+Para simplificar a instalação e recorrente atualização do Portainer (quando necessário), crie um _script_ denominado `/root/portainer.sh` com as seguintes instruções:
+
+```bash
+#!/bin/sh
+
+type docker > /dev/null 2>&1 || { echo >&2 "Command 'docker' has not found! Aborting."; exit 1; }
+
+set -x
+
+set +e
+
+docker stop portainer
+
+docker rm portainer
+
+docker volume create portainer_data
+
+set -e
+
+docker pull portainer/portainer-ce:latest
+
+docker run -d -p 8000:8000 -p 9443:9000 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
+```
+
+Além disso, [instale o Nginx](https://www.linuxcapable.com/how-to-install-nginx-on-debian-linux/) e, para a configuração acima do Portainer, especifique um novo site como segue (troque `io.cnpxx.embrapa.br` pelo nome correto do seu _cluster_):
+
+```
+server {
+  listen 80;
+  listen [::]:80;
+
+  server_name io.cnpxx.embrapa.br;
+
+  return 301 https://io.cnpxx.embrapa.br;
+}
+
+server {
+  listen 443 ssl http2;
+  listen [::]:443 ssl http2;
+
+  ssl_certificate /etc/embrapa/wildcard/io.cnpxx.embrapa.br/fullchain.pem;
+  ssl_certificate_key /etc/embrapa/wildcard/io.cnpxx.embrapa.br/privkey.pem;
+  ssl_trusted_certificate /etc/embrapa/wildcard/io.cnpxx.embrapa.br/fullchain.pem;
+  ssl_protocols TLSv1.2 TLSv1.3;
+
+  server_name io.cnpxx.embrapa.br;
+
+  location / {
+    resolver 127.0.0.1 [::1];
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Access-Control-Allow-Origin '*';
+    proxy_set_header Access-Control-Allow-Methods 'GET, POST, OPTIONS, PUT, DELETE, HEAD';
+    proxy_cache_bypass $http_upgrade;
+    proxy_ssl_session_reuse off;
+    proxy_pass http://localhost:9443;
+  }
+}
+```
+
 ## Orquestradores e Storers Homologados
 
 ### Docker Compose
