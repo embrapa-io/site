@@ -9,6 +9,7 @@ subtitle: Prefácio da documentação técnica
 - [Macroprocesso]({{ site.baseurl }}/docs/macroprocess)
 - [Introdução]({{ site.baseurl }}/docs/introduction)
 - [Arquitetura]({{ site.baseurl }}/docs/architecture)
+- [Publicações]({{ site.baseurl }}/docs/papers)
 - Parceiros <!-- [Parceiros]({{ site.baseurl }}/docs/partners) -->
 - Priorização dos Ativos <!-- [Priorização dos Ativos]({{ site.baseurl }}/docs/pool) -->
 - [_Squads_ de Desenvolvimento]({{ site.baseurl }}/docs/squads)
