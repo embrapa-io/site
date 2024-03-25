@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Introdução
+title: Terminologia
 subtitle: Conceitos básicos da plataforma
 ---
 
@@ -11,6 +11,15 @@ A plataforma **Embrapa I/O** permite que sejam estruturados **projetos de softwa
 Primeiramente, assume-se que cada ativo digital será formado por diversos softwares desacoplados, além de outros artefatos de apoio. Este conceito reflete o padrão atual de desenvolvimento de software, onde uma solução tem um _backend_ integrado ao banco de dados, um _frontend_ na Web, um aplicativo _mobile_, dentre outros (ou pode ainda ainda ser baseada em [_microservices_](https://microservices.io) ou [_micro-frontends_](https://micro-frontends.org)), com diversos módulos, _plugins_, _packages_ e componentes que seguem ciclos de vida independentes.
 
 Para consolidar estes conceitos, a seguir são apresentadas as principais entidades que você encontrará na plataforma e sua terminologia.
+
+## Ativo Digital {#digital-asset}
+
+No contexto da Embrapa, um **ativo digital** é um conjunto de softwares com código-fonte original (e outros artefatos relacionados) que são desenvolvidos para serem utilizados na agropecuária. Para diferenciar "ativos digitais" de outras tecnologias também digitais formalmente conceituadas dentro da Empresa (tal como "processo informatizado" e "banco de dados"), é utilizada como base a [definição do INPI](https://www.gov.br/inpi/pt-br/servicos/programas-de-computador/arquivos/manual/manual-e-software-2022.pdf) para "**programa de computador**", que por sua vez é baseada na [a Lei nº 9.609,
+de 19 de fevereiro de 1998](https://www.planalto.gov.br/ccivil_03/leis/L9609.htm).
+
+Em resumo, portanto, para ser considerada um "**ativo digital**", a **tecnologia digital desenvolvida deve possuir código-fonte próprio, com originalidade, e passível de [depósito e registro junto ao INPI](https://www.gov.br/inpi/pt-br/servicos/perguntas-frequentes/programas-de-computador)**.
+
+Desta forma, aplicativos móveis, aplicações web, softwares embarcados, utilitários de linha de comando, softwares desktop, APIs e outros tipos de soluções digitais que não possuam código-fonte original, tal como aquelas construídas por meio de plataformas _No-Code_ ou _Codeless_ ([a exemplo do Google AppSheet](https://sites.google.com/embrapa.br/embaixadores/aplicativos/desenvolvimento/appsheet?authuser=1)), não são consideradas formalmente um **ativo digital**.
 
 ## Projeto {#project}
 
