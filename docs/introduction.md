@@ -14,12 +14,14 @@ Para consolidar estes conceitos, a seguir são apresentadas as principais entida
 
 ## Ativo Digital {#digital-asset}
 
-No contexto da Embrapa, um **ativo digital** é um conjunto de softwares com código-fonte original (e outros artefatos relacionados) que são desenvolvidos para serem utilizados na agropecuária. Para diferenciar "ativos digitais" de outras tecnologias também digitais formalmente conceituadas dentro da Empresa (tal como "processo informatizado" e "banco de dados"), é utilizada como base a [definição do INPI](https://www.gov.br/inpi/pt-br/servicos/programas-de-computador/arquivos/manual/manual-e-software-2022.pdf) para "**programa de computador**", que por sua vez é baseada na [a Lei nº 9.609,
+No contexto da Embrapa, um **ativo digital** é um conjunto de softwares com código-fonte original (e outros artefatos relacionados) que são desenvolvidos para serem utilizados no agro brasileiro. Mais especificamente, nos cinco ecossistemas digitais: **agricultura; pecuária; florestas e silvicultura; aquicultura e pesca; e, indústria de processamento**. Para diferenciar "ativos digitais" de outras tecnologias também digitais formalmente conceituadas dentro da Empresa (tal como "processo informatizado" e "banco de dados"), é utilizada como base a [definição do INPI](https://www.gov.br/inpi/pt-br/servicos/programas-de-computador/arquivos/manual/manual-e-software-2022.pdf) para "**programa de computador**", que por sua vez é baseada na [a Lei nº 9.609,
 de 19 de fevereiro de 1998](https://www.planalto.gov.br/ccivil_03/leis/L9609.htm).
 
 Em resumo, portanto, para ser considerada um "**ativo digital**", a **tecnologia digital desenvolvida deve possuir código-fonte próprio, com originalidade, e passível de [depósito e registro junto ao INPI](https://www.gov.br/inpi/pt-br/servicos/perguntas-frequentes/programas-de-computador)**.
 
-Desta forma, aplicativos móveis, aplicações web, softwares embarcados, utilitários de linha de comando, softwares desktop, APIs e outros tipos de soluções digitais que não possuam código-fonte original, tal como aquelas construídas por meio de plataformas _No-Code_ ou _Codeless_ ([a exemplo do Google AppSheet](https://sites.google.com/embrapa.br/embaixadores/aplicativos/desenvolvimento/appsheet?authuser=1)), não são consideradas formalmente um **ativo digital**.
+Desta forma, aplicativos móveis, aplicações web, softwares embarcados, utilitários de linha de comando, softwares desktop, APIs e outros tipos de soluções computacionais para o agronegócio, que possuam código-fonte original, são exemplos de **ativos digitais**.
+
+ Contrariamente, o uso exclusivo de linguagens de marcação e códigos-fonte autogerados, que não foram codificados de forma direta, bem como soluções que não possuam código-fonte original, tal como aquelas construídas por meio de plataformas _No-Code_ ou _Codeless_ que não tenham código-fonte disponível para registro ou que tenham mas necessitem destas ferramentas proprietárias para serem executados ([a exemplo do Google AppSheet](https://sites.google.com/embrapa.br/embaixadores/aplicativos/desenvolvimento/appsheet?authuser=1)), **não são consideradas formalmente um ativo digital**.
 
 ## Projeto {#project}
 

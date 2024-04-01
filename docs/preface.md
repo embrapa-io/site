@@ -7,16 +7,17 @@ subtitle: Prefácio da documentação técnica
 ## Prólogo
 
 - [Macroprocesso]({{ site.baseurl }}/docs/macroprocess)
-- [Introdução]({{ site.baseurl }}/docs/introduction)
+- [Terminologia]({{ site.baseurl }}/docs/introduction)
+<!-- - [Orientações]({{ site.baseurl }}/docs/guidelines) -->
 - [Arquitetura]({{ site.baseurl }}/docs/architecture)
 - [Publicações]({{ site.baseurl }}/docs/papers)
-- Parceiros <!-- [Parceiros]({{ site.baseurl }}/docs/partners) -->
-- Priorização dos Ativos <!-- [Priorização dos Ativos]({{ site.baseurl }}/docs/pool) -->
-- [_Squads_ de Desenvolvimento]({{ site.baseurl }}/docs/squads)
-- Trilha: _Zero to Hero_ <!-- [Trilha: _Zero to Hero_]({{ site.baseurl }}/docs/trail) -->
+<!-- - [Parceiros]({{ site.baseurl }}/docs/partners) -->
+<!-- - [Priorização dos Ativos]({{ site.baseurl }}/docs/pool) -->
+<!-- - [Trilha: _Zero to Hero_]({{ site.baseurl }}/docs/trail) -->
 
 ## Tópicos Relevantes
 
+- [_Squads_ de Desenvolvimento]({{ site.baseurl }}/docs/squads)
 - Ferramentas de Desenvolvimento <!-- [Ferramentas de Desenvolvimento]({{ site.baseurl }}/docs/tools) -->
 - Boas Práticas <!-- [Boas Práticas]({{ site.baseurl }}/docs/practices) -->
 - Reúso de Componentes <!-- [Reúso de Componentes]({{ site.baseurl }}/docs/reuse) -->
