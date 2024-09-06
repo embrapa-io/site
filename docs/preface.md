@@ -18,13 +18,13 @@ subtitle: Prefácio da documentação técnica
 ## Tópicos Relevantes
 
 - [_Squads_ de Desenvolvimento]({{ site.baseurl }}/docs/squads)
-- Ferramentas de Desenvolvimento <!-- [Ferramentas de Desenvolvimento]({{ site.baseurl }}/docs/tools) -->
+- [Ferramentas de Desenvolvimento]({{ site.baseurl }}/docs/tools)
 - Boas Práticas <!-- [Boas Práticas]({{ site.baseurl }}/docs/practices) -->
 - Reúso de Componentes <!-- [Reúso de Componentes]({{ site.baseurl }}/docs/reuse) -->
 - Teste de Software <!-- [Teste de Software]({{ site.baseurl }}/docs/test) -->
 - [Licenciamento]({{ site.baseurl }}/docs/licensing)
 - [Escalas TRL/MRL e distribuição de MVPs]({{ site.baseurl }}/docs/mvp)
-- Proteção de Dados Pessoais <!-- [Proteção de Dados Pessoais]({{ site.baseurl }}/docs/lgpd) -->
+- Proteção de Dados Pessoais (LGPD) <!-- [Proteção de Dados Pessoais (LGPD)]({{ site.baseurl }}/docs/lgpd) -->
 - [Integração de Ativos Digitais]({{ site.baseurl }}/docs/integration)
 - _Marketplaces_ e ecossistemas digitais <!-- [_Marketplaces_ e ecossistemas digitais]({{ site.baseurl }}/docs/marketplace) -->
 - [Registro de Software]({{ site.baseurl }}/docs/register)
