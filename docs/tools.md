@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Ferramentas
-subtitle: Ferramentas úteis para o desenvolvimento de ativos digitais
+subtitle: Ferramentas de apoio ao desenvolvimento de ativos digitais
 ---
 
 A plataforma **Embrapa I/O** faz uso de uma abordagem de desenvolvimento local, sendo portanto necessário o uso de algumas ferramentas para executar localmente as aplicações em desenvolvimento. Esta estratégia possui [vantagens e desvantagens](https://www.bunnyshell.com/blog/local-development-vs-remote-development/), se comparada com o chamado _remote software development_, sendo os principais benefícios o _feedback_ imediato, o acesso _offline_, a privacidade e segurança e a depuração facilitada.
