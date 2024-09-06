@@ -27,6 +27,7 @@ subtitle: Prefácio da documentação técnica
 - Proteção de Dados Pessoais <!-- [Proteção de Dados Pessoais]({{ site.baseurl }}/docs/lgpd) -->
 - [Integração de Ativos Digitais]({{ site.baseurl }}/docs/integration)
 - _Marketplaces_ e ecossistemas digitais <!-- [_Marketplaces_ e ecossistemas digitais]({{ site.baseurl }}/docs/marketplace) -->
+- [Registro de Software]({{ site.baseurl }}/docs/register)
 - Gestão da Qualidade <!-- [Gestão da Qualidade]({{ site.baseurl }}/docs/quality) -->
 - Gestão da Segurança <!-- [Gestão da Segurança]({{ site.baseurl }}/docs/security) -->
 
