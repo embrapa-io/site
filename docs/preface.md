@@ -24,10 +24,10 @@ subtitle: Prefácio da documentação técnica
 - Teste de Software <!-- [Teste de Software]({{ site.baseurl }}/docs/test) -->
 - [Licenciamento]({{ site.baseurl }}/docs/licensing)
 - [Escalas TRL/MRL e distribuição de MVPs]({{ site.baseurl }}/docs/mvp)
-- Proteção de Dados Pessoais (LGPD) <!-- [Proteção de Dados Pessoais (LGPD)]({{ site.baseurl }}/docs/lgpd) -->
+- [Proteção de Dados Pessoais (LGPD)]({{ site.baseurl }}/docs/lgpd)
 - [Integração de Ativos Digitais]({{ site.baseurl }}/docs/integration)
 - _Marketplaces_ e ecossistemas digitais <!-- [_Marketplaces_ e ecossistemas digitais]({{ site.baseurl }}/docs/marketplace) -->
-- [Registro de Software]({{ site.baseurl }}/docs/register)
+- [Registro de Software no INPI]({{ site.baseurl }}/docs/register)
 - Gestão da Qualidade <!-- [Gestão da Qualidade]({{ site.baseurl }}/docs/quality) -->
 - Gestão da Segurança <!-- [Gestão da Segurança]({{ site.baseurl }}/docs/security) -->
 
