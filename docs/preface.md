@@ -8,7 +8,7 @@ subtitle: Prefácio da documentação técnica
 
 - [Macroprocesso]({{ site.baseurl }}/docs/macroprocess)
 - [Terminologia]({{ site.baseurl }}/docs/introduction)
-<!-- - [Orientações]({{ site.baseurl }}/docs/guidelines) -->
+- [Orientações]({{ site.baseurl }}/docs/guidelines)
 - [Arquitetura]({{ site.baseurl }}/docs/architecture)
 - [Publicações]({{ site.baseurl }}/docs/papers)
 <!-- - [Parceiros]({{ site.baseurl }}/docs/partners) -->
