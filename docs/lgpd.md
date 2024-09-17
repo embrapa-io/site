@@ -18,6 +18,10 @@ Quando o ativo digital em questão **não coleta dados pessoais**, é necessári
 
 Caso o ativo **faça tratamento de dados pessoais**, os desenvolvedores deverão se atentar aos seguintes pontos:
 
-- Elaboração e validação (junto à AJU/SJPIN) do "**Termo de Uso**" e "**Aviso de Privacidade**" (considere redigir minutas com base nos [modelos disponibilizados pela área jurídica](https://drive.google.com/drive/folders/1ttWCq2nMiMy__iirf4eNlGyES-U9cQ9t?usp=sharing)), bem como posterior disponibilização destes instrumentos na interface do ativo de forma a garantir o aceite de consentimento dos usuários antes da coleta de dados pessoais; e
+- Elaboração e validação (junto à AJU/SJPIN) dos "**Termos de Uso**" e "**Aviso de Privacidade**" (considere redigir minutas com base nos [modelos homologados pela área jurídica](https://drive.google.com/drive/folders/1ttWCq2nMiMy__iirf4eNlGyES-U9cQ9t?usp=sharing)), bem como posterior disponibilização destes instrumentos na interface do ativo de forma a garantir o aceite de consentimento dos usuários antes da coleta de dados pessoais.
+
+![Aceite dos Termos de Consentimento.]({{ site.baseurl }}/assets/img/lgpd/02.png)
 
 - Mecanismos que permitam o _backup_ destes dados pelo próprio usuário (preferencialmente em um formato legível, tal como planilhas Excel) e sua restauração posterior.
+
+![Backup de dados pela interface da aplicação.]({{ site.baseurl }}/assets/img/lgpd/03.png)
