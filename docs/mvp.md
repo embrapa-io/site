@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Níveis de Maturidade
-subtitle: Escala TRL/MRL e distribução de MVPs
+subtitle: Escala TRL/MRL e distribuição de MVPs
 ---
 
 *[MVP]: Minimum Viable Product

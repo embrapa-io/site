@@ -18,18 +18,24 @@ Quando o ativo digital em questão **não coleta dados pessoais**, é necessári
 
 Caso o ativo **faça tratamento de dados pessoais**, os desenvolvedores deverão se atentar aos seguintes pontos:
 
-- Elaboração e validação (junto à AJU/SJPIN) dos "**Termos de Uso**" e "**Aviso de Privacidade**" (considere redigir minutas com base nos [modelos homologados pela área jurídica](https://drive.google.com/drive/folders/1ttWCq2nMiMy__iirf4eNlGyES-U9cQ9t?usp=sharing)), bem como posterior disponibilização destes instrumentos na interface do ativo de forma a garantir o aceite de consentimento dos usuários antes da coleta de dados pessoais.
+### Termos de consentimento
+
+Elaboração e validação (junto à AJU/SJPIN) dos "**Termos de Uso**" e "**Aviso de Privacidade**" (considere redigir minutas com base nos [modelos homologados pela área jurídica](https://drive.google.com/drive/folders/1ttWCq2nMiMy__iirf4eNlGyES-U9cQ9t?usp=sharing)), bem como posterior disponibilização destes instrumentos na interface do ativo de forma a garantir o aceite de consentimento dos usuários antes da coleta de dados pessoais.
 
 ![Aceite dos Termos de Consentimento.]({{ site.baseurl }}/assets/img/lgpd/02.png)
 
-- Mecanismos que permitam o _backup_ destes dados pelo próprio usuário (preferencialmente em um formato legível, tal como planilhas Excel) e sua restauração posterior.
+### Salvaguarda dos dados do usuário
+
+Mecanismos que permitam o _backup_ destes dados pelo próprio usuário (preferencialmente em um formato legível, tal como planilhas Excel) e sua restauração posterior.
 
 ![Backup de dados pela interface da aplicação.]({{ site.baseurl }}/assets/img/lgpd/03.png)
 
-Além disso, tenha cautela ao solicitar informações distintas, pois a "**minimização na coleta de dados pessoais**" é um dos preceitos da LGPD. Neste contexto, rege o princípio da "finalidade", segundo o qual o tratamento de dados pessoais somente deverá ser realizado para finalidades legítimas, específicas, explícitas e informadas ao seu titular, sem possibilidade de tratamento posterior de forma incompatível com as finalidades inicialmente informadas.
+### Minimização na coleta de dados pessoais
+
+Além disso, tenha cautela ao solicitar informações distintas, pois a minimização na coleta de dados é um dos preceitos da LGPD. Neste contexto, rege o princípio da "**finalidade**", segundo o qual o tratamento de dados pessoais somente deverá ser realizado para finalidades legítimas, específicas, explícitas e informadas ao seu titular, sem possibilidade de tratamento posterior de forma incompatível com as finalidades inicialmente informadas.
 
 De forma coerente com este princípio, em todas as situações em que for necessária a coleta de dados pessoais, deve ser analisada a finalidade desta coleta e coletados apenas os dados necessários para que ela seja atendida. Assim, caso a finalidade seja, por exemplo, apenas a sincronização de dados para resguardá-los e permitir o seu compartilhamento em diferentes dispositivos, apenas o e-mail pode ser necessário.
 
 ![Perfil de usuário com e-mail como único dado obrigatório.]({{ site.baseurl }}/assets/img/lgpd/04.png)
 
-No exemplo acima o único dado obrigatório é o "**e-mail**". Este é utilizado para vincular o perfil digital ao usuário do mundo real, permitindo que ele possa acessar seus dados a partir de múltiplos dispositivos (celular, computador, tablet, etc). A imagem do usuário, utilizada para uma melhor experiência de uso (UX), é provida pelo serviço [Gravatar](https://gravatar.com) (se disponível). Até mesmo o nome é opcional e fica a critério do usuário fornecer ou não. No estudo de caso acima, são solicitadas informações profissionais, mas elas ficam armazenadas apenas localmente (e não nos servidores remotos), endo necessário ao usuário cadastrá-las novamente em cada dispositivo.
+No exemplo acima o único dado obrigatório é o "**e-mail**". Este é utilizado para vincular o perfil digital ao usuário do mundo real, permitindo que ele possa acessar seus dados a partir de múltiplos dispositivos (celular, computador, _tablet_, etc). A imagem do usuário, utilizada para uma melhor experiência de uso (UX), é provida pelo serviço [Gravatar](https://gravatar.com) (se disponível). Até mesmo o nome é opcional e fica a critério do usuário fornecer ou não. No estudo de caso acima, são solicitadas informações profissionais, mas elas ficam armazenadas apenas localmente (e não nos servidores remotos), sendo necessário ao usuário cadastrá-las novamente em cada dispositivo.

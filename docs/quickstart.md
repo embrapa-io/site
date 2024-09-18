@@ -4,7 +4,7 @@ title: Quickstart
 subtitle: Iniciando com o Embrapa I/O em poucos passos
 ---
 
-Para começar a utilizar o **Embrapa I/O** para o desenvolvimento de suas próprias soluções para a agricultura digital, [leia nossa introdução]({{ site.baseurl }}/docs/introduction). Se já estiver familiarizado com a terminologia da plataforma, [acesse a _dashboard_]({{ site.baseurl }}/docs/dashboard) e execute os seguintes passos:
+Para começar a utilizar o **Embrapa I/O** para o desenvolvimento de suas próprias soluções para a agricultura digital, esteja ciente das [orientações iniciais]({{ site.baseurl }}/docs/guidelines) e [leia nossa introdução]({{ site.baseurl }}/docs/introduction). Se já estiver familiarizado com a terminologia da plataforma, [acesse a _dashboard_]({{ site.baseurl }}/docs/dashboard) e execute os seguintes passos:
 
 1. [Crie um novo projeto de software para desenvolvimento do seu ativo digital]({{ site.baseurl }}/docs/project);
 2. [Adicione apps ao seu projeto]({{ site.baseurl }}/docs/app);
