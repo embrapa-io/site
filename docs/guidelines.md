@@ -99,6 +99,8 @@ Consequentemente, o efeito prático é um ônus ainda maior para sustentação d
 
 ### 8. Nível de maturidade TRL/MRL a ser atingido {#trl}
 
+É necessário que a equipe de desenvolvimento defina o nível de maturidade na [Escala TRL/MRL](https://cloud.cnpgc.embrapa.br/nap/files/2018/08/EscalaTRL-MRL-17Abr2018.pdf) a ser atingido. Para isso, é fundamental estar pacificado o [conceito de rodadas evolutivas no desenvolvimento de ativos digitais]({{ site.baseurl }}/docs/round).
+
 Ao contrário de outros tipos de tecnologias, é possível o lançamento de ativos digitais em **TRL 7**, ou seja, em versão "**Beta**". Consequentemente, também é possível divulgar softwares em TRL 7 no [catálogo de tecnologias do portal da Embrapa](https://www.embrapa.br/tecnologias).
 
 Conforme [comentado anteriormente](#partner), o atingimento de níveis mais altos de maturidade tecnológica (TRL 8 e 9) dependem da formalização de parcerias que garantam a sustentação do software e potencializem a sua adoção, preservando a imagem da marca Embrapa. Leia as [orientações específicas sobre a Escala TRL/MRL e distribuição de MVPs]({{ site.baseurl }}/docs/mvp) para maiores detalhes.

@@ -22,8 +22,9 @@ subtitle: Prefácio da documentação técnica
 - Boas Práticas <!-- [Boas Práticas]({{ site.baseurl }}/docs/practices) -->
 - Reúso de Componentes <!-- [Reúso de Componentes]({{ site.baseurl }}/docs/reuse) -->
 - Teste de Software <!-- [Teste de Software]({{ site.baseurl }}/docs/test) -->
+- [Rodadas Evolutivas]({{ site.baseurl }}/docs/round)
 - [Licenciamento]({{ site.baseurl }}/docs/licensing)
-- [Escalas TRL/MRL e distribuição de MVPs]({{ site.baseurl }}/docs/mvp)
+- [Lançamento de MVPs]({{ site.baseurl }}/docs/mvp)
 - [Proteção de Dados Pessoais (LGPD)]({{ site.baseurl }}/docs/lgpd)
 - [Integração de Ativos Digitais]({{ site.baseurl }}/docs/integration)
 - _Marketplaces_ e ecossistemas digitais <!-- [_Marketplaces_ e ecossistemas digitais]({{ site.baseurl }}/docs/marketplace) -->
