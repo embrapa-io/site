@@ -17,12 +17,12 @@ subtitle: Prefácio da documentação técnica
 
 ## Tópicos Relevantes
 
+- [Rodadas Evolutivas]({{ site.baseurl }}/docs/round)
 - [_Squads_ de Desenvolvimento]({{ site.baseurl }}/docs/squads)
 - [Ferramentas de Desenvolvimento]({{ site.baseurl }}/docs/tools)
 - Boas Práticas <!-- [Boas Práticas]({{ site.baseurl }}/docs/practices) -->
 - Reúso de Componentes <!-- [Reúso de Componentes]({{ site.baseurl }}/docs/reuse) -->
 - Teste de Software <!-- [Teste de Software]({{ site.baseurl }}/docs/test) -->
-- [Rodadas Evolutivas]({{ site.baseurl }}/docs/round)
 - [Licenciamento]({{ site.baseurl }}/docs/licensing)
 - [Lançamento de MVPs]({{ site.baseurl }}/docs/mvp)
 - [Proteção de Dados Pessoais (LGPD)]({{ site.baseurl }}/docs/lgpd)

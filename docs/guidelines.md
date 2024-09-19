@@ -113,7 +113,7 @@ Ativos digitais em _Beta Release_ (TRL 7), devido à instabilidade inerente, dev
 
 - Também recomendamos fortemente que softwares em TRL 7 que coletem dados de usuário tenham funcionalidades que permitam o _backup_ destes dados pelo próprio usuário (preferencialmente em um formato legível, tal como planilhas Excel), bem como sua restauração posterior. Lembramos que, [pela LGPD]({{ site.baseurl }}/docs/lgpd), o usuário pode a qualquer momento apagar seus dados pessoais do sistema. Além disso, dado que se trata de uma versão _Beta_, é salutar que o usuário tenha a possibilidade de salvaguardar seus dados de qualquer instabilidade do software.
 
-- Por fim, [conforme já comentado](#marketplaces), reforçamos a recomendação de que ativos neste nível de maturidade sejam disponibilizados publicamente <u>sem o uso de _marketplaces_ de terceiros</u>.
+- Por fim, [conforme já comentado](#marketplaces), reforçamos a recomendação de que ativos neste nível de maturidade sejam disponibilizados publicamente **sem o uso de _marketplaces_ de terceiros**.
 
 ### 9. Atribuição de licenças de código {#license}
 
