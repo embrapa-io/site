@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Níveis de Maturidade
+title: MVP
 subtitle: Escala TRL/MRL e distribuição de MVPs
 ---
 
