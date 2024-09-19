@@ -95,6 +95,8 @@ Na prática a Google Play está exigindo que todos os apps disponibilizados tenh
 
 Consequentemente, o efeito prático é um ônus ainda maior para sustentação do ativo (que corrobora com o [assunto tratado anteriormente](#partner)). Assim como a Google Play, outros _marketplaces_ como a [Apple App Store](https://www.apple.com/br/app-store/) possuem políticas semelhantes. Por conta disso, a recomendação é que novos aplicativos, que não tenham parcerias para sua sustentação (ou seja, sejam _Beta Release_ - TRL 7), sejam desenvolvidos no formato de **aplicações web responsivas** — preferencialmente [PWAs (do inglês, _Progressive Web Applications_)](https://web.dev/learn/pwa/progressive-web-apps?hl=pt-br) ou [SPAs (do inglês, _Single-Page Applications_)](https://www.iugu.com/blog/single-page-applications).
 
+> **Atenção!** Caso a disponibilização em _marketplace_ seja realmente o melhor caminho, considere nomear o pacote no padrão `br.embrapa.nome_do_app`. Em muitos casos, tal como na Google Play, este nome não poderá ser alterado posteriormente. Como este nome é utilizado na composição da URL do produto de software no catálogo do _marketplace_, esta decisão tem grande impacto em ferramentas de busca (veja sobre [_Search Engine Optimization - SEO_](https://developers.google.com/search/docs/fundamentals/seo-starter-guide?hl=pt-br) para mais detalhes).
+
 ### 8. Nível de maturidade TRL/MRL a ser atingido {#trl}
 
 Ao contrário de outros tipos de tecnologias, é possível o lançamento de ativos digitais em **TRL 7**, ou seja, em versão "**Beta**". Consequentemente, também é possível divulgar softwares em TRL 7 no [catálogo de tecnologias do portal da Embrapa](https://www.embrapa.br/tecnologias).
