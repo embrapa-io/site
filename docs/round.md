@@ -6,6 +6,8 @@ subtitle: Evolução do nível de maturidade de ativos digitais
 
 *[API]: Application Programming Interface
 
+O **Macroprocesso de Desenvolvimento de Ativos Digitais**, que foi abordado em [artigo específico]({{ site.baseurl }}/docs/macroprocess) corroborado por [videoaula](https://youtu.be/DFc2iZy4Ox4?si=yr7ca07IX3XSC5b_), apresenta o conceito de **Rodadas Evolutivas**. A seguir é detalhado este conceito e demonstrado seu uso prático.
+
 ## Fases de Maturidade
 
 No âmbito da Agricultura Digital, ativos tecnológicos são concebidos a partir de pesquisas com **computação científica** em agropecuária de precisão, tendo seu encapsulamento na forma de **produtos digitais** e, por fim, sua transferência para o mercado visando compor um **negócio digital**. Na Embrapa, demandas por novos ativos digitais já são atualmente controladas pelo [Sistema Embrapa de Gestão (SEG)](https://www.embrapa.br/documents/32008859/39100403/Sum%C3%A1rio+Executivo+002+-+SEG/86964fe8-f97d-55ff-57ad-ae1898c9ac3c?version=1.0), sendo orquestradas pela área de PD&I. Assim, desde o levantamento de necessidade e sua concepção até sua maturidade plena, um ativo digital passa por etapas evolutivas que o farão progredir em estágios de maturidade até alcançar seu público final.
