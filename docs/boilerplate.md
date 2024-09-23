@@ -17,7 +17,7 @@ subtitle: Criando e mantendo um boilerplate
 *[UI]: User Interface
 *[GPL]: General Public License
 
-De forma geral, as aplicações da plataforma **Embrapa I/O** são _forks_ de repositórios pré-existentes denominados _boilerplates_. Estes respositórios são aplicações funcionais, em determinada linguagem de programação ou _framework_, já estruturadas para funcionar corretamente nos _pipelines_ e processos de DevOps da plataforma. A ideia é fomentar a padronização e o reuso de código-fonte. Neste tutorial veremos como configurar corretamente um novo _boilerplate_ para distribuí-lo no catálogo da plataforma, de modo a possibilitar que outras equipes de desenvolvimento de ativos digitais possam fazer uso.
+De forma geral, as aplicações da plataforma **Embrapa I/O** são _forks_ de repositórios pré-existentes denominados _boilerplates_. Estes repositórios são aplicações funcionais, em determinada linguagem de programação ou _framework_, já estruturadas para funcionar corretamente nos _pipelines_ e processos de DevOps da plataforma. A ideia é fomentar a padronização e o reuso de código-fonte. Neste tutorial veremos como configurar corretamente um novo _boilerplate_ para distribuí-lo no catálogo da plataforma, de modo a possibilitar que outras equipes de desenvolvimento de ativos digitais possam fazer uso.
 
 Para criar e disponibilizar seu _boilerplate_, você precisará seguir os seguintes passos:
 
@@ -26,7 +26,7 @@ Para criar e disponibilizar seu _boilerplate_, você precisará seguir os seguin
 3. [Integre ao _analytics_](#analytics);
 4. [Crie os arquivos de _environment variables_](#env);
 5. [Utilize as _keywords_ de customização](#keyword);
-6. [Conteinerize seu _boilerplate_](#docker);
+6. [Containerize seu _boilerplate_](#docker);
 7. [Implemente os "serviços-padrões"](#cli): [_test_](#cli:test), [_backup_](#cli:backup), [_restore_](#cli:restore) e [_sanitize_](#cli:sanitize);
 8. [Configure os metadados](#metadata);
 9. [Configure outros orquestradores](#orchestrator);
@@ -47,7 +47,7 @@ Assim, é fortemente recomendado que a criação de um _boilerplate_ tenha como 
 
 Todos os _boilerplates_ da plataforma ficam disponíveis **publicamente** no mesmo [grupo de repositórios no GitLab](https://git.embrapa.io/io/metadata/boilerplate). Você pode iniciar a criação de seu _boilerplate_ em um [repositório de aplicação dentro de um projeto seu na plataforma]({{ site.baseurl }}/docs/introduction#project) e, posteriormente, efetuar um _fork_ para este grupo, ou [solicitar a criação de um novo repositório dentro do grupo](mailto:io@embrapa.br). Para todos os efeitos, a construção do _boilerplate_ seguirá as diretrizes de uma aplicação convencional da plataforma, tal como o [controle de _issues_ e _milestones_]({{ site.baseurl }}/docs/kanban).
 
-Após criar a aplicação-base, você deverá customizá-la. Antes de começar a alterá-la, entretanto, verifique se existem ferramentas do tipo **_linter_** e **_fomatter_** devidamente configuradas em sua IDE para a linguagem de programação que está utilizando. Falamos mais sobre isso na [seção de boas práticas de desenvolvimento]({{ site.baseurl }}/docs/practices).
+Após criar a aplicação-base, você deverá customizá-la. Antes de começar a alterá-la, entretanto, verifique se existem ferramentas do tipo **_linter_** e **_formatter_** devidamente configuradas em sua IDE para a linguagem de programação que está utilizando. Falamos mais sobre isso na [seção de boas práticas de desenvolvimento]({{ site.baseurl }}/docs/practices).
 
 Inicie a customização da aplicação-base incluindo aspectos que são comumente utilizados nos ativos digitais da Embrapa. Por exemplo, uma identidade visual aderente aos padrões estabelecidos pela área de comunicação, a logo da Empresa conforme o manual de uso, estrutura de menus, cabeçalho e rodapé, e telas que são normalmente padronizadas (p.e., a tela de "Sobre"). Adicionalmente, inclua funcionalidades mais complexas que caracterizem seu _boilerplate_, tal como requisitos não-funcionais (p.e., registro e _login_ de usuários) ou mesmo funcionais (p.e., cadastro e gestão de fazendas). O domínio de negócio dos ativos digitais da plataforma **Embrapa I/O** é abrangente, porém bem definida: "**o agronegócio**". Portanto, <u>existem requisitos funcionais que serão de uso comum</u>.
 
@@ -55,7 +55,7 @@ Caso esteja desenvolvendo o _boilerplate_ para uma **API Web**, comprometa-se em
 
 ## 2. Integre ao _error tracking_ {#bug}
 
-Conforme [já detalhado anteriomente]({{ site.baseurl }}/docs/bug), a plataforma **Embrapa I/O** é integrada à ferramenta [Sentry](https://sentry.io), de _error tracking_. Assim, no momento em que um projeto ou uma aplicação é criada pela [_dashboard_ da plataforma](https://dashboard.embrapa.io), o [autômato _Genesis_]({{ site.baseurl }}/docs/architecture#genesis) cria a entidade correlata na ferramenta Sentry e atribui a equipe. Pela _dashboard_ será então possível à equipe de desenvolvimento do ativo obter o DSN de _error tracking_.
+Conforme [já detalhado anteriormente]({{ site.baseurl }}/docs/bug), a plataforma **Embrapa I/O** é integrada à ferramenta [Sentry](https://sentry.io), de _error tracking_. Assim, no momento em que um projeto ou uma aplicação é criada pela [_dashboard_ da plataforma](https://dashboard.embrapa.io), o [autômato _Genesis_]({{ site.baseurl }}/docs/architecture#genesis) cria a entidade correlata na ferramenta Sentry e atribui a equipe. Pela _dashboard_ será então possível à equipe de desenvolvimento do ativo obter o DSN de _error tracking_.
 
 ![Acesso ao DSN pelo card da aplicação]({{ site.baseurl }}/assets/img/bug/02.png)
 
@@ -84,7 +84,7 @@ Dentre as variáveis de ambiente acima, o **DSN**, a **versão da _build_** (no 
 
 ## 3. Integre ao _analytics_ {#analytics}
 
-Similar ao _error tracking_ e conforme também [já detalhado anteriomente]({{ site.baseurl }}/docs/analytics), a plataforma **Embrapa I/O** é integrada à ferramenta [Matomo](https://matomo.org), utilizada para rastrear e analisar ações de usuários nas aplicações. Assim, no momento em que um projeto ou uma aplicação é criada pela [_dashboard_ da plataforma](https://dashboard.embrapa.io), o [autômato _Genesis_]({{ site.baseurl }}/docs/architecture#genesis) cria a entidade correlata na ferramenta Matomo e atribui a equipe. Pela _dashboard_ será então possível à equipe de desenvolvimento do ativo obter o identificador único de rastreamento ("Matomo Site ID").
+Similar ao _error tracking_ e conforme também [já detalhado anteriormente]({{ site.baseurl }}/docs/analytics), a plataforma **Embrapa I/O** é integrada à ferramenta [Matomo](https://matomo.org), utilizada para rastrear e analisar ações de usuários nas aplicações. Assim, no momento em que um projeto ou uma aplicação é criada pela [_dashboard_ da plataforma](https://dashboard.embrapa.io), o [autômato _Genesis_]({{ site.baseurl }}/docs/architecture#genesis) cria a entidade correlata na ferramenta Matomo e atribui a equipe. Pela _dashboard_ será então possível à equipe de desenvolvimento do ativo obter o identificador único de rastreamento ("Matomo Site ID").
 
 ![Sumário dos relatórios analíticos]({{ site.baseurl }}/assets/img/analytics/01.png)
 
@@ -173,7 +173,7 @@ WP_ALLOW_MULTISITE=false
 
 ## 5. Utilize as _keywords_ de customização {#keyword}
 
-De forma a permitir ao [autômato _Genesis_]({{ site.baseurl }}/docs/architecture#genesis) realizar a customização de alguns aspectos da aplicação, são disponibilizadas algumas palavras-chave de uso reservado (_keywords_) que são substiuídas no momento do provisionamento a partir do _boilerplate_. São elas:
+De forma a permitir ao [autômato _Genesis_]({{ site.baseurl }}/docs/architecture#genesis) realizar a customização de alguns aspectos da aplicação, são disponibilizadas algumas palavras-chave de uso reservado (_keywords_) que são substituídas no momento do provisionamento a partir do _boilerplate_. São elas:
 
 - `%GENESIS_PROJECT_UNIX%`: Nome _unix_ do projeto;
 - `%GENESIS_PROJECT_NAME%`: Nome legível do projeto;
@@ -184,13 +184,13 @@ De forma a permitir ao [autômato _Genesis_]({{ site.baseurl }}/docs/architectur
 
 Você pode optar por utilizar ou não estas _keywords_ no seu _boilerplate_. O autômato irá substituí-las em todos os arquivos não-ocultos (com exceção dos arquivos `.env.example`, `.env.io.example` e `.env.sh.example`, onde também serão substituídas).
 
-## 6. Conteinerize seu _boilerplate_ {#docker}
+## 6. Containerize seu _boilerplate_ {#docker}
 
 Normalmente, no próprio site da linguagem ou arcabouço de desenvolvimento utilizado há documentação sobre como conteinerizar o software desenvolvido utilizando o [Docker](https://www.docker.com). Veja como exemplo o tutorial "[_Dockerize Vue.js App_](https://v2.vuejs.org/v2/cookbook/dockerize-vuejs-app.html)" na documentação oficial do VueJS.
 
 Algumas vezes, em ambiente de desenvolvimento, pode ser preferível não utilizar containers, porém para tornar a aplicação derivada do _boilerplate_ apta ao _deploy_ na plataforma, será necessário conteinerizar. Claro, <u>isto não se aplica a aplicações que naturalmente não serão distribuídas na Web</u>, tal como código nativo para Google Android (em Kotlin ou Java), código nativo para Apple iOS (em Swift ou Objective-C) ou artefatos de software especializados encapsulados em pacotes para gerenciadores de dependência, [como citado anteriormente](#base).
 
-A plataforma **Embrapa I/O** é agnóstica quanto ao orquestrador de containers em nuvem, [podendo trabalhar com diversas soluções]({{ site.baseurl }}/docs/cluster). Mas padroniza o ambiente local de desenvolvimento com o uso de [Docker Compose](https://docs.docker.com/compose/), sendo este também um dos _drivers_ de orquestração em nuvem. Assim, para fins desta documentação, <u>utilizaremos o Docker Compose para exemplificar o processo de contenerização</u>.
+A plataforma **Embrapa I/O** é agnóstica quanto ao orquestrador de containers em nuvem, [podendo trabalhar com diversas soluções]({{ site.baseurl }}/docs/cluster). Mas padroniza o ambiente local de desenvolvimento com o uso de [Docker Compose](https://docs.docker.com/compose/), sendo este também um dos _drivers_ de orquestração em nuvem. Assim, para fins desta documentação, <u>utilizaremos o Docker Compose para exemplificar o processo de conteinerização</u>.
 
 Conforme comentado previamente no [capítulo de introdução]({{ site.baseurl }}/docs/introduction#boilerplate), existem alguns serviços que precisam ser disponibilizados no _stack_ de containers da aplicação: _backup_, _restore_, _sanitize_ e _test_. Para entender melhor o papel de cada um, observe o arquivo `docker-compose.yaml` de um _boilerplate_ para instanciar o [WordPress](https://br.wordpress.org/):
 
@@ -355,7 +355,7 @@ Quando for realizado o _deploy_ do _stack_ de containers, todos os demais servi�
 
 É fortemente recomendado que todos os serviços "não-CLI" tenham o atributo de `healthcheck` devidamente configurado. Este atributo permite que [as aplicações sejam monitoradas]({{ site.baseurl }}/docs/health), agregando informação à [dashboard da plataforma](https://dashboard.embrapa.io). O atributo `restart` destes serviços deve estar setado para `unless-stopped`, de forma a garantir maior resiliência da aplicação.
 
-É muito importante que os **volumes** e a **network** sejam configurados corretamente. Para uso com os _drivers_ do **Docker Compose** ou **Docker Swarm**, o autômato _Deployer_ da plataforma executa uma série de validações. Dentre elas, somente são aceitos _volumes_ e _networks_ configurados com o atributo `external` igual à `true`. Assim, para instanciar a aplicação em amebiente de desenvolvimento, os desenvolvedores precisarão fazer algo do tipo:
+É muito importante que os **volumes** e a **network** sejam configurados corretamente. Para uso com os _drivers_ do **Docker Compose** ou **Docker Swarm**, o autômato _Deployer_ da plataforma executa uma série de validações. Dentre elas, somente são aceitos _volumes_ e _networks_ configurados com o atributo `external` igual à `true`. Assim, para instanciar a aplicação em ambiente de desenvolvimento, os desenvolvedores precisarão fazer algo do tipo:
 
 ```bash
 docker network create agroproj_agroapp_development
@@ -470,7 +470,7 @@ Além disso, neste diretório fica o arquivo `settings.json`, que possui informa
 
 O atributo `boilerplate` deve conter o nome único do _boilerplate_ em toda a plataforma e deve seguir o padrão _unix_ de nomes de entidades (`/^[a-z0-9-]{3,}$/`).
 
-> **Atenção!** Caso esteja apenas adequando uma aplicação legada para ficar aderente à plataforma, insira o valor "_" (undescore) no atributo `boilerplate`.
+> **Atenção!** Caso esteja apenas adequando uma aplicação legada para ficar aderente à plataforma, insira o valor "_" (underscore) no atributo `boilerplate`.
 
 O atributo `platform` corresponde ao SDK do [Sentry](https://sentry.io) que deverá ser utilizado neste _boilerplate_. As _keywords_ para as [plataformas aceitas pelo Sentry](https://docs.sentry.io/platforms/) são: ```android```, ```apple```, ```dart```, ```dotnet```, ```electron```, ```elixir```, ```flutter```, ```go```, ```java```, ```javascript```, ```kotlin```, ```native```, ```node```, ```php```, ```python```, ```react-native```, ```ruby```, ```rust```, ```unity``` e ```unreal```. Defina corretamente a palavra-chave no atributo para assegurar a melhor experiência dos desenvolvedores no [monitoramento de erros da aplicação]({{ site.baseurl }}/docs/bug).
 
@@ -478,11 +478,11 @@ Os atributos `label`, `description`, `references` e `maintainers` (auto-explicat
 
 ![Renderização das infos do boilerplate]({{ site.baseurl }}/assets/img/boilerplate/02.png)
 
-No atributo `variables` são inseridas as _environment variables_ que parametrizam a aplicação, ou seja, as mesmas contidas no arquivo `.env`. A plataforma **Embrapa I/O** carrega estas variáveis, com seus respectivos valores padrão, no momento da [configuração da _build_]({{ site.baseurl }}/docs/build). Serão carregadas primeiro as variáveis do atributo `default` e, em seguida, sobreescrevendo estas, as variáveis dos atributos homônimos ao estágio da _build_ que está sendo configurada (`alpha`, `beta` ou `release`). No exemplo acima, está sendo habilitado por padrão o _debug_ (variável `WP_DEBUG`) para as _builds_ em estágio de testes internos (_alpha_) e externos (_beta_), e desabilitado para as _builds_ em produção (_release_).
+No atributo `variables` são inseridas as _environment variables_ que parametrizam a aplicação, ou seja, as mesmas contidas no arquivo `.env`. A plataforma **Embrapa I/O** carrega estas variáveis, com seus respectivos valores padrão, no momento da [configuração da _build_]({{ site.baseurl }}/docs/build). Serão carregadas primeiro as variáveis do atributo `default` e, em seguida, sobrescrevendo estas, as variáveis dos atributos homônimos ao estágio da _build_ que está sendo configurada (`alpha`, `beta` ou `release`). No exemplo acima, está sendo habilitado por padrão o _debug_ (variável `WP_DEBUG`) para as _builds_ em estágio de testes internos (_alpha_) e externos (_beta_), e desabilitado para as _builds_ em produção (_release_).
 
 Outro exemplo de uso é para setar o _environment_ interno aos arcabouços de programação. Por exemplo, uma aplicação [ASP.NET](https://docs.microsoft.com/pt-br/aspnet/core/) aceita os seguintes valores para a variável `ASPNETCORE_ENVIRONMENT`: `Development`, `Staging`, `Staging_2` e `Production` ([conforme a documentação](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments)). Assim, poderia ser configurado no arquivo `.env.example` do _boilerplate_ a variável `ASPNETCORE_ENVIRONMENT=Development`, de forma que os desenvolvedores, ao renomearem o arquivo para iniciar a customização da aplicação, já usariam o valor correto para o _environment_ de desenvolvimento. Nas configurações de metadados do _boilerplate_ no arquivo `settings.json`, esta variável poderia ser setada no subgrupo `alpha` como `Staging`, em `beta` como `Staging_2` e em `release` como `Production`. A mesma estratégia pode pode ser utilizada para a variável `NODE_ENV`, [comumente utilizada em projetos em JavaScript](https://www.geeksforgeeks.org/what-is-node_env-in-node-js/), e demais correlatas em outras linguagens e arcabouços de programação.
 
-> **Atenção!** Durante a [configuração da _build_]({{ site.baseurl }}/docs/build) os valores padrão para as variáveis definidos aqui, bem como aqueles gerados randômicamente, poderão ser alterados pelo usuário.
+> **Atenção!** Durante a [configuração da _build_]({{ site.baseurl }}/docs/build) os valores padrão para as variáveis definidos aqui, bem como aqueles gerados randomicamente, poderão ser alterados pelo usuário.
 
 As variáveis definidas podem ser de cinco tipos:
 
@@ -490,7 +490,7 @@ As variáveis definidas podem ser de cinco tipos:
 - **PASSWORD**: Utilizado para armazenar **senhas**. Uma sequência de caracteres livre, porém **sem espaços** (`/^[^\s]*$/`). Caso não seja passado um valor padrão (atributo `value`), será atribuída uma _string_ randômica (`/^[a-zA-Z0-9]{16}$/`).
 - **SECRET**: Utilizado para armazenar **chaves privadas**. Uma sequência de caracteres livre, porém **sem espaços** (`/^[^\s]*$/`). Caso não seja passado um valor padrão (atributo `value`), será atribuída uma _string_ randômica (`/^[a-zA-Z0-9]{256}$/`).
 - **PORT**: Utilizado para armazenar as **portas expostas publicamente** da aplicação. O valor desta variável será setado na [configuração da _build_]({{ site.baseurl }}/docs/build) considerando as portas vagas do _cluster_ escolhido para _deploy_.
-- **VOLUME**: Utilizado para referenciar os **volumes** da aplicação. Os valores inseridos aqui seerão utilizados na [configuração da _build_]({{ site.baseurl }}/docs/build), no passo de definição de volumes, para preencher automaticamente a lista dos volumes da aplicação.
+- **VOLUME**: Utilizado para referenciar os **volumes** da aplicação. Os valores inseridos aqui serão utilizados na [configuração da _build_]({{ site.baseurl }}/docs/build), no passo de definição de volumes, para preencher automaticamente a lista dos volumes da aplicação.
 - **EMPTY**: Força o uso de uma _string_ vazia como valor da variável. Útil para desabilitar variáveis em determinados ambientes de _deploy_.
 
 ![Volumes pré-configurados a partir das variáveis de ambiente]({{ site.baseurl }}/assets/img/boilerplate/03.png)
@@ -509,7 +509,7 @@ Conforme é detalhado no [capítulo sobre a configuração de _clusters_]({{ sit
 
 As configurações para _deploy_ da aplicação em _clusters_ com **Docker Swarm** deverão ser disponibilizadas na pasta `.embrapa/swarm`. Um arquivo principal de _deploy_, denominado `deployment.yaml` deverá estar na raiz desta pasta. Este arquivo deverá ser uma cópia dos `docker-compose.yaml` no diretório raiz da aplicação, porém somente com os serviços do _profile_ de _deploy_.
 
-Todos os serviços deverão ter uma imagem vinculada. Esta imagem deverá ser exatamente a mesma na declaração do serviço nos arquivos `docker-compose.yaml` e `.embrapa/swarm/deployment.yaml`. Em serviços que são buildados em tempo de _deploy_, as imagens geradas deverão ser registradas no [servidor local do Docker Registry](https://docs.docker.com/registry/). Por exemplo, considere o arquivo `docker-compose.yaml` mostrado no [passo de conteinerização do _boilerplate_](#docker). Os arquivo `deployment.yaml` correlato seria:
+Todos os serviços deverão ter uma imagem vinculada. Esta imagem deverá ser exatamente a mesma na declaração do serviço nos arquivos `docker-compose.yaml` e `.embrapa/swarm/deployment.yaml`. Em serviços que são 'buildados' em tempo de _deploy_, as imagens geradas deverão ser registradas no [servidor local do Docker Registry](https://docs.docker.com/registry/). Por exemplo, considere o arquivo `docker-compose.yaml` mostrado no [passo de conteinerização do _boilerplate_](#docker). Os arquivo `deployment.yaml` correlato seria:
 
 ```yaml
 version: '3.9'
