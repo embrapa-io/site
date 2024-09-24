@@ -36,14 +36,14 @@ No _card_ do **projeto** na _dashboard_ fica disponível a lista de todas as **a
 
 Por fim, o repositório da aplicação estará disponível no grupo do projeto no [GitLab](https://git.embrapa.io). A equipe de desenvolvedores poderá agora [iniciar o planejamento do desenvolvimento]({{ site.baseurl }}/docs/kanban) e realizar o _clone_ do código-fonte para o ambiente local de desenvolvimento, codificar a aplicação conforme os requisitos, seguindo [boas práticas de desenvolvimento]({{ site.baseurl }}/docs/practices), e fazer o _commit_ e _push_ de volta ao repositório. Adicionalmente, a equipe pode contar com uma [ferramenta para monitoramento de erros (_error tracking_)]({{ site.baseurl }}/docs/bug).
 
-### 2. A parir de um repositório GIT
+### 2. A partir de um repositório GIT
 
 Quando a aplicação é criada a partir de um _boilerplate_ existe o grande benefício desta já nascer inerentemente conteinerizada, integrada às ferramentas de monitoramento ([Matomo](https://hit.embrapa.io), [Sentry](https://bug.embrapa.io), [SonarQube](https://code.embrapa.io), etc) e aderente aos _pipelines_ de _deploy_ de aplicações da plataforma. Entretanto, exitem situações em que a criação da aplicação a partir de um _boilerplate_ não será adequada. Os casos mais comuns são:
 
 - quando não há no catálogo de _boilerplates_ algum que atenda às especificações tecnológicas definidas para a aplicação; e
 - quando se trata de uma aplicação existente que está sendo migrada para a plataforma **Embrapa I/O**.
 
-Nestes casos a equipe de desenvolvimento precisará adequar o código-fonte da aplicação para que esta seja reconhecida pela plataforma, devidamente monitorada e aderente aos processos de DevOps.
+Nestes casos, a equipe de desenvolvimento precisará adequar o código-fonte da aplicação para que esta seja reconhecida pela plataforma, devidamente monitorada e aderente aos processos de DevOps.
 
 > **Atenção!** Caso as especificações técnicas do ativo que será desenvolvido não estejam contempladas em nenhum _boilerplate_ do catálogo, é fortemente recomendado avaliar se, ainda assim, não existe algum _boilerplate_ que possa ser "ajustado" para contemplá-las. Muitas vezes pode ser mais fácil e rápido efetuar estes ajustes do que partir do "zero", tendo que efetuar todos os passos (que serão vistos logo mais) de adequação para tornar o código-fonte aderente à plataforma **Embrapa I/O**.
 
@@ -53,21 +53,47 @@ Para iniciar, será preciso primeiramente criar o repositório GIT. Para isso, u
 
 > **Atenção!** O nome do repositório GIT deverá respeitar a sintaxe do nome de aplicações, ou seja, termo mínimo 3 caracteres e ser composto apenas por caracteres alfanuméricos minúsculos sem acentos e hífen.
 
-Na próxima tela, você terá a escolha de criar um repositório em branco ou importar um repositório existente. Esta última opção poder ser utilizada quando se trata de uma aplicação que esteja sendo migrada e que já está sendo versionada pelo GIT (estando, p.e., no [GitHub](https://github.com) ou outra plataforma similar). Se estiver criando um repositório vazio para, posteriormente, por meio de um _scaffold_, inicializar o código fonte em determinada linguagem e/ou arcabouço de desenvolvimento, recomenda-se criar um "_blank project_" e inicializá-lo com o `README`.
+Na próxima tela, você terá a escolha de criar um repositório em branco ou importar um repositório existente. Esta última opção pode ser utilizada quando se trata de uma aplicação que esteja sendo migrada e que já está sendo versionada pelo GIT (estando, p.e., no [GitHub](https://github.com) ou outra plataforma similar). Se estiver criando um repositório vazio para, posteriormente, por meio de um _scaffold_ inicializar o código fonte em determinada linguagem e/ou arcabouço de desenvolvimento, recomenda-se criar um "_blank project_" e inicializá-lo com o `README`.
 
 ![Configurando o novo repositório GIT]({{ site.baseurl }}/assets/img/app/06.png)
 
-Uma vez que o repositório esteja devidamente criado, será necessário codificar a nova aplicação ou adaptar o código-fonte existente realizando alguns procedimentos (mas não todos) que são tratados no [artigo sobre desenvolvimento e disponibilização de _boilerplates_]({{ site.baseurl }}/docs/boilerplate). Mais especificamente, será necessário:
+É necessário que o **Embrapa I/O** reconheça este repositório como uma [aplicação]({{ site.baseurl }}/docs/introduction#app) para que esta seja criada também nas ferramentas satélites ([Matomo](https://hit.embrapa.io), [Sentry](https://bug.embrapa.io) e [SonarQube](https://code.embrapa.io)), provendo assim os identificadores necessários para configurar a integração do código-fonte com estas ferramentas. Assim, é necessário configurar manualmente os metadados da aplicação. Para isso, crie um diretório na raiz denominado `.embrapa` e, dentro dele, um arquivo `settings.json` com o seguinte conteúdo:
 
-1. Siga as [diretrizes de boas práticas]({{ site.baseurl }}/docs/boilerplate#base) para criação de aplicações;
-2. Integre sua aplicação ao [Sentry (_error tracking_)]({{ site.baseurl }}/docs/boilerplate#bug) e ao [Matomo (_analytics_)]({{ site.baseurl }}/docs/boilerplate#analytics);
-3. Crie os [arquivos de _environment variables_]({{ site.baseurl }}/docs/boilerplate#env);
-4. [Containerize sua aplicação]({{ site.baseurl }}/docs/boilerplate#docker);
-5. Implemente os [serviços-padrões]({{ site.baseurl }}/docs/boilerplate#cli) de [_test_]({{ site.baseurl }}/docs/boilerplate#cli:test), [_backup_]({{ site.baseurl }}/docs/boilerplate#cli:backup), [_restore_]({{ site.baseurl }}/docs/boilerplate#cli:restore) e [_sanitize_]({{ site.baseurl }}/docs/boilerplate#cli:sanitize); e
-6. Configure os [metadados]({{ site.baseurl }}/docs/boilerplate#metadata) e os [orquestradores]({{ site.baseurl }}/docs/boilerplate#orchestrator).
+```json
+{
+  "boilerplate": "_",
+  "platform": "javascript",
+  "label": "",
+  "description": "",
+  "references": [],
+  "maintainers": [],
+  "variables": {
+    "default": [],
+    "alpha": [],
+    "beta": [],
+    "release": []
+  },
+  "orchestrators": [ "DockerCompose" ]
+}
+```
 
-Aplicado estes passos, o repositório pode ser vinculado a uma aplicação homônima por meio da [_dashboad_](https://dashboard.embrapa.io). Para isso, no _card_ do projeto clique em "**Nova App**", aceite os termos do _disclaimer_ e, no passo seguinte, selecione no campo "**Escolha um modelo (_boilerplate_)...**" a opção "**Repositório pré-existente**". Em seguida, insira o **nome Unix do repositório no GitLab** no campo indicado (deve ser exatamente o mesmo nome) e clique em "**Criar App**".
+Depois será necessário rever este arquivo mas, para um primeiro momento, utilize este conteúdo acima alterando apenas o valor do atributo `platform` para a linguagem predominante na aplicação que será desenvolvida, dentre as seguintes opções: `android`, `apple`, `dart`, `dotnet`, `electron`, `elixir`, `flutter`, `go`, `java`, `javascript`, `kotlin`, `native`, `node`, `php`, `python`, `react-native`, `ruby`, `rust`, `unity` e `unreal`.
+
+> **Atenção!** Repare que o valor do atributo _boilerplate_ é um _underscore_ (carácter `_`). **Não altere este valor!**
+
+Uma vez que este arquivo de metadados tenha sido criado no repositório, este pode agora pode ser vinculado a uma aplicação homônima por meio da [_dashboard_](https://dashboard.embrapa.io). Para isso, no _card_ do projeto clique em "**Nova App**", aceite os termos do _disclaimer_ e, no passo seguinte, selecione no campo "**Escolha um modelo (_boilerplate_)...**" a opção "**Repositório pré-existente**". Em seguida, insira o **nome Unix do repositório no GitLab** no campo indicado (deve ser <u>exatamente o mesmo nome</u>) e clique em "**Criar App**".
 
 ![Criando uma app a partir de um repositório GIT pré-existente]({{ site.baseurl }}/assets/img/app/07.png)
 
-Pronto! Feito isso o **Embrapa I/O** irá criar, após algum tempo, a aplicação nas ferramentas satélites e expor no _card_ as informações necessárias de configurações. Estando tudo certo será possível aplicar todos os _pipelines_ e processos de DevOps assim como em qualquer aplicação criada a partir de um _boilerplate_.
+Agora, será necessário codificar a nova aplicação ou adaptar o código-fonte existente realizando alguns procedimentos (mas não todos) que são tratados no [artigo sobre desenvolvimento e disponibilização de _boilerplates_]({{ site.baseurl }}/docs/boilerplate). Mais especificamente, será necessário:
+
+1. Aplicar as [diretrizes de boas práticas]({{ site.baseurl }}/docs/boilerplate#base) para criação de aplicações;
+2. Integrar sua aplicação ao [Sentry (_error tracking_)]({{ site.baseurl }}/docs/boilerplate#bug), ao [Matomo (_analytics_)]({{ site.baseurl }}/docs/boilerplate#analytics) e ao [SonarQube]({{ site.baseurl }}/docs/boilerplate#code);
+3. Criar os [arquivos de _environment variables_]({{ site.baseurl }}/docs/boilerplate#env);
+4. [Conteinerizar sua aplicação]({{ site.baseurl }}/docs/boilerplate#docker);
+5. Implementar os [serviços-padrões]({{ site.baseurl }}/docs/boilerplate#cli) de [_test_]({{ site.baseurl }}/docs/boilerplate#cli:test), [_backup_]({{ site.baseurl }}/docs/boilerplate#cli:backup), [_restore_]({{ site.baseurl }}/docs/boilerplate#cli:restore) e [_sanitize_]({{ site.baseurl }}/docs/boilerplate#cli:sanitize); e
+6. Configurar adequadamente os [metadados]({{ site.baseurl }}/docs/boilerplate#metadata) e os [orquestradores]({{ site.baseurl }}/docs/boilerplate#orchestrator).
+
+> **Atenção!** Repare que no último passo o arquivo `.embrapa/settings.json` será revisitado. Isto é necessário para complementá-lo com os valores padrão das variáveis de ambiente e a configuração de orquestradores, quando aplicável.
+
+Pronto! Feito isso o **Embrapa I/O** irá criar, após algum tempo, a aplicação nas ferramentas satélites e expor no _card_ as informações necessárias de configurações. Estando tudo certo será possível aplicar todos os _pipelines_ e processos de DevOps, assim como em qualquer aplicação criada a partir de um _boilerplate_.
