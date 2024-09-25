@@ -24,6 +24,7 @@ navbar-links:
     - GitLab: "https://git.embrapa.io"
     - Sentry: "https://bug.embrapa.io"
     - Matomo: "https://hit.embrapa.io"
+    - SonarQube: "https://code.embrapa.io"
     - Backup: "https://backup.embrapa.io"
   Licença: "license"
 
