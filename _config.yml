@@ -22,8 +22,10 @@ navbar-links:
   Ferramentas:
     - Dashboard: "https://dashboard.embrapa.io"
     - GitLab: "https://git.embrapa.io"
-    - Sentry: "https://bug.embrapa.io"
+    - Grafana: "https://log.embrapa.io"
     - Matomo: "https://hit.embrapa.io"
+    - Sentry: "https://bug.embrapa.io"
+    - GlitchTip: "https://error.embrapa.io"
     - SonarQube: "https://code.embrapa.io"
     - Backup: "https://backup.embrapa.io"
   Licença: "license"

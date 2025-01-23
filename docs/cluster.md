@@ -22,17 +22,60 @@ Desta forma, unidades descentralizadas, instituições e empresas parceiras da E
 
 > **Atenção!** Os processos automatizados de _backup_ nos _clusters_ são de atribuição da equipe de mantenedores, sendo que o **Embrapa I/O** aborda apenas o _backup_ sob demanda, [já detalhado anteriormente]({{ site.baseurl }}/docs/backup). Da mesma forma, recursos essenciais adicionais, tal como envio de e-mail (SMTP) devem ser disponibilizados na rede interna em que o servidor está instalado e devidamente informado na documentação do _cluster_.
 
+## Passo-a-Passo
+
+A seguir são listados os passos básicos para disponibilização do _cluster_.
+
+### 1. Liberação de acesso via SSH para o _CORE_ do Embrapa I/O
+
 Para realizar a integração, os mantenedores deverão configurar as máquinas, reais ou virtuais, conforme a instrução para o orquestrador e _storer_ escolhido. Na próxima seção, são listados os _drivers_ já disponíveis para criação de _clusters_. Para diversos destes _drivers_ o **Embrapa I/O** realiza a conexão via SSH. Portanto é necessário, quando for este o caso, liberar no _firewall_ o acesso do IP `200.202.148.38` na **porta 22** do servidor e adicionar a seguinte chave pública no arquivo `/root/.ssh/authorized_keys`:
 
 ```
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCykAvX7CZmqw1bgOCOmRtgpfr55cjqO0v1+DImp4pKrITdFxZu0OqsJgHjio/yp4w5+KvWmFJa5woYbZry9inFciwKo3+rpGjBHJfNfDq70/q3VdSSInFrSMtWgBk0x5QZQ78ENkNkO9DRIdnnffN9bY1uibR6ZX0pCSSyTGgx3NlAakW47tYIzVcrrUGKGG8vZwSkl7GhEEXtNETp02WQpkUvYrNqgRrmw2lvv41QfRETIuNN7PDhJrDO4tYHtix5D+Pvd05IacgTVQxpi6vnMVdgrwbZ1RPw9TLLkoy3kZs45hLG9oipiYOiD6rxiIYC0f1iUaKz9PKZdfnF8Ya5XJFoL6NcBTPDGh01dkEBonOWt3lgpC/2SBM/SeClt8M2lI6KtqAkjPEKWhnirDP0lXzY2CYamnu2rD6p4z4OWAYG6ngQcCIK45vQvsSz8mfitWnJe89WCCaEVj+L1QO/hjnKJ+eKf5ze35HagFRhpIAB34FmGHO3N8yFCLqvHFNLw6dKl5IXU2cvJF1jwhL3coOx9oeFZLPk45Zze2e/Itjd9x84gWtmo60MvXVBsYGYlcZLzSgAbNGldMuxAFWs0ZvghNx+KZjg6fZ2hAlPHIg1MiAlztyLbbjV2Mjc6ke6sjBDvPkPZQde6G/T8Mp56cCtAb/77/dw78zruX5qyQ== embrapa.io
 ```
 
-Além disso, o **Embrapa I/O** expõe as aplicações instanciadas em portas na **faixa de 49152 a 65535**. Portanto, toda esta faixa de portas deverá ser exposta para acesso público nos servidores de aplicação que compõem o _cluster_ (p.e., todos os nós _managers_ e _workers_ no [Docker Swarm](https://docs.docker.com/engine/swarm/)).
+### 2. Liberação das portas altas
+
+O **Embrapa I/O** expõe as aplicações instanciadas em portas na **faixa de 49152 a 65535**. Portanto, toda esta faixa de portas deverá ser exposta para acesso público nos servidores de aplicação que compõem o _cluster_ (p.e., todos os nós _managers_ e _workers_ no [Docker Swarm](https://docs.docker.com/engine/swarm/)).
 
 > **Atenção!** Existe um limite de **30 projetos** para cada cada _cluster_ do **Embrapa I/O**. Este limite está relacionado ao limite padrão do Docker, onde um único _host_ não deve possuir mais do que 30 _networks_. É possível contornar esta limitação, mas visando manter uma complexidade comedida da gestão das VMs, sugere-se mantê-lo. É importante frisar que o número de aplicações em cada projeto e de containers em cada aplicação não é limitado pela plataforma e, portanto, ficará a cargo das limitações de _hardware_, sistema operacional e outros recursos escassos, tal como a quantidade máxima de portas expostas em cada _cluster_ (16.383).
 
-Adicionalmente, é fortemente recomendado que seja [instalado o Portainer](https://docs.portainer.io/start/install) para auxiliar a equipe mantenedora de _clusters_ em [Docker Compose](https://docs.portainer.io/start/install/server/docker/linux), [Docker Swarm](https://docs.portainer.io/start/install/server/swarm/linux) ou [Kubernetes](https://docs.portainer.io/start/install/server/kubernetes/baremetal) em sua gestão. Por padrão, recomenda-se que este seja disponibilizado publicamente no HTTPS (porta 443) da URL do _cluster_, com o HTTP (porta 80) redirecionando para o HTTPS.
+### 3. Configuração do _plugin_ para _logging_
+
+O **Embrapa I/O** utiliza o [Grafana Loki](https://grafana.com/docs/loki/latest/) para permitir a coleta e análise de _log_ de todos os containers instanciados. Assim, é necessário [instalar o _plugin_ do Loki](https://grafana.com/docs/loki/latest/send-data/docker-driver/) para que toda a saída dos containers (no _stdout_) seja enviada para o [Grafana](https://log.embrapa.io).
+
+Para instalar o _plugin_, execute:
+
+```
+docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions
+```
+
+Verifique a instalação utilizando o comando `docker plugin ls`.
+
+Uma vez que o plugin esteja instalado no Docker, edite o arquivo `/etc/docker/daemon.json` inserindo o seguinte conteúdo:
+
+```
+{
+  "debug" : true,
+  "log-driver": "loki",
+  "log-opts": {
+    "loki-url": "https://<username>:<password>@loki.embrapa.io/loki/api/v1/push",
+    "loki-batch-size": "400",
+    "loki-retries": "5",
+    "loki-max-backoff": "1s",
+    "loki-timeout": "2s",
+    "keep-file": "true"
+  }
+}
+```
+
+> **Atenção!** Os valores de `username` e `password` para a linha acima devem ser obtidos junto à **Supervisão de Desenvolvimento de Ativos Digitais (DEGI/GCI/GTI/SDAD)**.
+
+Por fim, faça: `systemctl restart docker`. É possível verificar se há algum erro utilizando o comando `journalctl -u docker.service | grep loki`.
+
+### 4. Configuração do Portainer (opcional)
+
+Adicionalmente, é fortemente recomendado que seja [instalado o Portainer](https://docs.portainer.io/start/install) para auxiliar a equipe mantenedora de _clusters_ em [Docker Compose](https://docs.portainer.io/start/install/server/docker/linux), [Docker Swarm](https://docs.portainer.io/start/install/server/swarm/linux) ou [Kubernetes](https://docs.portainer.io/start/install/server/kubernetes/baremetal) em sua gestão. Por padrão, recomenda-se que este seja disponibilizado publicamente no HTTPS (porta 443) da URL do _cluster_, com o HTTP (porta 80) redirecionando para o HTTPS. Desta forma, será necessário abrir também em seu _firewall_ o acesso às portas 80 e 443 do novo _cluster_ (além das portas altas comentadas acima).
 
 Para simplificar a instalação e recorrente atualização do Portainer (quando necessário), crie um _script_ denominado `/root/portainer.sh` com as seguintes instruções:
 
