@@ -27,6 +27,7 @@ navbar-links:
     - Sentry: "https://bug.embrapa.io"
     - GlitchTip: "https://error.embrapa.io"
     - SonarQube: "https://code.embrapa.io"
+    - ThingsBoard: "https://iot.embrapa.io"
     - Backup: "https://backup.embrapa.io"
   Licença: "license"
 
