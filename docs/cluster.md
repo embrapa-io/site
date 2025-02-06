@@ -52,7 +52,7 @@ docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all
 
 Verifique a instalação utilizando o comando `docker plugin ls`.
 
-Uma vez que o plugin esteja instalado no Docker, edite o arquivo `/etc/docker/daemon.json` inserindo o seguinte conteúdo:
+Uma vez que o plugin esteja instalado no Docker, edite o arquivo `/etc/docker/daemon.json` (ou `/var/snap/docker/current/config/daemon.json`, se tiver sido instalado pelo Snap) inserindo o seguinte conteúdo:
 
 ```
 {
@@ -71,7 +71,7 @@ Uma vez que o plugin esteja instalado no Docker, edite o arquivo `/etc/docker/da
 
 > **Atenção!** Os valores de `username` e `password` para a linha acima devem ser obtidos junto à **Supervisão de Desenvolvimento de Ativos Digitais (DEGI/GCI/GTI/SDAD)**.
 
-Por fim, faça: `systemctl restart docker`. É possível verificar se há algum erro utilizando o comando `journalctl -u docker.service | grep loki`.
+Por fim, faça: `systemctl restart [service]`, onde `[service]` pode ser `docker` ou `snap.docker.dockerd` (se tiver sido instalado via Snap). Caso tenha dúvida sobre o nome exato do serviço, execute `systemctl list-units --type=service | grep docker`. É possível verificar se há algum erro utilizando o comando `journalctl -u [service] | grep loki`. Se configurado com sucesso, deverá ser visto na saída deste último comando algo como "_Using default logging driver loki_".
 
 ### 4. Configuração do Portainer (opcional)
 
