@@ -35,7 +35,11 @@ Estes _scores_ medem (da esquerda para a direita): **manutenibilidade do código
 
 ![Quality Gate sendo mostrado na dashboard do Embrapa I/O]({{ site.baseurl }}/assets/img/posts/20250214144023.png)
 
-Ao clicar sobre qualquer um dos ícones, o desenvolvedor será levado à interface do SonarQube (disponível em [https://code.embrapa.io](https://code.embrapa.io)), na qual pode autenticar utilizando a conta do [GitLab do **Embrapa I/O**](https://git.embrapa.io). Ali será possível visualizar detalhes das _issues_ e corrigí-las de forma apropriada.
+Ao clicar sobre qualquer um dos ícones, o desenvolvedor será levado à interface do SonarQube (disponível em [https://code.embrapa.io](https://code.embrapa.io)), na qual pode autenticar utilizando a conta do [GitLab do **Embrapa I/O**](https://git.embrapa.io):
+
+![Login no SonarQube]({{ site.baseurl }}/assets/img/posts/20250214163129.png)
+
+Ali será possível visualizar detalhes das _issues_ e corrigí-las de forma apropriada.
 
 ![Visualização dos detalhes de uma issue no SonarQube]({{ site.baseurl }}/assets/img/posts/20250214144451.png)
 
@@ -49,7 +53,11 @@ Toda _stack_ de _containers_ de aplicações instanciadas na rede de _clusters_ 
 
 ![Acessando a dashboard no Grafana com os logs da build]({{ site.baseurl }}/assets/img/posts/20250214145254.png)
 
-O _login_ no Grafana é realizado também utilizando a conta do [GitLab do **Embrapa I/O**](https://git.embrapa.io). A plataforma configura automaticamente, para cada aplicação de cada projeto, as _dashboards_ de visualização dos _logs_, não sendo necessário portanto nenhuma configuração pela equipe de desenvolvedores do projeto. Os _logs_ serão exibidos da mesma forma que são gerados pelo comando `docker compose logs [container] -f` em ambiente de desenvolvimento. Portanto, para realizar o _debug_ da aplicação, basta imprimir a saída no _stdout_.
+O _login_ no Grafana é realizado também utilizando a conta do [GitLab do **Embrapa I/O**](https://git.embrapa.io):
+
+![Login no Grafana]({{ site.baseurl }}/assets/img/posts/20250214163228.png)
+
+A plataforma configura automaticamente, para cada aplicação de cada projeto, as _dashboards_ de visualização dos _logs_, não sendo necessário portanto nenhuma configuração pela equipe de desenvolvedores do projeto. Os _logs_ serão exibidos da mesma forma que são gerados pelo comando `docker compose logs [container] -f` em ambiente de desenvolvimento. Portanto, para realizar o _debug_ da aplicação, basta imprimir a saída no _stdout_.
 
 ![Logs sendo mostrados na dashboard do Grafana]({{ site.baseurl }}/assets/img/posts/20250214145549.png)
 
