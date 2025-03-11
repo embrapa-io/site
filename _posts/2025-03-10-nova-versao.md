@@ -30,9 +30,9 @@ Os recursos possíveis de serem habilitados são:
 
 - **Backup:** Se existe neste _cluster_ processo automatizado e individualizado de _backup_ das aplicações.
 
-- **Snapshot:** Se é realizado o backup do tipo snapshot na(s) VM(s) do _cluster_ em questão.
+- **Snapshot:** Se é realizado o backup do tipo _snapshot_ na(s) VM(s) do _cluster_ em questão.
 
-> **Atenção!** Repare que o recursos de _backup_ difere do recurso de _snapshot_. No primeiro, caso esteja disponível, será possível a recuperação de aplicações específicas, der forma individualizada. No segundo, o _restore_ da VM é realizada em caso de um problema crítico, que afete o _cluster_ como um todo.
+> **Atenção!** Repare que o recursos de _backup_ difere do recurso de _snapshot_. No primeiro, caso esteja disponível, será possível a recuperação de aplicações específicas, de forma individualizada. No segundo, o _restore_ da VM é realizada em caso de um problema crítico, que afete o _cluster_ como um todo.
 
 Por fim, foi disponibilizado o recurso de **Web Terminal** na dashboard do Embrapa I/O. Assim, é possível agora acessar remotamente os _containers_ via terminal utilizando o `ash`, `bash`, `dash` ou `sh`:
 
