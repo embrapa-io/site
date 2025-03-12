@@ -160,9 +160,9 @@ set -e
 docker pull embrapa/terminal
 
 docker run --name terminal \
-  -v /var/embrapa/ssl/wildcard/cnpxx.crt:/ssl/server.crt \
-  -v /var/embrapa/ssl/wildcard/cnpxx.key:/ssl/server.key \
-  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v /var/embrapa/ssl/wildcard/cnpxx.crt:/ssl/server.crt:ro \
+  -v /var/embrapa/ssl/wildcard/cnpxx.key:/ssl/server.key:ro \
+  -v /var/run/docker.sock:/var/run/docker.sock:ro \
   -p 65500:5000 \
   --restart unless-stopped -d \
   embrapa/terminal
@@ -186,10 +186,10 @@ set -e
 docker pull embrapa/terminal
 
 docker service create --name terminal \
-  --constraint=node.hostname==$(hostname) \
-  --mount=type=bind,src=/var/embrapa/ssl/wildcard/cnpxx.crt,dst=/ssl/server.crt \
-  --mount=type=bind,src=/var/embrapa/ssl/wildcard/cnpxx.key,dst=/ssl/server.key \
-  --mount=type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock \
+  --mode=global \
+  --mount=type=bind,src=/var/embrapa/ssl/wildcard/cnpxx.crt,dst=/ssl/server.crt,readonly \
+  --mount=type=bind,src=/var/embrapa/ssl/wildcard/cnpxx.key,dst=/ssl/server.key,readonly \
+  --mount=type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock,readonly \
   --publish published=65500,target=5000 \
   embrapa/terminal
 ```
