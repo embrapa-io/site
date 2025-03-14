@@ -34,19 +34,20 @@ subtitle: Prefácio da documentação técnica
 
 ## Getting Start
 
-- [Quickstart]({{ site.baseurl }}/docs/quickstart)
-- [Acessando a _dashboard_]({{ site.baseurl }}/docs/dashboard)
-- [Criando um projeto]({{ site.baseurl }}/docs/project)
-- [Adicionando aplicações ao projeto]({{ site.baseurl }}/docs/app)
-- [Planejando e acompanhando o desenvolvimento]({{ site.baseurl }}/docs/kanban)
-- [Utilizando o _error tracking_]({{ site.baseurl }}/docs/bug)
-- [Configurando os estágios da aplicação]({{ site.baseurl }}/docs/build)
-- [Fazendo o _deploy_ da _build_]({{ site.baseurl }}/docs/deploy)
-- [Monitorando a _build_]({{ site.baseurl }}/docs/health)
-- [Fazendo o _backup_ de uma _build_]({{ site.baseurl }}/docs/backup)
-- [Monitorando o acesso de usuários]({{ site.baseurl }}/docs/analytics)
-- [Atualizando uma aplicação a partir do seu _boilerplate_]({{ site.baseurl }}/docs/upgrade)
-- [Arquivando um projeto]({{ site.baseurl }}/docs/archive)
+1. [Quickstart]({{ site.baseurl }}/docs/quickstart)
+2. [Acessando a _dashboard_]({{ site.baseurl }}/docs/dashboard)
+3. [Criando um projeto]({{ site.baseurl }}/docs/project)
+4. [Adicionando aplicações ao projeto]({{ site.baseurl }}/docs/app)
+5. [Planejando e acompanhando o desenvolvimento]({{ site.baseurl }}/docs/kanban)
+6. [Utilizando o _error tracking_]({{ site.baseurl }}/docs/bug)
+7. [Zelando pela qualidade do código]({{ site.baseurl }}/docs/quality)
+8. [Configurando os estágios da aplicação]({{ site.baseurl }}/docs/build)
+9. [Fazendo o _deploy_ da _build_]({{ site.baseurl }}/docs/deploy)
+10. [Monitorando a _build_]({{ site.baseurl }}/docs/health)
+11. [Fazendo o _backup_ de uma _build_]({{ site.baseurl }}/docs/backup)
+12. [Monitorando o acesso de usuários]({{ site.baseurl }}/docs/analytics)
+13. [Atualizando uma aplicação a partir do seu _boilerplate_]({{ site.baseurl }}/docs/upgrade)
+14. [Arquivando um projeto]({{ site.baseurl }}/docs/archive)
 
 ## Avançado
 
@@ -55,17 +56,19 @@ subtitle: Prefácio da documentação técnica
 - [Configurando e disponibilizando um _cluster_]({{ site.baseurl }}/docs/cluster)
 - [Releaser: _deploy_ de _builds_ em _clusters_ externos]({{ site.baseurl }}/docs/releaser)
 
+<!--
 ## Recursos
 
-- _Clusters_ <!-- [_Clusters_]({{ site.baseurl }}/resources/clusters) -->
-- _Boilerplates_ <!-- [_Boilerplates_]({{ site.baseurl }}/resources/boilerplates) -->
+- [_Clusters_]({{ site.baseurl }}/resources/clusters)
+- [_Boilerplates_]({{ site.baseurl }}/resources/boilerplates)
 
 ## Disciplinas Especializadas
 
-- Aprendizado de Máquina <!-- [Aprendizado de Máquina]({{ site.baseurl }}/special/learning) -->
-- _Blockchain_ <!-- [_Blockchain_]({{ site.baseurl }}/special/blockchain) -->
-- Gamificação <!-- [Gamificação]({{ site.baseurl }}/special/gamefication) -->
-- Internet das Coisas <!-- [Internet das Coisas]({{ site.baseurl }}/special/iot) -->
+- [Aprendizado de Máquina]({{ site.baseurl }}/special/learning)
+- [_Blockchain_]({{ site.baseurl }}/special/blockchain)
+- [Gamificação]({{ site.baseurl }}/special/gamefication)
+- [Internet das Coisas]({{ site.baseurl }}/special/iot)
+-->
 
 <!--
 Regimento da Supervisão de Ativos Digitais:
