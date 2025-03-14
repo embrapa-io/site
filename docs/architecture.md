@@ -10,12 +10,15 @@ O **Embrapa I/O** é uma [plataforma de software de código-aberto]({{ site.base
 
 Os círculos numerados representam as interfaces disponíveis para os desenvolvedores, sendo elas:
 
-1. [https://dashboard.embrapa.io](https://dashboard.embrapa.io)
-2. [https://git.embrapa.io](https://git.embrapa.io)
-3. [https://bug.embrapa.io](https://bug.embrapa.io)
-4. [https://hit.embrapa.io](https://hit.embrapa.io)
-5. [https://backup.embrapa.io](https://backup.embrapa.io)
-6. [https://hub.docker.com/r/embrapa/releaser](https://hub.docker.com/r/embrapa/releaser)
+1. [https://dashboard.embrapa.io](https://dashboard.embrapa.io) - Painel de Controle / _Dashboard_
+2. [https://git.embrapa.io](https://git.embrapa.io) - GitLab
+3. [https://bug.embrapa.io](https://bug.embrapa.io) - Sentry
+4. [https://hit.embrapa.io](https://hit.embrapa.io) - Matomo
+5. [https://log.embrapa.io](https://log.embrapa.io) - Grafana Loki
+6. [https://code.embrapa.io](https://code.embrapa.io) - SonarQube
+7. [https://iot.embrapa.io](https://iot.embrapa.io) - ThingsBoard
+8. [https://backup.embrapa.io](https://backup.embrapa.io) - Backup
+9. [https://hub.docker.com/r/embrapa/releaser](https://hub.docker.com/r/embrapa/releaser) - Releaser
 
 Cada componente da _big picture_ acima é descrito a seguir:
 
@@ -43,17 +46,33 @@ Este autômato, implementado em [PHP](https://www.php.net/), é responsável pel
 
 Este autômato, implementado em [PHP](https://www.php.net/), é responsável pelo roteamento, certificados SSL e balanceamento de carga no acesso às instâncias.
 
-## GitLab {#gitlab}
+## Integrações
 
-Ferramenta responsável pelo armazenamento de gerência de configuração do código-fonte de todas as aplicações. Além disso, nela é realizado o planejamento e acompanhamento dos projetos por meio de _miletones_ e _issues_. Fica, portanto, [disponível para acesso pelos desenvolvedores]({{ site.baseurl }}/docs/project#git).
+A plataforma **Embrapa I/O** é integrada com várias ferramentas que apoiam as diversas etapas do processos de desenvolvimento de software. É utilizada apenas a variante _open source_ de cada ferramenta, mantida por suas respectivas comunidades.
 
-## Sentry {#sentry}
+### a. GitLab {#gitlab}
 
-Ferramenta responsável pelo rastreamento de erros (do inglês, _error tracking_) nas aplicações desenvolvidas, [disponível para acesso pelos desenvolvedores]({{ site.baseurl }}/docs/bug).
+O [GitLab](https://gitlab.com) é a ferramenta responsável pelo [armazenamento de gerência de configuração do código-fonte]({{ site.baseurl }}/docs/project#git) de todas as aplicações. Além disso, nela é realizado o [planejamento e acompanhamento dos projetos]({{ site.baseurl }}/docs/kanban) por meio de _milestones_ e _issues_.
 
-## Matomo {#analytics}
+### b. Sentry {#sentry}
 
-Ferramenta responsável pelo monitoramento e análise estatística de uso das aplicações, [disponível para acesso pelos desenvolvedores]({{ site.baseurl }}/docs/analytics).
+O [Sentry](https://sentry.io) é a ferramenta responsável pelo [rastreamento de erros (do inglês, _error tracking_)]({{ site.baseurl }}/docs/bug) nas aplicações desenvolvidas.
+
+### c. Matomo {#analytics}
+
+O [Matomo](https://matomo.org) é a ferramenta responsável pelo [monitoramento de acessos e análise estatística]({{ site.baseurl }}/docs/analytics) de uso das aplicações.
+
+### d. Grafana Loki {#grafana}
+
+O [Grafana Loki](https://grafana.com/docs/loki) é a ferramenta responsável por [coletar e indexar os logs (do inglês, _logging_)]({{ site.baseurl }}/docs/health) de todas as aplicações que estejam hospedadas na [rede de _clusters_]({{ site.baseurl }}/docs/build#cluster) da plataforma.
+
+### e. SonarQube {#sonarqube}
+
+O [SonarQube](https://www.sonarsource.com/products/sonarqube/) é a ferramenta responsável por realizar a análise estática do código das aplicações e gerar relatórios de qualidade apontando problemas de manutenibilidade, confiabilidade e segurança.
+
+### f. ThingsBoard {#thingsboard}
+
+O [ThingsBoard](https://thingsboard.io) é um _middleware_ para internet das coisas (do inglês, _Internet of Things - IoT_) e é a ferramenta responsável por integrar dispositivos de borda à plataforma **Embrapa I/O** provendo um repositório para armazenamento de dados dos sensores e a criação de regras de automação para os atuadores.
 
 ## Releaser {#releaser}
 
