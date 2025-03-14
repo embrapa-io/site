@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Sobre
-subtitle: Aprenda, colabore, desenvolva e distribua soluções digitais para o agro sustentável
+subtitle: Aprenda, colabore, desenvolva, distribua e monitore soluções digitais para o agro sustentável
 ---
 
 <iframe width="730" height="410" src="https://www.youtube.com/embed/NwZ6kwrbnL4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
