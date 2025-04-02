@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Novo Patch 1.25.2-beta.2
+title: Lançamento da Versão 1.25.3
 subtitle: Web Terminal e recursos dos clusters
 # cover-img: /assets/img/dashboard/02.png
 # thumbnail-img: /assets/img/icon-back.png
@@ -8,9 +8,7 @@ subtitle: Web Terminal e recursos dos clusters
 tags: [ releases, features ]
 ---
 
-Foi disponibilizada um novo _patch_ para a versão `1.25.2` do **Embrapa I/O** com algumas funcionalidades complementares.
-
-Para aprimorar a funcionalidade do relatório de análise estática do código (advinda da integração com o [SonarQube](https://www.sonarsource.com/products/sonarqube/)), foi disponibilizado nos _cards_ de projetos um novo recurso visual para exibir de forma simplificada e gráfica as **linguagens de programação que predominam nas aplicações**:
+Foi disponibilizada uma nova versão do **Embrapa I/O** (a `1.25.3`) com algumas funcionalidades complementares. Para aprimorar a funcionalidade do relatório de análise estática do código (advinda da integração com o [SonarQube](https://www.sonarsource.com/products/sonarqube/)), foi disponibilizado nos _cards_ de projetos um novo recurso visual para exibir de forma simplificada e gráfica as **linguagens de programação que predominam nas aplicações**:
 
 ![Gráfico de linguagens de programação predominantes]({{ site.baseurl }}/assets/img/posts/20250310154339.png)
 

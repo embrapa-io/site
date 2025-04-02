@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Lançamento da Versão 1.25.2-beta.1
+title: Lançamento da Versão 1.25.2
 subtitle: Integração com o SonarQube e Grafana Loki, dentre outros
 # cover-img: /assets/img/dashboard/02.png
 # thumbnail-img: /assets/img/icon-back.png
@@ -8,7 +8,7 @@ subtitle: Integração com o SonarQube e Grafana Loki, dentre outros
 tags: [ releases, features ]
 ---
 
-Foi disponibilizada uma nova versão do **Embrapa I/O** (a `1.25.2-beta.1`) com algumas novidades. As principais, que serão detalhadas a seguir, são:
+Foi disponibilizada uma nova versão do **Embrapa I/O** (a `1.25.2`) com algumas novidades. As principais, que serão detalhadas a seguir, são:
 - A possibilidade de **revalidação** de uma _build_ marcada como "inválida" por qualquer membro do projeto (e não apenas Arquitetos de Solução);
 - A integração com o **SonarQube** para aprimoramento do monitoramento de qualidade de código (e, consequentemente, do ativo como um todo); e
 - A integração com o **Grafana Loki** para _logging_ em tempo real dos ativos instanciados nos _clusters_ da plataforma.
