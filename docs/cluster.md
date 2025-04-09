@@ -40,11 +40,11 @@ Neste primeiro passo será abordado o provisionamento básico do(s) servidor(es)
 
 ### Docker Compose {#docker}
 
-Para instalação do orquestrador em [Docker Compose](https://docs.docker.com/compose/) é necessário disponibilizar um único servidor dedicado (_bare metal_) ou máquina virtual. É recomendado o uso da distribuição [Linux Debian 12 Bookworm](https://www.debian.org/download) ou [Linux Ubuntu Server 24.04 LTS](https://ubuntu.com/download/server). <u>É necessário que seja utilizada a arquitetura <b>amd64</b></u>. No momento da instalação do SO, haverá a possibilidade de instalar pacotes adicionais. Neste momento, selecione o **SSH Server** e o **Docker**.
+Para instalação do orquestrador em [Docker Compose](https://docs.docker.com/compose/) é necessário disponibilizar um único servidor dedicado (_bare metal_) ou máquina virtual. É recomendado o uso da distribuição [Linux Ubuntu Server 24.04 LTS](https://ubuntu.com/download/server). <u>É necessário que seja utilizada a arquitetura <b>amd64</b></u>. No momento da instalação do SO, haverá a possibilidade de instalar pacotes adicionais. Neste momento, selecione o **SSH Server**.
 
-> **Atenção!** É fortemente recomendado efetuar o [login no Docker](https://docs.docker.com/engine/reference/commandline/login/) utilizando uma conta institucional. O uso do Docker não-autenticado pode resultar em erros durante o processo de _deploy_ (p.e., `Temporary failure in name resolution`).
+Uma vez que o _shell_ esteja disponível, atualize completamente a distribuição (`apt update && apt upgrade -y && apt dist-upgrade -y && apt autoremove -y && apt autoclean`) e proceda com o [passo-a-passo oficial para instalação do Docker](https://docs.docker.com/engine/install/ubuntu/).
 
-![Pacote do Docker selecionado para instalação]({{ site.baseurl }}/assets/img/cluster/03.png)
+> **Atenção!** Após concluir da instalação, é fortemente recomendado efetuar o [login no Docker](https://docs.docker.com/engine/reference/commandline/login/) utilizando uma conta institucional. O uso do Docker não-autenticado pode resultar em erros durante o processo de _deploy_ (p.e., `Temporary failure in name resolution`).
 
 Agora será necessário configurar um _storer_ associado ao _cluster_, que é o servidor físico onde serão armazenados os _volumes_ utilizados pelos containers para persistir dados:
 
@@ -63,9 +63,11 @@ vm.max_map_count=262144
 
 ### Docker Swarm {#swarm}
 
-Para instalação do orquestrador em [Docker Swarm](https://docs.docker.com/engine/swarm/) é necessário disponibilizar três ou mais servidores dedicados (_bare metal_) ou máquinas virtuais. Em cada uma delas deverá ser instalado, preferencialmente, a distribuição [Linux Debian 12 Bookworm](https://www.debian.org/download) ou [Linux Ubuntu Server 24.04 LTS](https://ubuntu.com/download/server). <u>É necessário que seja utilizada a arquitetura <b>amd64</b></u>. No momento da instalação do SO, haverá a possibilidade de instalar pacotes adicionais. Neste momento, selecione o **SSH Server** e o **Docker**.
+Para instalação do orquestrador em [Docker Swarm](https://docs.docker.com/engine/swarm/) é necessário disponibilizar três ou mais servidores dedicados (_bare metal_) ou máquinas virtuais. Em cada uma delas deverá ser instalado, preferencialmente, a distribuição [Linux Ubuntu Server 24.04 LTS](https://ubuntu.com/download/server). <u>É necessário que seja utilizada a arquitetura <b>amd64</b></u>. No momento da instalação do SO, haverá a possibilidade de instalar pacotes adicionais. Neste momento, selecione o **SSH Server**.
 
-> **Atenção!** É fortemente recomendado efetuar o [login no Docker](https://docs.docker.com/engine/reference/commandline/login/) utilizando uma conta institucional. O uso do Docker não-autenticado pode resultar em erros durante o processo de _deploy_ (p.e., `Temporary failure in name resolution`).
+Uma vez que o _shell_ esteja disponível, atualize completamente a distribuição (`apt update && apt upgrade -y && apt dist-upgrade -y && apt autoremove -y && apt autoclean`) em cada um dos nós e proceda com o [passo-a-passo oficial para instalação do Docker](https://docs.docker.com/engine/install/ubuntu/).
+
+> **Atenção!** Após concluir da instalação, é fortemente recomendado efetuar o [login no Docker](https://docs.docker.com/engine/reference/commandline/login/) utilizando uma conta institucional (pelo menos nos nós do tipo _manager_). O uso do Docker não-autenticado pode resultar em erros durante o processo de _deploy_ (p.e., `Temporary failure in name resolution`).
 
 Para instalar o **Docker Swarm**, [siga os passos da documentação oficial](https://docs.docker.com/engine/swarm/swarm-tutorial/). Você deverá definir a quantidade de servidores que atuará como _manager nodes_ e como _worker nodes_. Considere a [orientação da documentação oficial](https://docs.docker.com/engine/swarm/admin_guide/#distribute-manager-nodes) para otimizar a tolerância à falhas, onde o número de _managers_ deverá ser sempre ímpar. Assim, caso tenha 4 servidores/VMs em seu _cluster_, considere criar 3 _manager nodes_ e 1 _worker node_. Por fim, [adicione todos os nós ao _swarm_](https://docs.docker.com/engine/swarm/swarm-tutorial/add-nodes/).
 
@@ -81,15 +83,56 @@ Configure agora um _storer_ associado ao _cluster_, que é o servidor físico on
 
 ## 2. Integração (via SSH) do _cluster_ à plataforma {#ssh}
 
-Para realizar a integração do novo _cluster_ com a plataforma **Embrapa I/O**, os mantenedores deverão configurar nas máquinas (todos os nós do _cluster_ e o _storer_, caso exista), reais ou virtuais, a chave única de acesso SSH. Ou seja, em cada servidor que compõe o cluster, configurado no passo anterior, adicione a seguinte chave pública no arquivo `/root/.ssh/authorized_keys` do usuário `root`:
+Para realizar a integração do novo _cluster_ com a plataforma **Embrapa I/O**, os mantenedores deverão configurar nas máquinas (todos os nós do _cluster_ e o _storer_, caso exista), reais ou virtuais, um usuário e a chave única de acesso SSH.
 
+Nos comandos abaixo o `sudo` foi omitido, mas talvez você precise adicioná-lo no início das sentenças para executá-las apropriadamente.
+
+### a. Criação do usuário exclusivo:
+
+Você deverá criar um usuário que será utilizado exclusivamente para executar os _pipelines_ de DevOps do **Embrapa I/O** neste _cluster_. O usuário pode ter qualquer _username_, porém para exemplificar utilizaremos o login "**io**":
+
+```bash
+adduser --disabled-login --gecos "" --shell /bin/bash io
 ```
+
+Nos _clusters_, ou seja, as máquinas em que o Docker estiver executando (tal como todos os nós do Docker Swarm), adicione este usuário ao grupo apropriado:
+
+```bash
+usermod -aG docker io
+```
+
+### b. Adição do usuário ao _sudoers_:
+
+Caso seu _cluster_ esteja utilizando um _storage_ desacoplado, execute os comandos abaixo apenas neste _storage_. Caso o armazenamento de volumes seja local, ou seja, no próprio _cluster_, execute os comando abaixo nele.
+
+As instruções criam os diretórios em que os volumes serão armazenados e concede ao usuário de DevOps a permissão de alterar o proprietário e permissões de suas subpastas. Para exemplificar, foi considerado que o diretório de armazenamento de volumes será o `/mnt/nfs` e que o usuário de DevOps tem o login "**io**":
+
+```bash
+mkdir /mnt/nfs && chown io:io /mnt/nfs && chmod 700 /mnt/nfs
+
+echo "io ALL=(ALL) NOPASSWD: /bin/chown * /mnt/nfs/*, /bin/chmod * /mnt/nfs/*" > /etc/sudoers.d/io
+```
+
+### c. Configuração da chave SSH:
+
+Adicione agora a seguinte chave pública SSH no arquivo `.ssh/authorized_keys` do usuário:
+
+```bash
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCykAvX7CZmqw1bgOCOmRtgpfr55cjqO0v1+DImp4pKrITdFxZu0OqsJgHjio/yp4w5+KvWmFJa5woYbZry9inFciwKo3+rpGjBHJfNfDq70/q3VdSSInFrSMtWgBk0x5QZQ78ENkNkO9DRIdnnffN9bY1uibR6ZX0pCSSyTGgx3NlAakW47tYIzVcrrUGKGG8vZwSkl7GhEEXtNETp02WQpkUvYrNqgRrmw2lvv41QfRETIuNN7PDhJrDO4tYHtix5D+Pvd05IacgTVQxpi6vnMVdgrwbZ1RPw9TLLkoy3kZs45hLG9oipiYOiD6rxiIYC0f1iUaKz9PKZdfnF8Ya5XJFoL6NcBTPDGh01dkEBonOWt3lgpC/2SBM/SeClt8M2lI6KtqAkjPEKWhnirDP0lXzY2CYamnu2rD6p4z4OWAYG6ngQcCIK45vQvsSz8mfitWnJe89WCCaEVj+L1QO/hjnKJ+eKf5ze35HagFRhpIAB34FmGHO3N8yFCLqvHFNLw6dKl5IXU2cvJF1jwhL3coOx9oeFZLPk45Zze2e/Itjd9x84gWtmo60MvXVBsYGYlcZLzSgAbNGldMuxAFWs0ZvghNx+KZjg6fZ2hAlPHIg1MiAlztyLbbjV2Mjc6ke6sjBDvPkPZQde6G/T8Mp56cCtAb/77/dw78zruX5qyQ== embrapa.io
 ```
 
-> **Atenção!** Além de autorizar a chave, assegure que o _firewall_ permita o acesso do _host_ `core.embrapa.io` (IP `200.202.148.38`) em cada uma das VMs via SSH na **porta 22**.
+Por exemplo, considerando que foi criado um usuário com login "**io**" e que a chave acima está na variável `$PUBLIC_KEY`, faça (em todos os nós do _cluster_ e no _storage_, caso exista):
 
-Repare que, com esta configuração, os autômatos do **Embrapa I/O** conseguirão acessar como `root` os servidores do _cluster_. Isso é necessário para que a plataforma consiga provisionar no servidor todos os artefatos para _deploy_ das aplicações (tal como diretórios, _networks_ e _volumes_).
+```bash
+mkdir -p /home/io/.ssh && chmod 700 /home/io/.ssh
+echo "$PUBLIC_KEY" > /home/io/.ssh/authorized_keys
+sudo chmod 600 /home/io/.ssh/authorized_keys
+sudo chown -R io:io /home/io/.ssh
+```
+
+> **Atenção!** Além de autorizar a chave, assegure que o _firewall_ permita o acesso do _host_ `core.embrapa.io` (IP `200.202.148.38`) em cada uma das VMs via SSH. Você pode utilizar qualquer porta para o servidor SSH, mas precisa ser a mesma em todas as VMs que compõem este _cluster_.
+
+Repare que, com esta configuração, os autômatos do **Embrapa I/O** conseguirão acessar os servidores do _cluster_. Isso é necessário para que a plataforma consiga provisionar no servidor todos os artefatos para _deploy_ das aplicações (tal como diretórios, _networks_ e _volumes_).
 
 ## 3. Liberação das demais portas no _firewall_ {#ports}
 
