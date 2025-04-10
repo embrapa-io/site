@@ -71,7 +71,7 @@ Uma vez que o _shell_ esteja disponível, atualize completamente a distribuiçã
 
 Para instalar o **Docker Swarm**, [siga os passos da documentação oficial](https://docs.docker.com/engine/swarm/swarm-tutorial/). Você deverá definir a quantidade de servidores que atuará como _manager nodes_ e como _worker nodes_. Considere a [orientação da documentação oficial](https://docs.docker.com/engine/swarm/admin_guide/#distribute-manager-nodes) para otimizar a tolerância à falhas, onde o número de _managers_ deverá ser sempre ímpar. Assim, caso tenha 4 servidores/VMs em seu _cluster_, considere criar 3 _manager nodes_ e 1 _worker node_. Por fim, [adicione todos os nós ao _swarm_](https://docs.docker.com/engine/swarm/swarm-tutorial/add-nodes/).
 
-Todo _cluster_ **Docker Swarm** deverá possuir um [servidor para registro de imagens (Docker Registry)](https://docs.docker.com/registry/) rodando localmente na porta padrão. Ele será utilizado para registrar as imagens 'buildadas' em tempo de _deploy_ das aplicações. Para criá-lo no _swarm_, faça:
+Todo _cluster_ **Docker Swarm** deverá possuir um [servidor para registro de imagens (Docker Registry)](https://docs.docker.com/registry/) rodando localmente na porta padrão. Ele será utilizado para registrar as imagens criadas no _build_ em tempo de _deploy_ das aplicações. Para criá-lo no _swarm_, faça:
 
 ```bash
 docker service create --name registry --publish published=5000,target=5000 registry:3
@@ -155,7 +155,7 @@ docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all
 
 Verifique a instalação utilizando o comando `docker plugin ls`.
 
-Uma vez que o plugin esteja instalado no Docker, edite o arquivo `/etc/docker/daemon.json` (ou `/var/snap/docker/current/config/daemon.json`, se tiver sido instalado pelo Snap) inserindo o seguinte conteúdo:
+Uma vez que o plugin esteja instalado no Docker, edite o arquivo `/etc/docker/daemon.json` (ou `/var/snap/docker/current/config/daemon.json`, se tiver sido instalado pelo [Snap](https://snapcraft.io)) inserindo o seguinte conteúdo:
 
 ```json
 {
@@ -174,7 +174,7 @@ Uma vez que o plugin esteja instalado no Docker, edite o arquivo `/etc/docker/da
 
 > **Atenção!** Os valores de `username` e `password` para a linha acima devem ser obtidos junto à **Supervisão de Desenvolvimento de Ativos Digitais (DEGI/GCI/GTI/SDAD)**.
 
-Por fim, faça: `systemctl restart [service]`, onde `[service]` pode ser `docker` ou `snap.docker.dockerd` (se tiver sido instalado via Snap). Caso tenha dúvida sobre o nome exato do serviço, execute `systemctl list-units --type=service | grep docker`. É possível verificar se há algum erro utilizando o comando `journalctl -u [service] | grep loki`. Se configurado com sucesso, deverá ser visto na saída deste último comando algo como "_Using default logging driver loki_".
+Por fim, faça: `systemctl restart [service]`, onde `[service]` pode ser `docker` ou `snap.docker.dockerd` (se tiver sido instalado via [Snap](https://snapcraft.io)). Caso tenha dúvida sobre o nome exato do serviço, execute `systemctl list-units --type=service | grep docker`. É possível verificar se há algum erro utilizando o comando `journalctl -u [service] | grep loki`. Se configurado com sucesso, deverá ser visto na saída deste último comando algo como "_Using default logging driver loki_".
 
 ## 5. Ativação do _Web Terminal_ (opcional) {#terminal}
 
@@ -443,6 +443,9 @@ Uma vez configurado o _cluster_, basta montar as configurações em formato JSON
   "release": [
     {
       "host": "io.facom.ufms.br",
+      "ssh":{
+        "user": "devops"
+      },
       "local": "Faculdade de Computação da UFMS",
       "location": "Campo Grande - MS",
       "orchestrator": "DockerCompose",
@@ -489,6 +492,9 @@ Uma vez configurado o _cluster_, basta montar as configurações em formato JSON
     },
     {
       "host": "cluster.cnpgc.embrapa.br",
+      "ssh":{
+        "user": "io"
+      },
       "nodes": {
         "manager": [
           "manager1.cnpgc.embrapa.br",
@@ -547,6 +553,9 @@ Uma vez configurado o _cluster_, basta montar as configurações em formato JSON
   "beta": [
     {
       "host": "io.facom.ufms.br",
+      "ssh":{
+        "user": "devops"
+      },
       "local": "Faculdade de Computação da UFMS",
       "location": "Campo Grande - MS",
       "orchestrator": "DockerCompose",
@@ -593,6 +602,9 @@ Uma vez configurado o _cluster_, basta montar as configurações em formato JSON
   "alpha": [
     {
       "host": "io.facom.ufms.br",
+      "ssh":{
+        "user": "devops"
+      },
       "local": "Faculdade de Computação da UFMS",
       "location": "Campo Grande - MS",
       "orchestrator": "DockerCompose",
@@ -638,13 +650,13 @@ Uma vez configurado o _cluster_, basta montar as configurações em formato JSON
   ]
 ```
 
-Repare que o _cluster_ deve ser configurado especificamente para cada estágio da aplicação. Assim, ele pode estar disponível para os estágios _alpha_, _beta_ e/ou _release_, ou seja, não necessariamente para todos. O `host` deverá apontar para o IP real do servidor ou VM. Os atributos `local` e `location` indicam a Unidade da Embrapa, instituição ou empresa e a sua localização geográfica.
+Repare que o _cluster_ deve ser configurado especificamente para cada estágio da aplicação. Assim, ele pode estar disponível para os estágios _alpha_, _beta_ e/ou _release_, ou seja, não necessariamente para todos. O `host` deverá apontar para o IP real do servidor ou VM. O atributo `ssh.user` permite especificar o [usuário exclusivo para acionar os processos de _deploy_ no _cluster_](#ssh). Os atributos `local` e `location` indicam a Unidade da Embrapa, instituição ou empresa e a sua localização geográfica.
 
 O `orchestrator` indica o _driver_ de orquestração que está sendo utilizado. No exemplo acima, o _cluster_ `io.facom.ufms.br` está configurado com o orquestrador **Docker Compose** e, portanto, é composto por um único servidor. Já o _cluster_ `cluster.cnpgc.embrapa.br` está configurado com o orquestrador **Docker Swarm** e é, portanto, composto por diversos nós. Neste caso, no atributo `host` deverá ser referenciado um _manager node_ principal, que no nosso exemplo é o `cluster`. No atributo `node` estão declarados explicitamente os demais nós, sendo `manager1` e `manager2` como _manager nodes_ e `worker1` como um _worker node_, totalizando assim os 4 (quatro) nós que formam o _cluster_.
 
 O atributo `storage` contém o _driver_ de _storer_ e atributos relacionados. Por exemplo, para o estágio _alpha_ foi configurado um _storer_ utilizando o _driver_ `DockerLocal` e, desta forma, os _volumes_ serão criados no diretório `/mnt/volumes` indicado no atributo `path`. Já em estágio _beta_ e _release_ está sendo utilizado o _driver_ para **NFSv4** e, desta forma, os _volumes_ serão criados fisicamente no diretório remoto `/mnt/nfs` do _storage_ `storage.facom.ufms.br`.
 
-Os `aliases` são subdomínios configurados pela Unidade da Embrapa, instituição ou empresa parceira que [possibilitam alocar as aplicações em domínios mais condizentes semânticamente com a sua finalidade]({{ site.baseurl }}/docs/build#urls). Estes aliases **devem ser configurados no DNS** da seguinte forma:
+Os `aliases` são subdomínios configurados pela Unidade da Embrapa, instituição ou empresa parceira que [possibilitam alocar as aplicações em domínios mais condizentes semanticamente com a sua finalidade]({{ site.baseurl }}/docs/build#urls). Estes aliases **devem ser configurados no DNS** da seguinte forma:
 
 1. Para cada _alias_, crie um registro do tipo `CNAME` apontando para `router.embrapa.io`; e
 2. Para cada _alias_, crie um _wildcard subdomain_ (registro do tipo `A`) apontando para o **IP** do `router.embrapa.io` (ou seja, `200.202.148.38`).
