@@ -85,21 +85,23 @@ Configure agora um _storer_ associado ao _cluster_, que é o servidor físico on
 
 Para realizar a integração do novo _cluster_ com a plataforma **Embrapa I/O**, os mantenedores deverão configurar nas máquinas (todos os nós do _cluster_ e o _storage_, caso exista), reais ou virtuais, um usuário e a chave única de acesso SSH.
 
-Nos comandos abaixo o `sudo` foi omitido, mas talvez você precise adicioná-lo no início das sentenças para executá-las apropriadamente.
+> **Atenção!** Nos comandos abaixo o `sudo` foi omitido, mas talvez você precise adicioná-lo no início das sentenças para executá-los de forma apropriada.
 
 ### a. Criação do usuário exclusivo:
 
-Você deverá criar um usuário que será utilizado exclusivamente para executar os _pipelines_ de DevOps do **Embrapa I/O** neste _cluster_. O usuário pode ter qualquer _username_, porém para exemplificar utilizaremos o login "**io**":
+Você deverá criar um usuário que será utilizado exclusivamente para executar os _pipelines_ de DevOps do **Embrapa I/O** neste _cluster_. O usuário pode ter qualquer _username_, porém, para exemplificar, utilizaremos o login "**io**":
 
 ```bash
 adduser --disabled-login --gecos "" --shell /bin/bash io
 ```
 
-Nos _clusters_, ou seja, as máquinas em que o Docker estiver executando (tal como todos os nós do Docker Swarm), adicione este usuário ao grupo apropriado:
+Nos _clusters_, ou seja, as máquinas em que o Docker estiver executando (tal como todos os nós de um orquestrador [Docker Swarm](#swarm)), adicione este usuário ao grupo apropriado:
 
 ```bash
 usermod -aG docker io
 ```
+
+Com isso o usuário terá as permissões necessárias para executar os comandos do Docker.
 
 ### b. Adição do usuário ao _sudoers_:
 
@@ -129,11 +131,11 @@ echo "$PUBLIC_KEY" > /home/io/.ssh/authorized_keys
 chmod 600 /home/io/.ssh/authorized_keys && chown -R io:io /home/io/.ssh
 ```
 
-Além de autorizar a chave, assegure que o _firewall_ permita o acesso do _host_ `core.embrapa.io` (IP `200.202.148.38`) em cada uma das VMs via SSH.
+Além de autorizar a chave, assegure que o _firewall_ permita o acesso do _host_ `core.embrapa.io` (IP `200.202.148.38`) em cada uma das máquinas (inclusive o _storage_, caso exista) via SSH na **porta 22**.
 
-> **Atenção!** Você pode utilizar qualquer porta para o servidor SSH, mas precisa ser a mesma em todas as VMs que compõem este _cluster_.
+> **Atenção!** Neste momento não é possível ainda alterar a porta do SSH. Esta configuração simples tem implicações profundas no Docker CLI e na forma como ele está integrado à plataforma **Embrapa I/O**.
 
-Repare que, com esta configuração, os autômatos do **Embrapa I/O** conseguirão acessar os servidores do _cluster_. Isso é necessário para que a plataforma consiga provisionar no servidor todos os artefatos para _deploy_ das aplicações (tal como diretórios, _networks_ e _volumes_).
+Repare que, com esta configuração, os autômatos do **Embrapa I/O** conseguirão acessar os servidores do _cluster_. Isso é necessário para que a plataforma consiga provisionar no servidor todos os artefatos para _deploy_ das aplicações (tal como diretórios, _networks_ e _volumes_, além de realizar a _build_ e instanciação das imagens e containers).
 
 ## 3. Liberação das demais portas no _firewall_ {#ports}
 
