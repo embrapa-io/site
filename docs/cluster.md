@@ -14,7 +14,7 @@ Para possibilitar a "orquestração" dos ativos digitais nesta rede descentraliz
 
 - **storer**: que instancia _volumes_ no próprio _cluster_ ou em servidores externos do tipo _storage_.
 
-O provisionamento de novos _clusters_, _storers_ e o desenvolvimento de _drivers_, estão alinhados com a estratégia de desenvolvimento colaborativo e manutenção compartilhada da plataforma. Assim, [da mesma forma que ocorre com os _boilerplates_]({{ site.baseurl }}/docs/boilerplate), _clusters_ são mantidos por equipes descentralizadas, que podem ser internas ou externas à Embrapa.
+O provisionamento de novos _clusters_, _storages_ e o desenvolvimento de _drivers_, estão alinhados com a estratégia de desenvolvimento colaborativo e manutenção compartilhada da plataforma. Assim, [da mesma forma que ocorre com os _boilerplates_]({{ site.baseurl }}/docs/boilerplate), _clusters_ são mantidos por equipes descentralizadas, que podem ser internas ou externas à Embrapa.
 
 ![Detalhes do cluster escolhido para deploy da aplicação]({{ site.baseurl }}/assets/img/cluster/20250311144415.png)
 
@@ -74,7 +74,7 @@ Para instalar o **Docker Swarm**, [siga os passos da documentação oficial](htt
 Todo _cluster_ **Docker Swarm** deverá possuir um [servidor para registro de imagens (Docker Registry)](https://docs.docker.com/registry/) rodando localmente na porta padrão. Ele será utilizado para registrar as imagens 'buildadas' em tempo de _deploy_ das aplicações. Para criá-lo no _swarm_, faça:
 
 ```bash
-docker service create --name registry --publish published=5000,target=5000 registry:2
+docker service create --name registry --publish published=5000,target=5000 registry:3
 ```
 
 Configure agora um _storer_ associado ao _cluster_, que é o servidor físico onde serão armazenados os _volumes_ utilizados pelos containers para persistir dados:
@@ -83,7 +83,7 @@ Configure agora um _storer_ associado ao _cluster_, que é o servidor físico on
 
 ## 2. Integração (via SSH) do _cluster_ à plataforma {#ssh}
 
-Para realizar a integração do novo _cluster_ com a plataforma **Embrapa I/O**, os mantenedores deverão configurar nas máquinas (todos os nós do _cluster_ e o _storer_, caso exista), reais ou virtuais, um usuário e a chave única de acesso SSH.
+Para realizar a integração do novo _cluster_ com a plataforma **Embrapa I/O**, os mantenedores deverão configurar nas máquinas (todos os nós do _cluster_ e o _storage_, caso exista), reais ou virtuais, um usuário e a chave única de acesso SSH.
 
 Nos comandos abaixo o `sudo` foi omitido, mas talvez você precise adicioná-lo no início das sentenças para executá-las apropriadamente.
 
@@ -126,11 +126,12 @@ Por exemplo, considerando que foi criado um usuário com login "**io**" e que a 
 ```bash
 mkdir -p /home/io/.ssh && chmod 700 /home/io/.ssh
 echo "$PUBLIC_KEY" > /home/io/.ssh/authorized_keys
-sudo chmod 600 /home/io/.ssh/authorized_keys
-sudo chown -R io:io /home/io/.ssh
+chmod 600 /home/io/.ssh/authorized_keys && chown -R io:io /home/io/.ssh
 ```
 
-> **Atenção!** Além de autorizar a chave, assegure que o _firewall_ permita o acesso do _host_ `core.embrapa.io` (IP `200.202.148.38`) em cada uma das VMs via SSH. Você pode utilizar qualquer porta para o servidor SSH, mas precisa ser a mesma em todas as VMs que compõem este _cluster_.
+Além de autorizar a chave, assegure que o _firewall_ permita o acesso do _host_ `core.embrapa.io` (IP `200.202.148.38`) em cada uma das VMs via SSH.
+
+> **Atenção!** Você pode utilizar qualquer porta para o servidor SSH, mas precisa ser a mesma em todas as VMs que compõem este _cluster_.
 
 Repare que, com esta configuração, os autômatos do **Embrapa I/O** conseguirão acessar os servidores do _cluster_. Isso é necessário para que a plataforma consiga provisionar no servidor todos os artefatos para _deploy_ das aplicações (tal como diretórios, _networks_ e _volumes_).
 
@@ -257,12 +258,12 @@ Você deverá ver a mensagem "**WebSocket Server running!**".
 
 ## 6. Instalação de um _Distribution Registry_ (opcional) {#registry}
 
-Como [vimos acima](#swarm), a instalação de um [_Distribution Registry_](https://distribution.github.io/distribution/) local é obrigatória caso esteja utilizando como orquestrador o **Docker Swarm**. Caso contrário, ela é opcional. Porém, mesmo nestes casos, pode ser útil ter um _registry_ local para armazenar as imagens 'buildadas' e, desta forma, prover mais agilidade e segurança nos processos de _deploy_.
+Como [vimos acima](#swarm), a instalação de um [_Distribution Registry_](https://distribution.github.io/distribution/) local é obrigatória caso esteja utilizando como orquestrador o **Docker Swarm**. Caso contrário, ela é opcional. Porém, mesmo nestes casos, pode ser útil ter um _registry_ local para armazenar as imagens dos seus _builds_ e, desta forma, prover mais agilidade e segurança nos processos de _deploy_.
 
 Para instalar, basta executar o comando:
 
 ```bash
-docker run -d -p 5000:5000 --name registry registry:2
+docker run -d -p 5000:5000 --name registry registry:3
 ```
 
 > **Atenção!** Este registro deverá ser utilizado apenas localmente e, portanto, **a porta 5000 não deverá ser exposta publicamente no _firewall_**.
@@ -500,7 +501,7 @@ Uma vez configurado o _cluster_, basta montar as configurações em formato JSON
       "orchestrator": "DockerSwarm",
       "storage": {
         "type": "SwarmNFSv4",
-        "host": "storer.cnpgc.embrapa.br",
+        "host": "storage.cnpgc.embrapa.br",
         "path": "/swarm"
       },
       "aliases": [
@@ -595,7 +596,7 @@ Uma vez configurado o _cluster_, basta montar as configurações em formato JSON
       "orchestrator": "DockerCompose",
       "storage": {
         "type": "DockerLocal",
-        "path": "/mnt/storer"
+        "path": "/mnt/volumes"
       },
       "aliases": [
         "sandbox.facom.ufms.br",
@@ -639,7 +640,7 @@ Repare que o _cluster_ deve ser configurado especificamente para cada estágio d
 
 O `orchestrator` indica o _driver_ de orquestração que está sendo utilizado. No exemplo acima, o _cluster_ `io.facom.ufms.br` está configurado com o orquestrador **Docker Compose** e, portanto, é composto por um único servidor. Já o _cluster_ `cluster.cnpgc.embrapa.br` está configurado com o orquestrador **Docker Swarm** e é, portanto, composto por diversos nós. Neste caso, no atributo `host` deverá ser referenciado um _manager node_ principal, que no nosso exemplo é o `cluster`. No atributo `node` estão declarados explicitamente os demais nós, sendo `manager1` e `manager2` como _manager nodes_ e `worker1` como um _worker node_, totalizando assim os 4 (quatro) nós que formam o _cluster_.
 
-O atributo `storage` contém o _driver_ de _storer_ e atributos relacionados. Por exemplo, para o estágio _alpha_ foi configurado um _storer_ utilizando o _driver_ `DockerLocal` e, desta forma, os _volumes_ serão criados no diretório `/mnt/storer` indicado no atributo `path`. Já em estágio _beta_ e _release_ está sendo utilizado o _driver_ para **NFSv4** e, desta forma, os _volumes_ serão criados fisicamente no diretório remoto `/mnt/nfs` do _storage_ `storage.facom.ufms.br`.
+O atributo `storage` contém o _driver_ de _storer_ e atributos relacionados. Por exemplo, para o estágio _alpha_ foi configurado um _storer_ utilizando o _driver_ `DockerLocal` e, desta forma, os _volumes_ serão criados no diretório `/mnt/volumes` indicado no atributo `path`. Já em estágio _beta_ e _release_ está sendo utilizado o _driver_ para **NFSv4** e, desta forma, os _volumes_ serão criados fisicamente no diretório remoto `/mnt/nfs` do _storage_ `storage.facom.ufms.br`.
 
 Os `aliases` são subdomínios configurados pela Unidade da Embrapa, instituição ou empresa parceira que [possibilitam alocar as aplicações em domínios mais condizentes semânticamente com a sua finalidade]({{ site.baseurl }}/docs/build#urls). Estes aliases **devem ser configurados no DNS** da seguinte forma:
 
