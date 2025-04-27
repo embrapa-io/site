@@ -8,7 +8,7 @@ subtitle: Alerta de CVEs, LLMs e melhorias na gestão das builds.
 tags: [ releases, features ]
 ---
 
-Foi disponibilizada uma nova versão do **Embrapa I/O** (a `1.25.4`) com diversas novidades. Em resumo, temos as seguintes novas funcionalidades:
+Foi disponibilizada uma nova versão do **Embrapa I/O** (a `1.25.4`) com novidades. Em resumo, temos as seguintes novas funcionalidades e melhorias:
 
 1. [Busca ativa por CVEs com alertas na _dashboard_](#cve);
 2. [Integração com GPU Servers para uso de LLMs nos projetos](#gpu);
@@ -16,7 +16,7 @@ Foi disponibilizada uma nova versão do **Embrapa I/O** (a `1.25.4`) com diversa
 4. [Possibilidade de remover completamente a instância (_deploy_) de uma _build_](#remove); e
 5. [Melhorias de segurança na integração de _clusters_](#ssh).
 
-A seguir são detalhadas cada uma delas.
+A seguir, são detalhadas cada uma delas.
 
 ## 1. Busca ativa por CVEs com alertas na _dashboard_ {#cve}
 
@@ -32,7 +32,7 @@ Se houver apenas CVEs de severidade "alta" (**HIGH**), será mostrado um ícone 
 
 ![Lista de vulnerabilidades identificadas na imagem do container]({{ site.baseurl }}/assets/img/posts/20250423221640.png)
 
-Além da descrição, pode-se verificar qual pacote está apresentando problemas e qual a versão corrigida (para qual o mesmo deve ser atualizado).
+Além da descrição, pode-se verificar qual pacote está apresentando vulnerabilidade e qual a versão corrigida (para qual o mesmo deve ser atualizado).
 
 > **Atenção!** É importante ressaltar que as imagens são escaneadas a partir das _builds_ instanciadas na rede de _clusters_ da plataforma. Desta forma, _deploys_ em servidores externos ao ecossistema do **Embrapa I/O** (instanciadas por meio do [Releaser]({{ site.baseurl }}/docs/releaser), p.e.) não serão contempladas. Assim, sugere-se fortemente que a rede de _clusters_ seja utilizada, no mínimo, para o _deploy_ de aplicações em estágio _alpha_ (testes internos), de forma que o projeto possa se beneficiar desta funcionalidade.
 
@@ -44,7 +44,7 @@ Visando viabilizar (e "democratizar") o uso de _Large Language Model - LLM_ nos 
 
 Dentre as especificidades desta arquitetura, está a disponibilização de _GPU Servers_ integrados aos _clusters_ de _deploy_ de aplicações. Com isso, espera-se reduzir o custo de bilhetagem para uso de LLMs via APIs externas e possibilitar a criação de projetos exploratórios e provas de conceito (PoC) em IA generativa.
 
-As LLMs nestes _GPU Servers_ estão sendo disponibilizadas, em um primeiro momento, por meio do [Ollama](https://ollama.com). No momento da escolha do _cluster_ de _deploy_ é possível visualizar se este recurso está disponível (_a_) e, neste caso, as instruções para uso do serviço (_b_):
+As LLMs nestes _GPU Servers_ estão sendo disponibilizadas, em um primeiro momento, por meio do [Ollama](https://ollama.com). No momento da escolha do _cluster_ de [_deploy_ da _build_]({{ site.baseurl }}/docs/deploy) é possível visualizar se este recurso está disponível (_a_) e, neste caso, as configurações para uso do serviço (_b_):
 
 ![Recurso GPU Server ativo no cluster]({{ site.baseurl }}/assets/img/posts/20250424073246.png)
 
@@ -52,11 +52,15 @@ A partir da aplicação instanciada no _cluster_, poderão ser realizadas chamad
 
 ![Registrando as credenciais do Ollama no N8N.]({{ site.baseurl }}/assets/img/posts/20250426220822.png)
 
-Feito isso, as LLMs disponibilizadas no _GPU Server_ estarão à disposição no momento da criação dos _workflows_:
+Feito isso, as LLMs disponibilizadas no _GPU Server_ estarão à disposição no momento da criação dos _workflows_. Por exemplo, ao inserir um nó do tipo "_AI Agent_" no N8N, no _chat model_ será possível vincular as credenciais (_a_) e ele listará os modelos disponíveis no _GPU Server_ (_b_) para serem utilizadas pelo nó:
 
-### a. para uso no processo RAG para geração de _embeddings_:
+![LLMs do Ollama listadas como opção de chat model para um AI Agent do N8N]({{ site.baseurl }}/assets/img/posts/20250427075432.png)
 
-Ao montar um _workflow_ para geração de um BD com vetores visando RAG, pode-se utilizar um nó do tipo "_Embeddings Ollama_". Quando escolher as credenciais configuradas, serão listados todos os modelos disponíveis. Você pode consultar o melhor modelo para ser utilizado. Um bom modelo disponível para esta finalidade é o `bge-large`:
+As LLMs disponíveis podem ser utilizadas:
+
+#### a. no processo RAG para geração de _embeddings_:
+
+Ao montar um _workflow_ para geração de um BD com vetores visando RAG, pode-se utilizar um nó do tipo "_Embeddings Ollama_". Quando escolher as credenciais configuradas, serão listados todos os modelos disponíveis. Você pode consultar o melhor modelo para ser utilizado no seu contexto, mas um bom modelo genérico disponível para esta finalidade é o `bge-large`:
 
 ![Utilizando um modelo do Ollama para RAG]({{ site.baseurl }}/assets/img/posts/20250426223529.png)
 
@@ -64,13 +68,13 @@ No exemplo abaixo foram extraídas perguntas e respostas da API do [SAC Gado de 
 
 ![Processo de RAG]({{ site.baseurl }}/assets/img/posts/20250426223903.png)
 
-### b. para uso pelo agente de IA, nas diversas etapas de tomada de decisão:
+#### b. pelo agente de IA, nas diversas etapas de tomada de decisão:
 
-No exemplo abaixo, é utilizada a conexão com o Ollama rodando no _GPU Server_ para recuperar as informações do PGVector (por meio do modelo `bge-large`) e também para a escolha das melhores respostas (por meio do modelo `llama3.1:8b`). Para a interação com o usuário, foi utilizada a API bilhetada do OpenAI (e o modelo `gpt-4o-mini`).
+No exemplo abaixo, é utilizada a conexão com o Ollama rodando no _GPU Server_ para recuperar as os vetores do PGVector gerados no item anterior (por meio do modelo `bge-large`) e também para a escolha das melhores respostas (por meio do modelo `llama3.1:8b`). Para a interação com o usuário, foi utilizada a API bilhetada do OpenAI (e o modelo `gpt-4o-mini`).
 
 ![Configurando um AI Agent como assistente em Pecuária de Corte]({{ site.baseurl }}/assets/img/posts/20250426225351.png)
 
-Cabe às equipes testar qual a LLM mais indicada para cada procedimento, no contexto do projeto. Vale ressaltar que estas possuem especializações diferenciadas (p.e., em língua portuguesa, em conversas mais longas e complexas, na geração de _embeddings_, etc). Você pode [buscar o modelo no catálogo do Ollama](https://ollama.com/search) para ver os detalhes.
+Cabe às equipes testar qual a LLM mais indicada para cada procedimento, no contexto do projeto. Vale ressaltar que estas possuem especializações diferenciadas (p.e., em língua portuguesa, em conversas mais longas e complexas, na geração de _embeddings_, etc). Você pode [buscar o modelo no catálogo do Ollama](https://ollama.com/search) para ver os detalhes ou simplesmente [perguntar ao ChatGPT sobre eles](https://chatgpt.com).
 
 > **Atenção!** Esta é uma _feature_ **experimental** e existem diversas limitações e restrições de uso. Por exemplo, o uso das GPUs no servidor se dá de maneira concorrente e, portanto, elas podem estar todas ocupadas e indisponíveis em diversos momentos. O Ollama não permite ainda o uso paralelizado das GPUs, portanto estão sendo disponibilizadas em cada _GPU Server_ apenas LLMs que performem em uma única GPU deste servidor.
 
@@ -80,17 +84,17 @@ Importante também salientar: **o Ollama não é a _LLM Runtime_ mais performát
 
 A funcionalidade de reiniciar as aplicações (que derruba e reinicia todos os seus containers), presente no painel de _health check_ das instâncias de _builds_, possibilita agora:
 
-1. Atualizar as imagens de containers que foram baixadas diretamente de um _registry_ (tal como o [Docker Hub](https://hub.docker.com)). Ou seja, esta _feature_ não afeta os serviços que têm _build_ (definido no `docker-compose.yml`), uma vez que estas imagens já são atualizadas no processo de _deploy_, mas sim aquelas de serviços na _stack_ de containers que estão indicadas no atributo `image`; e
+1. **Atualizar as imagens de containers que foram baixadas diretamente de um _registry_** (tal como o [Docker Hub](https://hub.docker.com)). Ou seja, esta _feature_ não afeta os serviços que têm _build_ (definido no `docker-compose.yml`), uma vez que estas imagens já são atualizadas no processo de _deploy_, mas sim aquelas de serviços na _stack_ de containers que estão indicadas no atributo `image`; e
 
-2. Apagar completamente o containers, visando um reinício em "ambiente limpo". O processo irá apagar a _network_ da _stack_ de containers, todos os containers, os volumes implícitos e as imagens que tiveram _build_ local, forçando a recriação destes artefatos do zero.
+2. **Apagar completamente o containers**, visando um reinício em "ambiente limpo". O processo irá apagar a _network_ da _stack_ de containers, todos os containers, os volumes implícitos e as imagens que tiveram _build_ local, forçando a recriação destes artefatos do zero.
 
 ![Dialog de restart com funções de update e remove]({{ site.baseurl }}/assets/img/posts/20250424082127.png)
 
-A atualização das imagens é extremamente útil para garantir que ferramentas de apoio (tal como um [pgAdmin](https://pgadmin.org), [Redis Commander](https://github.com/joeferner/redis-commander), [Mongo Express](https://hub.docker.com/_/mongo-express/), etc) se mantenham atualizados. Por exemplo, para atualizar o [N8N](https://n8n.io) utilizado em alguns _boilerplates_, basta agora fazer o reinício da aplicação com a opção de "**ATUALIZAR**" selecionada:
+A atualização das imagens é extremamente útil para garantir que ferramentas de apoio (tal como um [pgAdmin](https://pgadmin.org), [Redis Commander](https://github.com/joeferner/redis-commander), [Mongo Express](https://hub.docker.com/_/mongo-express/), etc) se mantenham atualizados. Por exemplo, para atualizar o [N8N](https://n8n.io) utilizado em alguns _boilerplates_ citados na seção anterior, basta agora fazer o reinício da aplicação com a opção de "**ATUALIZAR**" selecionada:
 
 ![Atualizando a imagem do N8N]({{ site.baseurl }}/assets/img/posts/20250424082942.png)
 
-A remoção dos containers pode ser bastante útil também, porém deve ser utilizada com cuidado. Esta _feature_ não apaga os volumes explícitos das aplicações (aqueles declarados na [configuração da _build_]({{ site.baseurl }}/docs/build/#volumes)), mas ainda assim se trata de um procedimento destrutivo e deve ser encarado como tal. Os comandos que serão aplicados em ambiente remoto estão detalhados nos _dialogs_ de informação e podem ser testados previamente em ambiente local para que o arquiteto da solução tenha ciência plena das consequências.
+A remoção dos containers pode ser bastante útil também, <u>porém deve ser utilizada com cuidado</u>. Esta _feature_ preserva os dados persistidos, uma vez que não apaga os volumes explícitos das aplicações (aqueles declarados na [configuração da _build_]({{ site.baseurl }}/docs/build/#volumes)), mas ainda assim se trata de um "**procedimento destrutivo**" e deve ser encarado como tal. Os comandos que serão aplicados em ambiente remoto estão detalhados nos _dialogs_ de informação e podem ser testados previamente em ambiente local para que o arquiteto da solução tenha ciência plena das consequências.
 
 ## 4. Possibilidade de remover completamente a instância (_deploy_) de uma _build_ {#remove}
 
@@ -98,7 +102,7 @@ Agora é possível remover completamente o _deploy_ realizado em um _cluster_. E
 
 > **Atenção!** O procedimento irá remover todos os containers, a _network_ da _stack_, imagens geradas (pelo processo de _build_), seus volumes de dados (implícitos e explícitos), configurações e metadados.
 
-Reparem que se trata de uma **ação irreversível**. Ou seja, mesmo que faça um novo _deploy_ desta _build_ no mesmo _cluster_, todos os dados armazenados nas imagens e volumes <u>não serão recuperados</u>. Ou seja, no caso de um novo _deploy_ desta aplicação neste estágio, a mesma estará limpa ("zerada"), apenas com os dados padrão da imagem. Dados históricos, tal como os valores de variáveis de ambiente, também serão perdidos. **Certifique-se das consequências e tome precauções (tal como salvar dados importantes) antes de realizar esta ação!**
+Reparem que se trata de uma **ação irreversível**. Ou seja, mesmo que faça um novo _deploy_ desta _build_ no mesmo _cluster_, todos os dados armazenados nas imagens e volumes <u>não serão recuperados</u>. Portanto, no caso de um novo _deploy_ desta aplicação neste estágio, a mesma estará limpa ("zerada"), apenas com os dados padrão da imagem. Dados históricos, tal como os valores de variáveis de ambiente, também serão perdidos. **Certifique-se das consequências e tome precauções (tal como salvar dados importantes) antes de realizar esta ação!**
 
 > **Atenção!** É importante frisar que não é possível **efetuar _backup_ após a remoção!** Assim, é fortemente recomendado [efetuar _backup_ da instância da _build_]({{ site.baseurl }}/docs/backup/) antes de executar esta ação.
 
@@ -118,10 +122,10 @@ Com isso, será possível configurar novamente e fazer o _deploy_ desta mesma _b
 
 > **Atenção!** Lembre-se que, se já existirem **_tags_ de versões** criadas no [GitLab](https://git.embrapa.io), elas <u>não serão apagadas no processo de remoção</u>. Portanto, ao configurar e validar a _build_ em um novo _cluster_, automaticamente será disparado o processo de _deploy_ para a _tag_ mais recente do estágio da _build_. Se quiser evitar isso, acesse a página de gestão de _tags_ do repositório no GitLab e apague também as _tags_ correspondentes ao estágio da _build_, após finalizar o processo de remoção e antes de configurar a _build_ em um novo _cluster_.
 
-Recomenda-se fortemente o uso desta nova funcionalidade para desprovisionar recursos da infraestrutura em nuvem dos _data centers_ da Embrapa. Para que o **Embrapa I/O** continue disponibilizando recursos de hardware sem burocracia e amarras, é essencial o uso consciente. Assim, caso tenha aplicações teste ou de treino que não utilize mais, por favor, remova-as se possível.
+Recomenda-se fortemente o uso desta nova funcionalidade para desprovisionar recursos da infraestrutura em nuvem dos _data centers_ da Embrapa. Para que o **Embrapa I/O** continue disponibilizando recursos de hardware sem burocracia e amarras, é essencial o uso consciente. Assim, caso tenha instâncias de aplicações de teste ou de treino que não utilize mais, por favor, remova-as dos _clusters_ se possível.
 
 ## 5. Melhorias de segurança na integração de _clusters_ {#ssh}
 
 Por fim, houve melhorias significativas na integração de _clusters_ ao ecossistema da plataforma **Embrapa I/O**. Agora é possível [criar um usuário exclusivo]({{ site.baseurl }}/docs/cluster/#ssh), com permissões restritas, para ativar os _pipelines_ de _deploy_.
 
-Além disso, para evitar conflitos de rotas com outros _hosts_ na rede do _data center_ que abriga a(s) máquina(s) do _cluster_, é possível especificar agora em qual _subnet_ interna (faixa de IPs) o orquestrador irá alocar as redes das _stacks_ de containers. Os detalhes destas configurações estão no [artigo-tutorial de configuração de _clusters_]({{ site.baseurl }}/docs/cluster/).
+Além disso, para evitar conflitos de rotas com outros _hosts_ na rede do _data center_ que abriga a(s) máquina(s) do _cluster_, é possível especificar agora em qual _subnet_ interna (faixa de IPs) o orquestrador irá alocar as redes das _stacks_ de containers. Os detalhes destas configurações estão na [documentação de configuração de _clusters_]({{ site.baseurl }}/docs/cluster).
