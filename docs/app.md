@@ -10,7 +10,7 @@ Conforme [explicitado no capítulo de introdução]({{ site.baseurl }}/docs/intr
 
 Existem duas formas de se criar uma aplicação em um projeto no **Embrapa I/O**:
 
-### 1. A partir de um _boilerplate_
+### 1. A partir de um _boilerplate_ {#boilerplate}
 
 Para criar uma nova aplicação a partir de um [_boilerplate_]({{ site.baseurl }}/docs/introduction#boilerplate), um **arquiteto da solução** do projeto deverá clicar no botão "**Nova App**", no rodapé do _card_ do projeto. Isso iniciará um _wizard_ que guiará o usuário por alguns passos. Inicialmente é apresentado ao usuário um _disclaimer_, o qual ele deverá estar ciente.
 
@@ -36,7 +36,7 @@ No _card_ do **projeto** na _dashboard_ fica disponível a lista de todas as **a
 
 Por fim, o repositório da aplicação estará disponível no grupo do projeto no [GitLab](https://git.embrapa.io). A equipe de desenvolvedores poderá agora [iniciar o planejamento do desenvolvimento]({{ site.baseurl }}/docs/kanban) e realizar o _clone_ do código-fonte para o ambiente local de desenvolvimento, codificar a aplicação conforme os requisitos, seguindo [boas práticas de desenvolvimento]({{ site.baseurl }}/docs/practices), e fazer o _commit_ e _push_ de volta ao repositório. Adicionalmente, a equipe pode contar com uma [ferramenta para monitoramento de erros (_error tracking_)]({{ site.baseurl }}/docs/bug).
 
-### 2. A partir de um repositório GIT
+### 2. A partir de um repositório GIT {#git}
 
 Quando a aplicação é criada a partir de um _boilerplate_ existe o grande benefício desta já nascer inerentemente conteinerizada, integrada às ferramentas de monitoramento ([Matomo](https://hit.embrapa.io), [Sentry](https://bug.embrapa.io), [SonarQube](https://code.embrapa.io), etc) e aderente aos _pipelines_ de _deploy_ de aplicações da plataforma. Entretanto, exitem situações em que a criação da aplicação a partir de um _boilerplate_ não será adequada. Os casos mais comuns são:
 

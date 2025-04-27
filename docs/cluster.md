@@ -446,6 +446,9 @@ Uma vez configurado o _cluster_, basta montar as configurações em formato JSON
       "ssh":{
         "user": "devops"
       },
+      "network": {
+        "subnet": "172.30.0.0"
+      },
       "local": "Faculdade de Computação da UFMS",
       "location": "Campo Grande - MS",
       "orchestrator": "DockerCompose",
@@ -556,6 +559,9 @@ Uma vez configurado o _cluster_, basta montar as configurações em formato JSON
       "ssh":{
         "user": "devops"
       },
+      "network": {
+        "subnet": "172.29.0.0"
+      },
       "local": "Faculdade de Computação da UFMS",
       "location": "Campo Grande - MS",
       "orchestrator": "DockerCompose",
@@ -605,6 +611,9 @@ Uma vez configurado o _cluster_, basta montar as configurações em formato JSON
       "ssh":{
         "user": "devops"
       },
+      "network": {
+        "subnet": "172.28.0.0"
+      },
       "local": "Faculdade de Computação da UFMS",
       "location": "Campo Grande - MS",
       "orchestrator": "DockerCompose",
@@ -650,9 +659,11 @@ Uma vez configurado o _cluster_, basta montar as configurações em formato JSON
   ]
 ```
 
-Repare que o _cluster_ deve ser configurado especificamente para cada estágio da aplicação. Assim, ele pode estar disponível para os estágios _alpha_, _beta_ e/ou _release_, ou seja, não necessariamente para todos. O `host` deverá apontar para o IP real do servidor ou VM. O atributo `ssh.user` permite especificar o [usuário exclusivo para acionar os processos de _deploy_ no _cluster_](#ssh). Os atributos `local` e `location` indicam a Unidade da Embrapa, instituição ou empresa e a sua localização geográfica.
+Repare que o _cluster_ deve ser configurado especificamente para cada estágio da aplicação. Assim, ele pode estar disponível para os estágios _alpha_, _beta_ e/ou _release_, ou seja, não necessariamente para todos. O `host` deverá apontar para o IP real do servidor ou VM. O atributo `ssh.user` permite especificar o [usuário exclusivo para acionar os processos de _deploy_ no _cluster_](#ssh). Já os atributos `local` e `location` indicam a Unidade da Embrapa, instituição ou empresa e a sua localização geográfica.
 
-O `orchestrator` indica o _driver_ de orquestração que está sendo utilizado. No exemplo acima, o _cluster_ `io.facom.ufms.br` está configurado com o orquestrador **Docker Compose** e, portanto, é composto por um único servidor. Já o _cluster_ `cluster.cnpgc.embrapa.br` está configurado com o orquestrador **Docker Swarm** e é, portanto, composto por diversos nós. Neste caso, no atributo `host` deverá ser referenciado um _manager node_ principal, que no nosso exemplo é o `cluster`. No atributo `node` estão declarados explicitamente os demais nós, sendo `manager1` e `manager2` como _manager nodes_ e `worker1` como um _worker node_, totalizando assim os 4 (quatro) nós que formam o _cluster_.
+Para evitar conflitos com outros _hosts_ na rede do _data center_ que abriga as máquinas do _cluster_, é possível especificar em qual _subnet_ interna (faixa de IPs) o orquestrador irá alocar as redes (do tipo _bridge_) das _stacks_ de containers. Repare que nas configurações do _cluster_ `io.facom.ufms.br` as _subnets_ estão definidas. Para cada estágio em que a _subnet_ for configurada, será permitido sempre o provisionamento de 255 _stacks_ (ou seja, para o estágio _alpha_ no exemplo acima, será de `172.28.1.0/24` até `172.28.255.0/24`). Em cada _stack_, por sua vez, será permitida a alocação de 256 IPs (CIDR `/24`). Na prática, cada serviço da _stack_ de containers recebe um destes UPs. É possível verificar se uma _subnet_ está vaga no _data center_ por meio do comando `nmap` (para a faixa de IPs do exemplo, o comando preciso seria `nmap -sn 172.28.0.0/16`). Normalmente as _subnets_ na faixa de `172.19.0.0/16` a `172.31.0.0/16` são escolhas práticas seguras para as redes dos containers.
+
+O `orchestrator` indica o _driver_ de orquestração que está sendo utilizado. No exemplo acima, o _cluster_ `io.facom.ufms.br` está configurado com o orquestrador **Docker Compose** e, portanto, é composto por um único servidor para _deploy_ dos containers. Já o _cluster_ `cluster.cnpgc.embrapa.br` está configurado com o orquestrador **Docker Swarm** e é, portanto, composto por diversos nós. Neste caso, no atributo `host` deverá ser referenciado um _manager node_ principal, que no nosso exemplo é o `cluster`. No atributo `node` estão declarados explicitamente os demais nós, sendo `manager1` e `manager2` como _manager nodes_ e `worker1` como um _worker node_, totalizando assim os 4 (quatro) nós que formam este _cluster_.
 
 O atributo `storage` contém o _driver_ de _storer_ e atributos relacionados. Por exemplo, para o estágio _alpha_ foi configurado um _storer_ utilizando o _driver_ `DockerLocal` e, desta forma, os _volumes_ serão criados no diretório `/mnt/volumes` indicado no atributo `path`. Já em estágio _beta_ e _release_ está sendo utilizado o _driver_ para **NFSv4** e, desta forma, os _volumes_ serão criados fisicamente no diretório remoto `/mnt/nfs` do _storage_ `storage.facom.ufms.br`.
 
