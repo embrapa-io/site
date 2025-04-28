@@ -90,11 +90,11 @@ A funcionalidade de reiniciar as aplicações (que derruba e reinicia todos os s
 
 ![Dialog de restart com funções de update e remove]({{ site.baseurl }}/assets/img/posts/20250424082127.png)
 
-A atualização das imagens é extremamente útil para garantir que ferramentas de apoio (tal como um [pgAdmin](https://pgadmin.org), [Redis Commander](https://github.com/joeferner/redis-commander), [Mongo Express](https://hub.docker.com/_/mongo-express/), etc) se mantenham atualizados. Por exemplo, para atualizar o [N8N](https://n8n.io) utilizado em alguns _boilerplates_ citados na seção anterior, basta agora fazer o reinício da aplicação com a opção de "**ATUALIZAR**" selecionada:
+A **atualização das imagens** é extremamente útil para garantir que ferramentas de apoio (tal como um [pgAdmin](https://pgadmin.org), [Redis Commander](https://github.com/joeferner/redis-commander), [Mongo Express](https://hub.docker.com/_/mongo-express/), etc) se mantenham atualizados. Ajuda também a eliminar os [CVEs identificados](#cve), uma vez que traz a versão mais recente das imagens e, portanto, com as últimas manutenções corretivas e evolutivas. Por exemplo, para atualizar o [N8N](https://n8n.io) utilizado em alguns _boilerplates_ citados na [seção anterior](#gpu), basta agora fazer o reinício da aplicação com a opção de "**ATUALIZAR**" selecionada:
 
 ![Atualizando a imagem do N8N]({{ site.baseurl }}/assets/img/posts/20250424082942.png)
 
-A remoção dos containers pode ser bastante útil também, <u>porém deve ser utilizada com cuidado</u>. Esta _feature_ preserva os dados persistidos, uma vez que não apaga os volumes explícitos das aplicações (aqueles declarados na [configuração da _build_]({{ site.baseurl }}/docs/build/#volumes)), mas ainda assim se trata de um "**procedimento destrutivo**" e deve ser encarado como tal. Os comandos que serão aplicados em ambiente remoto estão detalhados nos _dialogs_ de informação e podem ser testados previamente em ambiente local para que o arquiteto da solução tenha ciência plena das consequências.
+A **remoção dos containers** pode ser bastante útil também, <u>porém deve ser utilizada com cuidado</u>. Esta _feature_ preserva os dados persistidos, uma vez que não apaga os volumes explícitos das aplicações (aqueles declarados na [configuração da _build_]({{ site.baseurl }}/docs/build/#volumes)), mas ainda assim se trata de um "**procedimento destrutivo**" e deve ser encarado como tal. Os comandos que serão aplicados em ambiente remoto estão detalhados nos _dialogs_ de informação e podem ser testados previamente em ambiente local para que o arquiteto da solução tenha ciência plena das consequências.
 
 ## 4. Possibilidade de remover completamente a instância (_deploy_) de uma _build_ {#remove}
 
