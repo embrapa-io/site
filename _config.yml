@@ -50,7 +50,7 @@ title-img: "/assets/img/logo.png"
 # Select the social network links that you want to show in the footer.
 # Uncomment the links you want to show and add your information to each one.
 social-network-links:
-  email: "io@embrapa.br"
+#  email: "io@embrapa.br"
   rss: true  # remove this line if you don't want to show an RSS link at the bottom
 #  facebook: deanattali
   github: embrapa-io
@@ -65,7 +65,7 @@ social-network-links:
 #  snapchat: deanat78
 #  instagram: deanat78
 #  spotify: yourname
-telephone: +14159998888
+# telephone: +14159998888
 #  steam: deanat78
 #  twitch: yourname
 #  yelp: yourname
@@ -74,7 +74,7 @@ telephone: +14159998888
 #  mastodon: instance.url/@username
 #  ORCID: your ORCID ID
 #  google-scholar: your google scholar
-#  discord: invite/invite_code or users/userid 
+discord: invite/CxMKeKZVX4
 #  kaggle: yourname
 #  hackerrank: yourname
 
