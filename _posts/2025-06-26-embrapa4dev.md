@@ -8,7 +8,7 @@ subtitle: Disponibilizados dois boilerplates para softwares institucionais.
 tags: [ releases ]
 ---
 
-Foram disponibilizados novos recursos para acelerar o desenvolvimento de software institucional na Embrapa!
+Foram disponibilizados novos recursos para acelerar o desenvolvimento de **software institucional** na Embrapa!
 
 Agora a iniciativa **Embrapa4Dev**, de padronização e modernização da arquitetura de software institucional, foi integrada à plataforma **Embrapa I/O**. Assim, foram publicados dois novos _boilerplates_ no catálogo da plataforma que irão facilitar, agilizar e padronizar a criação de aplicações corporativas.
 
