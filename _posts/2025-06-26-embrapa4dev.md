@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Embrapa4Dev integrado ao Embrapa I/O
+title: Integração do Embrapa4Dev
 subtitle: Disponibilizados dois boilerplates para softwares institucionais.
 # cover-img: /assets/img/dashboard/02.png
 # thumbnail-img: /assets/img/icon-back.png
