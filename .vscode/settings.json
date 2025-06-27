@@ -1,9 +1,13 @@
 {
     "cSpell.words": [
         "Blazor",
+        "ciclomática",
+        "Dsonar",
         "jekyll",
         "kramdown",
+        "qualitygate",
         "SDSS",
-        "SGBD"
+        "SGBD",
+        "sonarsource"
     ]
 }

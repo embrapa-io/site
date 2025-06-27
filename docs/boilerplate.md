@@ -147,16 +147,41 @@ Neste código está sendo utilizado o pacote [Matomo PHP Tracker](https://github
 
 O [SonarQube](https://www.sonarsource.com/products/sonarqube/) é uma popular ferramenta de **análise estática** usada no processo de revisão automática de código. Possui suporte a [29 linguagens de programação](https://docs.sonarsource.com/sonarqube/latest/analyzing-source-code/languages/overview/) e capacidade de detectar _bugs_, código duplicado, cobertura de testes de software (como testes unitários), alta complexidade ciclomática, entre outros problemas no código-fonte.
 
-A ferramenta está [integrada à plataforma Embrapa I/O](https://code.embrapa.io) e pode, portanto, efetuar a análise do código-fonte de qualquer aplicação da plataforma (desde que a linguagem de programação seja suportada). Para permitir que esta análise seja realizada, é necessário inserir na raiz do _boilerplate_ o arquivo `sonar-project.properties` com o seguinte conteúdo:
+A ferramenta está [integrada à plataforma Embrapa I/O](https://code.embrapa.io) e pode, portanto, efetuar a análise do código-fonte de qualquer aplicação da plataforma (desde que a linguagem de programação seja suportada). Para permitir que esta análise seja realizada, é necessário inserir na raiz do _boilerplate_ o arquivo `.gitlab-ci.yml` com o seguinte conteúdo:
 
-```ini
-sonar.projectKey=%GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%
-sonar.qualitygate.wait=true
+```yaml
+image:
+    name: sonarsource/sonar-scanner-cli:11
+    entrypoint: [""]
+
+variables:
+  SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+  GIT_DEPTH: "0"
+
+stages:
+  - build-sonar
+
+build-sonar:
+  stage: build-sonar
+
+  cache:
+    policy: pull-push
+    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
+    paths:
+      - "${SONAR_USER_HOME}/cache"
+      - sonar-scanner/
+
+  script:
+    - >
+      sonar-scanner
+      -Dsonar.host.url="${SONAR_HOST_URL}"
+      -Dsonar.projectKey="${CI_PROJECT_NAMESPACE}_${CI_PROJECT_NAME}"
+      -Dsonar.qualitygate.wait=true
+  allow_failure: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == 'main'
 ```
-
-A palavras-chave entre os caracteres `%` são [comentadas adiante](#keyword) e serão substituídas no momento do _fork_ do _boilerplate_.
-
-> **Atenção!** Se estiver migrando uma aplicação para o **Embrapa I/O** (e não construindo um _boilerplate_), ao invés das palavras-chave `%GENESIS_PROJECT_UNIX%` e `%GENESIS_APP_UNIX%` troque-as pelo nome Unix do projeto e o da aplicação, respectivamente (repare no carácter _underscore_ entre eles).
 
 ## 5. Crie os arquivos de _environment variables_ {#env}
 
