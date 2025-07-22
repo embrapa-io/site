@@ -5,7 +5,7 @@ subtitle: Disponibilizados dois boilerplates para softwares institucionais.
 # cover-img: /assets/img/dashboard/02.png
 # thumbnail-img: /assets/img/icon-back.png
 # share-img: /assets/img/icon-back.png
-tags: [ releases ]
+tags: [ boilerplates ]
 ---
 
 Foram disponibilizados novos recursos para acelerar o desenvolvimento de **software institucional** na Embrapa!
