@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Boilerplate para Vive Coding
+title: Boilerplate para Vibe Coding
 subtitle: Disponibilizado novo boilerplate para Vibe Coding.
 # cover-img: /assets/img/dashboard/02.png
 # thumbnail-img: /assets/img/icon-back.png
