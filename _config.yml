@@ -19,6 +19,7 @@ navbar-links:
   Videoaulas:
     - Overview: https://www.youtube.com/watch?v=DFc2iZy4Ox4&list=PLBTsCa6Rsuz3jh0S2P8aTBlvhk7Mr3gbS
     - Quickstart: https://www.youtube.com/watch?v=wnN1tiGVcu4&list=PLBTsCa6Rsuz2x75zbYwAB1mEYLXbUA1RP
+    - Embrapa4Dev: https://www.youtube.com/watch?v=1aewRuuadTk&list=PLBTsCa6Rsuz3DUOssGf3qftb4RRSpC9Fq
   Ferramentas:
     - Dashboard: "https://dashboard.embrapa.io"
     - GitLab: "https://git.embrapa.io"
