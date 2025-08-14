@@ -6,7 +6,7 @@ subtitle: Deploy de builds em clusters externos
 
 A plataforma **Embrapa I/O** oferece um ecossistema de DevOps completo para desenvolvimento e entrega de aplicações. Por meio de uma rede de _clusters_ é possível fazer o _deploy_ automatizado de ativos em diferentes estágios de maturidade. Entretanto, algumas vezes é necessário que a entrega destes ativos se dê em ambientes externos à plataforma. Por exemplo, em projetos desenvolvidos em parceria com entes externos (tal como empresas privadas) pode ser acordado a disponibilização da solução em produção em uma nuvem do próprio parceiro ou terceirizada. Nestes casos, pode ser indesejado por parte deste parceiro, integrar esta nuvem à rede de _clusters_ do **Embrapa I/O**.
 
-Além disso, todos os _clusters_ da plataforma são de **uso compartilhado**. Isto significa que os recursos de hardware dos servidores (disco, memória, unidades de processamento, etc) não podem ser provisionados por aplicação, sendo gerenciados exclusivamente pelos orquestradores. Para disponibilização de soluções em produção, principalmente aquelas de alta demanda, esta especificidade será um risco.
+Além disso, todos os _clusters_ do catálogo da plataforma são de **uso compartilhado**. Isto significa que os recursos de hardware dos servidores (disco, memória, unidades de processamento, etc) não podem ser provisionados por aplicação, sendo gerenciados exclusivamente pelos orquestradores. Para disponibilização de soluções em produção, principalmente aquelas de alta demanda, esta especificidade será um risco.
 
 Por fim, atualmente a plataforma **Embrapa I/O** encontra-se em _Beta Release_, ou seja, ainda em fase de desenvolvimento. Apesar de utilizar ferramentas maduras em sua construção (tal como, o [GitLab](https://gitlab.com), o [Sentry](https://sentry.io) e o [Matomo](https://matomo.org)), **a disponibilização de aplicações em produção (_release_) por meio da plataforma é fortemente desencorajada**. Existem elementos críticos, tal como o roteamento de URLs (realizado pelo autômato _router_), que precisam ser amadurecidos. Assim, orienta-se que, neste momento, sejam realizados apenas o _deploy_ de aplicações em estágio de **testes internos** (_alpha_) e **testes externos** (_beta_) utilizando a rede de _clusters_ da plataforma.
 
@@ -322,7 +322,7 @@ docker volume create \
 
 Basta agora informar este volume no momento de configurar as _environment variables_ no arquivo `builds.json`.
 
-### Domínios e certificados SSL/TLS
+### Domínios (_virtual proxies_) e certificados SSL/TLS
 
 Conforme mencionado acima, o **Releaser** implementa diversos _pipelines_ de _DevOps_ do **Embrapa I/O**, porém alguns processos importantes não estão contemplados. Por exemplo, uma vez que a aplicação tenha sido implantada pela ferramenta **Releaser** em seu servidor, ela estará acessível apenas pelas portas expostas pelo Docker. Faz-se necessário configurar manualmente um ou mais domínios e seus respectivos certificados SSL/TLS para publicar a aplicação de forma amigável.
 
@@ -375,4 +375,79 @@ ln -s \
 nginx -t
 
 /etc/init.d/nginx reload && /etc/init.d/nginx restart
+```
+
+### Instalação do Portainer
+
+É recomendado que seja [instalado o Portainer](https://docs.portainer.io/start/install) em servidores que tenham o **Releaser** para auxiliar a equipe mantenedora em sua gestão:
+
+- para [Docker Compose](https://docs.portainer.io/start/install/server/docker/linux);
+- [Docker Swarm](https://docs.portainer.io/start/install/server/swarm/linux); ou
+- [Kubernetes](https://docs.portainer.io/start/install/server/kubernetes/baremetal).
+
+Por padrão, recomenda-se que este seja disponibilizado publicamente no HTTPS (porta 443) da URL (_hostname_) do servidor, com o HTTP (porta 80) redirecionando para o HTTPS.
+
+Para simplificar a instalação e recorrente atualização do Portainer (quando necessário), crie um _script_ denominado `/root/portainer.sh` com as seguintes instruções:
+
+```bash
+#!/bin/sh
+
+type docker > /dev/null 2>&1 || { echo >&2 "Command 'docker' has not found! Aborting."; exit 1; }
+
+set -x
+
+set +e
+
+docker stop portainer
+
+docker rm portainer
+
+docker volume create portainer_data
+
+set -e
+
+docker pull portainer/portainer-ce:latest
+
+docker run -d -p 8000:8000 -p 9443:9000 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
+```
+
+Caso não tenha realizado a configuração de "domínios (_virtual proxies_) e certificados SSL/TLS" (apresentada na seção anterior), [instale o Nginx](https://www.linuxcapable.com/how-to-install-nginx-on-debian-linux/) e, para a configuração acima do Portainer, especifique um novo site como segue (troque `portainer.cnpxx.embrapa.br` pelo nome correto do seu _host_):
+
+```
+server {
+  listen 80;
+  listen [::]:80;
+
+  server_name portainer.cnpxx.embrapa.br;
+
+  return 301 https://portainer.cnpxx.embrapa.br;
+}
+
+server {
+  listen 443 ssl http2;
+  listen [::]:443 ssl http2;
+
+  ssl_certificate /etc/embrapa/wildcard/portainer.cnpxx.embrapa.br/fullchain.pem;
+  ssl_certificate_key /etc/embrapa/wildcard/portainer.cnpxx.embrapa.br/privkey.pem;
+  ssl_trusted_certificate /etc/embrapa/wildcard/portainer.cnpxx.embrapa.br/fullchain.pem;
+  ssl_protocols TLSv1.2 TLSv1.3;
+
+  server_name portainer.cnpxx.embrapa.br;
+
+  location / {
+    resolver 127.0.0.1 [::1];
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Access-Control-Allow-Origin '*';
+    proxy_set_header Access-Control-Allow-Methods 'GET, POST, OPTIONS, PUT, DELETE, HEAD';
+    proxy_cache_bypass $http_upgrade;
+    proxy_ssl_session_reuse off;
+    proxy_pass http://localhost:9443;
+  }
+}
 ```
