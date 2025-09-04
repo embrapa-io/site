@@ -377,6 +377,8 @@ nginx -t
 /etc/init.d/nginx reload && /etc/init.d/nginx restart
 ```
 
+Outra opção é gerir os proxies virtuais para as aplicações de maneira centralizada por meio de uma ferramenta como o [Nginx Proxy Manager](https://nginxproxymanager.com). Esta ferramenta automatiza os passos acima (inclusive de atribuição e atualização de certificados SSL) e oferece uma interface visual de gestão. Além disso, tem a grande vantagem de poder ser colocada em uma VM dedicada, com IP público, enquanto as aplicações web propriamente ditas podem ser instanciadas em _clusters_ na intranet do _data center_, poupando o uso de outros IPs públicos.
+
 ### Instalação do Portainer
 
 É recomendado que seja [instalado o Portainer](https://docs.portainer.io/start/install) em servidores que tenham o **Releaser** para auxiliar a equipe mantenedora em sua gestão:
@@ -451,3 +453,44 @@ server {
   }
 }
 ```
+
+### Depuração de Serviços e Atualização das Imagens de Containers
+
+Para forçar a atualização de imagens de containers de uma determinada aplicação, faça o seguinte:
+
+```bash
+docker exec -it releaser io info
+```
+
+O comando acima irá mostrar o _path_ para os diretórios dos repositórios clonados de todas as apps configuradas (das _tags_ em que o _deploy_ foi realizado). Para uma determinada app, você verá algo como:
+
+```bash
+To publica/camunda@release (version 0.25.9-2):
+cd apps/publica/camunda/0.25.9-2
+```
+
+Dê o comando acima para acessar o diretório com a versão de _deploy_. Agora, pode-se utilizar múltiplos comandos para depurar a aplicação em execução, tal como:
+
+```bash
+env $(cat .env.io) docker compose ps
+```
+
+Que irá mostrar os serviços rodando, seu _status_ (p.e., "_healthy_") e outras informações relevantes.
+
+Também é possível visualizar os _logs_:
+
+```bash
+env $(cat .env.io) docker compose logs -f app
+```
+
+Para forçar a atualização das imagens, faça:
+
+```bash
+env $(cat .env.io) docker compose pull --ignore-pull-failures --ignore-buildable
+```
+
+Este comando irá atualizar somente aquelas imagens que não foram 'buildadas' localmente. Para garantir que as novas versões de imagens sejam utilizadas, force um novo _deploy_. Para o exemplo acima o comando seria:
+
+```bash
+docker exec -it releaser io deploy publica/camunda@release --force
+````
