@@ -14,7 +14,7 @@ A ferramenta **Rinha de Bot** do **Embrapa I/O** está disponível em:
 
 Trata-se de uma aplicação web para execução de testes cegos em agentes de IA (comumente chamados de _chatbots_). Por meio dela, é possível criar "**torneios**" entre dois agentes, que estarão conectados via _Webhook_ ou por uma API _OpenAI-Compatible_.
 
-## Criação de Torneios {#tournament}
+## Criação e Edição de Torneios {#tournament}
 
 Para criar um torneio, [acesse o console da ferramenta](https://hub.arena.embrapa.io) e vá em "**Criar Torneio**". Preencha o "**Título do Torneio**" e a "**Mensagem de Boas-Vindas**", que são dados que estarão sempre visíveis aos avaliadores.
 
@@ -144,3 +144,13 @@ A [Anthropic](https://claude.ai) fornece uma [camada de compatibilidade](https:/
 Ao final da configuração de cada agente é possível testar a conectividade. Por padrão, a ferramenta envia o _prompt_ "Quem é você e qual seu identificador exato de modelo?", porém ela pode ser alterada. Este teste prévio não é persistido de nenhuma forma e apenas visa garantir que a integração esteja funcional.
 
 ![Teste de conectividade com o agente de IA.]({{ site.baseurl }}/assets/img/arena/20250929101223.png){: width="80%" .img-center }
+
+## Avaliação dos Agentes
+
+Uma vez que o torneio esteja criado e devidamente configurado, já é possível enviar para os avaliadores. Estes devem ser especialistas nos domínios de conhecimento de abrangência do agente de IA a ser avaliado.
+
+O torneio somente estará apto a receber avaliações se estiver "**ativo**", portanto o primeiro passo é clicar no ícone correlato para ativá-lo. Você pode ativar e desativar torneios a qualquer momento.
+
+![Disponibilizando a avaliação.]({{ site.baseurl }}/assets/img/arena/20250929105905.png)
+
+Em seguida, copie o link de avaliação. Ele pode ser enviado por WhatsApp e outros aplicativos de mensagens, bem como por e-mail ou qualquer outra forma. Pode-se, inclusive, gerar um QR Code para ficar disponível em apresentações ou material impresso.
