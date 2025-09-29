@@ -14,7 +14,7 @@ A ferramenta **Rinha de Bot** do **Embrapa I/O** está disponível em:
 
 Trata-se de uma aplicação web para execução de testes cegos em agentes de IA (comumente chamados de _chatbots_). Por meio dela, é possível criar "**torneios**" entre dois agentes, que estarão conectados via _Webhook_ ou por uma API _OpenAI-Compatible_.
 
-## Criação de Torneios {#create}
+## Criação de Torneios {#tournament}
 
 Para criar um torneio, [acesse o console da ferramenta](https://hub.arena.embrapa.io) e vá em "**Criar Torneio**". Preencha o "**Título do Torneio**" e a "**Mensagem de Boas-Vindas**", que são dados que estarão sempre visíveis aos avaliadores.
 
