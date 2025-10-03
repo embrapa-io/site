@@ -61,14 +61,16 @@ subtitle: Prefácio da documentação técnica
 
 - [_Clusters_]({{ site.baseurl }}/resources/clusters)
 - [_Boilerplates_]({{ site.baseurl }}/resources/boilerplates)
+-->
 
 ## Disciplinas Especializadas
 
-- [Aprendizado de Máquina]({{ site.baseurl }}/special/learning)
-- [_Blockchain_]({{ site.baseurl }}/special/blockchain)
-- [Gamificação]({{ site.baseurl }}/special/gamefication)
-- [Internet das Coisas]({{ site.baseurl }}/special/iot)
--->
+- Blockchain
+- Gamification
+- IA Generativa
+  - [Arena de Bots]({{ site.baseurl }}/docs/arena)
+- Internet das Coisas
+- Machine Learning e Visão Computacional
 
 <!--
 Regimento da Supervisão de Ativos Digitais:

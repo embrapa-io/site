@@ -1,12 +1,12 @@
 ---
 layout: page
-title: Rinha de Bot
+title: Arena de Bots
 subtitle: Testes cegos para avaliação de agentes de IA
 ---
 
 <!-- <iframe width="730" height="410" src="https://www.youtube.com/embed/wnN1tiGVcu4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe> -->
 
-A ferramenta **Rinha de Bot** do **Embrapa I/O** está disponível em:
+A ferramenta **Arena de Bots** do **Embrapa I/O** está disponível em:
 
 <div style="margin: 0 auto; text-align: center;">
     <a class="btn btn-info btn-lg" href="https://hub.arena.embrapa.io" target="_blank">hub.arena.embrapa.io</a>
