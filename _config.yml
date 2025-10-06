@@ -30,7 +30,7 @@ navbar-links:
     - SonarQube: "https://code.embrapa.io"
     - ThingsBoard: "https://iot.embrapa.io"
     - Backup: "https://backup.embrapa.io"
-    - Arena: "https://hub.arena.embrapa.io"
+    - Arena de Bots: "https://hub.arena.embrapa.io"
   Licença: "license"
 
 # --- Logo --- #
