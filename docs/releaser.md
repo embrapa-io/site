@@ -324,13 +324,37 @@ Basta agora informar este volume no momento de configurar as _environment variab
 
 ### Domínios (_virtual proxies_) e certificados SSL/TLS
 
-Conforme mencionado acima, o **Releaser** implementa diversos _pipelines_ de _DevOps_ do **Embrapa I/O**, porém alguns processos importantes não estão contemplados. Por exemplo, uma vez que a aplicação tenha sido implantada pela ferramenta **Releaser** em seu servidor, ela estará acessível apenas pelas portas expostas pelo Docker. Faz-se necessário configurar manualmente um ou mais domínios e seus respectivos certificados SSL/TLS para publicar a aplicação de forma amigável.
+Conforme mencionado acima, o **Releaser** implementa diversos _pipelines_ de _DevOps_ do **Embrapa I/O**, porém alguns processos importantes não estão contemplados. Por exemplo, uma vez que a aplicação tenha sido implantada pela ferramenta **Releaser** em seu servidor, ela estará acessível apenas pelas portas expostas pelo Docker. Faz-se necessário configurar os domínios e seus respectivos certificados SSL/TLS para publicar a aplicação de forma amigável.
 
-A dica aqui é o uso do servidor web [Nginx](https://nginx.org/) associado com certificados gerados pelo [Let's Encrypt](https://letsencrypt.org). O primeiro passo para esta configuração é a criação de um registro `CNAME` no servidor DNS do domínio escolhido. 
+Recomendamos duas formas de fazer isso, que estão detalhadas a seguir. Em ambos os casos, o primeiro passo para as configurações é a criação de registros do tipo `CNAME` no servidor DNS do domínio escolhido apontando para o host que estará fazendo o papel de _virtual proxy_.
 
-Por exemplo, vamos supor que esteja sendo disponibilizada a _build_ `pasto-certo/pwa@beta` no servidor `cloud.cnpgc.embrapa.br`. Neste exemplo a aplicação implantada no servidor foi exposta na porta **49152**. Queremos que esta aplicação fique acessível por meio do subdomínio `https://beta.pastocerto.com`. O primeiro passo será cadastrar no servidor DNS que gerencia o domínio `pastocerto.com` uma entrada do tipo `CNAME` apontando para `cloud.cnpgc.embrapa.br`.
+Por exemplo, vamos supor que esteja sendo disponibilizada a _build_ `pasto-certo/pwa@beta` na VM `apps001.cnpgc.embrapa.br`, com um IP da intranet do _data center_. Neste exemplo a aplicação implantada neste _host_ foi exposta na porta **49152**. Vamos supor também que existe na mesma rede uma VM para fazer o papel do _virtual proxy_, cujo nome de _host_ é `proxy.cnpgc.embrapa.br` e que tem IP público. Queremos que esta aplicação fique acessível por meio do subdomínio `https://beta.pastocerto.com`. O primeiro passo será cadastrar no servidor DNS que gerencia o domínio `pastocerto.com` uma entrada do tipo `CNAME` de `beta.pastocerto.com` apontando para `proxy.cnpgc.embrapa.br`. Para cada serviço exposto, recomenda-se a criação de um subdomínio específico (por exemplo, `pgadmin.pastocerto.com`, `api.pastocerto.com`, `mcp.pastocerto.com`, etc).
 
-No servidor `cloud.cnpgc.embrapa.br` deverá estar instalado, além do Docker, o servidor web Nginx. Deverá também estar disponível o utilitário de linha de comando `certbot`, [conforme instruções de instalação para o sistema operacional do servidor](https://certbot.eff.org). Atendidos estes requisitos, podemos fazer:
+Neste exemplo, há duas formas de configurar o `proxy.cnpgc.embrapa.br`:
+
+#### Gestão automatizada pelo Nginx Proxy Manager
+
+O [Nginx Proxy Manager](https://nginxproxymanager.com) é uma interface web simples que facilita a configuração e o gerenciamento automatizado de proxies reversos, certificados SSL e redirecionamentos usando o servidor Nginx.
+
+O **Embrapa I/O** já possui em seu catálogo de _boilerplates_ esta ferramenta, que pode ser adicionada como uma aplicação ao seu projeto. Desta forma, batará instanciá-la na mesma VM das aplicações utilizando o **Releaser** (ou seja, como uma nova entrada no `builds.json`).
+
+![Boilerplate do Nginx Proxy Manager]({{ site.baseurl }}/assets/img/releaser/20251031160841.png){: width="60%" .img-center }
+
+Recomenda-se que sejam mantidas as portas padrão para esta aplicação, ou seja: `HTTP_PORT=80`, `HTTPS_PORT=443` e `ADMIN_PORT=81`. Assim, deve-se expor publicamente apenas as portas **80** e **443**, enquanto que a **81** (interface web de gestão) deve permanecer acessível apenas pela VPN (por medida de segurança).
+
+Para o exemplo apresentado, o _virtual proxy_ que mapeia o subdomínio `https://beta.pastocerto.com` para `http://apps001.cnpgc.embrapa.br:49152` seria configurado da seguinte forma:
+
+![Configuração do Proxy Host no NPM]({{ site.baseurl }}/assets/img/releaser/20251031163743.png)
+
+> **Atenção!** Caso o **Nginx Proxy Manager** precise mapear os serviços rodando no Docker ma mesma VM em que está instalado, referencie no campo "**Forward Hostname / IP**" o IP `172.17.0.1` (ou seja, o IP do _host_ a partir do container).
+
+Repare que esta abordagem tem a grande vantagem de poder ser colocada em uma VM dedicada, com IP público, enquanto as aplicações web propriamente ditas podem ser instanciadas em _clusters_ na intranet do _data center_, poupando o uso de outros IPs públicos.
+
+#### Gestão manual pelo Nginx
+
+A dica aqui é o uso do servidor web [Nginx](https://nginx.org) associado com certificados gerados pelo [Let's Encrypt](https://letsencrypt.org), fazendo tudo de forma manual. Pode ser útil caso tenha poucos serviços para expor em uma ou duas aplicações apenas.
+
+No servidor `proxy.cnpgc.embrapa.br` deverá estar instalado o servidor web Nginx (diretamente pelo gerenciador de pacotes do sistema operacional). Deverá também estar disponível o utilitário de linha de comando `certbot`, [conforme instruções de instalação para o sistema operacional do servidor](https://certbot.eff.org). Atendidos estes requisitos, podemos fazer:
 
 ```bash
 certbot certonly --nginx --domains beta.pastocerto.com
@@ -360,10 +384,12 @@ server {
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_cache_bypass $http_upgrade;
     proxy_ssl_session_reuse off;
-    proxy_pass http://127.0.0.1:49152;
+    proxy_pass http://apps001.cnpgc.embrapa.br:49152;
   }
 }
 ```
+
+> **Atenção!** Caso o **Nginx** precise mapear os serviços rodando no Docker ma mesma VM em que está instalado, referencie no `proxy_pass` o IP `127.0.0.1` (ou seja, o IP do _localhost_).
 
 Por fim, habilite esta configuração, teste-a e reinicie o servidor Nginx:
 
@@ -376,8 +402,6 @@ nginx -t
 
 /etc/init.d/nginx reload && /etc/init.d/nginx restart
 ```
-
-Outra opção é gerir os proxies virtuais para as aplicações de maneira centralizada por meio de uma ferramenta como o [Nginx Proxy Manager](https://nginxproxymanager.com). Esta ferramenta automatiza os passos acima (inclusive de atribuição e atualização de certificados SSL) e oferece uma interface visual de gestão. Além disso, tem a grande vantagem de poder ser colocada em uma VM dedicada, com IP público, enquanto as aplicações web propriamente ditas podem ser instanciadas em _clusters_ na intranet do _data center_, poupando o uso de outros IPs públicos.
 
 ### Instalação do Portainer
 
