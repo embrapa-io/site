@@ -332,11 +332,11 @@ Por exemplo, vamos supor que esteja sendo disponibilizada a _build_ `pasto-certo
 
 Neste exemplo, há duas formas de configurar o `proxy.cnpgc.embrapa.br`:
 
-#### Gestão automatizada pelo Nginx Proxy Manager
+#### Gestão automatizada pelo Nginx Proxy Manager (recomendado)
 
 O [Nginx Proxy Manager](https://nginxproxymanager.com) é uma interface web simples que facilita a configuração e o gerenciamento automatizado de proxies reversos, certificados SSL e redirecionamentos usando o servidor Nginx.
 
-O **Embrapa I/O** já possui em seu catálogo de _boilerplates_ esta ferramenta, que pode ser adicionada como uma aplicação ao seu projeto. Desta forma, batará instanciá-la na mesma VM das aplicações utilizando o **Releaser** (ou seja, como uma nova entrada no `builds.json`).
+O **Embrapa I/O** já possui em seu catálogo de _boilerplates_ esta ferramenta, que pode ser adicionada como uma aplicação ao seu projeto. Desta forma, bastará instanciá-la na mesma VM das aplicações utilizando o **Releaser** (ou seja, como uma nova entrada no `builds.json`).
 
 ![Boilerplate do Nginx Proxy Manager]({{ site.baseurl }}/assets/img/releaser/20251031160841.png){: width="60%" .img-center }
 
@@ -346,7 +346,7 @@ Para o exemplo apresentado, o _virtual proxy_ que mapeia o subdomínio `https://
 
 ![Configuração do Proxy Host no NPM]({{ site.baseurl }}/assets/img/releaser/20251031163743.png)
 
-> **Atenção!** Caso o **Nginx Proxy Manager** precise mapear os serviços rodando no Docker ma mesma VM em que está instalado, referencie no campo "**Forward Hostname / IP**" o IP `172.17.0.1` (ou seja, o IP do _host_ a partir do container).
+> **Atenção!** Caso o **Nginx Proxy Manager** precise mapear os serviços rodando no Docker na mesma VM em que está instalado, referencie no campo "**Forward Hostname / IP**" o IP `172.17.0.1` (ou seja, o IP do _host_ a partir do _container_).
 
 Repare que esta abordagem tem a grande vantagem de poder ser colocada em uma VM dedicada, com IP público, enquanto as aplicações web propriamente ditas podem ser instanciadas em _clusters_ na intranet do _data center_, poupando o uso de outros IPs públicos.
 
