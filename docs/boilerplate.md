@@ -249,8 +249,6 @@ A plataforma **Embrapa I/O** é agnóstica quanto ao orquestrador de containers 
 Conforme comentado previamente no [capítulo de introdução]({{ site.baseurl }}/docs/introduction#boilerplate), existem alguns serviços que precisam ser disponibilizados no _stack_ de containers da aplicação: _backup_, _restore_, _sanitize_ e _test_. Para entender melhor o papel de cada um, observe o arquivo `docker-compose.yaml` de um _boilerplate_ para instanciar o [WordPress](https://br.wordpress.org/):
 
 ```yaml
-version: '3.9'
-
 services:
   db:
     image: mariadb:latest
@@ -566,8 +564,6 @@ As configurações para _deploy_ da aplicação em _clusters_ com **Docker Swarm
 Todos os serviços deverão ter uma imagem vinculada. Esta imagem deverá ser exatamente a mesma na declaração do serviço nos arquivos `docker-compose.yaml` e `.embrapa/swarm/deployment.yaml`. Em serviços que são 'buildados' em tempo de _deploy_, as imagens geradas deverão ser registradas no [servidor local do Docker Registry](https://docs.docker.com/registry/). Por exemplo, considere o arquivo `docker-compose.yaml` mostrado no [passo de conteinerização do _boilerplate_](#docker). Os arquivo `deployment.yaml` correlato seria:
 
 ```yaml
-version: '3.9'
-
 services:
   db:
     image: mariadb:latest
@@ -653,8 +649,6 @@ O atributo `deploy` no arquivo `deployment.yaml` é específico do **Docker Swar
 Os serviços do tipo **CLI** (`backup`, `restore`, `sanitize` e `test`), por sua vez, deverão estar separados em arquivos **YAML** próprios na pasta `.embrapa/swarm/cli`. Por exemplo, para um arquivo `backup.yaml` nesta pasta, teríamos:
 
 ```yaml
-version: '3.9'
-
 services:
   backup:
     image: mariadb:latest
