@@ -53,7 +53,11 @@ Para iniciar, será preciso primeiramente criar o repositório GIT. Para isso, u
 
 > **Atenção!** O nome do repositório GIT deverá respeitar a sintaxe do nome de aplicações, ou seja, termo mínimo 3 caracteres e ser composto apenas por caracteres alfanuméricos minúsculos sem acentos e hífen.
 
-Na próxima tela, você terá a escolha de criar um repositório em branco ou importar um repositório existente. Esta última opção pode ser utilizada quando se trata de uma aplicação que esteja sendo migrada e que já está sendo versionada pelo GIT (estando, p.e., no [GitHub](https://github.com) ou outra plataforma similar). Se estiver criando um repositório vazio para, posteriormente, por meio de um _scaffold_ inicializar o código fonte em determinada linguagem e/ou arcabouço de desenvolvimento, recomenda-se criar um "_blank project_" e inicializá-lo com o `README`.
+Na próxima tela, você terá a escolha de criar um repositório em branco ou importar um repositório existente. Esta última opção pode ser utilizada quando se trata de uma aplicação que esteja sendo migrada e que já está sendo versionada pelo GIT (estando, p.e., no [GitHub](https://github.com) ou outra plataforma similar).
+
+> **Atenção!** É obrigatório que o _branch trunk_ do projeto (_default_) seja denominada `main`. Caso esteja em outro padrão (tal como `master` ou `development`), renomeia adequadamente.
+
+Se estiver criando um repositório vazio para, posteriormente, por meio de um _scaffold_ inicializar o código fonte em determinada linguagem e/ou arcabouço de desenvolvimento, recomenda-se criar um "_blank project_" e inicializá-lo com o `README`.
 
 ![Configurando o novo repositório GIT]({{ site.baseurl }}/assets/img/app/06.png)
 
