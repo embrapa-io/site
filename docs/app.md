@@ -55,7 +55,7 @@ Para iniciar, será preciso primeiramente criar o repositório GIT. Para isso, u
 
 Na próxima tela, você terá a escolha de criar um repositório em branco ou importar um repositório existente. Esta última opção pode ser utilizada quando se trata de uma aplicação que esteja sendo migrada e que já está sendo versionada pelo GIT (estando, p.e., no [GitHub](https://github.com) ou outra plataforma similar).
 
-> **Atenção!** É obrigatório que o _branch trunk_ do projeto (_default_) seja denominada `main`. Caso esteja em outro padrão (tal como `master` ou `development`), renomeia adequadamente.
+> **Atenção!** A _branch_ principal (_trunk_) do projeto deve obrigatoriamente se chamar `main`. Se o repositório estiver utilizando outro nome (tal como `master`, `development` ou qualquer variante) renomeie-a para `main` antes de prosseguir.
 
 Se estiver criando um repositório vazio para, posteriormente, por meio de um _scaffold_ inicializar o código fonte em determinada linguagem e/ou arcabouço de desenvolvimento, recomenda-se criar um "_blank project_" e inicializá-lo com o `README`.
 
