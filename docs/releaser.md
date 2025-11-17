@@ -218,14 +218,15 @@ docker exec -it $(docker ps -q -f name=releaser) io COMMAND
 
 Os comandos disponíveis são:
 
-- ***validate***: Executa o processo de validação da _build_ (_dry run_);
-- ***deploy***: Valida, prepara (criando, p.e., a rede) e faz o _deploy_ da _build_ para a última versão;
-- ***stop***: Derruba a _stack_ de _containers_ da _build_;
-- ***restart***: Inicia ou re-inicia a _stack_ de _containers_ da _build_;
-- ***rollback***: Executa o rollback da _build_ para uma versão anterior, inserida pelo usuário;
-- ***backup***: Gera um _backup_ da _build_;
-- ***sanitize***: Executa o processo de higienização/otimização da _build_; e
-- ***info***: Exibe a versão de cada _build_ instanciada e outros comandos úteis do orquestrador que podem ser utilizados.
+- ***validate***: Executa o processo de validação da _build_ (_dry run_). Aceita como parâmetro uma lista de _builds_ separadas por vírgula (por exemplo, `proj1/app1@alpha,proj1/app2@alpha,proj2/app1@beta`) ou `--all` (para executar em todas as _builds_ configuradas);
+- ***deploy***: Valida, prepara (criando, p.e., a rede) e faz o _deploy_ da _build_ para a última versão. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`. Também aceita o parâmetro `--force`, que irá forçar o _re-deploy_ mesmo que não exista uma nova _tag_;
+- ***stop***: Derruba a _stack_ de _containers_ da _build_. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`;
+- ***restart***: Inicia ou re-inicia a _stack_ de _containers_ da _build_. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`;
+- ***rollback***: Executa o rollback da _build_ para uma versão anterior, inserida pelo usuário. Deve-se informar como parâmetro a _build_ e a _tag_ (por exemplo, `my-project/my-app@beta 3.25.9-beta.17`);
+- ***backup***: Gera um _backup_ da _build_. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`;
+- ***sanitize***: Executa o processo de higienização/otimização da _build_. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`;
+- ***info***: Exibe a versão de cada _build_ instanciada e outros comandos úteis do orquestrador que podem ser utilizados; e
+- ***mail***: Testa as configurações de SMTP por meio do envio de um e-mail de teste. Deve-se informar como parâmetro uma lista de endereços separada por vírgula que receberão a mensagem (por exemplo, `jose.silva@embrapa.br,maria.santos@embrapa.br`).
 
 Por exemplo, para **validar** todas as _builds_ configuradas em um servidor com **Docker Compose**, faríamos:
 
