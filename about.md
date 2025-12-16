@@ -19,4 +19,4 @@ O **Embrapa I/O** é uma plataforma digital voltada a apoiar desenvolvedores de 
 
 A plataforma pode ser utilizada pela comunidade de colaboradores internos e externos à Embrapa, sendo uma solução [livre e de código aberto]({{ site.baseurl }}/license).
 
-Ficou interessado? Veja nossa [documentação detalhada]({{ site.baseurl }}/docs/preface) e [comece a utilizar]({{ site.baseurl }}/docs/quickstart) a plataforma.
+Ficou interessado? Veja nossa [documentação detalhada]({{ site.baseurl }}/docs/preface) e [comece a utilizar]({{ site.baseurl }}/docs/quickstart) a plataforma. Você também pode acessar nossa comunidade no [Discord](https://discord.gg/CmRsMrmwja) ou, se for um empregado ou colaborador da Embrapa, no [Google Chat](https://chat.google.com/room/AAAA853zctw).
