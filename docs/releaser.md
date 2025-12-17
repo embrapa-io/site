@@ -323,7 +323,7 @@ docker volume create \
 
 Basta agora informar este volume no momento de configurar as _environment variables_ no arquivo `builds.json`.
 
-### Domínios (_virtual proxies_) e certificados SSL/TLS
+### Domínios (_virtual proxies_) e certificados SSL/TLS {#proxy}
 
 Conforme mencionado acima, o **Releaser** implementa diversos _pipelines_ de _DevOps_ do **Embrapa I/O**, porém alguns processos importantes não estão contemplados. Por exemplo, uma vez que a aplicação tenha sido implantada pela ferramenta **Releaser** em seu servidor, ela estará acessível apenas pelas portas expostas pelo Docker. Faz-se necessário configurar os domínios e seus respectivos certificados SSL/TLS para publicar a aplicação de forma amigável.
 
@@ -333,7 +333,7 @@ Por exemplo, vamos supor que esteja sendo disponibilizada a _build_ `pasto-certo
 
 Neste exemplo, há duas formas de configurar o `proxy.cnpgc.embrapa.br`:
 
-#### Gestão automatizada pelo Nginx Proxy Manager (recomendado)
+#### Gestão automatizada pelo Nginx Proxy Manager (recomendado) {#npm}
 
 O [Nginx Proxy Manager](https://nginxproxymanager.com) é uma interface web simples que facilita a configuração e o gerenciamento automatizado de proxies reversos, certificados SSL e redirecionamentos usando o servidor Nginx.
 
@@ -351,7 +351,7 @@ Para o exemplo apresentado, o _virtual proxy_ que mapeia o subdomínio `https://
 
 Repare que esta abordagem tem a grande vantagem de poder ser colocada em uma VM dedicada, com IP público, enquanto as aplicações web propriamente ditas podem ser instanciadas em _clusters_ na intranet do _data center_, poupando o uso de outros IPs públicos.
 
-#### Gestão manual pelo Nginx
+#### Gestão manual pelo Nginx {#nginx}
 
 A dica aqui é o uso do servidor web [Nginx](https://nginx.org) associado com certificados gerados pelo [Let's Encrypt](https://letsencrypt.org), fazendo tudo de forma manual. Pode ser útil caso tenha poucos serviços para expor em uma ou duas aplicações apenas.
 
@@ -404,7 +404,7 @@ nginx -t
 /etc/init.d/nginx reload && /etc/init.d/nginx restart
 ```
 
-### Instalação do Portainer
+### Instalação do Portainer {#portainer}
 
 É recomendado que seja [instalado o Portainer](https://docs.portainer.io/start/install) em servidores que tenham o **Releaser** para auxiliar a equipe mantenedora em sua gestão:
 
@@ -479,7 +479,7 @@ server {
 }
 ```
 
-### Depuração de Serviços e Atualização das Imagens de Containers
+### Depuração de Serviços e Atualização das Imagens de Containers {#info}
 
 Para forçar a atualização de imagens de containers de uma determinada aplicação, faça o seguinte:
 
@@ -518,4 +518,42 @@ Este comando irá atualizar somente aquelas imagens que não foram 'buildadas' l
 
 ```bash
 docker exec -it releaser io deploy publica/camunda@release --force
-````
+```
+
+### Salvaguarda de Segredos e Senhas {#vault}
+
+O arquivo de configuração do Releaser (`builds.json`) concentra diversos _passwords_, _hashes_, _secrets_ e valores de variáveis de ambiente que, se perdidos, podem gerar grande dor de cabeça. Assim, é fortemente aconselhado utilizar um serviço em nuvem do tipo _password_ ou _secrets management_. Por exemplo, para guardar seu arquivo com segurança e de forma gratuita no [Bitwarden](https://bitwarden.com), crie uma conta no serviço e, na VM ou _cluster_ com o **Releaser**, faça:
+
+```bash
+# Instale via Snap (considerando que esteja no Ubuntu):
+snap install bw
+
+# Verifique a versão:
+bw --version
+
+# Faça login:
+bw login
+
+# Desbloqueie o cofre localmente:
+export BW_SESSION="$(bw unlock --raw)"
+```
+
+Ems seguida, crie um arquivo `/root/vault.sh` com o seguinte conteúdo:
+
+```bash
+#!/bin/sh
+
+NOTES=$(cat /root/releaser/builds.json)
+
+jq -n \
+  --arg name "Releaser Backup $(hostname) $(date +%F)" \
+  --arg notes "$NOTES" \
+  '{type:2, secureNote:{type:0}, name:$name, notes:$notes}' \
+  | bw encode | bw create item
+```
+
+Por fim, atribua permissões de execução: `chmod +x /root/vault.sh`.
+
+Sempre que seu arquivo `builds.json` tiver novas configurações, é recomendado executar este script. Ele irá enviar para sua conta do **Bitwarden** a nova versão de forma protegida:
+
+![Bitwarden]({{ site.baseurl }}/assets/img/releaser/20251217145652.png)
