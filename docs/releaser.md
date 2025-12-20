@@ -522,7 +522,9 @@ docker exec -it releaser io deploy publica/camunda@release --force
 
 ### Salvaguarda de Segredos e Senhas {#vault}
 
-O arquivo de configuração do Releaser (`builds.json`) concentra diversos _passwords_, _hashes_, _secrets_ e valores de variáveis de ambiente que, se perdidos, podem gerar grande dor de cabeça. Assim, é fortemente aconselhado utilizar um serviço em nuvem do tipo _password_ ou _secrets management_. Por exemplo, para guardar seu arquivo com segurança e de forma gratuita no [Bitwarden](https://bitwarden.com), crie uma conta no serviço e, na VM ou _cluster_ com o **Releaser**, faça:
+O arquivo de configuração do **Releaser** (`builds.json`) concentra diversos _passwords_, _hashes_, _secrets_ e valores de variáveis de ambiente que, se perdidos, podem gerar grande dor de cabeça. Assim, é aconselhado utilizar um serviço em nuvem do tipo _password_ ou _secrets management_ para gerência da configuração (controle de versões) destas configurações do **Releaser**, garantindo que estas informações não serão perdidas mesmo que o servidor (_bare metal_) seja irremediavelmente comprometido.
+
+Por exemplo, para guardar seu arquivo com segurança, sem burocracia e de forma gratuita no [Bitwarden](https://bitwarden.com), crie uma conta no serviço e, na VM ou _cluster_ com o **Releaser**, faça:
 
 ```bash
 # Instale via Snap (considerando que esteja no Ubuntu):
