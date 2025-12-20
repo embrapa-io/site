@@ -533,15 +533,14 @@ bw --version
 
 # Faça login:
 bw login
-
-# Desbloqueie o cofre localmente:
-export BW_SESSION="$(bw unlock --raw)"
 ```
 
 Ems seguida, crie um arquivo `/root/vault.sh` com o seguinte conteúdo:
 
 ```bash
 #!/bin/sh
+
+export BW_SESSION="$(bw unlock --raw)"
 
 NOTES=$(cat /root/releaser/builds.json)
 
