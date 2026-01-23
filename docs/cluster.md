@@ -55,10 +55,10 @@ Agora será necessário configurar um _storer_ associado ao _cluster_, que é o 
 É fortemente recomendado ajustar alguns parâmetros do Linux (`sysctl`). Normalmente estes parâmetros são ajustados editando o arquivo `/etc/sysctl.d/99-sysctl.conf` (ou diretamente o `/etc/sysctl.conf` em distribuições mais antigas). Considere os seguintes parâmetros e correspondentes valores mínimos:
 
 ```bash
-fs.file-max=98000
-kernel.pid_max=64000
-kernel.threads-max=64000
-vm.max_map_count=262144
+fs.file-max=2000000
+kernel.pid_max=128000
+kernel.threads-max=128000
+vm.max_map_count=524288
 ```
 
 ### Docker Swarm {#swarm}
@@ -334,7 +334,7 @@ server {
     proxy_set_header Access-Control-Allow-Methods 'GET, POST, OPTIONS, PUT, DELETE, HEAD';
     proxy_cache_bypass $http_upgrade;
     proxy_ssl_session_reuse off;
-    proxy_pass http://localhost:9443;
+    proxy_pass https://localhost:9443;
   }
 }
 ```

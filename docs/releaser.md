@@ -474,7 +474,7 @@ server {
     proxy_set_header Access-Control-Allow-Methods 'GET, POST, OPTIONS, PUT, DELETE, HEAD';
     proxy_cache_bypass $http_upgrade;
     proxy_ssl_session_reuse off;
-    proxy_pass http://localhost:9443;
+    proxy_pass https://localhost:9443;
   }
 }
 ```

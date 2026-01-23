@@ -26,7 +26,6 @@ navbar-links:
     - Grafana: "https://log.embrapa.io"
     - Matomo: "https://hit.embrapa.io"
     - Sentry: "https://bug.embrapa.io"
-    - GlitchTip: "https://error.embrapa.io"
     - SonarQube: "https://code.embrapa.io"
     - ThingsBoard: "https://iot.embrapa.io"
     - Backup: "https://backup.embrapa.io"
