@@ -2,21 +2,14 @@
 layout: post
 title: MCP Server
 subtitle: Lançamento do servidor MCP (Model Context Protocol) do Embrapa I/O.
-# cover-img: /assets/img/dashboard/02.png
-# thumbnail-img: /assets/img/icon-back.png
-# share-img: /assets/img/icon-back.png
 tags: [ ia, mcp, devops ]
 ---
 
-Foi lançado o **MCP Server** do **Embrapa I/O**, um intermediário inteligente que conecta **clientes de IA** diretamente à plataforma via [Model Context Protocol (MCP)](https://modelcontextprotocol.io). Com ele, assistentes como [Claude](https://claude.ai), [Gemini](https://gemini.google.com), [GitHub Copilot](https://github.com/features/copilot), [Cursor](https://cursor.com) e outros podem interagir com a plataforma — criando projetos, configurando _builds_, monitorando _deploys_ e muito mais — tudo via linguagem natural.
+Foi lançado o **MCP Server** do **Embrapa I/O**, um _middleware_ inteligente que conecta **clientes de IA** diretamente à plataforma via [Model Context Protocol (MCP)](https://modelcontextprotocol.io). Com ele, assistentes como [Claude](https://claude.ai), [Gemini](https://gemini.google.com), [GitHub Copilot](https://github.com/features/copilot), [Cursor](https://cursor.com) e outros podem interagir com a plataforma — criando projetos, configurando _builds_, monitorando _deploys_ e muito mais — tudo via linguagem natural.
 
 ## Como conectar
 
-Basta adicionar a URL abaixo no seu cliente de IA preferido:
-
-```
-https://mcp.embrapa.io
-```
+Basta adicionar a URL "**https://mcp.embrapa.io**" no seu cliente de IA preferido.
 
 A autenticação é feita via **OAuth 2.1 com PKCE**. Ao conectar, o fluxo de _login_ abrirá automaticamente no _browser_ para autenticação por e-mail (OTP) — o mesmo mecanismo já utilizado na plataforma.
 

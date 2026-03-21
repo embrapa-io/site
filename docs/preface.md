@@ -68,6 +68,8 @@ subtitle: Prefácio da documentação técnica
 - Blockchain
 - Gamification
 - IA Generativa
+  - [MCP Server]({{ site.baseurl }}/docs/mcp)
+  - [Spec-Driven Development]({{ site.baseurl }}/docs/bmad)
   - [Arena de Bots]({{ site.baseurl }}/docs/arena)
 - Internet das Coisas
 - Machine Learning e Visão Computacional

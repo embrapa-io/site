@@ -4,7 +4,7 @@ div.partners
 	width: 100%;
 	margin: 0px;
 	border: 0px;
-	height: 104px;
+	height: 140px;
 	margin-top: 50px;
 }
 
@@ -19,18 +19,23 @@ div.partners div
 div.partners div.left
 {
 	float: left;
-	width: 300px;
-	height: 111px;
-	background-image: url('../img/embrapa.png');
-	margin-top: 17px;
+	width: 400px;
+	height: 160px;
+	background-image: url('../img/embrapa.svg');
+	background-size: contain;
+	background-repeat: no-repeat;
+	margin-top: 10px;
 }
 
+/* UFMS: 294 x 407 px */
 div.partners div.right
 {
 	float: right;
-	width: 300px;
-	height: 145px;
-	background-image: url('../img/rnp.png');
+	width: 250px;
+	height: 180px;
+	background-image: url('../img/ufms.svg');
+	background-size: contain;
+	background-repeat: no-repeat;
 	margin-top: 0px;
 }
 

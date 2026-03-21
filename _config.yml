@@ -29,6 +29,7 @@ navbar-links:
     - SonarQube: "https://code.embrapa.io"
     - ThingsBoard: "https://iot.embrapa.io"
     - Backup: "https://backup.embrapa.io"
+    - MCP Server: "docs/mcp"
     - Arena de Bots: "https://hub.arena.embrapa.io"
   Licença: "license"
 
