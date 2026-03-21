@@ -4,15 +4,18 @@ title: MCP Server
 subtitle: Model Context Protocol
 ---
 
-O **Embrapa I/O MCP Server** é um intermediário inteligente entre **clientes de IA** e a REST API da plataforma [Embrapa I/O](https://embrapa.io). Implementa o [Model Context Protocol](https://modelcontextprotocol.io) (MCP), permitindo que assistentes de IA como Claude, Gemini, Copilot e Cursor interajam diretamente com a plataforma — criando projetos, configurando builds, monitorando deploys e muito mais — tudo via linguagem natural.
+O **MCP Server** do **Embrapa I/O** é um _middleware_ inteligente entre **clientes de IA** e a API da plataforma que implementa o [Model Context Protocol (MCP)](https://modelcontextprotocol.io), permitindo que assistentes de IA como Claude, Gemini, Copilot e Cursor interajam diretamente — criando projetos, configurando _builds_, monitorando _deploys_ e muito mais — tudo via linguagem natural.
 
 ## Conectar
 
 A URL de conexão do MCP Server é:
 
-```
-https://mcp.embrapa.io
-```
+<div style="margin: 0 auto; text-align: center;">
+  <a class="btn btn-info btn-lg" href="https://mcp.embrapa.io" target="_blank"
+    onclick="event.preventDefault(); navigator.clipboard.writeText(this.href).then(() => { const o = this.textContent; this.textContent = '✔ Link copiado!'; setTimeout(() => this.textContent = o, 2000); });">
+    mcp.embrapa.io
+  </a>
+</div>
 
 A autenticação é feita via **OAuth 2.1 com PKCE**. Ao conectar, o fluxo de login abrirá automaticamente no _browser_ para autenticação por e-mail (OTP).
 
@@ -105,6 +108,20 @@ No VS Code com a extensão GitHub Copilot, adicione em `.vscode/mcp.json` (por p
 
 Ou via _Command Palette_: `MCP: Add Server` → HTTP → colar a URL. O VS Code com Copilot suporta OAuth 2.1 nativamente.
 
+### Google Antigravity
+
+Adicione na configuração de MCP Servers do Antigravity:
+
+```json
+{
+  "mcpServers": {
+    "io": {
+      "serverUrl": "https://mcp.embrapa.io/"
+    }
+  }
+}
+```
+
 ### Cursor
 
 Adicione em `~/.cursor/mcp.json`:
@@ -177,6 +194,7 @@ Adicione em `~/.config/zed/settings.json`:
 | Claude Code | ✅ | `claude mcp add` |
 | Gemini CLI | ✅ | `gemini mcp add` |
 | VS Code + Copilot | ✅ | `.vscode/mcp.json` |
+| Antigravity | ✅ | Config de MCP Servers |
 | Cursor | ✅ | `~/.cursor/mcp.json` |
 | OpenCode | ✅ | `opencode mcp add` |
 | JetBrains | ✅ | Settings → AI Assistant → MCP |
