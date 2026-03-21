@@ -142,6 +142,15 @@ Adicione em `~/.cursor/mcp.json`:
 codex mcp add io --url https://mcp.embrapa.io
 ```
 
+> **Atenção!** O Codex CLI possui um [bug conhecido](https://github.com/openai/codex/issues/9634) ([#10332](https://github.com/openai/codex/issues/10332)) com _refresh tokens_ OAuth — ele tenta reutilizar um _refresh token_ já consumido, causando erro "_your refresh token was already used_". Caso ocorra, use autenticação via _bearer token_:
+>
+> ```bash
+> codex mcp add io --url https://mcp.embrapa.io --bearer-token-env-var EMBRAPA_MCP_TOKEN
+> export EMBRAPA_MCP_TOKEN="<access_token>"
+> ```
+>
+> O _access token_ pode ser obtido fazendo login por outro cliente (ex: Claude Desktop) ou via fluxo OAuth manual.
+
 ### OpenCode CLI
 
 ```bash
@@ -201,7 +210,7 @@ Adicione em `~/.config/zed/settings.json`:
 | Gemini CLI | ✅ | `gemini mcp add` |
 | VS Code + Copilot | ✅ | `.vscode/mcp.json` |
 | Antigravity | ✅ | Config de MCP Servers |
-| Codex CLI | ✅ | `codex mcp add` |
+| Codex CLI | ⚠️ | `codex mcp add` ([bug com refresh token](https://github.com/openai/codex/issues/9634)) |
 | Cursor | ✅ | `~/.cursor/mcp.json` |
 | OpenCode | ✅ | `opencode mcp add` |
 | JetBrains | ✅ | Settings → AI Assistant → MCP |
