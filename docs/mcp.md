@@ -136,6 +136,12 @@ Adicione em `~/.cursor/mcp.json`:
 }
 ```
 
+### OpenAI Codex CLI
+
+```bash
+codex mcp add io --url https://mcp.embrapa.io
+```
+
 ### OpenCode CLI
 
 ```bash
@@ -195,6 +201,7 @@ Adicione em `~/.config/zed/settings.json`:
 | Gemini CLI | ✅ | `gemini mcp add` |
 | VS Code + Copilot | ✅ | `.vscode/mcp.json` |
 | Antigravity | ✅ | Config de MCP Servers |
+| Codex CLI | ✅ | `codex mcp add` |
 | Cursor | ✅ | `~/.cursor/mcp.json` |
 | OpenCode | ✅ | `opencode mcp add` |
 | JetBrains | ✅ | Settings → AI Assistant → MCP |
