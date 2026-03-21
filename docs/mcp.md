@@ -110,7 +110,7 @@ Ou via _Command Palette_: `MCP: Add Server` → HTTP → colar a URL. O VS Code 
 
 ### Google Antigravity
 
-Adicione na configuração de MCP Servers do Antigravity:
+Adicione em `~/.gemini/antigravity/mcp_config.json`:
 
 ```json
 {
