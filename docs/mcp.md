@@ -11,6 +11,7 @@ No contexto do desenvolvimento de software, MCPs eliminam a necessidade de alter
 O **Embrapa I/O** disponibiliza os seguintes MCP Servers que permitem interagir por meio de linguagem natural com diferentes ferramentas e funcionalidades da plataforma:
 
 - [MCP do Dashboard](#mcp): provê acesso a todas as funcionalidades reunidas no [Painel de Controle](https://dashboard.embrapa.io) da plataforma.
+- [MCP de Logs (Grafana Loki)](#loki): provê _tools_ para consultar logs centralizados das aplicações, com controle de acesso por projeto, via [Grafana Loki](https://log.embrapa.io).
 - [MCP do Kanban do GitLab](#git): provê _tools_ para interagir (criar/editar/apagar/correlacionar) os _milestones_ e as _issues_ dos projetos, registrados no Kanban do [GitLab](https://git.embrapa.io) da plataforma.
 
 # MCP do Dashboard {#mcp}
@@ -386,6 +387,136 @@ Os _prompts_ são fluxos interativos pré-definidos que guiam o usuário atravé
 | `team_management` | Gestão interativa da equipe: adicionar, remover ou alterar papel de membros, com verificação de papel do usuário e confirmação antes de cada operação. |
 | `project_health_report` | Relatório consolidado de saúde: qualidade de código (SonarQube), _bugs_ (Sentry), _analytics_ (Matomo), _status_ de cada _build_ e recomendações priorizadas. |
 
+# MCP de Logs (Grafana Loki) {#loki}
+
+O **MCP Server de Logs** conecta assistentes de IA à stack centralizada de observabilidade do Embrapa I/O, permitindo consultar logs de todas as aplicações da plataforma via linguagem natural. O servidor opera sobre o [Grafana Loki](https://grafana.com/oss/loki/) e implementa **controle de acesso por projeto** — cada usuário só visualiza logs das aplicações às quais tem acesso na plataforma.
+
+## Conectar
+
+A URL de conexão do MCP Server é:
+
+<div style="margin: 0 auto; text-align: center;">
+  <a class="btn btn-info btn-lg" href="https://mcp.log.embrapa.io" target="_blank"
+    onclick="event.preventDefault(); navigator.clipboard.writeText(this.href).then(() => { const o = this.textContent; this.textContent = '✔ Link copiado!'; setTimeout(() => this.textContent = o, 2000); });">
+    mcp.log.embrapa.io
+  </a>
+</div>
+
+A autenticação é feita via **OAuth 2.1 com PKCE**. Ao conectar, o fluxo de login abrirá automaticamente no _browser_ para autenticação por e-mail (OTP) — o mesmo mecanismo utilizado pelo MCP do Dashboard.
+
+## Funcionalidades
+
+O servidor expõe **6 _tools_** focadas em consulta e análise de logs:
+
+**Navegação de Projetos** — Lista os projetos do usuário que possuem logs disponíveis no Loki, com detalhamento de aplicações e _stages_ de _deploy_. O controle de acesso é baseado nos projetos vinculados ao usuário na plataforma — a mesma permissão do Dashboard.
+
+**Consulta de Logs** — Busca flexível de logs com filtros por projeto, aplicação, _stage_, nível de log (_ERROR_, _WARN_, _INFO_), texto livre e período temporal. Suporta _tail_ em tempo real (últimas N linhas) e busca direcionada por erros, exceções e _stack traces_.
+
+**Estatísticas** — Volume total de logs e taxa de erros por projeto, com distribuição por _stage_. Útil para identificar aplicações problemáticas ou verificar a saúde geral de um projeto.
+
+## Exemplos de _Prompts_
+
+Abaixo, exemplos do que pode ser solicitado em linguagem natural a um assistente de IA conectado a este MCP:
+
+```
+Quais projetos meus têm logs disponíveis?
+```
+
+```
+Mostre os últimos 50 logs do pasto-certo/api em release.
+```
+
+```
+Busque erros no projeto arena nas últimas 24 horas.
+```
+
+```
+Tem algum ECONNREFUSED nos logs do fertiliza/backend em alpha?
+```
+
+```
+Qual a taxa de erros do projeto publica nas últimas 24 horas?
+```
+
+```
+Liste os logs do embrapa-io/grafana com nível ERROR na última hora.
+```
+
+```
+Faça um diagnóstico do projeto mecaniza: verifique erros recentes em todas
+as aplicações e me diga se tem algo preocupante.
+```
+
+## Configuração em IDEs e CLIs
+
+A configuração segue o mesmo padrão descrito na seção [Configuração em IDEs e CLIs](#config) do MCP do Dashboard. Basta substituir a URL por `https://mcp.log.embrapa.io`. Exemplos:
+
+**Claude Desktop ou Web** — Configurações → Conectores → Adicionar conector personalizado → informar `https://mcp.log.embrapa.io`.
+
+**Claude Code:**
+
+> **Dica!** Ao configurar o conector no Claude Desktop/Web ele ficará disponível automaticamente no Claude Code.
+
+```bash
+claude mcp add --scope user --transport http loki https://mcp.log.embrapa.io
+```
+
+**Gemini CLI:**
+
+```bash
+gemini mcp add -s user -t http loki https://mcp.log.embrapa.io
+```
+
+**VS Code (GitHub Copilot)** — adicionar em `~/.vscode/mcp.json`:
+
+```json
+{
+  "servers": {
+    "loki": {
+      "type": "http",
+      "url": "https://mcp.log.embrapa.io"
+    }
+  }
+}
+```
+
+**Google Antigravity** — adicionar em `~/.gemini/antigravity/mcp_config.json`:
+
+```json
+"loki": {
+  "serverUrl": "https://mcp.log.embrapa.io"
+}
+```
+
+A partir destas configurações de referência, pode-se extrapolar para outros clientes com suporte à MCP com poucos ajustes.
+
+> **Dica!** Os três MCPs podem ser utilizados simultaneamente. Com todos conectados, é possível consultar a configuração de uma _build_ no Dashboard, verificar os logs no Loki e criar uma _issue_ no Kanban — tudo em uma única conversa.
+
+## Referência Técnica {#loki-tools}
+
+### _Tools_ (6)
+
+#### Navegação
+
+| _Tool_ | Descrição |
+|--------|-----------|
+| `list_projects` | Lista os projetos do usuário que possuem logs no Loki, incluindo aplicações e _stages_ com dados disponíveis. O escopo é resolvido via API do backend com o JWT do usuário — mesma permissão do Dashboard. |
+| `list_builds` | Lista as aplicações e _stages_ de _deploy_ de um projeto específico que possuem logs disponíveis no Loki. |
+
+#### Consulta de Logs
+
+| _Tool_ | Descrição |
+|--------|-----------|
+| `query_logs` | Consulta logs de um projeto no Grafana Loki. Filtros: aplicação, _stage_ (`alpha`, `beta`, `release`), nível de log (`ERROR`, `WARN`), texto livre e período (`1h`, `24h`, `7d`). Retorna _timestamp_, linha de log e _labels_ (serviço, _container_, _host_). |
+| `tail_logs` | Exibe as últimas N linhas de log de um projeto (equivalente a `tail`). Útil para verificar rapidamente o que está acontecendo em tempo real. |
+| `search_errors` | Busca por erros, exceções, _stack traces_ e falhas de conexão nos logs de um projeto. Suporta padrão adicional para filtrar erros específicos (ex: `ECONNREFUSED`, `timeout`, `500`, `OutOfMemory`). |
+
+#### Estatísticas
+
+| _Tool_ | Descrição |
+|--------|-----------|
+| `log_stats` | Mostra estatísticas de volume e taxa de erros dos logs de um projeto: total de linhas, distribuição por _stage_ e percentual de erros. Útil para visão rápida da saúde de um projeto. |
+
 # MCP do Kanban do GitLab {#git}
 
 O **MCP Server do Kanban** conecta assistentes de IA diretamente ao [GitLab](https://git.embrapa.io) da plataforma, permitindo gerenciar _issues_, _milestones_, _labels_ e relações entre tarefas via linguagem natural. O servidor opera sobre a API do GitLab e expõe as operações como _tools_ MCP, transformando o assistente de IA em um gerente de projeto integrado ao Kanban.
@@ -514,7 +645,7 @@ gemini mcp add -s user -t http git-kanban https://mcp.git.embrapa.io
 
 A partir destas configurações de referência, pode-se extrapolar para outros clientes com suporte à MCP com poucos ajustes.
 
-> **Dica!** Ambos os MCPs podem ser utilizados simultaneamente. Com os dois conectados, é possível, por exemplo, consultar o _status_ de uma _build_ no Dashboard e criar uma _issue_ no Kanban em uma única conversa.
+> **Dica!** Os três MCPs podem ser utilizados simultaneamente. Com todos conectados, é possível consultar o _status_ de uma _build_ no Dashboard, verificar os logs no Loki e criar uma _issue_ no Kanban — tudo em uma única conversa.
 
 ## Referência Técnica {#git-tools}
 
