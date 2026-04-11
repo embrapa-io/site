@@ -31,6 +31,7 @@ navbar-links:
     - Backup: "https://backup.embrapa.io"
     - MCP Server: "docs/mcp"
     - Arena de Bots: "https://hub.arena.embrapa.io"
+  Status: "https://status.embrapa.io"
   Licença: "license"
 
 # --- Logo --- #
