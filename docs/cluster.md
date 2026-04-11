@@ -167,7 +167,9 @@ Uma vez que o plugin esteja instalado no Docker, edite o arquivo `/etc/docker/da
     "loki-retries": "5",
     "loki-max-backoff": "1s",
     "loki-timeout": "2s",
-    "keep-file": "true"
+    "keep-file": "true",
+    "max-size": "10m",
+    "max-file": "3"
   }
 }
 ```
@@ -295,7 +297,7 @@ set -e
 
 docker pull portainer/portainer-ce:latest
 
-docker run -d -p 8000:8000 -p 9443:9000 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
+docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
 ```
 
 Além disso, [instale o Nginx](https://www.linuxcapable.com/how-to-install-nginx-on-debian-linux/) e, para a configuração acima do Portainer, especifique um novo site como segue (troque `io.cnpxx.embrapa.br` pelo nome correto do seu _cluster_):
