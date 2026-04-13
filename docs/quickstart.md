@@ -15,6 +15,6 @@ Para começar a utilizar o **Embrapa I/O** para o desenvolvimento de suas própr
 7. [Gerencie e monitore o estado das instâncias de suas apps]({{ site.baseurl }}/docs/health); e
 8. [Obtenha relatórios analíticos de acesso e ações de usuários nas apps]({{ site.baseurl }}/docs/analytics).
 
-Para informações mais detalhadas e uso avançado da plataforma, acesse a [documentação completa do **Embrapa I/O**]({{ site.baseurl }}/docs/preface).
+Para informações mais detalhadas e uso avançado da plataforma, acesse a [documentação completa do **Embrapa I/O**]({{ site.baseurl }}/docs/preface). Você também pode acessar nossa comunidade no [Discord](https://discord.gg/CmRsMrmwja) ou, se for um empregado ou colaborador da Embrapa, no [Google Chat](https://chat.google.com/room/AAAA853zctw).
 
 Para ajudar no desenvolvimento da plataforma, [compreenda sua arquitetura]({{ site.baseurl }}/docs/architecture), [acesse o projeto no GitHub](https://github.com/embrapa-io) e siga os passos para instanciar o **Embrapa I/O** em ambiente local de desenvolvimento.
