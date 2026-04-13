@@ -37,11 +37,11 @@ Cada _endpoint_ é verificado quanto ao código de resposta HTTP (200) e tempo d
 
 #### Hosts
 
-Monitoramento de **espaço em disco** das máquinas virtuais do _data center_ (`*.embrapa.io`), consultando métricas do Prometheus via PromQL. O _check_ é considerado saudável quando o disco possui **pelo menos 15% de espaço livre**.
+Monitoramento de **acessibilidade** das máquinas virtuais do _data center_ (`*.embrapa.io`), consultando métricas do Prometheus via PromQL. O _check_ é considerado saudável quando o _host_ está **enviando métricas** via Grafana Alloy — ou seja, está acessível e operacional. Alertas de uso de disco e outros recursos são tratados separadamente via Grafana (e-mail).
 
 #### Clusters
 
-O mesmo monitoramento de disco é aplicado aos servidores da rede de _clusters_ (`*.agro.rocks`), garantindo que os nós de _deploy_ de aplicações tenham espaço suficiente para operar.
+O mesmo monitoramento de acessibilidade é aplicado aos servidores da rede de _clusters_ (`*.agro.rocks`), garantindo visibilidade sobre quais nós de _deploy_ estão operacionais.
 
 Os dados são persistidos, preservando o histórico de disponibilidade entre reinicializações do serviço.
 
