@@ -32,13 +32,37 @@ Ferramentas tradicionais de IA fazem o trabalho de pensar por você, produzindo 
 
 **Pré-requisito**: [Node.js](https://nodejs.org) v20+
 
+O _framework_ é instalado no contexto da aplicação. Portanto, primeiro clone e acesse a sua app:
+
+```bash
+cd ~/projects
+
+mkdir my-project && cd my-project
+
+git clone git@git.embrapa.io:my-project/my-app.git
+
+cd my-app
+```
+
+Em seguida:
+
 ```bash
 npx bmad-method install
 ```
 
-Siga as instruções do instalador e abra sua IDE de IA (Claude Code, Cursor, etc.) no diretório do projeto.
+> **Importante!** Neste momento, siga os próximos passos e já instale a agente de conformidade **Alice** (veja detalhes na [próxima seção](#alice)).
 
-> **Dica!** Não sabe o que fazer? Pergunte `bmad-help` — ele indica exatamente qual é o próximo passo e o que é opcional. Você pode fazer perguntas como `bmad-help acabei de definir a arquitetura, o que faço agora?`.
+No passo `Select official modules to install`, selecione "**BMad Method Agile-AI Driven-Development**".
+
+Em seguida, no passo: `Would you like to install from a custom source (Git URL or local path)?`, selecione "**Yes**".
+
+Por fim, em `Git URL or local path:` coloque a URL deste repositório: "**https://github.com/embrapa-io/alice**". Quando aparecer, selecione o módulo "**Embrapa I/O DevOps Compliance Module**".
+
+Continue a instalação auto-guiada até finalizar. A _skill_ da agente será instalada junto com os demais agentes BMAD.
+
+Abra seu agente de terminal ou IDE (Claude Code, Cursor, VS Code, Gemini CLI, etc) neste diretório.
+
+> **Dica!** Não sabe o que fazer? Pergunte `bmad-help` — ele indica exatamente qual é o próximo passo e o que é opcional. Você pode fazer perguntas como `/bmad-help acabei de definir a arquitetura, o que faço agora?`.
 
 ### Módulos
 
@@ -57,6 +81,8 @@ Saiba mais na [documentação oficial do BMAD Method](https://docs.bmad-method.o
 ## Alice — Agente de Conformidade {#alice}
 
 A **Alice** é um módulo do BMAD Method específico para o **Embrapa I/O**. Trata-se de uma agente especialista em conformidade com a plataforma: ela analisa _codebases_, identifica desvios, gera relatórios detalhados com _action items_ e implementa os ajustes necessários para que a aplicação esteja 100% aderente aos padrões da plataforma.
+
+> **Dica!** Se seguiu os passos da seção anterior, a agente **Alice** já está disponível. Para invocar: `/alice`.
 
 A Alice opera sobre as **4 Verdades Fundamentais** da plataforma:
 
