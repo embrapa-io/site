@@ -56,7 +56,7 @@ No passo `Select official modules to install`, selecione "**BMad Method Agile-AI
 
 Em seguida, no passo: `Would you like to install from a custom source (Git URL or local path)?`, selecione "**Yes**".
 
-Por fim, em `Git URL or local path:` coloque a URL deste repositório: "**https://github.com/embrapa-io/alice**". Quando aparecer, selecione o módulo "**Embrapa I/O DevOps Compliance Module**".
+Por fim, em `Git URL or local path:` coloque a URL do repositório do agente: "**https://github.com/embrapa-io/alice**". Quando aparecer, selecione o módulo "**Embrapa I/O DevOps Compliance Module**".
 
 Continue a instalação auto-guiada até finalizar. A _skill_ da agente será instalada junto com os demais agentes BMAD.
 
