@@ -1,0 +1,29 @@
+<script>
+function copyMcpUrl(el) {
+  event.preventDefault();
+  var url = el.href;
+  var original = el.textContent;
+  var done = function () {
+    el.textContent = '✔ Link copiado!';
+    setTimeout(function () { el.textContent = original; }, 2000);
+  };
+  var fallback = function () {
+    var ta = document.createElement('textarea');
+    ta.value = url;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); done(); }
+    catch (e) { window.open(url, '_blank'); }
+    document.body.removeChild(ta);
+  };
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(url).then(done, fallback);
+  } else {
+    fallback();
+  }
+  return false;
+}
+</script>

@@ -60,7 +60,7 @@ O [Grafana Loki](https://grafana.com/oss/loki/) recebe e indexa logs de duas fon
 1. **Grafana Alloy** — Logs do _systemd journal_ e de `/var/log` de cada _host_
 2. **Docker Loki Driver** — Logs de containers enviados diretamente pelo _daemon_ do Docker
 
-Os logs são acessíveis pelo Grafana e também via [MCP Server de Logs]({{ site.baseurl }}/docs/mcp/#loki), permitindo consultas por assistentes de IA.
+Os logs são acessíveis pelo Grafana e também via [MCP Server de Logs]({{ site.baseurl }}/docs/mcp/log/), permitindo consultas por assistentes de IA.
 
 ### Prometheus — Métricas de infraestrutura
 
@@ -84,4 +84,4 @@ O sistema de alertas é gerenciado diretamente pelo **Grafana**, com notificaç�
 
 - [**Status Page →**](https://status.embrapa.io)
 - [**Grafana →**](https://log.embrapa.io)
-- [**MCP Server de Logs →**]({{ site.baseurl }}/docs/mcp/#loki)
+- [**MCP Server de Logs →**]({{ site.baseurl }}/docs/mcp/log/)

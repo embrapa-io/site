@@ -65,6 +65,6 @@ A configuração segue o mesmo padrão — basta adicionar a URL no cliente de I
 
 A documentação completa, incluindo referência técnica de todas as _tools_ e exemplos de _prompts_, está disponível em:
 
-- [**MCP de Logs (Grafana Loki) →**]({{ site.baseurl }}/docs/mcp/#loki)
-- [**MCP do Kanban (GitLab) →**]({{ site.baseurl }}/docs/mcp/#git)
-- [**MCP do Dashboard →**]({{ site.baseurl }}/docs/mcp/#mcp)
+- [**MCP de Logs (Grafana Loki) →**]({{ site.baseurl }}/docs/mcp/log/)
+- [**MCP do Kanban (GitLab) →**]({{ site.baseurl }}/docs/mcp/git/)
+- [**MCP do Dashboard →**]({{ site.baseurl }}/docs/mcp/io/)
