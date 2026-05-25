@@ -5,7 +5,7 @@ subtitle: Conectores Model Context Protocol para LLMs
 permalink: /docs/mcp/
 ---
 
-O [Model Context Protocol (MCP)](https://modelcontextprotocol.io) é um padrão aberto, [criado pela Anthropic](https://www.anthropic.com/news/model-context-protocol) e mantido como [especificação pública](https://spec.modelcontextprotocol.io), que define como aplicações de IA se conectam a fontes de dados e ferramentas externas. Funciona como uma interface universal — similar ao que o USB fez para periféricos — permitindo que _Large Language Models_ (LLMs) interajam diretamente com APIs, bancos de dados e serviços, mantendo o contexto da conversa. A especificação é [_open-source_](https://github.com/modelcontextprotocol) e conta com SDKs oficiais em [TypeScript](https://github.com/modelcontextprotocol/typescript-sdk) e [Python](https://github.com/modelcontextprotocol/python-sdk), além de uma lista crescente de [servidores e clientes compatíveis](https://github.com/modelcontextprotocol/servers).
+O [Model Context Protocol (MCP)](https://modelcontextprotocol.io) é um padrão aberto, [criado pela Anthropic](https://www.anthropic.com/news/model-context-protocol) e mantido como [especificação pública](https://spec.modelcontextprotocol.io), que define como aplicações de IA se conectam a fontes de dados e ferramentas externas. Funciona como uma interface universal — similar ao que o USB-C fez para periféricos — permitindo que _Large Language Models_ (LLMs) interajam diretamente com APIs, bancos de dados e serviços, mantendo o contexto da conversa. A especificação é [_open-source_](https://github.com/modelcontextprotocol) e conta com SDKs oficiais em [TypeScript](https://github.com/modelcontextprotocol/typescript-sdk) e [Python](https://github.com/modelcontextprotocol/python-sdk), além de uma lista crescente de [servidores e clientes compatíveis](https://github.com/modelcontextprotocol/servers).
 
 No contexto do desenvolvimento de software, MCPs eliminam a necessidade de alternar entre o assistente de IA e interfaces web de gerenciamento: o desenvolvedor descreve em linguagem natural o que precisa (criar um projeto, mover uma _issue_, consultar métricas de qualidade) e o LLM executa a operação diretamente na plataforma. Isso reduz fricção, acelera fluxos repetitivos e permite que tarefas de gestão de projeto, _deploy_ e monitoramento sejam integradas ao mesmo ambiente onde o código é escrito — IDE, terminal ou _chat_.
 
@@ -13,13 +13,13 @@ No contexto do desenvolvimento de software, MCPs eliminam a necessidade de alter
 
 O **Embrapa I/O** disponibiliza os seguintes MCP Servers que permitem interagir por meio de linguagem natural com diferentes ferramentas e funcionalidades da plataforma:
 
-- [**MCP do Dashboard**]({{ site.baseurl }}/docs/mcp/io/) (`mcp.embrapa.io`) — provê acesso a todas as funcionalidades reunidas no [Painel de Controle](https://dashboard.embrapa.io) da plataforma (projetos, _builds_, _deploys_, equipe, qualidade, etc.).
+- [**MCP da Dashboard**]({{ site.baseurl }}/docs/mcp/io/) (`mcp.embrapa.io`) — provê acesso a todas as funcionalidades reunidas no [Painel de Controle](https://dashboard.embrapa.io) da plataforma (projetos, _builds_, _deploys_, equipe, qualidade, etc.).
 - [**MCP de Logs (Grafana Loki)**]({{ site.baseurl }}/docs/mcp/log/) (`mcp.log.embrapa.io`) — provê _tools_ para consultar logs centralizados das aplicações, com controle de acesso por projeto, via [Grafana Loki](https://log.embrapa.io).
 - [**MCP do Kanban do GitLab**]({{ site.baseurl }}/docs/mcp/git/) (`mcp.git.embrapa.io`) — provê _tools_ para interagir (criar/editar/apagar/correlacionar) os _milestones_ e as _issues_ dos projetos, registrados no Kanban do [GitLab](https://git.embrapa.io) da plataforma.
 - [**MCP do SEG**]({{ site.baseurl }}/docs/mcp/seg/) (`seg.mcp.embrapa.io`) — provê _tools_ para consultar dados corporativos do **Sistema Embrapa de Gestão** (projetos, planos, atividades), do catálogo **CatSoft** (softwares), do **portal embrapa.br** (notícias, palavras-chave) e da base de **empregados** da Empresa.
 - [**MCP do Matomo**]({{ site.baseurl }}/docs/mcp/hit/) (`mcp.hit.embrapa.io`) — provê _tools_ para consultar os _analytics_ de acesso das aplicações (tráfego, origens, páginas, campanhas) no [Matomo](https://hit.embrapa.io) da plataforma, via plugin oficial da Matomo.
 
-> **Dica!** Os cinco MCPs podem ser utilizados **simultaneamente**. Com todos conectados, é possível consultar a configuração de uma _build_ no Dashboard, verificar os logs no Loki, criar uma _issue_ no Kanban, buscar projetos do SEG ou perfis de empregados e ainda analisar os acessos no Matomo — tudo em uma única conversa.
+> **Dica!** Os cinco MCPs podem ser utilizados **simultaneamente**. Com todos conectados, é possível consultar a configuração de uma _build_ na Dashboard, verificar os logs no Loki, criar uma _issue_ no Kanban, buscar projetos do SEG ou perfis de empregados e ainda analisar os acessos no Matomo — tudo em uma única conversa.
 
 ## Configuração em IDEs e CLIs {#config}
 
@@ -32,12 +32,12 @@ A maioria dos clientes suporta **OAuth nativo**: ao conectar, o fluxo de _login_
 A forma mais prática. Ao adicionar pelo Claude Desktop, o servidor fica disponível automaticamente no Claude Code.
 
 1. Abra o **Claude Desktop**;
-2. Vá em **Configurações → Conectores → Adicionar conector personalizado**; e
+2. Vá em **Customize → Conectores → Adicionar conector personalizado**; e
 3. Informe a URL (ex.: `https://mcp.embrapa.io`).
 
 Ao conectar, uma janela de _login_ abrirá para autenticação.
 
-> **Dica!** Se adicionado pelo Claude Desktop, ao digitar `/mcp` no Claude Code o servidor aparecerá disponível e poderá ser utilizado normalmente.
+> **Dica!** Se adicionado pelo Claude Desktop ou Web, ao digitar `/mcp` no Claude Code o servidor aparecerá disponível e poderá ser utilizado normalmente.
 
 ### Claude Code
 

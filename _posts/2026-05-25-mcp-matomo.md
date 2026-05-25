@@ -1,7 +1,7 @@
 ---
 layout: post
 title: MCP para consulta dos analytics de acesso das aplicações (Matomo)
-subtitle: Disponibilizado novo MCP autenticado que permite consultar os dados de analytics de acesso das aplicações — tráfego, origens de visitas, páginas mais acessadas, campanhas e comportamento dos usuários — diretamente via linguagem natural em assistentes de IA.
+subtitle: Disponibilizado novo MCP autenticado que permite consultar os relatórios analíticos de acesso das aplicações — tráfego, origens de visitas, páginas mais acessadas, campanhas e comportamento dos usuários — diretamente via linguagem natural em assistentes de IA.
 tags: [ ia, mcp, matomo, analytics ]
 ---
 
@@ -9,7 +9,7 @@ Mais um **MCP Server** foi disponibilizado na plataforma, ampliando o alcance do
 
 ## MCP do Matomo — analytics de acesso das aplicações
 
-Diferentemente dos demais MCPs da plataforma (desenvolvidos internamente), este utiliza o **plugin oficial [MCP Server da Matomo](https://plugins.matomo.org/McpServer)**, mantido pela própria Matomo, conectado à instância de _analytics_ do Embrapa I/O em [hit.embrapa.io](https://hit.embrapa.io).
+Diferentemente dos demais MCPs da plataforma (desenvolvidos internamente), este utiliza o **plugin oficial [MCP Server do Matomo](https://plugins.matomo.org/McpServer)**, que é mantido oficialmente pela própria Matomo, conectado à instância de _analytics_ do **Embrapa I/O** em [hit.embrapa.io](https://hit.embrapa.io).
 
 O servidor é **orientado a leitura** e dá acesso, em linguagem natural, aos relatórios de _analytics_ das aplicações:
 
@@ -21,9 +21,7 @@ O servidor é **orientado a leitura** e dá acesso, em linguagem natural, aos re
 
 **URL de conexão:** `https://mcp.hit.embrapa.io`
 
-A autenticação utiliza a **conta do próprio Matomo** da plataforma (via OAuth 2.0 com PKCE). O acesso é limitado aos mesmos sites e relatórios que o usuário já enxerga no Matomo.
-
-> **Atenção!** Por restrição do próprio MCP do Matomo, apenas contas com nível de acesso até **Escrita** (_View_ ou _Write_) podem conectar — superusuários precisam usar uma conta secundária de menor privilégio.
+A autenticação utiliza o **login do próprio Matomo** (via OAuth 2.0 com PKCE). O acesso é limitado aos mesmos sites e relatórios que o usuário já enxerga no Matomo.
 
 ## Funcionalidades
 
@@ -52,7 +50,7 @@ Liste os 10 países que mais geraram visitas à minha aplicação nos últimos 9
 
 ## Configuração
 
-O **MCP do Matomo** é compatível com os mesmos clientes de IA já suportados pelos demais MCPs da plataforma: **Claude Desktop**, **Claude Web**, **Claude Code**, **Gemini CLI**, **VS Code + Copilot**, **Cursor**, **Antigravity**, **OpenCode**, **JetBrains**, entre outros.
+O **MCP do Matomo** é compatível com os mesmos clientes de IA já suportados pelos demais MCPs da plataforma: **Claude Desktop**, **Claude Web**, **Claude Code**, **ChatGPT**, **Gemini CLI**, **Perplexity**, **VS Code + Copilot**, **Cursor**, **Antigravity**, **OpenCode**, **JetBrains**, entre outros.
 
 A configuração segue o padrão dos demais — basta adicionar a URL `https://mcp.hit.embrapa.io` no cliente de IA preferido. Instruções detalhadas para cada IDE estão na [documentação]({{ site.baseurl }}/docs/mcp/#config).
 
