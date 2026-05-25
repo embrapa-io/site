@@ -58,7 +58,7 @@ A configuração segue o padrão dos demais — basta adicionar a URL `https://m
 
 ## Saiba mais
 
-A documentação completa, incluindo referência técnica das _tools_, mais exemplos de _prompts_ e a documentação oficial da Matomo, está disponível em:
+A documentação completa, incluindo referência técnica das _tools_, mais exemplos de _prompts_ e a documentação oficial do Matomo, está disponível em:
 
 - [**MCP do Matomo →**]({{ site.baseurl }}/docs/mcp/hit/)
 - [**MCP do Dashboard →**]({{ site.baseurl }}/docs/mcp/io/)
