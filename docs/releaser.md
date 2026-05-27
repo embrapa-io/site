@@ -69,7 +69,43 @@ docker service create --name releaser \
   embrapa/releaser
 ```
 
-## Configuração
+## Configuração do _plugin_ para _logging_ {#loki}
+
+O **Embrapa I/O** utiliza o [Grafana Loki](https://grafana.com/docs/loki/latest/) para permitir a coleta e análise de _log_ de todos os containers instanciados. Esta funcionalidade funciona tanto para as _builds_ instanciadas vias _clusters_ compartilhados quanto via **Releaser**. Para ativá-la, é necessário [instalar o _plugin_ do Loki](https://grafana.com/docs/loki/latest/send-data/docker-driver/) de forma que toda a saída dos containers (no _stdout_) seja enviada para o [Grafana](https://log.embrapa.io).
+
+Para instalar o _plugin_, execute:
+
+```bash
+docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions
+```
+
+Verifique a instalação utilizando o comando `docker plugin ls`.
+
+Uma vez que o plugin esteja instalado no Docker, edite o arquivo `/etc/docker/daemon.json` inserindo o seguinte conteúdo:
+
+```json
+{
+  "debug" : true,
+  "live-restore": true,
+  "log-driver": "loki",
+  "log-opts": {
+    "loki-url": "https://<username>:<password>@loki.embrapa.io/loki/api/v1/push",
+    "loki-batch-size": "400",
+    "loki-retries": "5",
+    "loki-max-backoff": "1s",
+    "loki-timeout": "2s",
+    "keep-file": "false",
+    "max-size": "10m",
+    "max-file": "3"
+  }
+}
+```
+
+> **Atenção!** Os valores de `username` e `password` para a linha acima devem ser obtidos junto à **Supervisão de Desenvolvimento de Ativos Digitais (DEGI/GCI/GTI/SDAD)**.
+
+Por fim, faça: `systemctl restart docker`. É possível verificar se há algum erro utilizando o comando `journalctl -u docker | grep loki`. Se configurado com sucesso, deverá ser visto na saída deste último comando algo como "_Using default logging driver loki_".
+
+## Configuração Inicial do Releaser
 
 Para auxiliar na configuração inicial, execute o seguinte comando...
 

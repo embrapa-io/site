@@ -160,6 +160,7 @@ Uma vez que o plugin esteja instalado no Docker, edite o arquivo `/etc/docker/da
 ```json
 {
   "debug" : true,
+  "live-restore": true,
   "log-driver": "loki",
   "log-opts": {
     "loki-url": "https://<username>:<password>@loki.embrapa.io/loki/api/v1/push",
@@ -167,7 +168,7 @@ Uma vez que o plugin esteja instalado no Docker, edite o arquivo `/etc/docker/da
     "loki-retries": "5",
     "loki-max-backoff": "1s",
     "loki-timeout": "2s",
-    "keep-file": "true",
+    "keep-file": "false",
     "max-size": "10m",
     "max-file": "3"
   }
