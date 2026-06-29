@@ -85,21 +85,28 @@ Uma vez que o plugin esteja instalado no Docker, edite o arquivo `/etc/docker/da
 
 ```json
 {
-  "debug" : true,
+  "debug": false,
   "live-restore": true,
   "log-driver": "loki",
   "log-opts": {
     "loki-url": "https://<username>:<password>@loki.embrapa.io/loki/api/v1/push",
-    "loki-batch-size": "400",
+    "loki-external-labels": "host=production.cnpgc.embrapa.br,job=docker",
+    "loki-batch-size": "1048576",
+    "loki-batch-wait": "1s",
     "loki-retries": "5",
-    "loki-max-backoff": "1s",
-    "loki-timeout": "2s",
+    "loki-min-backoff": "500ms",
+    "loki-max-backoff": "5s",
+    "loki-timeout": "10s",
+    "mode": "non-blocking",
+    "max-buffer-size": "4m",
     "keep-file": "false",
     "max-size": "10m",
     "max-file": "3"
   }
 }
 ```
+
+O parâmetro `mode` com valor `non-blocking` desacopla os containers do envio de _logs_: quando o _buffer_ (de tamanho `max-buffer-size`) enche — por exemplo, se o Loki estiver lento ou indisponível —, as mensagens excedentes são **descartadas** ao invés de bloquear o container. Isso evita que eventuais problemas no _logging_ afetem a execução das aplicações.
 
 > **Atenção!** Os valores de `username` e `password` para a linha acima devem ser obtidos junto à **Supervisão de Desenvolvimento de Ativos Digitais (DEGI/GCI/GTI/SDAD)**.
 
