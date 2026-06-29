@@ -18,8 +18,9 @@ O **Embrapa I/O** disponibiliza os seguintes MCP Servers que permitem interagir 
 - [**MCP do Kanban do GitLab**]({{ site.baseurl }}/docs/mcp/git/) (`mcp.git.embrapa.io`) — provê _tools_ para interagir (criar/editar/apagar/correlacionar) os _milestones_ e as _issues_ dos projetos, registrados no Kanban do [GitLab](https://git.embrapa.io) da plataforma.
 - [**MCP do SEG**]({{ site.baseurl }}/docs/mcp/seg/) (`seg.mcp.embrapa.io`) — provê _tools_ para consultar dados corporativos do **Sistema Embrapa de Gestão** (projetos, planos, atividades), do catálogo **CatSoft** (softwares), do **portal embrapa.br** (notícias, palavras-chave) e da base de **empregados** da Empresa.
 - [**MCP do Matomo**]({{ site.baseurl }}/docs/mcp/hit/) (`mcp.hit.embrapa.io`) — provê _tools_ para consultar os _analytics_ de acesso das aplicações (tráfego, origens, páginas, campanhas) no [Matomo](https://hit.embrapa.io) da plataforma, via plugin oficial da Matomo.
+- [**MCP do Sentry**]({{ site.baseurl }}/docs/mcp/bug/) — provê _tools_ para investigar erros, _issues_ e _releases_ das aplicações no [Sentry](https://bug.embrapa.io) (rastreamento de _bugs_) da plataforma.
 
-> **Dica!** Os cinco MCPs podem ser utilizados **simultaneamente**. Com todos conectados, é possível consultar a configuração de uma _build_ na Dashboard, verificar os logs no Loki, criar uma _issue_ no Kanban, buscar projetos do SEG ou perfis de empregados e ainda analisar os acessos no Matomo — tudo em uma única conversa.
+> **Dica!** Os seis MCPs podem ser utilizados **simultaneamente**. Com todos conectados, é possível consultar a configuração de uma _build_ na Dashboard, verificar os logs no Loki, investigar erros no Sentry, criar uma _issue_ no Kanban, buscar projetos do SEG ou perfis de empregados e ainda analisar os acessos no Matomo — tudo em uma única conversa.
 
 ## Configuração em IDEs e CLIs {#config}
 
@@ -197,4 +198,4 @@ Adicione em `~/.config/zed/settings.json`:
 | Windsurf | ❌ | _Bearer token_ manual |
 | Zed | ❌ | _Bearer token_ manual |
 
-> **Nota!** A partir destas configurações de referência, pode-se extrapolar para outros clientes com suporte a MCP com poucos ajustes. O **MCP do Matomo** usa o login da própria conta Matomo (e aceita apenas contas até nível _Write_) — veja detalhes na [sua página]({{ site.baseurl }}/docs/mcp/hit/).
+> **Nota!** A partir destas configurações de referência, pode-se extrapolar para outros clientes com suporte a MCP com poucos ajustes. O **MCP do Matomo** usa o login da própria conta Matomo (e aceita apenas contas até nível _Write_) — veja detalhes na [sua página]({{ site.baseurl }}/docs/mcp/hit/). O **MCP do Sentry** usa transporte _stdio_ (configuração própria, não a URL acima) — veja detalhes na [sua página]({{ site.baseurl }}/docs/mcp/bug/).
