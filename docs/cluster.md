@@ -184,6 +184,12 @@ O parâmetro `mode` com valor `non-blocking` desacopla os containers do envio de
 
 > **Atenção!** Os valores de `username` e `password` para a linha acima devem ser obtidos junto à **Supervisão de Desenvolvimento de Ativos Digitais (DEGI/GCI/GTI/SDAD)**.
 
+Antes de reiniciar o serviço, valide a sintaxe do arquivo de configuração:
+
+```bash
+dockerd --validate --config-file /etc/docker/daemon.json
+```
+
 Por fim, faça: `systemctl restart [service]`, onde `[service]` pode ser `docker` ou `snap.docker.dockerd` (se tiver sido instalado via [Snap](https://snapcraft.io)). Caso tenha dúvida sobre o nome exato do serviço, execute `systemctl list-units --type=service | grep docker`. É possível verificar se há algum erro utilizando o comando `journalctl -u [service] | grep loki`. Se configurado com sucesso, deverá ser visto na saída deste último comando algo como "_Using default logging driver loki_".
 
 ## 5. Ativação do _Web Terminal_ (opcional) {#terminal}
