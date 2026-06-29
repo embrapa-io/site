@@ -90,7 +90,7 @@ Uma vez que o plugin esteja instalado no Docker, edite o arquivo `/etc/docker/da
   "log-driver": "loki",
   "log-opts": {
     "loki-url": "https://<username>:<password>@loki.embrapa.io/loki/api/v1/push",
-    "loki-external-labels": "host=production.cnpgc.embrapa.br,job=docker",
+    "loki-external-labels": "host=<host.cnpxx.embrapa.br>,job=docker",
     "loki-batch-size": "1048576",
     "loki-batch-wait": "1s",
     "loki-retries": "5",
@@ -109,6 +109,8 @@ Uma vez que o plugin esteja instalado no Docker, edite o arquivo `/etc/docker/da
 O parâmetro `mode` com valor `non-blocking` desacopla os containers do envio de _logs_: quando o _buffer_ (de tamanho `max-buffer-size`) enche — por exemplo, se o Loki estiver lento ou indisponível —, as mensagens excedentes são **descartadas** ao invés de bloquear o container. Isso evita que eventuais problemas no _logging_ afetem a execução das aplicações.
 
 > **Atenção!** Os valores de `username` e `password` para a linha acima devem ser obtidos junto à **Supervisão de Desenvolvimento de Ativos Digitais (DEGI/GCI/GTI/SDAD)**.
+
+> **Atenção!** O valor de `host` em `loki-external-labels` é o rótulo que identifica a origem dos _logs_ no [Grafana](https://log.embrapa.io) e **deve ser substituído** pelo _hostname_ real do servidor (por exemplo, `production.cnpgc.embrapa.br`). Utilize sempre rótulos de baixa cardinalidade.
 
 Antes de reiniciar o serviço, valide a sintaxe do arquivo de configuração:
 
