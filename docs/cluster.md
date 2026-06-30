@@ -164,7 +164,7 @@ Uma vez que o plugin esteja instalado no Docker, edite o arquivo `/etc/docker/da
   "log-driver": "loki",
   "log-opts": {
     "loki-url": "https://<username>:<password>@loki.embrapa.io/loki/api/v1/push",
-    "loki-external-labels": "host=<host.cnpxx.embrapa.br>,job=docker",
+    "loki-external-labels": "container_name={{.Name}},job=docker",
     "loki-batch-size": "1048576",
     "loki-batch-wait": "1s",
     "loki-retries": "5",
@@ -184,7 +184,7 @@ O parâmetro `mode` com valor `non-blocking` desacopla os containers do envio de
 
 > **Atenção!** Os valores de `username` e `password` para a linha acima devem ser obtidos junto à **Supervisão de Desenvolvimento de Ativos Digitais (DEGI/GCI/GTI/SDAD)**.
 
-> **Atenção!** O valor de `host` em `loki-external-labels` é o rótulo que identifica a origem dos _logs_ no [Grafana](https://log.embrapa.io) e **deve ser substituído** pelo _hostname_ real do _cluster_ (por exemplo, `io.cnpgc.embrapa.br`). Utilize sempre rótulos de baixa cardinalidade.
+O _driver_ já adiciona automaticamente o rótulo `host` (preenchido com o _hostname_ do servidor) a todos os _logs_, portanto não é necessário informá-lo manualmente. Garanta apenas que o _hostname_ do sistema operacional reflita o nome desejado para o _cluster_ — se necessário, ajuste-o com `hostnamectl set-hostname io.cnpgc.embrapa.br`. O rótulo `container_name={{.Name}}` é mantido explicitamente porque, ao informar um valor para `loki-external-labels`, seu padrão seria sobrescrito.
 
 Antes de reiniciar o serviço, valide a sintaxe do arquivo de configuração:
 
