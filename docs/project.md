@@ -67,7 +67,9 @@ Este mesmo conceito é utilizado por outras lojas virtuais, como a [Microsoft St
 
 #### VI. Encapsulamento TWA {#twa}
 
-Este repositório (denominado ```io-twa```), quando criado, disponibilizará no projeto o código-base para encapsular aplicações do tipo [Progressive Web Applications - PWAs](https://web.dev/progressive-web-apps/) ou [Single-Page Applications - SPA](https://developer.mozilla.org/en-US/docs/Glossary/SPA) utilizando a técnica de [Trusted Web Activity - TWA](https://developer.chrome.com/docs/android/trusted-web-activity/) para distribuição na loja virtual da [Google Play](https://play.google.com/store/games).
+Este repositório (denominado ```io-twa```), quando criado, disponibilizará no projeto o código-base para encapsular aplicações do tipo [Progressive Web Applications - PWAs](https://web.dev/progressive-web-apps/) utilizando a técnica de [Trusted Web Activity - TWA](https://developer.chrome.com/docs/android/trusted-web-activity/) para distribuição na loja virtual da [Google Play](https://play.google.com/store/games).
+
+O repositório é um invólucro do [Bubblewrap](https://github.com/GoogleChromeLabs/bubblewrap), da equipe do Chrome, que é o mesmo motor usado pelo [PWABuilder](https://www.pwabuilder.com). Não há código Android versionado: a configuração do aplicativo fica no arquivo ```twa-manifest.json``` (URL do PWA, nome, cores, ícones e versão), os segredos ficam em um ```.env``` local (senhas da _keystore_ e credencial da Google Play) e os _scripts_ do repositório geram o pacote (APK e AAB assinados) e o publicam em uma faixa de teste da Google Play por meio da API. Quando a Google passa a exigir um novo _target API level_, basta atualizar a versão do Bubblewrap fixada no repositório e gerar uma nova _release_. O passo a passo completo está no ```README.md``` do próprio repositório.
 
 Esta é uma das formas de encapsular aplicações em JavaScript, mas existem outras como, por exemplo, utilizando o [CapacitorJS](https://capacitorjs.com) ou o [Apache Cordova](https://cordova.apache.org/).
 
