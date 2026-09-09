@@ -325,11 +325,11 @@ services:
     command: >
       sh -c  "set -ex &&
         export BACKUP_DIR=${IO_PROJECT}_${IO_APP}_${IO_STAGE}_${IO_VERSION}_$$(date +'%Y-%m-%d_%H-%M-%S') &&
+        trap 'rm -rf /backup/$$BACKUP_DIR' EXIT &&
         cd /backup && mkdir $$BACKUP_DIR &&
         mysqldump --host db -uroot -p${DB_ROOT_PASSWD} ${IO_PROJECT}_${IO_APP} > $$BACKUP_DIR/db.sql &&
         cp -R /var/www/html $$BACKUP_DIR/ &&
-        tar -czf $$BACKUP_DIR.tar.gz $$BACKUP_DIR &&
-        rm -rf /backup/$$BACKUP_DIR"
+        tar -czf $$BACKUP_DIR.tar.gz $$BACKUP_DIR"
     profiles:
       - cli
 
@@ -354,12 +354,12 @@ services:
       sh -c  "set -ex &&
         export FILE_TO_RESTORE=${BACKUP_FILE_TO_RESTORE:-no_file_to_restore} &&
         test -f /backup/$$FILE_TO_RESTORE &&
-        RESTORE_DIR=$$(mktemp) &&
+        RESTORE_DIR=$$(mktemp -d) &&
         tar -xf /backup/$$FILE_TO_RESTORE -C $$RESTORE_DIR --strip-components=1 &&
         mysql --host db -uroot -p${DB_ROOT_PASSWD} ${IO_PROJECT}_${IO_APP} < $$RESTORE_DIR/db.sql &&
         cp -Rf $$RESTORE_DIR/html/. /var/www/html &&
-        find /var/www/html -type d -exec chmod 755 {} \; &&
-        find /var/www/html -type f -exec chmod 644 {} \; &&
+        find /var/www/html -type d -exec chmod 755 {} \\; &&
+        find /var/www/html -type f -exec chmod 644 {} \\; &&
         rm -rf $$RESTORE_DIR"
     profiles:
       - cli
@@ -402,6 +402,8 @@ Observe que as variáveis de ambiente utilizadas acima são as mesmas injetadas 
 ```bash
 env $(cat .env.sh) docker-compose run --rm --no-deps backup
 ```
+
+> **Atenção!** O nome do arquivo gerado pelo serviço `backup` (`${IO_PROJECT}_${IO_APP}_${IO_STAGE}_${IO_VERSION}_$$(date +'%Y-%m-%d_%H-%M-%S').tar.gz`, na raiz do volume montado em `/backup`) é um **padrão obrigatório** da plataforma — [veja as regras completas](#cli:backup). Cuidado também com aspas duplas dentro de `sh -c "..."` (quebram o comando) e com o `-exec {} \\;` do `find`, que precisa ser escrito `\\;` no `docker-compose.yaml`; para _scripts_ mais longos, prefira `entrypoint: ["/bin/sh", "-c"]` com `command:` em bloco literal (`|`).
 
 Quando for realizado o _deploy_ do _stack_ de containers, todos os demais serviços "não-CLI" serão carregados. Mais especificamente, o [autômato _Deployer_]({{ site.baseurl }}/docs/architecture#deployer) irá injetar as variáveis do arquivo `.env.io` alterando conforme o _environment_. Assim, caso se trate de uma _build_ em estágio _alpha_ o `COMPOSE_PROFILES` terá o valor `alpha`. Isto possibilita que o usuário carregue determinados serviços apenas em determinados ambientes. Por exemplo, pode ser interessante ao desenvolvedor carregar a ferramenta [phpMyAdmin](https://www.phpmyadmin.net) para auditar seu BD quando a aplicação estiver em estágio _alpha_ ou _beta_, mas não (por questão de segurança) quando estiver em estágio _release_.
 
@@ -462,7 +464,21 @@ Este serviço executa entre os processos de _build_ e _deploy_ do [autômato de 
 
 A plataforma **Embrapa I/O** fornece, por meio da _dashboard_, uma [funcionalidade para geração de _backups_ por demanda]({{ site.baseurl }}/docs/backup) para os mantenedores dos projetos de ativos digitais. Para que funcione corretamente, é necessário que exista o serviço _backup_ na _stack_ de containers da aplicação. Além disso, deve-se configurar um volume utilizando a palavra reservada `backup`. [Veremos a seguir](#metadata) como deixar pré-estabelecido no _boilerplate_ este volume.
 
-De forma geral, o serviço deverá gerar os _dumps_ de todos os BDs, copiar os arquivos de _upload_ e tudo mais que for necessário para possibilitar a restauração do estado atual da aplicação, compactar em um arquivo no formato `%GENESIS_PROJECT_UNIX%_%GENESIS_APP_UNIX%_${STAGE}_${VERSION}_$$(date +'%Y-%m-%d_%H-%M-%S').tar.gz` e salvar no volume `backup`.
+De forma geral, o serviço deverá gerar os _dumps_ de todos os BDs, copiar os arquivos de _upload_ e tudo mais que for necessário para possibilitar a restauração do estado atual da aplicação, compactar em **um único arquivo `.tar.gz`** e salvá-lo no volume `backup`. O nome desse arquivo é **padronizado e obrigatório** em toda a plataforma:
+
+```
+${IO_PROJECT}_${IO_APP}_${IO_STAGE}_${IO_VERSION}_AAAA-MM-DD_HH-MM-SS.tar.gz
+```
+
+No `docker-compose.yaml` isso corresponde a `${IO_PROJECT}_${IO_APP}_${IO_STAGE}_${IO_VERSION}_$$(date +'%Y-%m-%d_%H-%M-%S').tar.gz` (note o `$$`, para que o Docker Compose não interpole o `$(date ...)`). Por exemplo: `agroproj_agroapp_alpha_1.26.9-alpha.3_2026-09-09_02-00-00.tar.gz`. As regras são:
+
+- a **data é o sufixo**, no formato `AAAA-MM-DD_HH-MM-SS`, e vem logo após a versão;
+- o arquivo fica na **raiz** do volume `backup`, que deve ser montado em **`/backup`** dentro do container;
+- **sem extensão dupla**: o _dump_ (`.sql`, `.dump`, `.zip`, etc) e os demais arquivos ficam **dentro** do `.tar.gz`, cujo nome termina apenas em `.tar.gz`;
+- o diretório temporário de trabalho, se houver, deve ser criado dentro de `/backup` com o mesmo nome-base e **removido** após a compactação (de preferência com `trap`, para não deixar resíduos em caso de erro);
+- o serviço [_restore_](#cli:restore) recebe o nome desse arquivo (relativo a `/backup`) na variável `BACKUP_FILE_TO_RESTORE`.
+
+> **Atenção!** Dois componentes da plataforma dependem deste padrão: o [autômato _Doctor_]({{ site.baseurl }}/docs/architecture#doctor), que publica apenas os `*.tar.gz` da raiz do volume no [_backup_ sob demanda]({{ site.baseurl }}/docs/backup), e o [**Releaser**]({{ site.baseurl }}/docs/releaser#cleaner), que lê a data do nome do arquivo para aplicar a rotação de _backups_ (7 diários, 4 semanais e 3 mensais). Arquivos com nome fora do padrão **não são rotacionados** e ficam no volume indefinidamente.
 
 Na [seção anterior](#docker) é possível observar este e os demais serviços CLI devidamente configurados no `docker-compose.yaml` para um _boilerplate_ do [WordPress](https://br.wordpress.org). Repare que naquele exemplo é realizado o _dump_ do [MariaDB](https://mariadb.org) e é copiada integralmente a pasta `/var/www/html`, com todos os arquivos do WordPress. Quando da execução do processo de _backup_, o arquivo `.tar.gz` resultante é copiado para o volume `backup` que é então montado pelo [autômato _Doctor_]({{ site.baseurl }}/docs/architecture#doctor), que atribui uma URL (protegida por login e senha de acesso) e informa os mantenedores do projeto via e-mail.
 
@@ -658,12 +674,11 @@ services:
     command: >
       sh -c  "set -ex &&
         export BACKUP_DIR=${IO_PROJECT}_${IO_APP}_${IO_STAGE}_${IO_VERSION}_$$(date +'%Y-%m-%d_%H-%M-%S') &&
-        cd /backup && ls -l && mkdir $$BACKUP_DIR &&
+        trap 'rm -rf /backup/$$BACKUP_DIR' EXIT &&
+        cd /backup && mkdir $$BACKUP_DIR &&
         mysqldump --host db -uroot -p${DB_ROOT_PASSWD} ${IO_PROJECT}_${IO_APP} > $$BACKUP_DIR/db.sql &&
         cp -R /var/www/html $$BACKUP_DIR/ &&
-        tar -czf $$BACKUP_DIR.tar.gz $$BACKUP_DIR &&
-        ls -la /var/www/html &&
-        rm -rf /backup/$$BACKUP_DIR"
+        tar -czf $$BACKUP_DIR.tar.gz $$BACKUP_DIR"
     networks:
       - stack
     deploy:
