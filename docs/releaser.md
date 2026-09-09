@@ -300,7 +300,7 @@ docker exec -it $(docker ps -q -f name=releaser) io rollback \
 
 ## Monitoramento do Releaser
 
-Toda instância do **Releaser** reporta ao Sentry da plataforma (sentry.io, projeto `releaser`): exceções, a saída de cada execução como _logs_ (com `operation`, `build`, `project`, `app` e `stage`) e cada `ERROR >` por _build_ como _issue_. O `environment` é o valor de `SERVER` do `.env` e o `release` é a versão da imagem. Nada precisa ser configurado; para usar outro DSN, defina `SENTRY_DSN` no `.env` do diretório de configuração, e `SENTRY_DSN=off` desliga o envio.
+Toda instância do **Releaser** reporta ao Sentry da plataforma (sentry.io, projeto `releaser`): erros internos da própria ferramenta como _issues_ e a saída de cada execução como _logs_ (com `operation`, `build`, `project`, `app` e `stage`). O `environment` é o valor de `SERVER` do `.env` e o `release` é a versão da imagem. Nada precisa ser configurado. Erros de _deploy_ ou _backup_ de uma _build_ **não** viram _issue_ do Releaser: eles são enviados por e-mail à equipe da _build_, e cada aplicação tem o próprio DSN do Sentry.
 
 ## Atualização
 
