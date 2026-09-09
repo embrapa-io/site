@@ -253,6 +253,8 @@ O **DSN do Sentry**, [conforme já explicado]({{ site.baseurl }}/docs/bug), pode
 
 No atributo `env` devem ser listadas as variáveis de ambiente que serão injetadas no momento do _deploy_. Mais especificamente, será gerado um arquivo `.env` na raiz do diretório clonado da aplicação, de forma idêntica à utilizada para instanciar a aplicação em ambiente local de desenvolvimento.
 
+O `builds.json` é relido a cada execução: ao alterar o `env` de uma _build_ já implantada, basta rodar `io deploy proj/app@stage --force` para que o clone seja refeito, o `.env` regenerado e os _containers_ recriados com os novos valores, sem precisar de uma nova _tag_. Os arquivos gerados pelo Releaser (`.env`, `.env.io` e `.env.sh`) são a **única** fonte de variáveis para o `docker compose`: as variáveis do próprio Releaser (`SMTP_HOST`, `SMTP_PORT`, `SERVER` etc., do arquivo `.env` do diretório de configuração) nunca chegam aos _containers_ das aplicações, mesmo que a aplicação declare variáveis com o mesmo nome.
+
 Pronto! Caso tenha seguido corretamente os passos acima, a ferramenta estará pronta para ser executada.
 
 ## Utilização
@@ -274,13 +276,13 @@ docker exec -it $(docker ps -q -f name=releaser) io COMMAND
 Os comandos disponíveis são:
 
 - ***validate***: Executa o processo de validação da _build_ (_dry run_). Aceita como parâmetro uma lista de _builds_ separadas por vírgula (por exemplo, `proj1/app1@alpha,proj1/app2@alpha,proj2/app1@beta`) ou `--all` (para executar em todas as _builds_ configuradas);
-- ***deploy***: Valida, prepara (criando, p.e., a rede) e faz o _deploy_ da _build_ para a última versão. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`. Também aceita o parâmetro `--force`, que irá forçar o _re-deploy_ mesmo que não exista uma nova _tag_;
+- ***deploy***: Valida, prepara (criando, p.e., a rede) e faz o _deploy_ da _build_ para a última versão. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`. Também aceita o parâmetro `--force`, que irá forçar o _re-deploy_ mesmo que não exista uma nova _tag_ (relendo o `builds.json` e regenerando o `.env` — é a forma de aplicar mudanças de variáveis de ambiente);
 - ***stop***: Derruba a _stack_ de _containers_ da _build_. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`;
 - ***restart***: Inicia ou re-inicia a _stack_ de _containers_ da _build_. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`;
 - ***rollback***: Executa o rollback da _build_ para uma versão anterior, inserida pelo usuário. Deve-se informar como parâmetro a _build_ e a _tag_ (por exemplo, `my-project/my-app@beta 3.25.9-beta.17`);
 - ***backup***: Gera um _backup_ da _build_. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`;
 - ***sanitize***: Executa o processo de higienização/otimização da _build_. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`;
-- ***cleaner***: Rotaciona os arquivos do volume de _backup_ da _build_ (mantém os últimos 7 diários, 4 semanais e 3 mensais). Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`, e o parâmetro `--dry-run`, que apenas mostra o que seria mantido e apagado;
+- ***cleaner***: Rotaciona os arquivos do volume de _backup_ da _build_ (mantém os últimos 7 diários, 4 semanais e 3 mensais). Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`, e o parâmetro `--dry-run`, que apenas mostra o que seria mantido e apagado. Ao final, exibe um resumo por _build_ com a quantidade de arquivos e o espaço ocupado antes e depois da rotação;
 - ***info***: Exibe a versão de cada _build_ instanciada e outros comandos úteis do orquestrador que podem ser utilizados; e
 - ***mail***: Testa as configurações de SMTP por meio do envio de um e-mail de teste. Deve-se informar como parâmetro uma lista de endereços separada por vírgula que receberão a mensagem (por exemplo, `jose.silva@embrapa.br,maria.santos@embrapa.br`).
 
@@ -393,6 +395,8 @@ O serviço de _backup_ dos _boilerplates_ gera um arquivo por execução e **nã
 
 Como a contagem considera apenas períodos que têm arquivo, a **ausência de _backups_ novos nunca provoca exclusão**: se hoje não houve _backup_, o de 7 dias atrás continua entre os 7 dias mais recentes e é preservado. Entre uma rotação e a próxima pode haver um ou dois arquivos a mais que os 14 da política. A data de cada arquivo é lida do próprio nome (`AAAA-MM-DD_HH-MM-SS`, como sufixo ou prefixo); arquivos **sem data no nome** (por exemplo, um _dump_ colocado manualmente no volume) não entram na política: são preservados e nunca apagados.
 
+Só entram na rotação os arquivos cujo nome começa com o prefixo da própria _build_ (`{projeto}_{app}_{stage}_`). Isso importa quando várias _builds_ compartilham o mesmo diretório de _backup_ no servidor (como sugerido em [Backup](#backup)): cada _build_ só enxerga (e só apaga) os seus próprios arquivos, e a política de 7/4/3 vale por _build_ — arquivos de outras _builds_, com nome fora do padrão ou sem prefixo (por exemplo, `backup_2026-08-01.tar.gz` de versões antigas dos _boilerplates_) nunca são tocados.
+
 Em regime permanente, o volume de _backup_ da _build_ `cnpgc/edge@release` fica assim:
 
 ```
@@ -413,6 +417,13 @@ Para ver o que seria feito sem apagar nada:
 
 ```bash
 docker exec -it releaser io cleaner cnpgc/edge@release --dry-run
+```
+
+A saída termina com um resumo por _build_, útil para acompanhar o espaço recuperado:
+
+```
+INFO > Summary:
+  cnpgc/edge@release  23 -> 14 file(s)       1.8 GB -> 1.1 GB        freed 700.0 MB
 ```
 
 Para deixar a rotação automática (diária, logo após o _backup_), ligue `"cleaner": true` no atributo `auto` da _build_.
