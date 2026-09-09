@@ -187,7 +187,8 @@ Por fim, você deverá configurar as [_builds_ das aplicações]({{ site.baseurl
     "auto": {
       "deploy": true,
       "backup": false,
-      "sanitize": false
+      "sanitize": false,
+      "cleaner": false
     },
     "env": {
       "PORT": "49152",
@@ -213,7 +214,8 @@ Por fim, você deverá configurar as [_builds_ das aplicações]({{ site.baseurl
     "auto": {
       "deploy": true,
       "backup": true,
-      "sanitize": true
+      "sanitize": true,
+      "cleaner": true
     },
     "env": {
       "PORT": "49153",
@@ -237,9 +239,11 @@ No exemplo acima foram configuradas duas _builds_: `pasto-certo/pwa@release` e `
 
 - ***deploy***: Executa a cada **15 minutos** a busca por novas versões, ou seja, _tags_ na _branch_ do estágio da _build_. Caso encontre, executa o processo de _deploy_ da nova _tag_ e envia um e-mail de _log_ (informando o sucesso ou eventuais erros no procedimento);
 
-- ***backup***: Executa **diariamente** o serviço de _backup_ da _stack_ de _containers_ da _build_. É fundamental que o [serviço de _backup_]({{ site.baseurl }}/docs/backup) esteja corretamente configurado na aplicação. Os arquivos de backup serão salvos no volume externo de _backup_; e
+- ***backup***: Executa **diariamente** o serviço de _backup_ da _stack_ de _containers_ da _build_. É fundamental que o [serviço de _backup_]({{ site.baseurl }}/docs/backup) esteja corretamente configurado na aplicação. Os arquivos de backup serão salvos no volume externo de _backup_;
 
-- ***sanitize***: Executa **mensalmente** o serviço de sanitização, caso esteja corretamenta configurado na _stack_ de _containers_ da _build_. Mais informações sobre os processos de higienização/otimização dos _containers_ podem ser encontradas [no tutorial de criação de _boilerplates_]({{ site.baseurl }}/docs/boilerplate).
+- ***sanitize***: Executa **mensalmente** o serviço de sanitização, caso esteja corretamenta configurado na _stack_ de _containers_ da _build_. Mais informações sobre os processos de higienização/otimização dos _containers_ podem ser encontradas [no tutorial de criação de _boilerplates_]({{ site.baseurl }}/docs/boilerplate).; e
+
+- ***cleaner***: Executa **diariamente** (logo após o _backup_) a **rotação dos arquivos de _backup_** da _build_, mantendo os últimos **7 diários, 4 semanais e 3 mensais** e apagando o restante. Quando o atributo está ausente, o padrão é `false`. Também aceita um objeto para personalizar a política, por exemplo `"cleaner": { "daily": 14, "weekly": 8, "monthly": 12 }`. Detalhes na seção [Rotação de _backups_](#cleaner).
 
 O **DSN do Sentry**, [conforme já explicado]({{ site.baseurl }}/docs/bug), pode ser obtido a partir da [_dashboard_ do Embrapa I/O](https://dashboard.embrapa.io). Da mesma forma, o **ID do Matomo** também pode ser obtido por meio da _dashboard_, [conforme já visto anteriormente]({{ site.baseurl }}/docs/analytics). O **_token_ do Matomo**, por sua vez, é gerado pelo Embrapa I/O automaticamente quando se utiliza os _pipelines_ de _deploy_ padrão da plataforma. Para gerá-lo manualmente, você precisará [acessar o Matomo](https://hit.embrapa.io) e autenticar-se com seu login e senha. Em seguida, acesse a "Aministração" (na _toolbar_) e vá em "Pessoal &raquo; Segurança". Na seção "**Tokens de autenticação**" adicione um novo _token_, inserindo o valor da _hash_ gerada no atributo correlato nas aplicações do `builds.json`.
 
@@ -276,6 +280,7 @@ Os comandos disponíveis são:
 - ***rollback***: Executa o rollback da _build_ para uma versão anterior, inserida pelo usuário. Deve-se informar como parâmetro a _build_ e a _tag_ (por exemplo, `my-project/my-app@beta 3.25.9-beta.17`);
 - ***backup***: Gera um _backup_ da _build_. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`;
 - ***sanitize***: Executa o processo de higienização/otimização da _build_. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`;
+- ***cleaner***: Rotaciona os arquivos do volume de _backup_ da _build_ (mantém os últimos 7 diários, 4 semanais e 3 mensais). Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`, e o parâmetro `--dry-run`, que apenas mostra o que seria mantido e apagado;
 - ***info***: Exibe a versão de cada _build_ instanciada e outros comandos úteis do orquestrador que podem ser utilizados; e
 - ***mail***: Testa as configurações de SMTP por meio do envio de um e-mail de teste. Deve-se informar como parâmetro uma lista de endereços separada por vírgula que receberão a mensagem (por exemplo, `jose.silva@embrapa.br,maria.santos@embrapa.br`).
 
@@ -373,6 +378,40 @@ docker volume create \
 ```
 
 Basta agora informar este volume no momento de configurar as _environment variables_ no arquivo `builds.json`.
+
+#### Rotação de _backups_ {#cleaner}
+
+O serviço de _backup_ dos _boilerplates_ gera um arquivo por execução e **não apaga os anteriores**. Com o _backup_ diário ligado, o volume cresce indefinidamente. O comando `cleaner` resolve isso aplicando, ao volume de _backup_ de cada _build_, uma política de retenção do tipo _avô-pai-filho_ **por contagem de períodos com _backup_**:
+
+- **7 diários** — o último _backup_ de cada um dos 7 dias mais recentes que possuem _backup_;
+- **4 semanais** — entre os arquivos restantes, o último de cada uma das 4 semanas mais recentes (na prática, os 4 domingos anteriores);
+- **3 mensais** — entre os arquivos restantes, o **primeiro** _backup_ de cada um dos 3 meses mais recentes.
+
+Como a contagem considera apenas períodos que têm arquivo, a **ausência de _backups_ novos nunca provoca exclusão**: se hoje não houve _backup_, o de 7 dias atrás continua entre os 7 dias mais recentes e é preservado. Entre uma rotação e a próxima pode haver um ou dois arquivos a mais que os 14 da política. A data de cada arquivo é lida do próprio nome (`AAAA-MM-DD_HH-MM-SS`, como sufixo ou prefixo); arquivos **sem data no nome** (por exemplo, um _dump_ colocado manualmente no volume) não entram na política: são preservados e nunca apagados.
+
+Em regime permanente, o volume de _backup_ da _build_ `cnpgc/edge@release` fica assim:
+
+```
+cnpgc_edge_release_1.26.9-3_2026-09-07_02-00-00.tar.gz   ← diários (7)
+cnpgc_edge_release_1.26.9-3_2026-09-06_02-00-00.tar.gz
+...
+cnpgc_edge_release_1.26.9-3_2026-09-01_02-00-00.tar.gz
+cnpgc_edge_release_1.26.9-3_2026-08-30_02-00-00.tar.gz   ← semanais (4 domingos)
+cnpgc_edge_release_1.26.9-3_2026-08-23_02-00-00.tar.gz
+cnpgc_edge_release_1.26.9-3_2026-08-16_02-00-00.tar.gz
+cnpgc_edge_release_1.26.9-3_2026-08-09_02-00-00.tar.gz
+cnpgc_edge_release_1.26.9-2_2026-08-01_02-00-00.tar.gz   ← mensais (3, primeiro backup do mês)
+cnpgc_edge_release_1.26.5-1_2026-07-01_02-00-00.tar.gz
+cnpgc_edge_release_1.26.5-1_2026-06-01_02-00-00.tar.gz
+```
+
+Para ver o que seria feito sem apagar nada:
+
+```bash
+docker exec -it releaser io cleaner cnpgc/edge@release --dry-run
+```
+
+Para deixar a rotação automática (diária, logo após o _backup_), ligue `"cleaner": true` no atributo `auto` da _build_. O comando acessa o volume diretamente pelo Docker (`{projeto}_{app}_{stage}_backup`, ou o volume `backup` declarado no `docker-compose.yaml`), portanto funciona igual nos orquestradores Docker Compose e Docker Swarm e não depende do serviço `backup` da aplicação.
 
 ### Domínios (_virtual proxies_) e certificados SSL/TLS {#proxy}
 
