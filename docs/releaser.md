@@ -243,7 +243,7 @@ No exemplo acima foram configuradas duas _builds_: `pasto-certo/pwa@release` e `
 
 - ***sanitize***: Executa **mensalmente** o serviço de sanitização, caso esteja corretamenta configurado na _stack_ de _containers_ da _build_. Mais informações sobre os processos de higienização/otimização dos _containers_ podem ser encontradas [no tutorial de criação de _boilerplates_]({{ site.baseurl }}/docs/boilerplate).; e
 
-- ***cleaner***: Executa **diariamente** (logo após o _backup_) a **rotação dos arquivos de _backup_** da _build_, mantendo os últimos **7 diários, 4 semanais e 3 mensais** e apagando o restante. Quando o atributo está ausente, o padrão é `false`. Também aceita um objeto para personalizar a política, por exemplo `"cleaner": { "daily": 14, "weekly": 8, "monthly": 12 }`. Detalhes na seção [Rotação de _backups_](#cleaner).
+- ***cleaner***: Executa **diariamente** (logo após o _backup_) a **rotação dos arquivos de _backup_** da _build_, mantendo os últimos **7 diários, 4 semanais e 3 mensais** e apagando o restante. Quando o atributo está ausente, o padrão é `false`. Também aceita um objeto para personalizar a política, por exemplo `"cleaner": { "daily": 14, "weekly": 8, "monthly": 12 }`; a chave opcional `"undated": "mtime"` faz arquivos **sem data no nome** entrarem na rotação pela data de modificação (o padrão, `"ignore"`, preserva-os). Detalhes na seção [Rotação de _backups_](#cleaner).
 
 O **DSN do Sentry**, [conforme já explicado]({{ site.baseurl }}/docs/bug), pode ser obtido a partir da [_dashboard_ do Embrapa I/O](https://dashboard.embrapa.io). Da mesma forma, o **ID do Matomo** também pode ser obtido por meio da _dashboard_, [conforme já visto anteriormente]({{ site.baseurl }}/docs/analytics). O **_token_ do Matomo**, por sua vez, é gerado pelo Embrapa I/O automaticamente quando se utiliza os _pipelines_ de _deploy_ padrão da plataforma. Para gerá-lo manualmente, você precisará [acessar o Matomo](https://hit.embrapa.io) e autenticar-se com seu login e senha. Em seguida, acesse a "Aministração" (na _toolbar_) e vá em "Pessoal &raquo; Segurança". Na seção "**Tokens de autenticação**" adicione um novo _token_, inserindo o valor da _hash_ gerada no atributo correlato nas aplicações do `builds.json`.
 
@@ -297,6 +297,10 @@ docker exec -it $(docker ps -q -f name=releaser) io rollback \
   pasto-certo/pwa@release \
   4.23.7-15
 ```
+
+## Monitoramento do Releaser
+
+Toda instância do **Releaser** reporta ao Sentry da plataforma (sentry.io, projeto `releaser`): exceções, a saída de cada execução como _logs_ (com `operation`, `build`, `project`, `app` e `stage`) e cada `ERROR >` por _build_ como _issue_. O `environment` é o valor de `SERVER` do `.env` e o `release` é a versão da imagem. Nada precisa ser configurado; para usar outro DSN, defina `SENTRY_DSN` no `.env` do diretório de configuração, e `SENTRY_DSN=off` desliga o envio.
 
 ## Atualização
 
@@ -411,7 +415,9 @@ Para ver o que seria feito sem apagar nada:
 docker exec -it releaser io cleaner cnpgc/edge@release --dry-run
 ```
 
-Para deixar a rotação automática (diária, logo após o _backup_), ligue `"cleaner": true` no atributo `auto` da _build_. O comando acessa o volume diretamente pelo Docker (`{projeto}_{app}_{stage}_backup`, ou o volume `backup` declarado no `docker-compose.yaml`), portanto funciona igual nos orquestradores Docker Compose e Docker Swarm e não depende do serviço `backup` da aplicação.
+Para deixar a rotação automática (diária, logo após o _backup_), ligue `"cleaner": true` no atributo `auto` da _build_.
+
+> **Aplicações fora dos _boilerplates_:** se o serviço `backup` de uma aplicação gerar arquivos sem data reconhecível no nome, o `cleaner` os preserva e avisa a cada execução. Ajuste o serviço para o padrão `{projeto}_{app}_{stage}_{versão}_AAAA-MM-DD_HH-MM-SS.tar.gz` ou use `"undated": "mtime"` na política da _build_. O comando acessa o volume diretamente pelo Docker (`{projeto}_{app}_{stage}_backup`, ou o volume `backup` declarado no `docker-compose.yaml`), portanto funciona igual nos orquestradores Docker Compose e Docker Swarm e não depende do serviço `backup` da aplicação.
 
 ### Domínios (_virtual proxies_) e certificados SSL/TLS {#proxy}
 
