@@ -423,7 +423,11 @@ A saída termina com um resumo por _build_, útil para acompanhar o espaço recu
 
 ```
 INFO > Summary:
-  cnpgc/edge@release  23 -> 14 file(s)       1.8 GB -> 1.1 GB        freed 700.0 MB
+
+cnpgc/edge@release
+23 -> 14 file(s)
+1,8 GB -> 1,1 GB
+freed 700,0 MB
 ```
 
 Para deixar a rotação automática (diária, logo após o _backup_), ligue `"cleaner": true` no atributo `auto` da _build_.
