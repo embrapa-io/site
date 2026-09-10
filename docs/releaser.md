@@ -42,7 +42,7 @@ mkdir -p ~/releaser && cd ~/releaser
 docker run --name releaser \
   -v $(pwd):/data \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  --restart unless-stopped -d \
+  --restart always -d \
   embrapa/releaser
 ```
 
@@ -245,7 +245,7 @@ No exemplo acima foram configuradas duas _builds_: `pasto-certo/pwa@release` e `
 
 - ***cleaner***: Executa **diariamente** (logo após o _backup_) a **rotação dos arquivos de _backup_** da _build_, mantendo os últimos **7 diários, 4 semanais e 3 mensais** e apagando o restante. Aceita `false` (padrão, quando ausente), `true` ou `"undated"` — este último inclui na rotação, pela data de modificação, arquivos **sem data no nome** (caso de aplicações que não seguem o [padrão de nome do arquivo de _backup_]({{ site.baseurl }}/docs/boilerplate#cli:backup)). Detalhes na seção [Rotação de _backups_](#cleaner).
 
-O **DSN do Sentry**, [conforme já explicado]({{ site.baseurl }}/docs/bug), pode ser obtido a partir da [_dashboard_ do Embrapa I/O](https://dashboard.embrapa.io). Da mesma forma, o **ID do Matomo** também pode ser obtido por meio da _dashboard_, [conforme já visto anteriormente]({{ site.baseurl }}/docs/analytics). O **_token_ do Matomo**, por sua vez, é gerado pelo Embrapa I/O automaticamente quando se utiliza os _pipelines_ de _deploy_ padrão da plataforma. Para gerá-lo manualmente, você precisará [acessar o Matomo](https://hit.embrapa.io) e autenticar-se com seu login e senha. Em seguida, acesse a "Aministração" (na _toolbar_) e vá em "Pessoal &raquo; Segurança". Na seção "**Tokens de autenticação**" adicione um novo _token_, inserindo o valor da _hash_ gerada no atributo correlato nas aplicações do `builds.json`.
+O **DSN do Sentry**, [conforme já explicado]({{ site.baseurl }}/docs/bug), pode ser obtido a partir da [_dashboard_ do Embrapa I/O](https://dashboard.embrapa.io). Da mesma forma, o **ID do Matomo** também pode ser obtido por meio da _dashboard_, [conforme já visto anteriormente]({{ site.baseurl }}/docs/analytics). O **_token_ do Matomo**, por sua vez, é gerado pelo **Embrapa I/O** automaticamente quando se utiliza os _pipelines_ de _deploy_ padrão da plataforma. Para gerá-lo manualmente, você precisará [acessar o Matomo](https://hit.embrapa.io) e autenticar-se com seu login e senha. Em seguida, acesse a "Aministração" (na _toolbar_) e vá em "Pessoal &raquo; Segurança". Na seção "**Tokens de autenticação**" adicione um novo _token_, inserindo o valor da _hash_ gerada no atributo correlato nas aplicações do `builds.json`.
 
 ![Tokens de autenticação no Matomo]({{ site.baseurl }}/assets/img/releaser/20230717162755.png)
 
@@ -320,7 +320,7 @@ cd ~/releaser
 docker run --name releaser \
   -v $(pwd):/data \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  --restart unless-stopped -d \
+  --restart always -d \
   embrapa/releaser
 
 docker exec -it releaser io
