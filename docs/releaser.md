@@ -425,8 +425,8 @@ A saída termina com um resumo por _build_, útil para acompanhar o espaço recu
 INFO > Summary:
 
 cnpgc/edge@release
-23 -> 14 file(s)
-1,8 GB -> 1,1 GB
+23 → 14 file(s)
+1,8 GB → 1,1 GB
 freed 700,0 MB
 ```
 
