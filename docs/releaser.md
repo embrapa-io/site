@@ -280,9 +280,9 @@ Os comandos disponíveis são:
 - ***stop***: Derruba a _stack_ de _containers_ da _build_. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`;
 - ***restart***: Inicia ou re-inicia a _stack_ de _containers_ da _build_. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`;
 - ***rollback***: Executa o rollback da _build_ para uma versão anterior, inserida pelo usuário. Deve-se informar como parâmetro a _build_ e a _tag_ (por exemplo, `my-project/my-app@beta 3.25.9-beta.17`);
-- ***backup***: Gera um _backup_ da _build_. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`;
-- ***sanitize***: Executa o processo de higienização/otimização da _build_. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`;
-- ***cleaner***: Rotaciona os arquivos do volume de _backup_ da _build_ (mantém os últimos 7 diários, 4 semanais e 3 mensais). Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`, e o parâmetro `--dry-run`, que apenas mostra o que seria mantido e apagado. Ao final, exibe um resumo por _build_ com a quantidade de arquivos e o espaço ocupado antes e depois da rotação;
+- ***backup***: Gera um _backup_ da _build_ executando o serviço `backup` do `docker-compose.yaml`. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`. _Builds_ sem esse serviço (caso das aplicações de _frontend_) são ignoradas com um aviso, não com erro;
+- ***sanitize***: Executa o processo de higienização/otimização da _build_ (serviço `sanitize`). Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`. _Builds_ sem esse serviço são ignoradas com um aviso;
+- ***cleaner***: Rotaciona os arquivos do volume de _backup_ da _build_ (mantém os últimos 7 diários, 4 semanais e 3 mensais). Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`, e o parâmetro `--dry-run`, que apenas mostra o que seria mantido e apagado. Ao final, exibe um resumo por _build_ com a quantidade de arquivos e o espaço ocupado antes e depois da rotação. _Builds_ sem volume de _backup_ são ignoradas com um aviso;
 - ***info***: Exibe a versão de cada _build_ instanciada e outros comandos úteis do orquestrador que podem ser utilizados; e
 - ***mail***: Testa as configurações de SMTP por meio do envio de um e-mail de teste. Deve-se informar como parâmetro uma lista de endereços separada por vírgula que receberão a mensagem (por exemplo, `jose.silva@embrapa.br,maria.santos@embrapa.br`).
 
