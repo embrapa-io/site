@@ -47,7 +47,8 @@ subtitle: Prefácio da documentação técnica
 11. [Fazendo o _backup_ de uma _build_]({{ site.baseurl }}/docs/backup)
 12. [Monitorando o acesso de usuários]({{ site.baseurl }}/docs/analytics)
 13. [Atualizando uma aplicação a partir do seu _boilerplate_]({{ site.baseurl }}/docs/upgrade)
-14. [Arquivando um projeto]({{ site.baseurl }}/docs/archive)
+14. [Removendo uma aplicação]({{ site.baseurl }}/docs/remove)
+15. [Arquivando um projeto]({{ site.baseurl }}/docs/archive)
 
 ## Avançado
 

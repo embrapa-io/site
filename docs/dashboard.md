@@ -18,6 +18,18 @@ Por meio da _dashboard_ qualquer usuário pode efetuar o _login_ na plataforma. 
 
 ![Login no Dashboard]({{ site.baseurl }}/assets/img/dashboard/01.png)
 
+### Login por biometria {#passkey}
+
+Como alternativa ao PIN, é possível autenticar-se com a **biometria do próprio dispositivo** — Touch ID, Face ID, Windows Hello ou o leitor digital do celular. A tecnologia utilizada são as [_passkeys_](https://fidoalliance.org/passkeys/), um padrão aberto que substitui senhas por um par de chaves criptográficas: a chave privada **nunca sai do aparelho** e não é conhecida pela plataforma, de modo que não existe senha que possa vazar.
+
+![Opção de login por biometria]({{ site.baseurl }}/assets/img/dashboard/10.png)
+
+No primeiro acesso por PIN em um dispositivo, a plataforma convida o usuário a cadastrar a biometria. O cadastro também pode ser feito — ou desfeito — a qualquer momento na tela de dados pessoais, acessível pelo menu do usuário.
+
+![Convite para cadastrar a biometria]({{ site.baseurl }}/assets/img/dashboard/11.png)
+
+A credencial é criada **por aparelho**: quem cadastrar a biometria no computador continuará sendo convidado a cadastrá-la também no celular, já que as chaves de um dispositivo não servem no outro. O PIN por e-mail permanece disponível como alternativa, em qualquer situação.
+
 Ao autenticar na _dashboard_, o usuário poderá ver a listagem de **projetos dos quais é membro da equipe** e, dentre outras funcionalidades, a [opção de **criar um novo projeto**]({{ site.baseurl }}/docs/project) (caso seja um empregado da Embrapa).
 
 ![Listagem de projetos]({{ site.baseurl }}/assets/img/dashboard/02.png)

@@ -101,3 +101,9 @@ Agora, será necessário codificar a nova aplicação ou adaptar o código-fonte
 > **Atenção!** Repare que no último passo o arquivo `.embrapa/settings.json` será revisitado. Isto é necessário para complementá-lo com os valores padrão das variáveis de ambiente e a configuração de orquestradores, quando aplicável.
 
 Pronto! Feito isso o **Embrapa I/O** irá criar, após algum tempo, a aplicação nas ferramentas satélites e expor no _card_ as informações necessárias de configurações. Estando tudo certo será possível aplicar todos os _pipelines_ e processos de DevOps, assim como em qualquer aplicação criada a partir de um _boilerplate_.
+
+## Removendo uma aplicação {#remove}
+
+Uma aplicação criada por engano, um protótipo que não vingou ou um módulo absorvido por outro podem ser **removidos do projeto**, mantendo o projeto e as demais aplicações intactas — e liberando o nome _unix_ que estava ocupado.
+
+A remoção desfaz a configuração da aplicação na plataforma, mas preserva o código-fonte e as integrações com as ferramentas satélites, de modo que uma aplicação homônima criada depois reaproveita o histórico de erros e de acessos que já existia. O procedimento é descrito em detalhe na [documentação de remoção de aplicações]({{ site.baseurl }}/docs/remove).

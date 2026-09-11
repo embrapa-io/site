@@ -10,6 +10,8 @@ Ao [acessar a _dashboard_]({{ site.baseurl }}/docs/dashboard) da plataforma, o u
 
 > **Atenção!** Somente empregados da Embrapa podem criar novos projetos.
 
+> **Atenção!** O nome _unix_ do projeto é **permanente**: ele identifica o grupo no GitLab, a organização no _bug tracking_, o site na analítica e os painéis de observabilidade. Por isso a plataforma aplica **dois limites** à criação — um intervalo mínimo de **5 minutos** entre criações sucessivas e um teto de **10 projetos por dia** para cada usuário —, válidos para todos, inclusive administradores. Vale lembrar que **um único projeto comporta diversas aplicações**, de modo que criar vários projetos raramente é o caminho.
+
 Ao clicar neste botão abrirá um _wizard_ para criação do projeto. O primeiro passo é um _disclaimer_, o qual o usuário deverá estar ciente.
 
 ![Tela de aviso da criação de projetos]({{ site.baseurl }}/assets/img/project/01.png)
@@ -108,5 +110,17 @@ Podem ser incluídos na equipe do projeto usuários que já estejam cadastrados 
 > **Atenção!** Empregados da Embrapa devem também [acessar diretamente o GitLab](https://git.embrapa.io) pelo menos uma vez para que seu perfil seja importado do diretório de usuários corporativos. Somente após este acesso ele será vinculado ao grupo de repositórios no GitLab e à organização no Sentry.
 
 ![Membros da equipe do projeto]({{ site.baseurl }}/assets/img/project/06.png)
+
+### Saindo da equipe {#leave}
+
+Um membro pode **sair da equipe de um projeto** por conta própria, sem depender de um _Architect_. A opção está no menu contextual do _card_, na seção "Avançado":
+
+![Opção de sair do projeto no menu contextual]({{ site.baseurl }}/assets/img/project/09.png)
+
+Ao sair, o usuário perde o acesso ao projeto na _dashboard_ e é removido do grupo de repositórios no [GitLab](https://git.embrapa.io) e das demais ferramentas integradas. Para voltar, será necessário que um _Architect_ o inclua novamente na equipe.
+
+> **Atenção!** O **último _Architect_ de um projeto não pode sair da equipe**, pois o projeto ficaria sem ninguém capaz de administrá-lo. Nesse caso, a plataforma explica a situação e orienta o caminho: promover antes outro membro a _Architect_ ou, se o projeto chegou ao fim, utilizar a opção de [arquivamento]({{ site.baseurl }}/docs/archive).
+
+![Aviso ao último arquiteto de solução do projeto]({{ site.baseurl }}/assets/img/project/10.png)
 
 Uma vez que o projeto tenha sido criado e esteja devidamente configurado, os usuários mantenedores poderão agora [adicionar aplicações]({{ site.baseurl }}/docs/app) por meio do botão "**Nova App**" disponível no _card_.
