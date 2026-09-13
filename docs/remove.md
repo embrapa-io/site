@@ -64,3 +64,5 @@ Para restaurar uma aplicação, um administrador da plataforma precisa:
 3. Recriar a aplicação no projeto a partir do repositório existente.
 
 Vale lembrar que apenas o código-fonte volta: as variáveis de ambiente, os volumes e o histórico de _builds_ foram apagados na remoção e precisarão ser configurados novamente.
+
+> **Atenção!** Se o projeto inteiro tiver sido [arquivado]({{ site.baseurl }}/docs/archive) depois da remoção, o repositório da aplicação removida estará arquivado duas vezes: por si, na remoção, e junto com o grupo do projeto. Nesse caso, resgatar o projeto devolve os repositórios das demais aplicações, mas **não** o dela — ele precisa ser desarquivado individualmente pelo administrador.
