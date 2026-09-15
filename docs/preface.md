@@ -57,12 +57,13 @@ subtitle: Prefácio da documentação técnica
 - [Configurando e disponibilizando um _cluster_]({{ site.baseurl }}/docs/cluster)
 - [Releaser: _deploy_ de _builds_ em _clusters_ externos]({{ site.baseurl }}/docs/releaser)
 
-<!--
 ## Recursos
 
-- [_Clusters_]({{ site.baseurl }}/resources/clusters)
-- [_Boilerplates_]({{ site.baseurl }}/resources/boilerplates)
--->
+Catálogos montados a partir dos dados oficiais da plataforma, atualizados a cada acesso:
+
+- [_Boilerplates_]({{ site.baseurl }}/resources/boilerplates) — modelos disponíveis para criar aplicações
+- [_Clusters_]({{ site.baseurl }}/resources/clusters) — onde as aplicações podem ser instanciadas
+- [GPU Servers]({{ site.baseurl }}/resources/gpus) — servidores de inferência (LLMs e _embeddings_) acessíveis pelos _clusters_
 
 ## Disciplinas Especializadas
 

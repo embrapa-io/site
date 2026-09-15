@@ -1,0 +1,52 @@
+/* Catálogos dinâmicos (boilerplates, clusters, GPU Servers) — carregados via
+   assets/js/catalog.js a partir da API pública da plataforma. Segue o Bootstrap 4
+   do tema; aqui só o que o tema não tem. */
+
+.io-catalog { margin: 1.5rem 0 2.5rem; }
+
+.io-catalog .io-toolbar { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: 1rem; }
+.io-catalog .io-toolbar input[type="search"] { flex: 1 1 220px; max-width: 360px; }
+.io-catalog .io-toolbar .btn-group { flex-wrap: wrap; }
+.io-catalog .io-toolbar .btn { text-transform: none; }
+
+.io-catalog .io-status { color: #6c757d; font-size: .9rem; margin: .5rem 0 1rem; }
+.io-catalog .io-status.io-error { color: #b02a37; }
+
+.io-catalog .card { margin-bottom: .75rem; border-color: #e3e3e3; }
+.io-catalog .card-header { background: #f8f9fa; padding: 0; }
+.io-catalog .card-header .btn-link { display: flex; align-items: center; gap: .75rem; width: 100%; text-align: left; padding: .8rem 1rem; color: #404040; text-decoration: none; text-transform: none; }
+.io-catalog .card-header .btn-link:hover { color: #008AFF; }
+.io-catalog .card-header .btn-link .io-icon { width: 1.75rem; text-align: center; font-size: 1.25rem; color: #008AFF; flex: 0 0 auto; }
+.io-catalog .card-header .btn-link .io-title { flex: 1 1 auto; font-weight: 600; }
+.io-catalog .card-header .btn-link .io-badges { flex: 0 0 auto; display: flex; gap: .3rem; flex-wrap: wrap; justify-content: flex-end; }
+.io-catalog .card-header .btn-link .io-caret { flex: 0 0 auto; color: #adb5bd; transition: transform .2s; }
+.io-catalog .card-header .btn-link[aria-expanded="true"] .io-caret { transform: rotate(180deg); }
+.io-catalog .card-body { font-size: .95rem; }
+.io-catalog .card-body p:last-child { margin-bottom: 0; }
+
+.io-catalog .io-disabled .card-header .btn-link { color: #9a9a9a; }
+.io-catalog .io-disabled .card-header .btn-link .io-icon { color: #c0c0c0; }
+
+.io-catalog .badge { font-weight: 500; font-size: .75rem; }
+.io-catalog .badge-stage-alpha { background: #f0ad4e; color: #fff; }
+.io-catalog .badge-stage-beta { background: #5bc0de; color: #fff; }
+.io-catalog .badge-stage-release { background: #5cb85c; color: #fff; }
+
+.io-catalog dl.io-props { display: grid; grid-template-columns: max-content 1fr; gap: .25rem 1rem; margin: 0 0 .75rem; }
+.io-catalog dl.io-props dt { font-weight: 600; color: #555; }
+.io-catalog dl.io-props dd { margin: 0; }
+
+.io-catalog ul.io-features { list-style: none; padding: 0; margin: 0 0 .75rem; display: flex; flex-wrap: wrap; gap: .4rem; }
+.io-catalog ul.io-features li { border: 1px solid #dee2e6; border-radius: .25rem; padding: .15rem .5rem; font-size: .85rem; }
+.io-catalog ul.io-features li i { margin-right: .35rem; color: #008AFF; }
+.io-catalog ul.io-features li.io-off { color: #adb5bd; border-style: dashed; }
+.io-catalog ul.io-features li.io-off i { color: #adb5bd; }
+
+.io-catalog .io-models code { background: #f1f3f5; padding: .05rem .35rem; border-radius: .2rem; margin-right: .25rem; white-space: nowrap; }
+.io-catalog .io-muted { color: #6c757d; font-size: .85rem; }
+
+@media (max-width: 575px) {
+  .io-catalog .card-header .btn-link { flex-wrap: wrap; }
+  .io-catalog .card-header .btn-link .io-badges { width: 100%; justify-content: flex-start; padding-left: 2.5rem; }
+  .io-catalog dl.io-props { grid-template-columns: 1fr; }
+}

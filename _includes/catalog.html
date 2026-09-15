@@ -1,0 +1,14 @@
+{% comment %}
+  Catálogo dinâmico carregado da API pública da plataforma (core.embrapa.io).
+  Uso: {% include catalog.html type="boilerplates" %}  (type: boilerplates | clusters | gpus)
+  Opcional: api="https://outro-backend" para instalações com backend próprio.
+  O JS tem guarda contra dupla inicialização, então mais de um catálogo na mesma página é seguro.
+{% endcomment %}
+<link rel="stylesheet" href="{{ '/assets/css/catalog.css' | relative_url }}">
+<script src="{{ '/assets/js/catalog.js' | relative_url }}" defer></script>
+<div class="io-catalog" data-catalog="{{ include.type }}"{% if include.api %} data-api="{{ include.api }}"{% endif %}>
+  <p class="io-status">Carregando o catálogo…</p>
+  <noscript>
+    <p class="io-status io-error">Este catálogo é montado no navegador a partir da API pública da plataforma e requer JavaScript.</p>
+  </noscript>
+</div>

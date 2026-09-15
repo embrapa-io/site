@@ -4,6 +4,8 @@ title: Cluster
 subtitle: Configurando e disponibilizando um cluster
 ---
 
+> **Catálogo:** a lista dos _clusters_ disponíveis, com os recursos de cada um, está em [Recursos → Clusters]({{ site.baseurl }}/resources/clusters); os servidores de inferência acessíveis a partir deles, em [Recursos → GPU Servers]({{ site.baseurl }}/resources/gpus).
+
 Conforme explicado no [capítulo de arquitetura]({{ site.baseurl }}/docs/architecture), o **Embrapa I/O** é uma plataforma do tipo _Cloud Agnostic Architecture_. Ou seja, se propõe a atuar com <u>diferentes tecnologias de conteinerização e clusterização em nuvem</u>, às quais são aqui chamadas de "**orquestradores**".
 
 Assim, é possível que uma aplicação, devidamente conteinerizada, seja instanciada em estágio _alpha_ (para testes internos) em um orquestrador [Docker Swarm](https://docs.docker.com/engine/swarm/) rodando em um cluster de servidores localizado fisicamente na [Embrapa Gado de Corte](https://www.embrapa.br/gado-de-corte). A mesma aplicação poderia ser instanciada em estágio _beta_ (para testes externos) em um orquestrador [Kubernetes](https://kubernetes.io/pt-br/) rodando em um cluster de servidores localizado fisicamente na [Embrapa Agricultura Digital](https://www.embrapa.br/agricultura-digital). Por fim, esta mesma aplicação poderia estar instanciada em estágio _release_ (produção) em um orquestrador [Cloud Foundry](https://www.cloudfoundry.org) rodando na [IBM Cloud](https://www.ibm.com/cloud).

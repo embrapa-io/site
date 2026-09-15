@@ -4,6 +4,8 @@ title: Boilerplate
 subtitle: Criando e mantendo um boilerplate
 ---
 
+> **Catálogo:** a lista dos _boilerplates_ disponíveis, com filtros por nome e tipo, está em [Recursos → Boilerplates]({{ site.baseurl }}/resources/boilerplates).
+
 *[PWA]: Progressive Web App
 *[LTS]: Long-term support
 *[CLI]: Command-line interface
