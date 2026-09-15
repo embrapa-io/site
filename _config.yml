@@ -260,6 +260,7 @@ defaults:
 # Exclude these files from production site
 exclude:
   - CHANGELOG.md
+  - CLAUDE.md
   - CNAME
   - Gemfile
   - Gemfile.lock
