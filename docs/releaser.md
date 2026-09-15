@@ -155,6 +155,8 @@ Tenha em mente que valor de `SERVER` será injetado no momento do _deploy_ das _
 
 O `GITLAB_TOKEN` deve ser obtido por meio da interface do [GitLab do Embrapa I/O](https://git.embrapa.io). Para isso, acesse seu _profile_ e vá na opção [Personal Access Tokens](https://git.embrapa.io/-/profile/personal_access_tokens). Gere um novo _token_ selecionando o _scope_ `read_api`.
 
+> **Atenção!** O _token_ é usado para localizar os repositórios das aplicações e suas _tags_. Os catálogos da plataforma (_boilerplates_, _clusters_ e orquestradores) **não** dependem dele: a partir da versão `1.26.9-7` o Releaser os obtém diretamente do _backend_ do Embrapa I/O (`https://core.embrapa.io/metadata/...`), sem autenticação, com o GitLab apenas como contingência. Se a sua instalação usa um _backend_ próprio, informe a URL na variável opcional `IO_API_URL` do `.env`. Versões anteriores à `1.26.9-7` liam esses catálogos do repositório `io/boilerplate/metadata` no GitLab e falham com `Repository 'io/boilerplate/metadata' not found!` quando o _token_ não o enxerga — atualize a imagem ([veja como](#update)).
+
 ![Access Token no GitLab]({{ site.baseurl }}/assets/img/releaser/20230717155813.png)
 
 > **Atenção!** O usuário que irá gerar o **Access Token** deverá ter acesso a todos os projetos que terão apps instanciadas pela ferramenta **Releaser** neste servidor.
