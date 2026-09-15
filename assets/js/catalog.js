@@ -19,6 +19,9 @@
 
   var STAGES = ['alpha', 'beta', 'release'];
 
+  // Nomes dos orquestradores como aparecem na documentação (o JSON traz o identificador do driver).
+  var ORCHESTRATOR_LABELS = { DockerCompose: 'Docker Compose', DockerSwarm: 'Docker Swarm' };
+
   var CATEGORY_LABELS = {
     ai: 'IA', backend: 'Backend', frontend: 'Frontend', corporate: 'Corporativo',
     tool: 'Ferramenta', database: 'Banco de dados', daemon: 'Daemon', iot: 'IoT'
@@ -158,8 +161,7 @@
           var body = '<p>' + linkify(b.description) + '</p>' +
             props([
               ['Identificador', '<code>' + esc(b.unix) + '</code>'],
-              ['Repositório', '<a href="' + repo + '" target="_blank" rel="noopener">' + esc(hostOf(repo) + '/io/boilerplate/' + b.unix) + '</a> <span class="io-muted">(requer login na plataforma)</span>'],
-              ['Como usar', 'Na <em>dashboard</em>, no <em>card</em> do projeto, clique em <strong>Nova App</strong> e selecione este <em>boilerplate</em>.']
+              ['Repositório', '<a href="' + repo + '" target="_blank" rel="noopener">' + esc(hostOf(repo) + '/io/boilerplate/' + b.unix) + '</a> <span class="io-muted">(requer login na plataforma)</span>']
             ]) +
             // Detalhes do .embrapa/settings.json (referências, mantenedores, plataforma),
             // carregados só quando o painel é aberto — uma chamada por boilerplate.
@@ -201,7 +203,7 @@
         ['Referências', refs.length ? '<ul class="mb-0 pl-3">' + refs.map(function (x) {
           return '<li><a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.label || x.name || x.url) + '</a></li>';
         }).join('') + '</ul>' : ''],
-        ['Mantenedores', maint.length ? esc(maint.join(', ')) + ' <span class="io-muted">(contato pela <em>dashboard</em>)</span>' : '']
+        ['Mantenedores', maint.length ? esc(maint.join(', ')) : '']
       ]);
       if (!el.innerHTML.replace(/<dl[^>]*><\/dl>/, '').trim()) el.innerHTML = '';
     }).catch(function () {
@@ -262,8 +264,7 @@
 
         var body = props([
           ['Onde', esc([c.local, c.location].filter(Boolean).join(' — '))],
-          ['Orquestrador', esc(c.orchestrator)],
-          ['Storage', esc(c.storage && c.storage.type)],
+          ['Orquestrador', esc(ORCHESTRATOR_LABELS[c.orchestrator] || c.orchestrator)],
           ['Nós', c.nodes && typeof c.nodes === 'object' && Object.keys(c.nodes).length ? String(Object.keys(c.nodes).length) : ''],
           ['Aliases', Array.isArray(c.aliases) && c.aliases.length ? c.aliases.map(function (a) { return '<code>' + esc(a) + '</code>'; }).join(' ') : ''],
           ['Mantenedores', Array.isArray(c.maintainers) && c.maintainers.length ? esc(c.maintainers.map(function (m) { return m && m.name; }).filter(Boolean).join(', ')) : ''],
