@@ -34,6 +34,8 @@ No segundo passo o usuário deverá informa o _cluster_ onde será realizado o _
 
 Os _clusters_ de _deploy_ de _builds_ podem estar em qualquer local (em Unidades da Embrapa, instituições e empresas parceiras ou serviços de _cloud_ terceirizados) e podem utilizar diversas tecnologias de orquestração de _containers_ homologadas para a plataforma. Falamos mais sobre _clusters_ no [capítulo de introdução]({{ site.baseurl }}/docs/introduction#cluster) e no tutorial sobre [como configurar e disponibilizar um _cluster_]({{ site.baseurl }}/docs/cluster).
 
+> **Atenção!** A escolha do _cluster_ depende do estágio da _build_ e do nível de serviço da infraestrutura: use o catálogo de _clusters_ compartilhados para _alpha_ e _beta_ e uma máquina dedicada, operada pelo Releaser, para _release_. Os critérios estão no capítulo sobre [publicação de aplicações]({{ site.baseurl }}/docs/delivery).
+
 ![Escolha do cluster de deploy da build]({{ site.baseurl }}/assets/img/build/03.png)
 
 ### Passo 3: _Volumes_ {#volumes}

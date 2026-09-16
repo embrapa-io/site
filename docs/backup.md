@@ -69,3 +69,9 @@ Na última linha podem ser vistas as instruções de acesso aos arquivos de _bac
 ![Arquivos de backup da instância disponíveis para download]({{ site.baseurl }}/assets/img/backup/02.png)
 
 > **Atenção!** Os arquivos gerados permanecerão disponíveis para download por uma semana (7 dias). Findando este prazo, <u>são automaticamente apagados</u>.
+
+## Backup de builds em produção {#production}
+
+O _backup_ sob demanda descrito acima e o _backup_ diário feito pelo [Releaser]({{ site.baseurl }}/docs/releaser#backup) resolvem a **cópia**, mas não a **guarda**. Em ambos os casos o arquivo nasce no mesmo servidor em que a _build_ roda (no _cluster_ ou na VM dedicada), e um incidente nesse servidor, como falha de disco, _ransomware_ ou exclusão acidental da VM, leva a aplicação e o _backup_ juntos.
+
+> **Atenção!** Para _builds_ em estágio _release_, a equipe do projeto (ou o NTI da Unidade) é responsável por **levar os arquivos de _backup_ para fora do servidor**, seguindo a regra 3-2-1: três cópias, em dois tipos de mídia, uma delas fora do local. Na prática, isso significa um _job_ que copia periodicamente o diretório de _backups_ do Releaser para um _storage_ de rede, um _bucket_ de objetos ou o serviço de _backup_ da Unidade, além de um teste periódico de restauração. A [rotação de _backups_ do Releaser]({{ site.baseurl }}/docs/releaser#cleaner) controla apenas o que fica no servidor. Veja também o capítulo sobre [publicação de aplicações]({{ site.baseurl }}/docs/delivery#responsibilities).

@@ -22,6 +22,8 @@ O provisionamento de novos _clusters_, _storages_ e o desenvolvimento de _driver
 
 Desta forma, unidades descentralizadas, instituições e empresas parceiras da Embrapa podem compor a rede de _clusters_ do **Embrapa I/O**, integrando servidores reais ou VMs de seus próprios CPDs. Com isso, a gestão das aplicações nestes servidores físicos ou máquinas virtuais passa a ser realizada pelos processos de DevOps da plataforma.
 
+> **Atenção!** Os _clusters_ do catálogo são de **uso compartilhado** e destinam-se aos estágios _alpha_ e _beta_. Para _release_, a orientação é uma VM dedicada operada pelo [Releaser]({{ site.baseurl }}/docs/releaser), conforme o capítulo sobre [publicação de aplicações]({{ site.baseurl }}/docs/delivery).
+
 > **Atenção!** Os processos automatizados de _backup_ nos _clusters_ são de atribuição da equipe de mantenedores, sendo que o **Embrapa I/O** aborda apenas o _backup_ sob demanda, [já detalhado anteriormente]({{ site.baseurl }}/docs/backup). Da mesma forma, recursos essenciais adicionais, tal como envio de e-mail (SMTP) devem ser disponibilizados na rede interna em que o servidor está instalado e devidamente informado na documentação do _cluster_.
 
 # Passo-a-Passo de Configuração

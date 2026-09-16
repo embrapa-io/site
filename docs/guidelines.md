@@ -107,6 +107,8 @@ Consequentemente, o efeito prático é um ônus ainda maior para sustentação d
 
 Ao contrário de outros tipos de tecnologias, é possível o lançamento de ativos digitais em **TRL 7**, ou seja, em versão "**Beta**". Consequentemente, também é possível divulgar softwares em TRL 7 no [catálogo de tecnologias do portal da Embrapa](https://www.embrapa.br/tecnologias).
 
+Atingido o TRL 7, a aplicação pode ir a produção. Onde e como instanciar cada estágio, conforme o nível de serviço da infraestrutura disponível na Unidade, na Sede ou em nuvem, é assunto do capítulo sobre [publicação de aplicações]({{ site.baseurl }}/docs/delivery).
+
 Conforme [comentado anteriormente](#partner), o atingimento de níveis mais altos de maturidade tecnológica (TRL 8 e 9) dependem da formalização de parcerias que garantam a sustentação do software e potencializem a sua adoção, preservando a imagem da marca Embrapa. Leia as [orientações específicas sobre a Escala TRL e distribuição de MVPs]({{ site.baseurl }}/docs/mvp) para maiores detalhes.
 
 ![Identidade visual de aplicativo em Beta Release]({{ site.baseurl }}/assets/img/guidelines/01.png)

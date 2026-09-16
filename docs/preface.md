@@ -25,6 +25,7 @@ subtitle: Prefácio da documentação técnica
 <!-- - [Teste de Software]({{ site.baseurl }}/docs/test) -->
 - [Licenciamento]({{ site.baseurl }}/docs/licensing)
 - [Lançamento de MVPs]({{ site.baseurl }}/docs/mvp)
+- [Publicação de Aplicações]({{ site.baseurl }}/docs/delivery)
 - [Proteção de Dados Pessoais (LGPD)]({{ site.baseurl }}/docs/lgpd)
 - [Integração de Ativos Digitais]({{ site.baseurl }}/docs/integration)
 <!-- - [_Marketplaces_ e ecossistemas digitais]({{ site.baseurl }}/docs/marketplace) -->

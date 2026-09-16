@@ -113,3 +113,5 @@ Uma instância de uma _build_ pode ser instanciada em servidores (ou _clusters_)
 Da mesma forma, é necessário gerenciar os servidores do tipo _storage_ onde serão montados os volumes para armazenamento de dados das aplicações. Neste caso também é adotado uma estratégia baseada em _drivers_, onde pode-se por exemplo ter para o orquestrador Kubernetes um _driver_ para NFS v3 e outro para o NFS v4. Ou ainda, ter um _driver_ para o orquestrador [Amazon AWS](https://aws.amazon.com) integrado a um _driver_ para _storage_ que monta os volumes no [Amazon EBS](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AmazonEBS.html).
 
 É possível [configurar e disponibilizar novos _clusters_ e _storages_]({{ site.baseurl }}/docs/cluster) para comporem a plataforma **Embrapa I/O**, ampliando assim sua capacidade de entrega de soluções.
+
+A escolha de **onde** instanciar cada estágio de uma _build_ (catálogo de _clusters_ compartilhados ou máquina dedicada operada pelo Releaser) segue os critérios do capítulo sobre [publicação de aplicações]({{ site.baseurl }}/docs/delivery).
