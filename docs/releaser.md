@@ -83,6 +83,7 @@ Verifique a instalação utilizando o comando `docker plugin ls`.
 
 Uma vez que o plugin esteja instalado no Docker, edite o arquivo `/etc/docker/daemon.json` inserindo o seguinte conteúdo:
 
+{% raw %}
 ```json
 {
   "debug": false,
@@ -105,12 +106,13 @@ Uma vez que o plugin esteja instalado no Docker, edite o arquivo `/etc/docker/da
   }
 }
 ```
+{% endraw %}
 
 O parâmetro `mode` com valor `non-blocking` desacopla os containers do envio de _logs_: quando o _buffer_ (de tamanho `max-buffer-size`) enche — por exemplo, se o Loki estiver lento ou indisponível —, as mensagens excedentes são **descartadas** ao invés de bloquear o container. Isso evita que eventuais problemas no _logging_ afetem a execução das aplicações.
 
 > **Atenção!** Os valores de `username` e `password` para a linha acima devem ser obtidos junto à **Supervisão de Desenvolvimento de Ativos Digitais (DEGI/GCI/GTI/SDAD)**.
 
-O _driver_ já adiciona automaticamente o rótulo `host` (preenchido com o _hostname_ do servidor) a todos os _logs_, portanto não é necessário informá-lo manualmente. Garanta apenas que o _hostname_ do sistema operacional reflita o nome desejado — se necessário, ajuste-o com `hostnamectl set-hostname production.cnpgc.embrapa.br`. O rótulo `container_name={{.Name}}` é mantido explicitamente porque, ao informar um valor para `loki-external-labels`, seu padrão seria sobrescrito.
+O _driver_ já adiciona automaticamente o rótulo `host` (preenchido com o _hostname_ do servidor) a todos os _logs_, portanto não é necessário informá-lo manualmente. Garanta apenas que o _hostname_ do sistema operacional reflita o nome desejado — se necessário, ajuste-o com `hostnamectl set-hostname production.cnpgc.embrapa.br`. O rótulo `container_name={% raw %}{{.Name}}{% endraw %}` é mantido explicitamente porque, ao informar um valor para `loki-external-labels`, seu padrão seria sobrescrito.
 
 Antes de reiniciar o serviço, valide a sintaxe do arquivo de configuração:
 
