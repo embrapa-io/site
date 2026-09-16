@@ -1,0 +1,8 @@
+---
+layout: null
+permalink: /webmcp/docs.json
+sitemap: false
+---
+{% assign docs = site.pages | where_exp: "p", "p.path contains 'docs/'" | where_exp: "p", "p.title" | sort: "path" %}[{% for p in docs %}{% if p.name contains ".md" and p.title != "404 - Page not found" %}{% unless forloop.first %},{% endunless %}
+{"url": {{ p.url | prepend: site.baseurl | jsonify }}, "title": {{ p.title | jsonify }}, "subtitle": {{ p.subtitle | default: "" | jsonify }}, "text": {{ p.content | markdownify | strip_html | normalize_whitespace | jsonify }}}{% endif %}{% endfor %}
+]

@@ -74,6 +74,7 @@ Catálogos montados a partir dos dados oficiais da plataforma, atualizados a cad
   - [MCP Servers]({{ site.baseurl }}/docs/mcp)
   - [Spec-Driven Development]({{ site.baseurl }}/docs/bmad)
   - [Arena de Bots]({{ site.baseurl }}/docs/arena)
+  - [WebMCP]({{ site.baseurl }}/docs/webmcp)
 - Internet das Coisas
 - Machine Learning e Visão Computacional
 
