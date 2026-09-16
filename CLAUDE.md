@@ -22,7 +22,7 @@ docker run --rm -v "$(pwd):/site" -v "<dir-temporário>:/out" bretfisher/jekyll-
   sh -c 'cd /site && bundle exec jekyll build --destination /out'
 ```
 
-Escrever a saída num diretório temporário fora do repositório (nunca em `_site/` dentro dele, que está no `.gitignore` mas polui o `docker run` do serve). Um build limpo termina com `done in N seconds`; os dois avisos de Liquid em `docs/releaser.md` (`{{.Name}}` de template Go, desde jun/2026) são conhecidos e inofensivos.
+Escrever a saída num diretório temporário fora do repositório (nunca em `_site/` dentro dele, que está no `.gitignore` mas polui o `docker run` do serve). Um build limpo termina com `done in N seconds` **sem nenhum `Liquid Warning`**. Texto com chaves duplas que não é Liquid (ex.: `{{.Name}}` de templates Go em comandos Docker) deve ficar entre `{% raw %}…{% endraw %}`, inclusive quando inline em parágrafo.
 
 A imagem `bretfisher/jekyll-serve:alpine` já existe no Docker local. O `Gemfile.lock` está no `.gitignore` e é gerado dentro do container — não commitá-lo.
 
