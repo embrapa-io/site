@@ -60,7 +60,7 @@ O [**Releaser**]({{ site.baseurl }}/docs/releaser) é uma imagem pública no [Do
 - A equipe do projeto (ou o NTI da Unidade) precisa configurar o orquestrador, o DNS, os certificados SSL, o _virtual proxy_ e os volumes.
 - Integrações com servidores SMTP e GPU Servers, por exemplo, precisam ser providenciadas pela própria equipe.
 - A plataforma **não controla** essas instâncias: não consegue suspender, reiniciar ou gerar _backup_ sob demanda pela _dashboard_.
-- **Não há busca ativa de CVEs** nas imagens (ainda). O Releaser puxa imagens prontas e não participa da construção, então não tem como inventariar as dependências.
+- **Ainda não há busca ativa de CVEs** nas imagens. Hoje o Releaser puxa imagens prontas e não participa da construção, então não inventaria as dependências. Há plano de levar a varredura (Trivy) ao Releaser; até lá, a proteção é [manter as imagens atualizadas](#images).
 - Não há _web terminal_ nem _logs_ na _dashboard_: para isso, recomenda-se instalar o [Portainer]({{ site.baseurl }}/docs/releaser#portainer) ou ferramenta similar e, para centralizar os _logs_ no Grafana da plataforma, configurar o [_plugin_ do Loki]({{ site.baseurl }}/docs/releaser#loki) no Docker do servidor.
 - O _backup_ diário fica **no próprio servidor**. Levá-lo para fora é [responsabilidade da equipe](#responsibilities), como detalhado no [capítulo de _backup_]({{ site.baseurl }}/docs/backup#production).
 
@@ -74,7 +74,7 @@ Há uma segunda razão para separar a produção, que não é técnica: **otimiz
 
 #### A alpha fica no catálogo {#alpha}
 
-A _alpha_ deve permanecer no catálogo de _clusters_. Seu papel é o teste interno rápido e descartável, e ela se beneficia de tudo o que a plataforma automatiza. Mas há um motivo mais forte: **a busca ativa de CVEs acontece apenas nos _clusters_ compartilhados**, nas imagens construídas no _deploy_ da _build_, porque só nesse momento a plataforma conhece todas as dependências da aplicação. O Releaser não faz essa varredura. Manter a _alpha_ no catálogo é, portanto, a forma de garantir que toda versão da aplicação passe pela varredura de vulnerabilidades antes de chegar à _beta_ e à _release_.
+A _alpha_ deve permanecer no catálogo de _clusters_. Seu papel é o teste interno rápido e descartável, e ela se beneficia de tudo o que a plataforma automatiza. Mas há um motivo mais forte: **a busca ativa de CVEs acontece apenas nos _clusters_ compartilhados**, nas imagens construídas no _deploy_ da _build_, porque só nesse momento a plataforma conhece todas as dependências da aplicação. O Releaser ainda não faz essa varredura (está planejado). Manter a _alpha_ no catálogo é, portanto, a forma de garantir que toda versão da aplicação passe pela varredura de vulnerabilidades antes de chegar à _beta_ e à _release_.
 
 #### A beta como ensaio da produção {#beta}
 
@@ -143,6 +143,35 @@ O registro do domínio do projeto é solicitado à GTI pela Central de Atendimen
 
 Um exemplo concreto é o projeto Flora, publicado em outubro de 2025 em uma VPS dedicada no _data center_ da Sede. A máquina expõe publicamente uma única porta, a do _proxy_; todos os serviços ficam em portas internas mapeadas pelo Nginx Proxy Manager, cada um com seu subdomínio. O Releaser mantém as _builds_ atualizadas, o Portainer dá visibilidade de _logs_ e terminal à equipe, e as integrações com o Sentry, o Matomo e o SonarQube continuam funcionando exatamente como nos _clusters_ do catálogo, porque são configuradas por _build_ e não pelo servidor.
 
+## Versões das imagens em produção {#images}
+
+Uma dúvida que aparece na primeira produção é o que fazer com as _tags_ das imagens Docker no `docker-compose.yaml` da aplicação. A regra tem dois lados que parecem contraditórios e não são: **o _boilerplate_ usa `latest`, a produção usa versão fixada, e a versão fixada precisa continuar sendo atualizada.**
+
+### Por que o boilerplate fica em latest {#images-latest}
+
+Quem cria um projeto novo deve começar a desenvolver pela versão mais recente das tecnologias da _stack_. Se os _boilerplates_ fixassem versões, a plataforma teria de reeditar todos eles a cada semana, porque sempre sai coisa nova, e as aplicações novas nasceriam defasadas. Por isso o catálogo não fixa versão, e a decisão fica com a equipe, no âmbito de cada aplicação, conforme [explicado no capítulo de aplicações]({{ site.baseurl }}/docs/app).
+
+### Por que a produção fixa a versão {#images-pin}
+
+Em `latest`, qualquer [atualização das imagens](#images-update) traz o que quer que o fornecedor tenha publicado, inclusive uma versão maior com mudança de comportamento ou de formato de dados. Em _release_ isso é inaceitável, e em _beta_ é indesejável. A equipe tem três opções, da mais aberta à mais fechada:
+
+- **`latest`**: a aplicação acompanha tudo. Aceitável em _alpha_ e em ferramentas que a equipe prefere manter sempre atuais (o n8n, por exemplo, para de receber melhorias se for congelado), mas não em bancos de dados nem em produção.
+- **Versão maior** (`postgres:18`, `n8nio/n8n:2`): a aplicação continua recebendo os _patches_ de segurança, desempenho e estabilidade daquela linha sem mudar de comportamento por conta própria. É a recomendação geral para _beta_ e _release_, e é **indispensável para bancos de dados**, porque uma troca de versão maior pode tornar o volume de dados ilegível pela nova imagem.
+- **Versão exata** (`n8nio/n8n:2.39.5`): a aplicação não muda até alguém decidir. É a opção quando um _patch_ específico precisa ser evitado ou quando a homologação foi feita contra uma versão e a produção precisa ser idêntica.
+
+Fixar a versão maior **não protege de um _bug_ introduzido em um _patch_**: ele chega tanto por `latest` quanto por `n8nio/n8n:2`. Foi o caso do n8n 2.38.7 em setembro de 2026, que quebrou a integração com o Qdrant e foi corrigido no 2.39.5. Nessas situações o caminho é avançar para o _patch_ corrigido (ou fixar temporariamente a versão exata anterior), e não abandonar a fixação por versão maior.
+
+### Por que a versão fixada precisa ser atualizada {#images-update}
+
+Fixar não é congelar. Uma imagem de produção parada por meses acumula vulnerabilidades conhecidas, e é justamente isso que a varredura de CVEs do catálogo denuncia nas _builds_ de _alpha_. Enquanto o Releaser não incorpora a varredura, a equipe precisa de uma rotina:
+
+1. Atualizar as imagens da _build_ de produção em cadência definida (mensal, junto da sanitização, é um bom padrão), pelo procedimento de [atualização das imagens do Releaser]({{ site.baseurl }}/docs/releaser#info); nos _clusters_ do catálogo, pelo _restart_ da _build_ com a opção "ATUALIZAR as imagens dos containers" na _dashboard_.
+2. Acompanhar a _alpha_ da mesma aplicação no catálogo: se a varredura de CVEs acusar uma imagem-base, a produção com a mesma versão fixada está exposta e deve ser atualizada fora da cadência.
+3. Ler as notas de versão antes de avançar uma versão maior e, para bancos de dados, planejar a migração dos dados (na maioria dos casos, não há como voltar).
+4. Antes de qualquer atualização em _release_, ensaiar na [_beta_](#beta) e garantir um [_backup_ fora do servidor]({{ site.baseurl }}/docs/backup#production).
+
+Retornar a uma versão anterior exige fixar explicitamente a _tag_ antiga no `docker-compose.yaml` e publicar uma nova _tag_ da aplicação; para bancos de dados, em geral, não é possível.
+
 ## Responsabilidades por método {#responsibilities}
 
 Escolher o Releaser é escolher um **dono para a produção**. A tabela abaixo deixa explícito o que muda de mãos em cada método. Nela, "plataforma" é a equipe do Embrapa I/O, e "equipe" é a equipe do projeto ou o NTI da Unidade que opera a máquina.
@@ -150,7 +179,7 @@ Escolher o Releaser é escolher um **dono para a produção**. A tabela abaixo d
 | Atividade | Catálogo de _clusters_ | Releaser em máquina dedicada |
 |---|---|---|
 | _Deploy_, _rollback_ e atualização de versão | Plataforma (automática, por _tag_) | Releaser (automático, por _tag_); a equipe acompanha |
-| Construção das imagens e **varredura de CVEs** | Plataforma | Não há varredura; a equipe deve atualizar as imagens-base (veja [imagens em _latest_]({{ site.baseurl }}/docs/app)) |
+| Construção das imagens e **varredura de CVEs** | Plataforma | Ainda sem varredura (Trivy no Releaser está planejado); a equipe [mantém as imagens atualizadas](#images) |
 | Monitoramento de disponibilidade e _health check_ | Plataforma (_dashboard_ e alertas) | Equipe (Portainer, Grafana da Unidade ou _plugin_ do Loki) |
 | _Error tracking_ e _analytics_ (Sentry, Matomo) | Plataforma | Plataforma (configurados por _build_) |
 | _Backup_ | Sob demanda pela _dashboard_; rotina do _cluster_ pelo mantenedor | Diário pelo Releaser no servidor; **cópia para fora do servidor pela equipe** ([regra 3-2-1]({{ site.baseurl }}/docs/backup#production)) |
