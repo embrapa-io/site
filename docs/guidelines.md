@@ -82,7 +82,7 @@ A plataforma **Embrapa I/O** implementa diversos mecanismos de apoio à redaçã
 - [_Kanban_ de detalhamento de _milestones_ e _issues_]({{ site.baseurl }}/docs/kanban) nos [projetos]({{ site.baseurl }}/docs/introduction#project) (grupos de repositórios) no [GitLab](https://git.embrapa.br);
 - Arquivo `README` na raiz dos [repositórios de aplicações]({{ site.baseurl }}/docs/introduction#app), que deve ser mantido atualizado com instruções concisas e claras de como subir a instância em ambiente local via [Docker](https://docker.com);
 - [Site de informações públicas do projeto]({{ site.baseurl }}/docs/project#web) (baseado no [GitHub Pages](https://pages.github.com));
-- [Documentação pública da API]({{ site.baseurl }}/docs/project#api) (baseada no [Swagger](https://swagger.io)); e
+- [Documentação pública da API]({{ site.baseurl }}/docs/project#api) (baseada no [Swagger](https://swagger.io)), com o passo a passo de edição e publicação de ambas no capítulo sobre [repositórios de suporte]({{ site.baseurl }}/docs/support); e
 - [Repositório de documentação técnica]({{ site.baseurl }}/docs/project#doc) (não pública).
 
 A documentação é uma parte essencial do processo de desenvolvimento de software, pois ajuda a garantir a qualidade, a manutenção, a evolução e a sustentação dos produtos. Portanto, é essencial que as equipes de desenvolvimento não ignorem esta etapa do processo de produção dos ativos digitais agropecuários.
