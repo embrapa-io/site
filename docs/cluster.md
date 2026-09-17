@@ -188,7 +188,7 @@ Uma vez que o plugin esteja instalado no Docker, edite o arquivo `/etc/docker/da
 
 O parâmetro `mode` com valor `non-blocking` desacopla os containers do envio de _logs_: quando o _buffer_ (de tamanho `max-buffer-size`) enche — por exemplo, se o Loki estiver lento ou indisponível —, as mensagens excedentes são **descartadas** ao invés de bloquear o container. Isso evita que eventuais problemas no _logging_ afetem a execução das aplicações.
 
-> **Atenção!** Os valores de `username` e `password` para a linha acima devem ser obtidos junto à **Supervisão de Desenvolvimento de Ativos Digitais (DEGI/GCI/GTI/SDAD)**.
+> **Atenção!** Os valores de `username` e `password` para a linha acima devem ser solicitados à equipe da plataforma por [e-mail](mailto:io@embrapa.br) ou pela [sala Arquitetos de Soluções no Google Chat](https://chat.google.com/room/AAAA853zctw?cls=11).
 
 {% raw %}
 O _driver_ já adiciona automaticamente o rótulo `host` (preenchido com o _hostname_ do servidor) a todos os _logs_, portanto não é necessário informá-lo manualmente. Garanta apenas que o _hostname_ do sistema operacional reflita o nome desejado para o _cluster_ — se necessário, ajuste-o com `hostnamectl set-hostname io.cnpgc.embrapa.br`. O rótulo `container_name={{.Name}}` é mantido explicitamente porque, ao informar um valor para `loki-external-labels`, seu padrão seria sobrescrito.

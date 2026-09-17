@@ -139,7 +139,7 @@ A opção de nuvem privada externa (Tier 4) aparece como "eventual" por uma raz�
 
 Nos _clusters_ do catálogo, as URLs são [geradas automaticamente]({{ site.baseurl }}/docs/build#urls) a partir dos domínios do _cluster_. Em produção, a aplicação precisa de um domínio institucional. Para os serviços publicados no _data center_ da GTI, é criado no DNS da Embrapa um registro no formato **`nome-do-projeto.embrapa.br`** que redireciona qualquer prefixo (subdomínio), permitindo que a equipe utilize, no âmbito do projeto, endereços como `www.nome-do-projeto.embrapa.br`, `app.nome-do-projeto.embrapa.br` ou `portal.nome-do-projeto.embrapa.br`.
 
-O registro do domínio do projeto é solicitado à GTI pela Central de Atendimento. A partir daí, a gestão dos subdomínios e dos certificados SSL de cada serviço é responsabilidade da equipe, no _virtual proxy_ da própria VM, conforme as [orientações do capítulo do Releaser]({{ site.baseurl }}/docs/releaser#proxy). Em casos específicos, quando o serviço é publicado por trás do _proxy_ central da GTI, os subdomínios passam a ser geridos pelos arquitetos de solução do projeto na ferramenta <https://proxy.embrapa.io>, uma instância do Nginx Proxy Manager. Consulte a SDAD para saber se o seu projeto se enquadra nesse caso.
+O registro do domínio do projeto é solicitado à GTI pela Central de Atendimento. A partir daí, a gestão dos subdomínios e dos certificados SSL de cada serviço é responsabilidade da equipe, no _virtual proxy_ da própria VM, conforme as [orientações do capítulo do Releaser]({{ site.baseurl }}/docs/releaser#proxy). Em casos específicos, quando o serviço é publicado por trás do _proxy_ central da GTI, os subdomínios passam a ser geridos pelos arquitetos de solução do projeto na ferramenta <https://proxy.embrapa.io>, uma instância do Nginx Proxy Manager. Consulte a equipe da plataforma por [e-mail](mailto:io@embrapa.br) ou pela [sala Arquitetos de Soluções no Google Chat](https://chat.google.com/room/AAAA853zctw?cls=11) para saber se o seu projeto se enquadra nesse caso.
 
 Um exemplo concreto é o projeto Flora, publicado em outubro de 2025 em uma VPS dedicada no _data center_ da Sede. A máquina expõe publicamente uma única porta, a do _proxy_; todos os serviços ficam em portas internas mapeadas pelo Nginx Proxy Manager, cada um com seu subdomínio. O Releaser mantém as _builds_ atualizadas, o Portainer dá visibilidade de _logs_ e terminal à equipe, e as integrações com o Sentry, o Matomo e o SonarQube continuam funcionando exatamente como nos _clusters_ do catálogo, porque são configuradas por _build_ e não pelo servidor.
 
@@ -187,7 +187,7 @@ Escolher o Releaser é escolher um **dono para a produção**. A tabela abaixo d
 | Sistema operacional, Docker e segurança da máquina | Mantenedor do _cluster_ | Equipe |
 | DNS, _virtual proxy_ e certificados SSL | Plataforma (automático) | Equipe |
 | SMTP, GPU Servers e outras integrações de infraestrutura | Plataforma | Equipe |
-| Resposta a incidentes (aplicação fora do ar, invasão, perda de dados) | Plataforma aciona a equipe | Equipe, com apoio da SDAD |
+| Resposta a incidentes (aplicação fora do ar, invasão, perda de dados) | Plataforma aciona a equipe | Equipe, com apoio da equipe da plataforma |
 | Suporte ao usuário final | Equipe | Equipe |
 
 > **Atenção!** Antes de solicitar a VM de produção, a equipe deve nomear quem responde por cada linha da coluna "Releaser" e registrar isso no _README_ do projeto. Uma VM sem dono é o cenário que mais gera incidentes na plataforma.
@@ -201,4 +201,4 @@ Escolher o Releaser é escolher um **dono para a produção**. A tabela abaixo d
 | _beta_ | Catálogo de _clusters_ (recomendado) ou Unidade em Tier 2+; perto da produção, o _data center_ de destino | _Tag_ no GitLab; Releaser se for na Unidade ou como ensaio da produção |
 | _release_ | VM ou VPS **dedicada** em Tier 3 (Sede, AgroDigital ou Unidade); eventualmente Tier 2 ou Tier 4, conforme os [critérios adicionais](#criteria) | Releaser |
 
-Em caso de dúvida sobre o enquadramento da infraestrutura da sua Unidade em um dos _Tiers_, ou sobre a solicitação de VM e de subdomínio, entre em contato com a SDAD pelo e-mail <gti.sdad@embrapa.br>.
+Em caso de dúvida sobre o enquadramento da infraestrutura da sua Unidade em um dos _Tiers_, ou sobre a solicitação de VM e de subdomínio, entre em contato com a equipe da plataforma por [e-mail](mailto:io@embrapa.br) ou via [chat](https://chat.google.com/room/AAAA853zctw?cls=11).
