@@ -53,10 +53,14 @@ subtitle: Prefácio da documentação técnica
 
 ## Avançado
 
-- [Criando e mantendo um _boilerplate_]({{ site.baseurl }}/docs/boilerplate)
-- [Propondo melhorias a um _boilerplate_]({{ site.baseurl }}/docs/merge)
-- [Configurando e disponibilizando um _cluster_]({{ site.baseurl }}/docs/cluster)
-- [Releaser: _deploy_ de _builds_ em _clusters_ externos]({{ site.baseurl }}/docs/releaser)
+- [_Boilerplate_: criando e mantendo um modelo de aplicação]({{ site.baseurl }}/docs/boilerplate)
+- [_Merge Request_: propondo melhorias a um _boilerplate_]({{ site.baseurl }}/docs/merge)
+- [_Cluster_: configurando e disponibilizando um servidor]({{ site.baseurl }}/docs/cluster)
+- [Releaser: _deploy_ de _builds_ em servidores externos à plataforma]({{ site.baseurl }}/docs/releaser)
+- [MCP Servers: conectando agentes de IA à plataforma]({{ site.baseurl }}/docs/mcp)
+- [Spec-Driven Development: programação assistida por IA com o BMAD Method]({{ site.baseurl }}/docs/bmad)
+- [Arena de Bots: testes cegos para avaliar agentes de IA]({{ site.baseurl }}/docs/arena)
+- [WebMCP: ferramentas desta documentação para agentes no navegador]({{ site.baseurl }}/docs/webmcp)
 
 ## Recursos
 
@@ -65,18 +69,6 @@ Catálogos montados a partir dos dados oficiais da plataforma, atualizados a cad
 - [_Boilerplates_]({{ site.baseurl }}/resources/boilerplates) — modelos disponíveis para criar aplicações
 - [_Clusters_]({{ site.baseurl }}/resources/clusters) — onde as aplicações podem ser instanciadas
 - [GPU Servers]({{ site.baseurl }}/resources/gpus) — servidores de inferência (LLMs e _embeddings_) acessíveis pelos _clusters_
-
-## Disciplinas Especializadas
-
-- Blockchain
-- Gamification
-- IA Generativa
-  - [MCP Servers]({{ site.baseurl }}/docs/mcp)
-  - [Spec-Driven Development]({{ site.baseurl }}/docs/bmad)
-  - [Arena de Bots]({{ site.baseurl }}/docs/arena)
-  - [WebMCP]({{ site.baseurl }}/docs/webmcp)
-- Internet das Coisas
-- Machine Learning e Visão Computacional
 
 <!--
 Regimento da Supervisão de Ativos Digitais:
