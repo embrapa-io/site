@@ -54,8 +54,9 @@ O caminho completo de uma aplicação na plataforma, passo a passo, do primeiro 
 11. [Fazendo o _backup_ de uma _build_]({{ site.baseurl }}/docs/backup)
 12. [Monitorando o acesso de usuários]({{ site.baseurl }}/docs/analytics)
 13. [Atualizando uma aplicação a partir do seu _boilerplate_]({{ site.baseurl }}/docs/upgrade)
-14. [Removendo uma aplicação]({{ site.baseurl }}/docs/remove)
-15. [Arquivando um projeto]({{ site.baseurl }}/docs/archive)
+14. [Publicando a documentação do projeto e da API]({{ site.baseurl }}/docs/support)
+15. [Removendo uma aplicação]({{ site.baseurl }}/docs/remove)
+16. [Arquivando um projeto]({{ site.baseurl }}/docs/archive)
 
 ## Avançado
 
