@@ -119,9 +119,9 @@ Edite o `api.json` em [OpenAPI 3.0](https://spec.openapis.org/oas/v3.0.3). Os ca
 
 ```json
 "servers": [
-  { "url": "https://alpha.embrapa.io/<projeto>/api", "description": "Alpha" },
-  { "url": "https://beta.embrapa.io/<projeto>/api",  "description": "Beta" },
-  { "url": "https://<projeto>.embrapa.io/api",        "description": "Produção" }
+  { "url": "https://<projeto>.alpha.agro.rocks/api", "description": "Alpha" },
+  { "url": "https://<projeto>.beta.agro.rocks/api", "description": "Beta" },
+  { "url": "https://<projeto>.com.br/api", "description": "Produção" }
 ]
 ```
 
