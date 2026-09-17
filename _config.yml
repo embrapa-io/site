@@ -146,6 +146,15 @@ site-css:
 # If you have common JavaScript files that should be included in every page, list them here
 site-js:
   - "/assets/js/custom-script.js"
+  - "/assets/js/webmcp.js"
+
+# --- WebMCP (ferramentas para agentes de IA no navegador) --- #
+# Token do origin trial do Chrome (149–156) para a origem https://www.embrapa.io,
+# obtido em https://developer.chrome.com/origintrials/#/register_trial/4163014905550602241.
+# Vazio = sem token (funciona com a flag chrome://flags/#enable-webmcp-testing, ChatGPT desktop e extensões-ponte).
+webmcp:
+  origin_trial_token: "Am3yPGAwcXIGBnKNHuotsn7xswCFqd22cnoTqCmPkF92VvQYy22HhqNAc+fkG+g6Ik6HlWCX5B/0x1is+qV44QIAAABOeyJvcmlnaW4iOiJodHRwczovL3d3dy5lbWJyYXBhLmlvOjQ0MyIsImZlYXR1cmUiOiJXZWJNQ1AiLCJleHBpcnkiOjE3OTQ4NzM2MDB9"
+  api: "https://core.embrapa.io"
 
 # --- Web Analytics Section --- #
 
