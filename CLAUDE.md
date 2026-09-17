@@ -50,6 +50,6 @@ A imagem `bretfisher/jekyll-serve:alpine` já existe no Docker local. O `Gemfile
 2. `git commit` com mensagem em português explicando o porquê; `git push origin master`.
 3. O GitHub Pages publica sozinho em alguns minutos. Não há tag nem versão.
 
-## WebMCP (branch `webmcp`)
+## WebMCP
 
 `assets/js/webmcp.js` (com front matter `layout: null`, processado pelo Liquid) registra oito ferramentas somente leitura em `document.modelContext` (fallback `navigator.modelContext`): busca e leitura dos capítulos (índice gerado em `webmcp/docs.json`), catálogos públicos (lista branca de campos: nunca IP, sub-rede, SMTP, SSH, telefone, e-mail ou hostname de GPU) e navegação interna. Configuração em `_config.yml` (`webmcp.origin_trial_token`, `webmcp.api`). Documentação em `docs/webmcp.md`. Validar sem navegador: servir em Docker e executar o script no Bun com um stub de `document.modelContext` (ver histórico de 16/09/2026). Em Chrome/Brave sem token, ativar `chrome://flags/#enable-webmcp-testing`.
