@@ -28,8 +28,6 @@ git clone git@git.embrapa.io:<projeto>/io-web.git
 cd io-web
 ```
 
-Os _placeholders_ `%GENESIS_*%` do _boilerplate_ (nome do projeto, identificador _unix_, ano) já vêm substituídos no _fork_ — não é preciso mexer neles.
-
 ### Estrutura do repositório
 
 | Caminho | Papel |
