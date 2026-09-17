@@ -6,6 +6,8 @@ subtitle: Prefácio da documentação técnica
 
 ## Prólogo
 
+O que é a plataforma, como ela se organiza e os termos que a documentação usa. Leitura recomendada antes de começar.
+
 - [Macroprocesso]({{ site.baseurl }}/docs/macroprocess)
 - [Terminologia]({{ site.baseurl }}/docs/introduction)
 - [Orientações]({{ site.baseurl }}/docs/guidelines)
@@ -16,6 +18,8 @@ subtitle: Prefácio da documentação técnica
 <!-- - [Trilha: _Zero to Hero_]({{ site.baseurl }}/docs/trail) -->
 
 ## Tópicos Relevantes
+
+Orientações institucionais e de processo que valem para todo ativo digital, independentemente da tecnologia.
 
 - [Rodadas Evolutivas]({{ site.baseurl }}/docs/round)
 - [_Squads_ de Desenvolvimento]({{ site.baseurl }}/docs/squads)
@@ -35,6 +39,8 @@ subtitle: Prefácio da documentação técnica
 
 ## Getting Start
 
+O caminho completo de uma aplicação na plataforma, passo a passo, do primeiro acesso ao arquivamento do projeto:
+
 1. [Quickstart]({{ site.baseurl }}/docs/quickstart)
 2. [Acessando a _dashboard_]({{ site.baseurl }}/docs/dashboard)
 3. [Criando um projeto]({{ site.baseurl }}/docs/project)
@@ -52,6 +58,8 @@ subtitle: Prefácio da documentação técnica
 15. [Arquivando um projeto]({{ site.baseurl }}/docs/archive)
 
 ## Avançado
+
+Para quem mantém a plataforma ou estende o que ela oferece: modelos, servidores, entrega fora dela e agentes de IA.
 
 - [_Boilerplate_: criando e mantendo um modelo de aplicação]({{ site.baseurl }}/docs/boilerplate)
 - [_Merge Request_: propondo melhorias a um _boilerplate_]({{ site.baseurl }}/docs/merge)
