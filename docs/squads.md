@@ -24,7 +24,7 @@ Também deverá realizar o planejamento-macro do projeto, definindo e registrand
 
 Este profissional será responsável por refinar o planejamento do projeto e monitorar o desenvolvimento das aplicações que compõem a solução, registrando os requisitos levantados no formato de _issues_ detalhadamente e atribuindo estas _issues_ aos demais membros do _squad_. Assim, no contexto da metodologia de desenvolvimento ágil **Kanban**, o _Engineer_ assume o "chapéu" de _Service Delivery Manager_ sendo responsável, nas <u>conversas diárias</u> com os [_Programmers_](#programmer) (_Kanban Meeting_), por atualizar o _status_ de cada _issue_ atribuída.
 
-Também será o responsável pela documentação geral do projeto, assegurando que os respositórios de suporte para [documentação pública]({{ site.baseurl }}/docs/project#web), [privada]({{ site.baseurl }}/docs/project#doc) e da [API]({{ site.baseurl }}/docs/project#api) (caso se aplique) estejam atualizados e completos.
+Também será o responsável pela documentação geral do projeto, assegurando que os respositórios de suporte para [documentação pública]({{ site.baseurl }}/docs/project#web), [privada]({{ site.baseurl }}/docs/project#doc) e da [API]({{ site.baseurl }}/docs/project#api) (caso se aplique) estejam atualizados e completos ([como editá-los e publicá-los]({{ site.baseurl }}/docs/support)).
 
 ### _Analyst_: Analista de Requisitos {#analyst}
 

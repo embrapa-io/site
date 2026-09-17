@@ -32,7 +32,7 @@ Quando esta opção é selecionada, o autômato de criação de entidades da pla
 
 ```https://docs.embrapa.io/[nome unix do projeto]```
 
-Toda alteração realizada neste repositório e versionada (_commit_ e _push_) é automaticamente atualizada no site do projeto. O tema padrão do site é o mesmo utilizado neste site de documentação da própria plataforma **Embrapa I/O**.
+Toda alteração realizada neste repositório e versionada (_commit_ e _push_) é automaticamente atualizada no site do projeto. O site usa o gerador [Jekyll](https://jekyllrb.com) com o tema [Just the Docs](https://just-the-docs.com), e o passo a passo para editá-lo, testá-lo localmente e publicá-lo está no capítulo sobre [repositórios de suporte]({{ site.baseurl }}/docs/support#web).
 
 #### II. Documentação pública da API {#api}
 
@@ -40,7 +40,7 @@ O desenvolvedor poderá instanciar a documentação em [Swagger](https://swagger
 
 ```https://api.embrapa.io/[nome unix do projeto]```
 
-Da mesma forma que o site público, cada alteração e versionamento (_pull_) neste repositório atualiza automaticamente esta documentação pública.
+Da mesma forma que o site público, cada alteração versionada (_commit_ e _push_) neste repositório atualiza automaticamente esta documentação pública. Como escrever a especificação OpenAPI, testá-la e publicá-la está no capítulo sobre [repositórios de suporte]({{ site.baseurl }}/docs/support#api).
 
 #### III. Documentação técnica (não pública) {#doc}
 
@@ -77,7 +77,7 @@ Esta é uma das formas de encapsular aplicações em JavaScript, mas existem out
 
 ## Conferindo o GitLab {#git}
 
-Quando o projeto é criado fica disponível como um _card_ na _dashboard_ do usuário. Por meio deste _card_ os _Architects_ (**Arquitetos da Solução**, como [explicado na página de _Squads_]({{ site.baseurl }}/docs/squads)) poderão gerenciá-lo. Por exemplo, é possível ativar e desativar os repositórios de suporte e acessar as páginas de documentação pública do projeto e da API.
+Quando o projeto é criado fica disponível como um _card_ na _dashboard_ do usuário. Por meio deste _card_ os _Architects_ (**Arquitetos da Solução**, como [explicado na página de _Squads_]({{ site.baseurl }}/docs/squads)) poderão gerenciá-lo. Por exemplo, é possível ativar e desativar os repositórios de suporte e acessar as páginas de documentação pública do projeto e da API (veja [como publicá-las]({{ site.baseurl }}/docs/support)).
 
 ![Menu de contexto do projeto]({{ site.baseurl }}/assets/img/project/04.png)
 
