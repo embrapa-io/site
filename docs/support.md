@@ -36,7 +36,7 @@ cd io-web
 | `index.md` | Página inicial do site. |
 | `docs/index.md` | Raiz da seção "Documentação" (`has_children: true`). |
 | `docs/*.md` | Um arquivo por página, com `title`, `nav_order` e `parent` no _front matter_. |
-| `_includes/head_custom.html` | Integração com o **Matomo** e carga do WebMCP. Raramente precisa ser editado. |
+| `_includes/head_custom.html` | Integração com o **Matomo** ([estatísticas de acesso](#analytics)) e carga do WebMCP. Raramente precisa ser editado. |
 | `images/` | Imagens referenciadas pelas páginas. |
 | `Gemfile` | Dependências Ruby usadas no _build_. |
 
@@ -149,6 +149,23 @@ _Commit_ e _push_ na `main`. A documentação é atualizada em `https://api.embr
 - **Versão errada no cabeçalho:** `info.version` do `api.json` prevalece sobre o `config.json`.
 
 Uma especificação OpenAPI bem descrita também serve de base para expor a API a agentes de IA por meio de um [MCP Server]({{ site.baseurl }}/docs/mcp).
+
+## Estatísticas de acesso {#analytics}
+
+As visitas ao site de documentação e à documentação da API são registradas no **Matomo** da plataforma, em [hit.embrapa.io](https://hit.embrapa.io). Não é preciso configurar nada:
+
+- Ao criar o `io-web` e o `io-api`, o _Genesis_ cria no Matomo um site para cada um, no grupo do projeto, com os nomes `io-web` e `io-api`.
+- No `io-web`, o código de rastreamento fica no `_includes/head_custom.html`, já com o ID do site. Não o remova: sem ele, as visitas deixam de ser contadas.
+- No `io-api`, a plataforma insere o código de rastreamento na página que publica; o repositório não precisa ter nada.
+- Só contam as visitas ao endereço publicado (`https://docs.embrapa.io/<projeto>/` ou `https://api.embrapa.io/<projeto>/`). Acessos em ambiente local não entram nas estatísticas.
+
+As estatísticas são **públicas**: qualquer pessoa abre o painel, sem _login_. O _link_ está no `README.md` de cada repositório e segue o formato abaixo, em que `<ID>` é o número do site no Matomo:
+
+```
+https://hit.embrapa.io/index.php?module=CoreHome&action=index&idSite=<ID>&period=day&date=yesterday#?idSite=<ID>&period=day&date=yesterday&category=Dashboard_Dashboard&subcategory=1
+```
+
+Em repositórios mais antigos, cujo `README.md` não traz o _link_, o ID aparece no código-fonte de qualquer página publicada, em `setSiteId`. Os membros da equipe do projeto também têm acesso com _login_, conforme o papel no GitLab: mantenedores como administradores do site e desenvolvedores com permissão de escrita. Quem ainda não tem conta no Matomo recebe um convite por e-mail.
 
 ## Como a publicação funciona {#publishing}
 
