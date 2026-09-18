@@ -167,6 +167,17 @@ O `GITLAB_TOKEN` deve ser obtido por meio da interface do [GitLab do Embrapa I/O
 
 As variáveis com o prefixo `SMTP` são necessárias para configuração do envio de e-mails. A ferramenta **Releaser**, quando rodando no modo _daemon_, envia um e-mail de _log_ sempre que ocorre a atualização de uma aplicação para uma nova versão (ou em caso de erro). Conforme será visto abaixo, pode-se configurar para cada _build_ o time que irá receber estes e-mails. Além disso, deve-se configurar um e-mail padrão de _log_ (variável `LOG_MAIL`) que também recebe todos os e-mails enviados.
 
+O envio foi pensado para funcionar com o SMTP que houver no ambiente (relay do Google Workspace, SMTP da unidade, Gmail com senha de app etc.). A partir da versão `1.26.9-8`:
+
+- `SMTP_SECURE=yes` exige certificado válido do servidor; com `no`, aceita certificado autoassinado e TLS legado (servidores internos antigos). O TLS em si é negociado automaticamente: implícito na porta 465 e `STARTTLS` nas demais, quando o servidor oferece;
+- `SMTP_HOST` aceita uma lista separada por vírgulas (por exemplo, `smtp-relay.gmail.com,smtp.cnpgc.embrapa.br`), tentada em ordem. Se a conexão não sai pela porta de `SMTP_PORT` (porta bloqueada no _firewall_ é o caso mais comum), o Releaser tenta as outras portas de submissão: 587 e 465 e, só quando não há usuário e senha, também a 25;
+- `LOG_MAIL` também aceita uma lista separada por vírgulas. Endereços inválidos no `LOG_MAIL` ou no `team` das _builds_ são ignorados, sem impedir o envio aos demais;
+- O servidor se apresenta no `EHLO` pelo nome em `SERVER`. Se `SERVER` não for um nome completo (por exemplo, `localhost` ou um IP), usa o domínio de `SMTP_FROM`. Para definir outro nome, use a variável opcional `SMTP_HELO`. O `smtp-relay.gmail.com` recusa o `EHLO` com IP (`421 4.7.0 Try again later, closing connection. (EHLO)`), que era o padrão nas versões anteriores;
+- Cada tentativa espera no máximo 15 segundos, valor que pode ser alterado na variável opcional `SMTP_TIMEOUT`;
+- Quando nenhuma tentativa funciona, o e-mail não se perde: fica numa fila no diretório `.mail` do diretório de configuração e é reenviado nas execuções seguintes do _daemon_, com uma nota indicando o horário em que foi gerado. A fila guarda no máximo 100 mensagens por até 7 dias. Na mesma execução, depois da primeira falha, os e-mails seguintes vão direto para a fila, sem novas tentativas.
+
+Para verificar a configuração, use o comando `mail` (veja abaixo). Ele mostra o remetente, os destinatários, o nome usado no `EHLO`, a resolução de DNS de cada servidor e cada tentativa de conexão, e termina com `SUCCESS` ou `ERROR`. Quando o envio funciona, ele também esvazia a fila.
+
 Além disso, será gerado um par de chaves SSH, caso não exista. Estas chaves são necessárias para a sincronização do código-fonte das aplicações. Você deve acessar novamente seu _profile_ no GitLab da plataforma e ir na opção [SSH Keys](https://git.embrapa.io/-/profile/keys). Cadastre então o conteúdo da chave pública gerada (arquivo `ssh.pub`).
 
 ![SSH Key no GitLab]({{ site.baseurl }}/assets/img/releaser/20230717164051.png)
@@ -290,7 +301,7 @@ Os comandos disponíveis são:
 - ***sanitize***: Executa o processo de higienização/otimização da _build_ (serviço `sanitize`). Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`. _Builds_ sem esse serviço são ignoradas com um aviso;
 - ***cleaner***: Rotaciona os arquivos do volume de _backup_ da _build_ (mantém os últimos 7 diários, 4 semanais e 3 mensais). Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`, e o parâmetro `--dry-run`, que apenas mostra o que seria mantido e apagado. Ao final, exibe um resumo por _build_ com a quantidade de arquivos e o espaço ocupado antes e depois da rotação. _Builds_ sem volume de _backup_ são ignoradas com um aviso;
 - ***info***: Exibe a versão de cada _build_ instanciada e outros comandos úteis do orquestrador que podem ser utilizados; e
-- ***mail***: Testa as configurações de SMTP por meio do envio de um e-mail de teste. Deve-se informar como parâmetro uma lista de endereços separada por vírgula que receberão a mensagem (por exemplo, `jose.silva@embrapa.br,maria.santos@embrapa.br`).
+- ***mail***: Testa as configurações de SMTP por meio do envio de um e-mail de teste, detalhando cada tentativa (servidor, porta e motivo da falha). Deve-se informar como parâmetro uma lista de endereços separada por vírgula que receberão a mensagem (por exemplo, `jose.silva@embrapa.br,maria.santos@embrapa.br`). Se o envio funcionar, os e-mails que estavam na fila também são enviados.
 
 Por exemplo, para **validar** todas as _builds_ configuradas em um servidor com **Docker Compose**, faríamos:
 
