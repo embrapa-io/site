@@ -379,6 +379,20 @@ docker exec -it releaser bash
 docker exec -it $(docker ps -q -f name=releaser) bash
 ```
 
+### Falha no clone: `Bad owner or permissions on /root/.ssh/config`
+
+Em alguns servidores o _container_ é criado com a _umask_ `0000` (configuração do _runtime_ de _containers_ do _host_, não da imagem). Nas versões anteriores à `1.26.9-9`, isso fazia o arquivo `/root/.ssh/config` nascer com permissão `666`, que o OpenSSH recusa, e todo _deploy_ falhava ao clonar o repositório (`Impossible to clone repository at tag ...`). Para conferir a _umask_ do _container_:
+
+```bash
+docker exec releaser sh -c umask
+```
+
+A partir da versão `1.26.9-9` o **Releaser** corrige as permissões a cada execução ([atualize a imagem](#update)). Para corrigir imediatamente em uma versão anterior:
+
+```bash
+docker exec releaser sh -c 'chmod 600 /root/.ssh/config'
+```
+
 ## Dicas
 
 A seguir são listadas algumas dicas complementares para uso da ferramenta **Releaser**.
