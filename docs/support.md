@@ -74,15 +74,15 @@ O site também expõe, sem configuração adicional, um conjunto de ferramentas 
 
 ### Testando em ambiente local
 
-O `README.md` do repositório traz um `docker-compose.yml` com a imagem oficial `jekyll/jekyll:4`. Sem o Compose, o comando equivalente é:
+Com o Docker, na raiz do repositório (o mesmo comando está no `README.md`):
 
 ```bash
-docker run --rm --name <projeto>_web -p 4000:4000 \
-  -v "$(pwd):/srv/jekyll" jekyll/jekyll:4 \
-  jekyll serve --host 0.0.0.0 --force_polling
+docker run --rm -it -p 4000:4000 -v "$(pwd):/srv/jekyll" \
+  -v <projeto>_gems:/gems -e BUNDLE_PATH=/gems jekyll/jekyll:4.4.1 \
+  sh -c 'bundle install && bundle exec jekyll serve -H 0.0.0.0 --force_polling'
 ```
 
-Acesse `http://localhost:4000`. O `--force_polling` faz o servidor recompilar a cada arquivo salvo. Nada é instalado na sua máquina: Ruby, Bundler e as _gems_ vivem dentro do contêiner.
+Acesse `http://localhost:4000`. A imagem é a mesma usada na publicação e roda em `amd64` e `arm64`. O `--force_polling` faz o servidor recompilar a cada arquivo salvo, e o volume `<projeto>_gems` guarda as _gems_ entre execuções (só a primeira leva cerca de um minuto). Nada é instalado na sua máquina: Ruby, Bundler e as _gems_ vivem dentro do Docker.
 
 ### Publicando
 
@@ -127,16 +127,20 @@ Edite o `api.json` em [OpenAPI 3.0](https://spec.openapis.org/oas/v3.0.3). Os ca
 
 - `paths` — cada _endpoint_ com `summary`, `description`, `tags` e `operationId`. O catálogo de [api.embrapa.io](https://api.embrapa.io) usa exatamente esses campos para a busca por _endpoint_ entre todas as APIs da plataforma; _endpoints_ sem `summary` ficam invisíveis na busca.
 
-Valide o arquivo no [Swagger Editor](https://editor.swagger.io) antes de publicar: um JSON inválido não é renderizado.
+Valide o arquivo no [Swagger Editor](https://editor.swagger.io) antes de publicar: um arquivo inválido não é publicado, e a versão anterior continua no ar. O `api.json` também é aceito em YAML; a plataforma o converte e publica em JSON.
+
+Para exibir um ícone no _card_ do projeto no catálogo, coloque um `icon.png` (ou `icon.svg`, `logo.png`, `logo.svg`) na raiz do repositório.
 
 ### Testando em ambiente local
 
+Com o Docker, na raiz do repositório (o mesmo comando está no `README.md`):
+
 ```bash
-docker run --rm -v "$(pwd):/api" -p 5000:8080 \
-  -e SWAGGER_JSON=/api/api.json swaggerapi/swagger-ui
+docker run --rm -it -p 8000:8080 -v "$(pwd):/api" \
+  -e SWAGGER_JSON=/api/api.json swaggerapi/swagger-ui:v5.33.0
 ```
 
-Acesse `http://localhost:5000`. Como o volume é montado, basta recarregar a página para ver as alterações no `api.json`.
+Acesse `http://localhost:8000`. A imagem usa a mesma versão do Swagger UI da publicação e roda em `amd64` e `arm64`. Como o diretório é montado, basta recarregar a página para ver as alterações no `api.json`.
 
 ### Publicando
 
@@ -173,6 +177,6 @@ A publicação é **automática e estática**. A cada ciclo de cinco minutos a p
 
 Três comportamentos valem a pena conhecer:
 
-- **Um _build_ com erro não derruba a versão anterior.** O site publicado continua no ar com o último _build_ bem-sucedido, e o erro chega por e-mail à equipe da plataforma, que avisa o time do projeto.
+- **Um _build_ com erro não derruba a versão anterior.** O site publicado continua no ar com o último _build_ bem-sucedido. Os **mantenedores do projeto** no GitLab (papéis _Maintainer_ e _Owner_) recebem por e-mail o erro, as últimas linhas do registro do _build_ e o _link_ para testar em ambiente local — um aviso por _commit_ que falhou. A falha também fica registrada para a equipe da plataforma.
 - **Sites ainda "no modelo" ficam ocultos no catálogo.** Enquanto o repositório só tiver o _commit_ do _fork_, o site continua acessível pelo _link_ direto, mas não é listado no site-mãe — o catálogo mostra apenas projetos que de fato escreveram algo.
 - **Não há configuração de servidor.** Se o site precisa de uma _gem_ ou de um _plugin_ que não está no `Gemfile` do _boilerplate_, o caminho é [propor a melhoria no _boilerplate_]({{ site.baseurl }}/docs/merge), e não ajustar o servidor.
