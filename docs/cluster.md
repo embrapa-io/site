@@ -236,7 +236,7 @@ docker run --name terminal \
   -v /var/embrapa/ssl/wildcard/cnpxx.key:/ssl/server.key:ro \
   -v /var/run/docker.sock:/var/run/docker.sock:ro \
   -p 65500:5000 \
-  --restart unless-stopped -d \
+  --restart unless-stopped -d --sig-proxy=false \
   embrapa/terminal
 ```
 
@@ -321,8 +321,26 @@ set -e
 
 docker pull portainer/portainer-ce:latest
 
-docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
+docker run -d --sig-proxy=false -p 8000:8000 -p 127.0.0.1:9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
+
+set +e
+
+for i in 1 2 3 4 5; do
+  sleep 10
+
+  [ -n "$(docker ps -q -f name=^portainer$ -f status=running)" ] && exit 0
+
+  docker start portainer
+done
+
+echo >&2 "Portainer is not running! Check it with 'docker logs portainer'."
+
+exit 1
 ```
+
+O parâmetro `--sig-proxy=false` impede que o cliente `docker` repasse ao _container_ sinais que ele próprio receba (p.e., um `SIGTERM` enviado ao _script_ quando executado via `cron`), o que derrubaria o Portainer logo após sua criação. Como uma parada deste tipo é tratada pelo Docker como manual, o `--restart=always` não o traz de volta. Por isso, ao final, o _script_ verifica se o Portainer permanece em execução, tentando reiniciá-lo até 5 vezes, e retorna erro caso não consiga.
+
+Repare também que a porta HTTPS do Portainer (9443) é publicada apenas na interface local (`127.0.0.1`). Assim, ele não fica exposto diretamente na rede e o acesso se dá exclusivamente pelo Nginx, configurado a seguir, que utiliza o certificado válido do domínio.
 
 Além disso, [instale o Nginx](https://www.linuxcapable.com/how-to-install-nginx-on-debian-linux/) e, para a configuração acima do Portainer, especifique um novo site como segue (troque `io.cnpxx.embrapa.br` pelo nome correto do seu _cluster_):
 
@@ -356,11 +374,9 @@ server {
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_set_header Access-Control-Allow-Origin '*';
-    proxy_set_header Access-Control-Allow-Methods 'GET, POST, OPTIONS, PUT, DELETE, HEAD';
     proxy_cache_bypass $http_upgrade;
     proxy_ssl_session_reuse off;
-    proxy_pass https://localhost:9443;
+    proxy_pass https://127.0.0.1:9443;
   }
 }
 ```

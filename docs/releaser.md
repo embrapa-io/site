@@ -44,7 +44,7 @@ mkdir -p ~/releaser && cd ~/releaser
 docker run --name releaser \
   -v $(pwd):/data \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  --restart always -d \
+  --restart always -d --sig-proxy=false \
   embrapa/releaser
 ```
 
@@ -337,7 +337,7 @@ cd ~/releaser
 docker run --name releaser \
   -v $(pwd):/data \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  --restart always -d \
+  --restart always -d --sig-proxy=false \
   embrapa/releaser
 
 docker exec -it releaser io
@@ -548,7 +548,7 @@ nginx -t
 
 ### Instalação do Portainer {#portainer}
 
-É recomendado que seja [instalado o Portainer](https://docs.portainer.io/start/install) em servidores que tenham o **Releaser** para auxiliar a equipe mantenedora em sua gestão:
+É recomendado que seja [instalado o Portainer](https://docs.portainer.io/start/install) em servidores que tenham o **Releaser** para auxiliar a equipe mantenedora em sua gestão. Por meio de sua interface web é possível, por exemplo, acompanhar os _logs_ e o consumo de recursos de cada _container_, acessar um terminal (_console_) dentro deles e parar ou reiniciar _stacks_ de forma simplificada. Veja a documentação oficial de instalação:
 
 - para [Docker Compose](https://docs.portainer.io/start/install/server/docker/linux);
 - [Docker Swarm](https://docs.portainer.io/start/install/server/swarm/linux); ou
@@ -577,8 +577,28 @@ set -e
 
 docker pull portainer/portainer-ce:latest
 
-docker run -d -p 8000:8000 -p 9443:9000 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
+docker run -d --sig-proxy=false -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
+
+set +e
+
+for i in 1 2 3 4 5; do
+  sleep 10
+
+  [ -n "$(docker ps -q -f name=^portainer$ -f status=running)" ] && exit 0
+
+  docker start portainer
+done
+
+echo >&2 "Portainer is not running! Check it with 'docker logs portainer'."
+
+exit 1
 ```
+
+O parâmetro `--sig-proxy=false` impede que o cliente `docker` repasse ao _container_ sinais que ele próprio receba (p.e., um `SIGTERM` enviado ao _script_ quando executado via `cron`), o que derrubaria o Portainer logo após sua criação. Como uma parada deste tipo é tratada pelo Docker como manual, o `--restart=always` não o traz de volta. Por isso, ao final, o _script_ verifica se o Portainer permanece em execução, tentando reiniciá-lo até 5 vezes, e retorna erro caso não consiga.
+
+Repare também que é publicada a porta HTTPS do Portainer (9443), com certificado autoassinado. Assim, mesmo o tráfego entre o _virtual proxy_ e o Portainer é criptografado. No **Nginx Proxy Manager**, configure o _proxy host_ com o _scheme_ `https`, apontando para a porta **9443** do _host_ onde está o Portainer (ou para `172.17.0.1`, caso estejam na mesma VM).
+
+> **Atenção!** Caso o _virtual proxy_ seja o Nginx instalado no próprio _host_ (conforme configuração a seguir), é recomendado publicar a porta apenas na interface local, substituindo `-p 9443:9443` por `-p 127.0.0.1:9443:9443` no _script_. Assim, o Portainer não fica exposto diretamente na rede.
 
 Caso não tenha realizado a configuração de "domínios (_virtual proxies_) e certificados SSL/TLS" (apresentada na seção anterior), [instale o Nginx](https://www.linuxcapable.com/how-to-install-nginx-on-debian-linux/) e, para a configuração acima do Portainer, especifique um novo site como segue (troque `portainer.cnpxx.embrapa.br` pelo nome correto do seu _host_):
 
@@ -612,11 +632,9 @@ server {
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_set_header Access-Control-Allow-Origin '*';
-    proxy_set_header Access-Control-Allow-Methods 'GET, POST, OPTIONS, PUT, DELETE, HEAD';
     proxy_cache_bypass $http_upgrade;
     proxy_ssl_session_reuse off;
-    proxy_pass https://localhost:9443;
+    proxy_pass https://127.0.0.1:9443;
   }
 }
 ```
