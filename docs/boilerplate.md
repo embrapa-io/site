@@ -177,13 +177,15 @@ build-sonar:
     - >
       sonar-scanner
       -Dsonar.host.url="${SONAR_HOST_URL}"
-      -Dsonar.projectKey="${CI_PROJECT_NAMESPACE}_${CI_PROJECT_NAME}"
+      -Dsonar.projectKey="${CI_PROJECT_NAMESPACE##*/}_${CI_PROJECT_NAME}"
       -Dsonar.qualitygate.wait=true
   allow_failure: true
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
     - if: $CI_COMMIT_BRANCH == 'main'
 ```
+
+A chave do projeto no SonarQube usa o último nível do grupo do GitLab: nas aplicações é `<projeto>_<app>`, e no repositório do próprio _boilerplate_, que fica em `io/boilerplate`, é `boilerplate_<nome>`. Por isso `boilerplate` é um nome Unix reservado na plataforma.
 
 O `.gitlab-io.yml` segue a mesma lógica do `.env.io`: os dois arquivos ficam lado a lado na raiz, e o sufixo `.io` indica o que é da plataforma. Assim, o `.gitlab-ci.yml` fica livre para a equipe, que pode usá-lo para o próprio _pipeline_ ou para o GitLab de um parceiro que espelhe o código, sem conflito com a plataforma. O **Embrapa I/O** não lê, não cria e não altera o `.gitlab-ci.yml`.
 
