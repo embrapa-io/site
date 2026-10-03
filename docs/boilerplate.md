@@ -149,7 +149,7 @@ Neste código está sendo utilizado o pacote [Matomo PHP Tracker](https://github
 
 O [SonarQube](https://www.sonarsource.com/products/sonarqube/) é uma popular ferramenta de **análise estática** usada no processo de revisão automática de código. Possui suporte a [29 linguagens de programação](https://docs.sonarsource.com/sonarqube/latest/analyzing-source-code/languages/overview/) e capacidade de detectar _bugs_, código duplicado, cobertura de testes de software (como testes unitários), alta complexidade ciclomática, entre outros problemas no código-fonte.
 
-A ferramenta está [integrada à plataforma Embrapa I/O](https://code.embrapa.io) e pode, portanto, efetuar a análise do código-fonte de qualquer aplicação da plataforma (desde que a linguagem de programação seja suportada). Para permitir que esta análise seja realizada, é necessário inserir na raiz do _boilerplate_ o arquivo `.gitlab-ci.yml` com o seguinte conteúdo:
+A ferramenta está [integrada à plataforma Embrapa I/O](https://code.embrapa.io) e pode, portanto, efetuar a análise do código-fonte de qualquer aplicação da plataforma (desde que a linguagem de programação seja suportada). Para permitir que esta análise seja realizada, é necessário inserir na raiz do _boilerplate_ o arquivo `.gitlab-io.yml`. É nele, e não no `.gitlab-ci.yml`, que o GitLab da plataforma lê a configuração de _pipeline_ das aplicações. O conteúdo padrão é o seguinte:
 
 ```yaml
 image:
@@ -184,6 +184,12 @@ build-sonar:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
     - if: $CI_COMMIT_BRANCH == 'main'
 ```
+
+O `.gitlab-io.yml` segue a mesma lógica do `.env.io`: os dois arquivos ficam lado a lado na raiz, e o sufixo `.io` indica o que é da plataforma. Assim, o `.gitlab-ci.yml` fica livre para a equipe, que pode usá-lo para o próprio _pipeline_ ou para o GitLab de um parceiro que espelhe o código, sem conflito com a plataforma. O **Embrapa I/O** não lê, não cria e não altera o `.gitlab-ci.yml`.
+
+O conteúdo do `.gitlab-io.yml` pode e deve ser ajustado à pilha tecnológica do _boilerplate_: um _boilerplate_ .NET, por exemplo, instala no _job_ os pacotes que a análise exige. No futuro, o mesmo arquivo reunirá outras verificações da plataforma que utilizam o _runner_, como a varredura de vulnerabilidades e baterias de testes pré-configuradas.
+
+> **Atenção!** Se a equipe quiser que o _pipeline_ do `.gitlab-ci.yml` também rode no _runner_ da plataforma, basta incluí-lo no `.gitlab-io.yml` com `include: [ { local: .gitlab-ci.yml } ]`. Nesse caso, o _job_ da análise deve declarar `inherit: { default: false, variables: false }`, `needs: []` e `stage: .post`, para não herdar a imagem, o `before_script`, as _tags_ e as variáveis globais do arquivo da equipe.
 
 ## 5. Crie os arquivos de _environment variables_ {#env}
 

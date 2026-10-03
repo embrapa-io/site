@@ -26,7 +26,7 @@ Ali será possível visualizar detalhes das _issues_ e corrigí-las de forma apr
 
 ![Visualização dos detalhes de uma issue no SonarQube]({{ site.baseurl }}/assets/img/posts/20250214144451.png)
 
-Por padrão, o SonarQube está configurado para examinar todos os _commits_ apenas na _branch_ `main`, entretanto é possível estender para outras _branches_ editando o arquivo `.gitlab-ci.yml`, presente na raiz do repositório da aplicação. O monitoramento de todo ativo digital no **Embrapa I/O** é automaticamente configurado pela plataforma e não demanda nenhuma ação dos desenvolvedores.
+Por padrão, o SonarQube está configurado para examinar todos os _commits_ apenas na _branch_ `main`, entretanto é possível estender para outras _branches_ editando o arquivo `.gitlab-io.yml`, presente na raiz do repositório da aplicação. É nele, e não no `.gitlab-ci.yml`, que a plataforma configura a análise: o `.gitlab-ci.yml` fica livre para a equipe ([saiba mais]({{ site.baseurl }}/docs/boilerplate#code)). O monitoramento de todo ativo digital no **Embrapa I/O** é automaticamente configurado pela plataforma e não demanda nenhuma ação dos desenvolvedores.
 
 Adicionalmente, existe um recurso visual para exibir de forma simplificada e gráfica as **linguagens de programação que predominam nas aplicações**:
 
