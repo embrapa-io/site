@@ -189,6 +189,20 @@ O `.gitlab-io.yml` segue a mesma lógica do `.env.io`: os dois arquivos ficam la
 
 O conteúdo do `.gitlab-io.yml` pode e deve ser ajustado à pilha tecnológica do _boilerplate_: um _boilerplate_ .NET, por exemplo, instala no _job_ os pacotes que a análise exige. No futuro, o mesmo arquivo reunirá outras verificações da plataforma que utilizam o _runner_, como a varredura de vulnerabilidades e baterias de testes pré-configuradas.
 
+_Boilerplates_ que apenas sobem uma ferramenta de terceiros, sem código-fonte próprio (um banco de dados, um servidor de e-mail, um armazenamento de objetos), não têm o que analisar. Nesse caso, o `.gitlab-io.yml` declara que não há _pipeline_:
+
+```yaml
+workflow:
+  rules:
+    - when: never
+
+# O GitLab exige ao menos um job visível, mesmo que ele nunca rode.
+embrapa-io-sem-analise:
+  script: ["true"]
+```
+
+O arquivo precisa existir mesmo assim: aplicações sem `.gitlab-io.yml` (por exemplo, as criadas a partir de um repositório pré-existente) recebem automaticamente da plataforma o arquivo padrão, com a análise. Se a aplicação passar a ter código próprio, basta trocar o arquivo pelo padrão.
+
 > **Atenção!** Se a equipe quiser que o _pipeline_ do `.gitlab-ci.yml` também rode no _runner_ da plataforma, basta incluí-lo no `.gitlab-io.yml` com `include: [ { local: .gitlab-ci.yml } ]`. Nesse caso, o _job_ da análise deve declarar `inherit: { default: false, variables: false }`, `needs: []` e `stage: .post`, para não herdar a imagem, o `before_script`, as _tags_ e as variáveis globais do arquivo da equipe.
 
 ## 5. Crie os arquivos de _environment variables_ {#env}
