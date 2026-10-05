@@ -180,6 +180,8 @@ Para verificar a configuração, use o comando `mail` (veja abaixo). Ele mostra 
 
 Além disso, será gerado um par de chaves SSH, caso não exista. Estas chaves são necessárias para a sincronização do código-fonte das aplicações. Você deve acessar novamente seu _profile_ no GitLab da plataforma e ir na opção [SSH Keys](https://git.embrapa.io/-/profile/keys). Cadastre então o conteúdo da chave pública gerada (arquivo `ssh.pub`).
 
+> **Atenção!** Por padrão, o código-fonte é clonado por SSH, na **porta 22** do `git.embrapa.io`. Se a rede do servidor bloquear essa porta na saída, use a variável opcional `GITLAB_SSH` para clonar por HTTPS, na porta 443. Veja como em [Porta 22 bloqueada](#https).
+
 ![SSH Key no GitLab]({{ site.baseurl }}/assets/img/releaser/20230717164051.png)
 
 Por fim, você deverá configurar as [_builds_ das aplicações]({{ site.baseurl }}/docs/introduction#build) que serão gerenciadas pela ferramenta **Releaser**. Para cada _build_ deverá haver uma entrada no arquivo `builds.json`. Por exemplo:
@@ -392,6 +394,46 @@ A partir da versão `1.26.9-9` o **Releaser** corrige as permissões a cada exec
 ```bash
 docker exec releaser sh -c 'chmod 600 /root/.ssh/config'
 ```
+
+### Porta 22 bloqueada: clone por HTTPS {#https}
+
+O **Releaser** consulta as _tags_ pela API do GitLab, na porta 443, mas clona o código-fonte por SSH, na porta 22. Em redes que bloqueiam a porta 22 na saída (comum em nuvens de parceiros e em algumas unidades), a API funciona e o _deploy_ falha no clone, com `Impossible to clone repository at tag ...` ou `... at branch ...`.
+
+Para confirmar, execute no servidor:
+
+```bash
+timeout 5 bash -c '</dev/tcp/git.embrapa.io/443' && echo "443 aberta" || echo "443 bloqueada"
+timeout 5 bash -c '</dev/tcp/git.embrapa.io/22' && echo "22 aberta" || echo "22 bloqueada"
+```
+
+E teste o SSH com a chave do próprio **Releaser**:
+
+```bash
+docker exec $(docker ps -q -f name=releaser) ssh -o ConnectTimeout=10 -T git@git.embrapa.io
+```
+
+Com a porta 22 liberada e o `ssh.pub` cadastrado no seu _profile_ do GitLab, a resposta começa com `Welcome to GitLab`. Um _timeout_ indica bloqueio de rede; `Permission denied (publickey)` indica que a chave não está cadastrada.
+
+Há duas saídas:
+
+1. **Liberar a porta** (definitivo): peça à equipe de rede responsável pelo servidor a liberação de saída TCP na porta **22** para o `git.embrapa.io`, anexando o resultado dos testes acima.
+
+2. **Clonar por HTTPS** (imediato, sem mexer na rede): a variável opcional `GITLAB_SSH` define o endereço usado no clone, cujo padrão é `ssh://git@git.embrapa.io`. Apontada para HTTPS com um _token_, o clone passa a sair pela porta 443:
+
+   - Gere um _token_ em [Personal Access Tokens](https://git.embrapa.io/-/user_settings/personal_access_tokens) com os _scopes_ `read_api` **e** `read_repository` (o `read_api` sozinho não permite clonar), sem data de expiração. O usuário precisa ter acesso a todos os repositórios das _builds_ do servidor, como no caso do `GITLAB_TOKEN`.
+   - No `.env` do diretório de configuração (`~/releaser/.env`, no exemplo), use esse _token_ no `GITLAB_TOKEN` e acrescente:
+
+     ```bash
+     GITLAB_SSH=https://oauth2:<token>@git.embrapa.io
+     ```
+
+   - Valide com uma das _builds_ (o `validate` faz o clone da _branch_ do estágio):
+
+     ```bash
+     docker exec -it $(docker ps -q -f name=releaser) io validate projeto/app@stage
+     ```
+
+O `.env` é relido a cada execução, tanto pelo comando `io` quanto pelos serviços periódicos do _daemon_: não é preciso recriar o _container_. Nas mensagens de erro do clone o Git omite o _token_ da URL, mas ele fica em texto claro no `.env`, como o `GITLAB_TOKEN`. Por isso, guarde esse arquivo com o mesmo cuidado do `builds.json` (veja [Salvaguarda de Segredos e Senhas](#vault)).
 
 ## Dicas
 
