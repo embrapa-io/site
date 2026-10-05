@@ -2,6 +2,8 @@
 layout: page
 title: MCP do Dashboard
 subtitle: Acesso a todas as funcionalidades do Painel de Controle da plataforma
+share-title: "MCP do Dashboard | Embrapa I/O"
+share-description: "MCP Server do Embrapa I/O que dá acesso ao Painel de Controle em linguagem natural: projetos, apps, builds, deploys, equipe e qualidade de código, com login OAuth."
 permalink: /docs/mcp/io/
 ---
 

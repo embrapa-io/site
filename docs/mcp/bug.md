@@ -2,6 +2,8 @@
 layout: page
 title: MCP do Sentry
 subtitle: Rastreamento de erros e issues do bug.embrapa.io via linguagem natural
+share-title: "MCP do Sentry | Embrapa I/O"
+share-description: "MCP Server do Embrapa I/O para investigar erros, issues e releases das aplicações no Sentry (bug.embrapa.io) em linguagem natural."
 permalink: /docs/mcp/bug/
 ---
 

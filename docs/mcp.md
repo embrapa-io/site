@@ -2,6 +2,8 @@
 layout: page
 title: MCP Servers
 subtitle: Conectores Model Context Protocol para LLMs
+share-title: "MCP Servers do Embrapa I/O: Dashboard, GitLab, Loki, Sentry, Matomo e SEG"
+share-description: "MCP Servers da plataforma Embrapa I/O para Claude, Gemini, Copilot e Cursor: projetos, deploys, logs, issues, erros, analytics e dados do SEG, com login OAuth."
 permalink: /docs/mcp/
 ---
 

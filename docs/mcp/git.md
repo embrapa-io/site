@@ -2,6 +2,8 @@
 layout: page
 title: MCP do Kanban do GitLab
 subtitle: Gestão de issues, milestones e labels no Kanban via linguagem natural
+share-title: "MCP do Kanban do GitLab | Embrapa I/O"
+share-description: "MCP Server do Embrapa I/O para criar e gerir issues, milestones e labels no Kanban do GitLab (git.embrapa.io) em linguagem natural, com login OAuth."
 permalink: /docs/mcp/git/
 ---
 

@@ -2,6 +2,8 @@
 layout: page
 title: MCP do SEG
 subtitle: Consulta dos dados corporativos da Embrapa (SEG, CatSoft, empregados) via linguagem natural
+share-title: "MCP do SEG | Embrapa I/O"
+share-description: "MCP Server do Embrapa I/O para consultar dados corporativos da Embrapa em linguagem natural: projetos do SEG, softwares do CatSoft, notícias do portal e empregados."
 permalink: /docs/mcp/seg/
 ---
 

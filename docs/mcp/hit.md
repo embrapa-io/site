@@ -2,6 +2,8 @@
 layout: page
 title: MCP do Matomo
 subtitle: Consulta de analytics de acesso das aplicações via linguagem natural
+share-title: "MCP do Matomo | Embrapa I/O"
+share-description: "MCP Server do Embrapa I/O para consultar tráfego, origens e páginas mais acessadas das aplicações no Matomo (hit.embrapa.io) em linguagem natural."
 permalink: /docs/mcp/hit/
 ---
 

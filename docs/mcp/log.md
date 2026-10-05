@@ -2,6 +2,8 @@
 layout: page
 title: MCP de Logs (Grafana Loki)
 subtitle: Consulta dos logs centralizados das aplicações via linguagem natural
+share-title: "MCP de Logs (Grafana Loki) | Embrapa I/O"
+share-description: "MCP Server do Embrapa I/O para consultar os logs centralizados das aplicações no Grafana Loki em linguagem natural, com controle de acesso por projeto."
 permalink: /docs/mcp/log/
 ---
 
