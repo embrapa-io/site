@@ -25,7 +25,7 @@ npx -y @sentry/mcp-server@latest --access-token=SEU_TOKEN --host=bug.embrapa.io 
 ```
 
 - `--host=bug.embrapa.io` — aponta para a instância _self-hosted_ (sem isto, o pacote tenta o Sentry _cloud_);
-- `--disable-skills=seer` — o **Seer** (análise por IA da Sentry) não existe no _self-hosted_; desabilitá-lo evita expor _tools_ que não funcionariam;
+- `--disable-skills=seer` — o **Seer** (análise por IA da Sentry) não existe no _self-hosted_ e **não há como ativá-lo** na instância. Desde a versão 0.42 o pacote já o descarta sozinho quando o `--host` não é `sentry.io`; a _flag_ (ou a variável `MCP_DISABLE_SKILLS=seer`) continua recomendada por ser explícita e valer em qualquer versão;
 - o token pode ser passado pela variável de ambiente `SENTRY_ACCESS_TOKEN` em vez de `--access-token` (recomendado nos arquivos de configuração).
 
 ### Criar o Auth Token
@@ -48,15 +48,17 @@ O servidor oficial expõe _tools_ para os principais fluxos de _debugging_:
 
 **Issues e Eventos** — Detalhamento de uma _issue_ (mensagem de erro, _stack trace_, frequência, versões afetadas), consulta de eventos individuais e atualização de _status_ (resolver, ignorar).
 
-**Busca em linguagem natural** — _Tools_ de busca (`search_events`, `search_issues`) que traduzem perguntas em linguagem natural para a sintaxe de consulta do Sentry.
+**Busca** — _Tools_ de busca (`search_issues`, `search_issue_events`, `search_events`) que aceitam a [sintaxe de consulta do Sentry](https://docs.sentry.io/concepts/search/) (`is:unresolved environment:production release:app@1.2.3`) e, opcionalmente, linguagem natural traduzida por um modelo de IA.
 
 **Releases e DSNs** — Consulta de _releases_ e das _client keys_ (DSNs) de cada projeto.
 
 **Documentação** — Consulta da documentação oficial do Sentry (SDKs, integração) diretamente pelo assistente.
 
-> **Nota!** As _tools_ de busca por linguagem natural (`search_events`/`search_issues`) usam um modelo de IA para traduzir a consulta e, por isso, **só funcionam se você fornecer um provedor de LLM próprio** ao servidor (variáveis como `OPENAI_API_KEY`/`ANTHROPIC_API_KEY`). Sem provedor, essas _tools_ ficam indisponíveis e **todas as demais seguem funcionando** normalmente. O **Seer** não está disponível no _self-hosted_ — por isso mantemos `--disable-skills=seer`.
+> **Nota!** O servidor pode usar um **provedor de LLM próprio** (variáveis `EMBEDDED_AGENT_PROVIDER` e `OPENAI_API_KEY`/`ANTHROPIC_API_KEY`) apenas para **traduzir linguagem natural** para a sintaxe do Sentry. **Não é necessário:** sem provedor, o `search_issues` e o `search_issue_events` funcionam normalmente desde que o assistente escreva a consulta na sintaxe do Sentry (é o que os clientes de IA fazem sozinhos a partir do seu pedido). Se optar por configurar um provedor, lembre que cada busca envia a pergunta e nomes de campos/_tags_ para esse serviço externo.
 
-> **Nota!** A instância da plataforma opera em modo **somente erros** (`errors-only`): recursos de **_traces_/_performance_, _profiling_, _session replay_, _crons_, _user feedback_ e _metrics_ não são coletados**. Assim, as _tools_ ligadas a _traces_ (notadamente `get_trace_details` e a busca de _transactions_ no `search_events`) **retornam vazio** — o que **não afeta** as _tools_ de **erros, _issues_, projetos, _releases_ e DSNs**, que são o foco e funcionam normalmente.
+> **Atenção!** Na versão atual do pacote (0.42), a _tool_ **`search_events` falha nesta instância** com erro interno de validação (`invalid_type` em `dataset`/`environment`/`query`), mesmo com a consulta na sintaxe do Sentry — não é falta de provedor de LLM nem problema do token. Para contagens e eventos, use **`search_issues`** (devolve o `count` de cada _issue_) e **`search_issue_events`**; não insista variando parâmetros. O **Seer** não existe no _self-hosted_ e nenhuma configuração o ativa — por isso mantemos `--disable-skills=seer`.
+
+> **Nota!** A instância da plataforma opera em modo **somente erros** (`errors-only`): recursos de **_traces_/_performance_, _profiling_, _session replay_, _crons_, _user feedback_ e _metrics_ não são coletados**. Também **não há _release health_** (sessões, taxa _crash-free_, adoção por _release_). Assim, as _tools_ ligadas a _traces_, _replays_, _logs_ e _metrics_ (notadamente `get_trace_details` e os _datasets_ correspondentes do `search_events`) **retornam vazio por desenho** — não é falha do SDK da aplicação nem do servidor. Isso **não afeta** as _tools_ de **erros, _issues_, projetos, _releases_ e DSNs**, que são o foco e funcionam normalmente.
 
 ## Exemplos de _Prompts_
 
@@ -101,6 +103,8 @@ claude mcp add sentry --scope user \
 ```
 
 Confirme a conexão com `claude mcp list` (o `sentry` deve aparecer como _connected_) ou digitando `/mcp` dentro do Claude Code.
+
+> **Dica!** A superfície de _tools_ do pacote muda entre versões. Para um ambiente estável, troque `@latest` por uma versão fixa (ex.: `@sentry/mcp-server@0.42.0`) e atualize deliberadamente.
 
 > **Dica!** Prefira passar o token pela variável `SENTRY_ACCESS_TOKEN` (`--env`), como acima, em vez de `--access-token` no comando — assim ele não fica exposto na linha de execução do processo.
 
@@ -170,11 +174,11 @@ A superfície de _tools_ do servidor oficial **evolui entre versões**. No momen
 | Organizações e Times | Listagem e criação de organizações e times acessíveis. |
 | Projetos | Listagem, criação e atualização de projetos; consulta de DSNs (_client keys_). |
 | _Issues_ e Eventos | Detalhamento de _issues_ (_stack trace_, frequência, versões), consulta de eventos e atualização de _status_. |
-| Busca _(linguagem natural)_ | `search_events` / `search_issues` — traduzem perguntas para a sintaxe do Sentry. **Requerem provedor de LLM** (indisponíveis sem ele). |
+| Busca | `search_issues` / `search_issue_events` — aceitam a sintaxe do Sentry e funcionam **sem** provedor de LLM (o provedor só traduz linguagem natural). `search_events` **falha nesta instância** na versão 0.42 (ver nota acima). |
 | _Releases_ | Consulta de _releases_ dos projetos. |
 | Documentação | Consulta da documentação oficial do Sentry. |
 | _Traces_ / _Performance_ _(sem dados)_ | `get_trace_details` e a busca de _transactions_ no `search_events` — **não coletados** nesta instância (modo `errors-only`); retornam vazio. |
-| Seer _(indisponível)_ | Análise por IA da Sentry — **não** disponível no _self-hosted_; mantido desabilitado via `--disable-skills=seer`. |
+| Seer _(indisponível)_ | Análise por IA da Sentry — **não** existe no _self-hosted_ e não há como ativá-lo; o pacote já o descarta para _hosts_ fora do `sentry.io`, e mantemos `--disable-skills=seer` por clareza. |
 
 > **Nota!** Para a referência completa e sempre atualizada das _tools_, parâmetros e _flags_, consulte a documentação oficial (_links_ abaixo).
 
