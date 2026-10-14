@@ -4,7 +4,7 @@ title: Sentinela
 subtitle: Relatórios automáticos de segurança, estabilidade, desempenho, qualidade e uso por projeto
 ---
 
-A **Sentinela** é o agente de _insights_ da plataforma **Embrapa I/O**: a cada dia ou semana, ela lê o que as ferramentas integradas já registram sobre as aplicações de um [projeto]({{ site.baseurl }}/docs/project) (_logs_, erros, vulnerabilidades, qualidade do código, atividade no repositório e acessos) e envia à equipe, por e-mail, um relatório com o que mudou e o que continua em aberto. Uma cópia em Markdown fica no repositório `io-doc` do projeto, em `06-Support/Sentinela/`.
+A **Sentinela** é o agente de _insights_ da plataforma **Embrapa I/O**: a cada dia ou semana, ela lê o que as ferramentas integradas já registram sobre as aplicações de um [projeto]({{ site.baseurl }}/docs/project) (_logs_, erros, vulnerabilidades, qualidade do código, atividade no repositório e acessos) e envia à equipe, por e-mail, um relatório com o que mudou e o que continua em aberto. Uma cópia em Markdown fica no repositório `io-doc` do projeto, em `06-Support/Sentinel/`.
 
 ## Como ativar {#enable}
 
