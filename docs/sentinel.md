@@ -107,6 +107,7 @@ Em seguida vêm as aplicações, da mais crítica para a menos. Cada uma começa
 | Qualidade do código | _Quality gate_, cobertura, _bugs_ e dívida técnica |
 | Distribuição e alcance | `robots.txt`, `sitemap.xml`, PWA, acessibilidade |
 | Uso | Adoção e tendência de acessos |
+| Adoção de novidades | Uma funcionalidade ou conteúdo lançado no período (tags, _merge requests_) e como o público o recebeu: acessos desde o lançamento, participação nas visitas, de onde veio o interesse |
 | Tudo em ordem | Nada a fazer naquela aplicação |
 
 Abaixo dos _insights_ ficam os **achados**, agrupados por categoria, cada um com a severidade, a evidência (números, trechos, datas), a ação sugerida, o link para a ferramenta de origem e os votos de retorno.
