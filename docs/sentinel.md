@@ -135,7 +135,7 @@ Cada achado traz os links **útil** e **ruído**. O voto é individual e serve a
 
 ## Perguntas frequentes {#faq}
 
-**Uma aplicação não aparece no relatório.** Só entram aplicações com algum estágio implantado. Aplicações sem achado e sem _insight_ não ganham seção de achados, mas aparecem no resumo do período.
+**Uma aplicação não aparece no relatório.** Entram as aplicações com algum estágio implantado (no _cluster_ da plataforma ou reportado pelo [Releaser]({{ site.baseurl }}/docs/releaser#report)) e também as aplicações ativas sem estágio na plataforma, como os aplicativos nativos para Android e iOS, desde que alguma fonte traga dado no período: Sentry, Matomo, SonarQube ou GitLab. Uma aplicação ativa sem estágio e sem dado em nenhuma fonte fica de fora, sem aviso. Aplicações sem achado e sem _insight_ não ganham seção de achados, mas aparecem no resumo do período.
 
 **O relatório diário não chegou.** No diário, o e-mail só sai quando há novidade; o histórico registra a execução mesmo assim. O semanal é sempre enviado.
 
