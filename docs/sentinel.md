@@ -34,9 +34,15 @@ Cada execução passa por quatro etapas, sempre nessa ordem:
 
 ### Aplicativos na Google Play {#play}
 
-Aplicativos nativos para Android não têm estágio implantado na plataforma, mas são apps legítimas do projeto, com Sentry, Matomo e SonarQube. Para eles a Sentinela também lê a **Google Play**: a taxa de _crash_ e de ANR (_Application Not Responding_) por versão, os erros agrupados pela loja e as avaliações dos usuários no período. Com isso, uma versão nova que começou a travar, ou uma onda de avaliações de uma estrela reclamando da mesma coisa, entra no relatório como qualquer outro achado. As avaliações chegam ao modelo sem o nome de quem escreveu, e o relatório resume os temas em vez de transcrevê-las; a API da Play só devolve avaliações com texto, da versão de produção, da última semana.
+Aplicativos nativos para Android não têm estágio implantado na plataforma, mas são apps legítimas do projeto, com Sentry, Matomo e SonarQube. Para eles a Sentinela também lê a **Google Play**, em três frentes:
 
-Para a Sentinela enxergar o app, duas coisas precisam estar no lugar:
+- **Estabilidade e desempenho** (Android vitals): a taxa de _crash_ e de ANR (_Application Not Responding_) do período e as médias de 28 dias percebidas pelo usuário, que são os números que a Play compara com os limiares de mau comportamento (crash 1,09 %, ANR 0,47 %, 8 % em qualquer modelo de aparelho) para decidir se reduz a visibilidade do app na loja; a quebra por versão, aparelho e versão do Android; o início lento (frio, morno, quente), _wakeups_ excessivos, _wakelocks_ presos e renderização lenta; e os erros agrupados pela loja, com o local e os usuários afetados.
+- **Loja**: instalações e desinstalações por dia, dispositivos ativos, a nota média acumulada e a diária, e o funil da ficha (visitantes, aquisições, conversão, por país, origem de tráfego e termo de busca), sempre com o período anterior para comparação. Esses dados vêm da exportação em massa da Play Console, com 3 a 7 dias de atraso.
+- **Avaliações**: as do período, com estrelas, versão, aparelho e se já foram respondidas. O modelo lê o sentimento do público (melhorando, estável ou piorando, com a justificativa) e faz a triagem em **responder agora** (1–2 estrelas sem resposta na versão atual relatando travamento, perda de dado, bloqueio ou pergunta direta) e **pode esperar** (pedido de recurso, elogio com sugestão, versão antiga já corrigida). As avaliações chegam ao modelo sem o nome de quem escreveu e aparecem no relatório em paráfrase, identificadas só pelo id da Play Console; a API só devolve avaliações com texto, da versão de produção, da última semana.
+
+No relatório isso vira o bloco **Google Play · loja** no card da app (nota em estrelas com a variação, estabilidade contra os limiares, instalações e ficha, distribuição das avaliações), o gráfico **A loja nas últimas oito semanas** no panorama e a seção **Avaliações e sentimento na Google Play**, além dos achados e insights de costume (um crash que estourou o limiar numa versão, um ANR concentrado num aparelho, uma queda de conversão da ficha).
+
+Para a Sentinela enxergar o app, três coisas precisam estar no lugar:
 
 1. **A conta de serviço da plataforma cadastrada como usuária da conta de desenvolvedor na Play Console.** A Sentinela usa uma única conta de serviço, `sentinela@embrapa-io.iam.gserviceaccount.com`, com as permissões de leitura **Ver informações do app e fazer o download de relatórios em massa**, **Ver informações de qualidade do app** (Android vitals) e **Responder a avaliações**, que é o que a Google exige para ler as avaliações pela API, ainda que a Sentinela nunca responda nada. Na conta de desenvolvedor da **Embrapa** (`aplicativos@embrapa.br`, administrada pela SDAD), o cadastro é feito uma vez, para todos os apps, e os apps novos já nascem visíveis; a orientação à SDAD é manter essa conta de serviço com acesso a todos os apps. Apps publicados na conta de um **parceiro**, como o Pasto Certo, precisam que o parceiro faça o mesmo cadastro na conta dele, em "Usuários e permissões", convidando o e-mail da conta de serviço com essas três permissões.
 
@@ -48,7 +54,16 @@ Para a Sentinela enxergar o app, duas coisas precisam estar no lugar:
 }
 ```
 
-Um pacote que a conta de serviço não enxerga aparece no relatório como fonte sem acesso, não como achado. Por enquanto só a Google Play é lida; a App Store fica para depois.
+3. **O bucket da exportação em massa.** Na Play Console, em _Download reports_, o botão _Copy Cloud Storage URI_ dá o identificador, que começa com `pubsite_prod_rev_`. O da conta da Embrapa fica configurado uma vez na plataforma; um app publicado na conta de um parceiro declara o bucket do parceiro no mesmo atributo:
+
+```json
+"stores": {
+  "play": [ "br.embrapa.pastocerto" ],
+  "play_bucket": "pubsite_prod_rev_01234567890987654321"
+}
+```
+
+Um pacote que a conta de serviço não enxerga aparece no relatório como fonte sem acesso, não como achado; sem o bucket, o relatório sai sem instalações, nota e funil, e diz isso. Por enquanto só a Google Play é lida; a App Store fica para depois.
 
 ## Ativando {#enable}
 

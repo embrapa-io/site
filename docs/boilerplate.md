@@ -558,7 +558,8 @@ Além disso, neste diretório fica o arquivo `settings.json`, que possui informa
   },
   "orchestrators": [ "DockerCompose", "DockerSwarm" ],
   "stores": {
-    "play": [ "br.embrapa.exemplo", "br.embrapa.exemplo.homolog" ]
+    "play": [ "br.embrapa.exemplo", "br.embrapa.exemplo.homolog" ],
+    "play_bucket": "pubsite_prod_rev_01234567890987654321"
   }
 }
 ```
@@ -575,7 +576,7 @@ Os atributos `label`, `description`, `references` e `maintainers` (auto-explicat
 
 No atributo `variables` são inseridas as _environment variables_ que parametrizam a aplicação, ou seja, as mesmas contidas no arquivo `.env`. A plataforma **Embrapa I/O** carrega estas variáveis, com seus respectivos valores padrão, no momento da [configuração da _build_]({{ site.baseurl }}/docs/build). Serão carregadas primeiro as variáveis do atributo `default` e, em seguida, sobrescrevendo estas, as variáveis dos atributos homônimos ao estágio da _build_ que está sendo configurada (`alpha`, `beta` ou `release`). No exemplo acima, está sendo habilitado por padrão o _debug_ (variável `WP_DEBUG`) para as _builds_ em estágio de testes internos (_alpha_) e externos (_beta_), e desabilitado para as _builds_ em produção (_release_).
 
-O atributo `stores`, opcional, declara os **pacotes com que a aplicação está publicada nas lojas** de aplicativos, para aplicações nativas: por enquanto só `play` (Google Play), com a lista de pacotes de todos os _flavors_ (produção, homologação etc.). É por ele que a [Sentinela]({{ site.baseurl }}/docs/sentinel#play) lê a taxa de _crash_ e de ANR, os erros e as avaliações do aplicativo na loja. Aplicações web não precisam dele.
+O atributo `stores`, opcional, declara os **pacotes com que a aplicação está publicada nas lojas** de aplicativos, para aplicações nativas: por enquanto só `play` (Google Play), com a lista de pacotes de todos os _flavors_ (produção, homologação etc.) e, opcionalmente, `play_bucket`, o bucket da exportação em massa (só para apps publicados na conta de desenvolvedor de um parceiro; os da conta da Embrapa usam o bucket já configurado na plataforma). É por ele que a [Sentinela]({{ site.baseurl }}/docs/sentinel#play) lê a taxa de _crash_ e de ANR, os erros, as instalações, a nota e as avaliações do aplicativo na loja. Aplicações web não precisam dele.
 
 Outro exemplo de uso é para setar o _environment_ interno aos arcabouços de programação. Por exemplo, uma aplicação [ASP.NET](https://docs.microsoft.com/pt-br/aspnet/core/) aceita os seguintes valores para a variável `ASPNETCORE_ENVIRONMENT`: `Development`, `Staging`, `Staging_2` e `Production` ([conforme a documentação](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments)). Assim, poderia ser configurado no arquivo `.env.example` do _boilerplate_ a variável `ASPNETCORE_ENVIRONMENT=Development`, de forma que os desenvolvedores, ao renomearem o arquivo para iniciar a customização da aplicação, já usariam o valor correto para o _environment_ de desenvolvimento. Nas configurações de metadados do _boilerplate_ no arquivo `settings.json`, esta variável poderia ser setada no subgrupo `alpha` como `Staging`, em `beta` como `Staging_2` e em `release` como `Production`. A mesma estratégia pode pode ser utilizada para a variável `NODE_ENV`, [comumente utilizada em projetos em JavaScript](https://www.geeksforgeeks.org/what-is-node_env-in-node-js/), e demais correlatas em outras linguagens e arcabouços de programação.
 
