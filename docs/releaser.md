@@ -124,7 +124,7 @@ dockerd --validate --config-file /etc/docker/daemon.json
 
 Por fim, faça: `systemctl restart docker`. É possível verificar se há algum erro utilizando o comando `journalctl -u docker | grep loki`. Se configurado com sucesso, deverá ser visto na saída deste último comando algo como "_Using default logging driver loki_".
 
-## Configuração Inicial do Releaser
+## Configuração Inicial do Releaser {#setup}
 
 Para auxiliar na configuração inicial, execute o seguinte comando...
 
@@ -184,77 +184,51 @@ Além disso, será gerado um par de chaves SSH, caso não exista. Estas chaves s
 
 ![SSH Key no GitLab]({{ site.baseurl }}/assets/img/releaser/20230717164051.png)
 
-Por fim, você deverá configurar as [_builds_ das aplicações]({{ site.baseurl }}/docs/introduction#build) que serão gerenciadas pela ferramenta **Releaser**. Para cada _build_ deverá haver uma entrada no arquivo `builds.json`. Por exemplo:
+Por fim, você deverá configurar as [_builds_ das aplicações]({{ site.baseurl }}/docs/introduction#build) que serão gerenciadas pela ferramenta **Releaser**. Cada _build_ é **um arquivo JSON** no diretório `builds/` do volume compartilhado com o _container_, com o nome `<projeto>_<app>_<estágio>.json`. O assistente da primeira execução cria um esqueleto para cada _build_ informada, e o comando [`io install`](#install) monta o arquivo completo de forma guiada. Por exemplo, o arquivo `builds/pasto-certo_pwa_release.json`:
 
 ```json
-[
-  {
-    "project": "pasto-certo",
-    "app": "pwa",
-    "stage": "release",
-    "team": [
-      "ludwig.mises@embrapa.br",
-      "murray.rothbard@embrapa.br"
-    ],
-    "sentry": {
-      "dsn": "https://8eaf295c850d9c188f280cbd27ab0fe7ab7ca644@bug.embrapa.io/123"
-    },
-    "matomo": {
-      "id": 321,
-      "token": "73a2ada00882dcee68193f3c5cc02eb03310602f"
-    },
-    "auto": {
-      "deploy": true,
-      "backup": false,
-      "sanitize": false,
-      "cleaner": false
-    },
-    "env": {
-      "PORT": "49152",
-      "VUE_APP_API": "https://test.cnpgc.embrapa.br/pasto-certo/api",
-      "VUE_APP_TOKEN": "sPOve29ZnLmtNAiLRLjh5EzKrS2Unnno",
-      "VUE_APP_ANALYTICS": "UA-123456789-0"
-    }
+{
+  "project": "pasto-certo",
+  "app": "pwa",
+  "stage": "release",
+  "team": [
+    "ludwig.mises@embrapa.br",
+    "murray.rothbard@embrapa.br"
+  ],
+  "sentry": {
+    "dsn": "https://8eaf295c850d9c188f280cbd27ab0fe7ab7ca644@bug.embrapa.io/123"
   },
-  {
-    "project": "andro-certo",
-    "app": "api",
-    "stage": "beta",
-    "team": [
-      "bernard.cornwell@embrapa.br"
-    ],
-    "sentry": {
-      "dsn": "https://d5020b7beccd6ef6b14b904b92ee3cae1584be6f@bug.embrapa.io/456"
-    },
-    "matomo": {
-      "id": 654,
-      "token": "0aa0277979f61d68ae5d602452f6ba246ed2982e"
-    },
-    "auto": {
-      "deploy": true,
-      "backup": true,
-      "sanitize": true,
-      "cleaner": true
-    },
-    "env": {
-      "PORT": "49153",
-      "ENVIRONMENT": "test",
-      "SECRET": "dOpSqbFtj4Yzqa7lAR0jt3mRDgw09JsA",
-      "SMTP_HOST": "smtp.cnpgc.embrapa.br",
-      "SMTP_PORT": "587",
-      "SMTP_SECURE": "yes",
-      "EXPRESS_PORT": "49154",
-      "MONGO_NON_ROOT_USERNAME": "user",
-      "MONGO_ROOT_PASSWORD": "secret",
-      "MONGO_NON_ROOT_PASSWORD": "secret",
-      "MONGO_DATA": "andro-certo_api_alpha_db",
-      "BACKUP": "andro-certo_api_alpha_backup"
-    }
+  "matomo": {
+    "id": 321,
+    "token": "73a2ada00882dcee68193f3c5cc02eb03310602f"
+  },
+  "auto": {
+    "deploy": true,
+    "backup": false,
+    "sanitize": false,
+    "cleaner": false
+  },
+  "stats": {
+    "version": true,
+    "cve": true,
+    "health": true
+  },
+  "env": {
+    "PORT": "49152",
+    "VUE_APP_API": "https://test.cnpgc.embrapa.br/pasto-certo/api",
+    "VUE_APP_TOKEN": "sPOve29ZnLmtNAiLRLjh5EzKrS2Unnno",
+    "VUE_APP_ANALYTICS": "UA-123456789-0"
   }
-]
+}
 ```
 
-No exemplo acima foram configuradas duas _builds_: `pasto-certo/pwa@release` e `andro-certo/api@beta`. O atributo `team` lista os e-mails que irão receber os _logs_ do processo de _deploy_ correlatos a cada _build_. O atributo _auto_ permite ativar os serviços que serão executados de forma periódica, sendo eles:
+Outras _builds_ do mesmo servidor ficam em outros arquivos (`builds/andro-certo_api_beta.json` etc.). O nome do arquivo precisa bater com `project`, `app` e `stage` do conteúdo, senão o Releaser recusa; e a mesma _build_ em dois arquivos é erro, não há precedência silenciosa.
+
+> **Atenção!** Para **desativar** uma _build_ sem perder a configuração, basta renomear o arquivo para outra extensão (por exemplo, `pasto-certo_pwa_release.json.bkp`): só arquivos `.json` contam. O Releaser deixa de gerir a _build_ e de reportá-la à plataforma, mas os _containers_ continuam como estão; para derrubá-los, use `io stop` antes de renomear. O `io info` lista as _builds_ desativadas.
+
+Instalações antigas, com todas as _builds_ num único `builds.json`, **continuam funcionando**. O comando `io split` migra o arquivo para `builds/*.json` e guarda o original como `builds.json.bkp`; o `io install` oferece essa migração quando encontra o formato antigo.
+
+O atributo `team` lista os e-mails que irão receber os _logs_ do processo de _deploy_ correlatos a cada _build_. O atributo _auto_ permite ativar os serviços que serão executados de forma periódica, sendo eles:
 
 - ***deploy***: Executa a cada **15 minutos** a busca por novas versões, ou seja, _tags_ na _branch_ do estágio da _build_. Caso encontre, executa o processo de _deploy_ da nova _tag_ e envia um e-mail de _log_ (informando o sucesso ou eventuais erros no procedimento);
 
@@ -264,6 +238,8 @@ No exemplo acima foram configuradas duas _builds_: `pasto-certo/pwa@release` e `
 
 - ***cleaner***: Executa **diariamente** (logo após o _backup_) a **rotação dos arquivos de _backup_** da _build_, mantendo os últimos **7 diários, 4 semanais e 3 mensais** e apagando o restante. Aceita `false` (padrão, quando ausente), `true` ou `"undated"` — este último inclui na rotação, pela data de modificação, arquivos **sem data no nome** (caso de aplicações que não seguem o [padrão de nome do arquivo de _backup_]({{ site.baseurl }}/docs/boilerplate#cli:backup)). Detalhes na seção [Rotação de _backups_](#cleaner).
 
+O atributo `stats` define o que a _build_ **reporta à plataforma** (ver [a seção correspondente](#report)): a versão implantada (`version`), as vulnerabilidades das imagens em execução (`cve`) e a saúde dos serviços (`health`). Os três valem `true` por padrão, inclusive quando o atributo está ausente; `"stats": false` desliga os três. O caso típico de desligar é o `cve` num servidor pequeno ou sem acesso ao `ghcr.io`, de onde o Trivy baixa o banco de vulnerabilidades.
+
 O **DSN do Sentry**, [conforme já explicado]({{ site.baseurl }}/docs/bug), pode ser obtido a partir da [_dashboard_ do Embrapa I/O](https://dashboard.embrapa.io). Da mesma forma, o **ID do Matomo** também pode ser obtido por meio da _dashboard_, [conforme já visto anteriormente]({{ site.baseurl }}/docs/analytics). O **_token_ do Matomo**, por sua vez, é gerado pelo **Embrapa I/O** automaticamente quando se utiliza os _pipelines_ de _deploy_ padrão da plataforma. Para gerá-lo manualmente, você precisará [acessar o Matomo](https://hit.embrapa.io) e autenticar-se com seu login e senha. Em seguida, acesse a "Aministração" (na _toolbar_) e vá em "Pessoal &raquo; Segurança". Na seção "**Tokens de autenticação**" adicione um novo _token_, inserindo o valor da _hash_ gerada no atributo correlato nas aplicações do `builds.json`.
 
 ![Tokens de autenticação no Matomo]({{ site.baseurl }}/assets/img/releaser/20230717162755.png)
@@ -272,7 +248,7 @@ O **DSN do Sentry**, [conforme já explicado]({{ site.baseurl }}/docs/bug), pode
 
 No atributo `env` devem ser listadas as variáveis de ambiente que serão injetadas no momento do _deploy_. Mais especificamente, será gerado um arquivo `.env` na raiz do diretório clonado da aplicação, de forma idêntica à utilizada para instanciar a aplicação em ambiente local de desenvolvimento.
 
-O `builds.json` é relido a cada execução: ao alterar o `env` de uma _build_ já implantada, basta rodar `io deploy proj/app@stage --force` para que o clone seja refeito, o `.env` regenerado e os _containers_ recriados com os novos valores, sem precisar de uma nova _tag_. Os arquivos gerados pelo Releaser (`.env`, `.env.io` e `.env.sh`) são a **única** fonte de variáveis para o `docker compose`: as variáveis do próprio Releaser (`SMTP_HOST`, `SMTP_PORT`, `SERVER` etc., do arquivo `.env` do diretório de configuração) nunca chegam aos _containers_ das aplicações, mesmo que a aplicação declare variáveis com o mesmo nome.
+Os arquivos de `builds/` são relidos a cada execução: ao alterar o `env` de uma _build_ já implantada, basta rodar `io deploy proj/app@stage --force` para que o clone seja refeito, o `.env` regenerado e os _containers_ recriados com os novos valores, sem precisar de uma nova _tag_. Os arquivos gerados pelo Releaser (`.env`, `.env.io` e `.env.sh`) são a **única** fonte de variáveis para o `docker compose`: as variáveis do próprio Releaser (`SMTP_HOST`, `SMTP_PORT`, `SERVER` etc., do arquivo `.env` do diretório de configuração) nunca chegam aos _containers_ das aplicações, mesmo que a aplicação declare variáveis com o mesmo nome.
 
 Pronto! Caso tenha seguido corretamente os passos acima, a ferramenta estará pronta para ser executada.
 
@@ -302,7 +278,11 @@ Os comandos disponíveis são:
 - ***backup***: Gera um _backup_ da _build_ executando o serviço `backup` do `docker-compose.yaml`. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`. _Builds_ sem esse serviço (caso das aplicações de _frontend_) são ignoradas com um aviso, não com erro;
 - ***sanitize***: Executa o processo de higienização/otimização da _build_ (serviço `sanitize`). Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`. _Builds_ sem esse serviço são ignoradas com um aviso;
 - ***cleaner***: Rotaciona os arquivos do volume de _backup_ da _build_ (mantém os últimos 7 diários, 4 semanais e 3 mensais). Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`, e o parâmetro `--dry-run`, que apenas mostra o que seria mantido e apagado. Ao final, exibe um resumo por _build_ com a quantidade de arquivos e o espaço ocupado antes e depois da rotação. _Builds_ sem volume de _backup_ são ignoradas com um aviso;
-- ***info***: Exibe a versão de cada _build_ instanciada e outros comandos úteis do orquestrador que podem ser utilizados; e
+- ***health***: Inspeciona os _containers_ de cada _build_ neste servidor (estado, _healthcheck_, tamanho, data de criação) e reporta a saúde dos serviços à plataforma. Aceita uma lista de _builds_ ou `--all`. O _daemon_ executa a cada **minuto**, em silêncio;
+- ***cve***: Varre as imagens em execução de cada _build_ com o [Trivy](https://trivy.dev) (só vulnerabilidades `HIGH` e `CRITICAL`) e reporta o resultado à plataforma. Aceita uma lista de _builds_ ou `--all`. O _daemon_ executa a cada **hora**, num minuto sorteado por servidor. Cada imagem distinta é varrida uma vez por rodada; se alguma varredura falhar, a _build_ fica de fora do relato e a plataforma mantém o resultado anterior;
+- ***install***: [Configuração guiada](#install) de uma _build_ nova: escolhe projeto, _app_ e estágio por menus, busca na plataforma a equipe, o DSN do Sentry, o site e o _token_ do Matomo e as variáveis do `.embrapa/settings.json`, gera os valores por tipo e grava o arquivo em `builds/`. Aceita a _build_ como parâmetro (`proj/app@stage`) e `--yes` (sem perguntas, com os valores padrão);
+- ***split***: Migra o `builds.json` antigo para um arquivo por _build_ em `builds/`, guardando o original como `builds.json.bkp`;
+- ***info***: Exibe, por _build_, o arquivo de configuração, o resultado do último relato de cada sinal à plataforma (versão, saúde e CVEs), a versão instanciada e outros comandos úteis do orquestrador; lista também as _builds_ desativadas; e
 - ***mail***: Testa as configurações de SMTP por meio do envio de um e-mail de teste, detalhando cada tentativa (servidor, porta e motivo da falha). Deve-se informar como parâmetro uma lista de endereços separada por vírgula que receberão a mensagem (por exemplo, `jose.silva@embrapa.br,maria.santos@embrapa.br`). Se o envio funcionar, os e-mails que estavam na fila também são enviados.
 
 Por exemplo, para **validar** todas as _builds_ configuradas em um servidor com **Docker Compose**, faríamos:
@@ -319,9 +299,38 @@ docker exec -it $(docker ps -q -f name=releaser) io rollback \
   4.23.7-15
 ```
 
+## Configuração guiada de uma _build_ {#install}
+
+O comando `io install` monta o arquivo de uma _build_ nova sem que você precise copiar nada à mão:
+
+```bash
+docker exec -it releaser io install
+```
+
+1. Lista os **projetos** da plataforma a que o dono do `GITLAB_TOKEN` tem acesso (pelo menos _Developer_), depois as **_apps_** do projeto escolhido e, por fim, o **estágio**. Também aceita a _build_ direto como parâmetro: `io install pasto-certo/pwa@release`.
+2. Pergunta à plataforma o que só ela sabe sobre essa _build_: a **equipe** (que vira o `team`), o **DSN do Sentry**, o **site e o _token_ do Matomo** (criados na hora, se ainda não existirem) e as **variáveis** do `.embrapa/settings.json` da _tag_ mais recente do estágio. Se o estágio já for implantado pela própria plataforma num _cluster_, o comando para: um estágio é da plataforma **ou** do Releaser, nunca dos dois.
+3. Gera os valores por tipo de variável: `PASSWORD` e `SECRET` aleatórios (ou digitados, se você preferir), `PORT` com a **próxima porta livre** a partir da base informada (conferindo as portas em uso no servidor e as já reservadas em outros arquivos de `builds/`), `VOLUME` com o sufixo padrão e `TEXT` com o valor padrão do _boilerplate_, sempre com a chance de alterar.
+4. Grava `builds/<projeto>_<app>_<estágio>.json` com `auto` e `stats` nos valores padrão e mostra o comando do primeiro _deploy_.
+
+Com `--yes` não há perguntas: valem os padrões (senhas aleatórias, próxima porta a partir de `49152`, valores do _boilerplate_). Os **volumes externos** citados pela aplicação ainda precisam ser criados por você antes do primeiro _deploy_ (`docker volume create <projeto>_<app>_<estágio>_<nome>`); o comando lista os nomes ao final. O `io install` não altera _builds_ já configuradas: edite o arquivo diretamente ou remova-o antes.
+
+## O que o Releaser reporta à plataforma {#report}
+
+Desde a versão `1.26.10-1`, o Releaser informa ao **Embrapa I/O** o que sabe sobre cada _build_ que implanta, e a _dashboard_ passa a mostrar esses estágios como mostra os dos _clusters_ da plataforma: a **versão** no _card_ (em **laranja**, com o ícone de servidor, para distinguir dos estágios da plataforma, em ciano), a **saúde dos serviços** e as **CVEs** no _Health Check_, além de alimentar a [Sentinela]({{ site.baseurl }}/docs/sentinel). Três sinais, cada um no seu ritmo:
+
+| Sinal | Quando | O que vai |
+|---|---|---|
+| Versão | Ao fim de cada _deploy_ bem-sucedido | A _tag_ implantada |
+| Saúde | A cada minuto (_daemon_), ou `io health` | Estado, _healthcheck_, tamanho e idade de cada serviço |
+| CVEs | A cada hora (_daemon_), ou `io cve` | Vulnerabilidades `HIGH` e `CRITICAL` de cada imagem em execução, pelo Trivy |
+
+A autenticação usa o **mesmo `GITLAB_TOKEN`** do `.env` do Releaser: a plataforma valida o _token_ no GitLab e exige que o seu dono seja pelo menos _Developer_ do repositório da _app_. Não há nada novo para configurar. Se o _token_ expirar ou perder o acesso, o relato é recusado (o `io info` mostra o motivo) e, depois de 15 minutos sem contato, a _dashboard_ marca o estágio como "sem contato com o Releaser", em cinza. O valor de `SERVER` é o que aparece na _dashboard_ como o servidor da _build_: use o nome real da máquina, pois é ele que diz à equipe **onde** atuar quando algo falha.
+
+O que cada _build_ reporta é controlado pelo atributo [`stats`](#setup) do seu arquivo. O Trivy roda como _container_ no próprio servidor (imagem `aquasec/trivy`, banco de vulnerabilidades no volume `releaser_trivy`) e precisa de acesso ao `ghcr.io` para baixar o banco; servidores sem essa saída devem desligar o `cve`. As ações do _Health Check_ que dependem do _deployer_ da plataforma (_backup_, reiniciar, desativar e remover a _build_, terminal) ficam desabilitadas na _dashboard_ para as _builds_ do Releaser: elas continuam sendo feitas pelos comandos `io`.
+
 ## Monitoramento do Releaser
 
-Toda instância do **Releaser** reporta ao Sentry da plataforma (sentry.io, projeto `releaser`): erros internos da própria ferramenta como _issues_ e a saída de cada execução como _logs_ (com `operation`, `build`, `project`, `app` e `stage`). O `environment` é o valor de `SERVER` do `.env` e o `release` é a versão da imagem. Nada precisa ser configurado. Erros de _deploy_ ou _backup_ de uma _build_ **não** viram _issue_ do Releaser: eles são enviados por e-mail à equipe da _build_, e cada aplicação tem o próprio DSN do Sentry.
+Toda instância do **Releaser** reporta ao Sentry da plataforma (sentry.io, projeto `releaser`): erros internos da própria ferramenta como _issues_ e a saída de cada execução como _logs_ (com `operation`, `build`, `project`, `app` e `stage`). O `environment` é o valor de `SERVER` do `.env` e o `release` é a versão da imagem. Nada precisa ser configurado. Erros de _deploy_ ou _backup_ de uma _build_ **não** viram _issue_ do Releaser: eles são enviados por e-mail à equipe da _build_, e cada aplicação tem o próprio DSN do Sentry. O _health check_ de cada minuto só envia _logs_ de aviso ou erro.
 
 ## Atualização {#update}
 
