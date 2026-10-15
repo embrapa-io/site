@@ -28,8 +28,27 @@ Cada execução passa por quatro etapas, sempre nessa ordem:
 | GitLab | _Commits_ (sem autor), _merge requests_ mescladas, abertas e paradas, _tags_ publicadas e _pipelines_ com falha |
 | Matomo | Visitas por dia (até o último dia completo), ações, rejeição, tempo médio e páginas mais vistas; e o retrato do público: visitantes únicos, novos × recorrentes, dispositivos e sistemas, origem do tráfego e sites que mais encaminham, estados do Brasil (ou países), páginas de entrada, duração das visitas e picos de dia e hora. Sempre agregados: nunca um visitante individual |
 | Estágios | Versão implantada em cada estágio, saúde dos serviços e data da última verificação |
+| Google Play | Para aplicativos nativos publicados na loja: taxa de _crash_ e de ANR por versão, erros agrupados (tipo, local, usuários afetados) e as avaliações do período, sem o nome do autor. Veja [Aplicativos na Google Play](#play) |
 
 > **Atenção!** A Sentinela só lê e relata. Nenhuma ação é executada automaticamente nas aplicações: as correções são sugeridas à equipe, que decide o que fazer.
+
+### Aplicativos na Google Play {#play}
+
+Aplicativos nativos para Android não têm estágio implantado na plataforma, mas são apps legítimas do projeto, com Sentry, Matomo e SonarQube. Para eles a Sentinela também lê a **Google Play**: a taxa de _crash_ e de ANR (_Application Not Responding_) por versão, os erros agrupados pela loja e as avaliações dos usuários no período. Com isso, uma versão nova que começou a travar, ou uma onda de avaliações de uma estrela reclamando da mesma coisa, entra no relatório como qualquer outro achado. As avaliações chegam ao modelo sem o nome de quem escreveu, e o relatório resume os temas em vez de transcrevê-las; a API da Play só devolve avaliações com texto, da versão de produção, da última semana.
+
+Para a Sentinela enxergar o app, duas coisas precisam estar no lugar:
+
+1. **A conta de serviço da plataforma cadastrada como usuária da conta de desenvolvedor na Play Console.** A Sentinela usa uma única conta de serviço, `sentinela@embrapa-io.iam.gserviceaccount.com`, com as permissões de leitura **Ver informações do app e fazer o download de relatórios em massa**, **Ver informações de qualidade do app** (Android vitals) e **Responder a avaliações**, que é o que a Google exige para ler as avaliações pela API, ainda que a Sentinela nunca responda nada. Na conta de desenvolvedor da **Embrapa** (`aplicativos@embrapa.br`, administrada pela SDAD), o cadastro é feito uma vez, para todos os apps, e os apps novos já nascem visíveis; a orientação à SDAD é manter essa conta de serviço com acesso a todos os apps. Apps publicados na conta de um **parceiro**, como o Pasto Certo, precisam que o parceiro faça o mesmo cadastro na conta dele, em "Usuários e permissões", convidando o e-mail da conta de serviço com essas três permissões.
+
+2. **Os pacotes do app declarados no `.embrapa/settings.json`** do repositório, no atributo `stores`, porque um app costuma publicar mais de um _flavor_ (produção e homologação, por exemplo):
+
+```json
+"stores": {
+  "play": [ "br.embrapa.siexp", "br.embrapa.siexp.homolog" ]
+}
+```
+
+Um pacote que a conta de serviço não enxerga aparece no relatório como fonte sem acesso, não como achado. Por enquanto só a Google Play é lida; a App Store fica para depois.
 
 ## Ativando {#enable}
 
