@@ -87,7 +87,7 @@ A aba **Histórico** lista todos os relatórios, com filtro por período: data, 
 
 ## O relatório {#report}
 
-O relatório é o mesmo por e-mail, no histórico e no `io-doc`. Ele começa pelo retrato do período: indicadores (novidades, itens em aberto e contagem por severidade) e o **panorama**, com três gráficos: novidades por aplicação e severidade, visitas por dia (uma linha por aplicação com site no Matomo) e vulnerabilidades altas e críticas nas imagens em execução, com a proporção que já tem correção publicada.
+O relatório é o mesmo por e-mail, no histórico e no `io-doc`. Ele começa pelo retrato do período: indicadores (novidades, itens em aberto e contagem por severidade) e o **panorama**, com cinco gráficos: novidades por aplicação e severidade; visitas por dia (uma linha por aplicação com site no Matomo, até o último dia completo); quem acessa e de onde, para o projeto inteiro (dispositivos, origem do tráfego e estados do Brasil ou países, em participação); páginas mais acessadas somando todas as aplicações; e vulnerabilidades altas e críticas nas imagens em execução, com a proporção que já tem correção. Os dois gráficos de público existem para que o relatório sirva também a quem não é de TI na equipe publicada.
 
 ![Cabeçalho e indicadores do relatório]({{ site.baseurl }}/assets/img/sentinel/09.png)
 
