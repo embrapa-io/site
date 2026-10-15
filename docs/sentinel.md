@@ -26,7 +26,7 @@ Cada execução passa por quatro etapas, sempre nessa ordem:
 | Trivy | CVEs altas e críticas nas imagens em execução, por serviço, e quais já têm correção publicada |
 | SonarQube | _Quality gate_, notas de manutenibilidade, confiabilidade, segurança e revisão de _hotspots_, cobertura, duplicação, linguagens e os _hotspots_ pendentes |
 | GitLab | _Commits_ (sem autor), _merge requests_ mescladas, abertas e paradas, _tags_ publicadas e _pipelines_ com falha |
-| Matomo | Visitas por dia, ações, rejeição, tempo médio e páginas mais vistas |
+| Matomo | Visitas por dia (até o último dia completo), ações, rejeição, tempo médio e páginas mais vistas; e o retrato do público: visitantes únicos, novos × recorrentes, dispositivos e sistemas, origem do tráfego e sites que mais encaminham, estados do Brasil (ou países), páginas de entrada, duração das visitas e picos de dia e hora. Sempre agregados: nunca um visitante individual |
 | Estágios | Versão implantada em cada estágio, saúde dos serviços e data da última verificação |
 
 > **Atenção!** A Sentinela só lê e relata. Nenhuma ação é executada automaticamente nas aplicações: as correções são sugeridas à equipe, que decide o que fazer.
