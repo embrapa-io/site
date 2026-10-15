@@ -316,15 +316,27 @@ Com `--yes` não há perguntas: valem os padrões (senhas aleatórias, próxima 
 
 ## O que o Releaser reporta à plataforma {#report}
 
-Desde a versão `1.26.10-1`, o Releaser informa ao **Embrapa I/O** o que sabe sobre cada _build_ que implanta, e a _dashboard_ passa a mostrar esses estágios como mostra os dos _clusters_ da plataforma: a **versão** no _card_ (em **laranja**, com o ícone de servidor, para distinguir dos estágios da plataforma, em ciano), a **saúde dos serviços** e as **CVEs** no _Health Check_, além de alimentar a [Sentinela]({{ site.baseurl }}/docs/sentinel). Três sinais, cada um no seu ritmo:
+Desde a versão `1.26.10-2`, o Releaser informa ao **Embrapa I/O** o que sabe sobre cada _build_ que implanta, e a _dashboard_ passa a mostrar esses estágios como mostra os dos _clusters_ da plataforma. **Basta atualizar a imagem** ([veja como](#update)): não há nada para configurar. No _card_ do projeto, a **versão** de um estágio implantado pelo Releaser aparece em **laranja, com o ícone de servidor**, enquanto os estágios dos _clusters_ da plataforma seguem em ciano, com o foguete. Passe o mouse sobre o chip para ver em qual servidor a _build_ está e quando foi o último contato:
+
+![Card com os estágios release e beta vindos do Releaser e o alpha na plataforma]({{ site.baseurl }}/assets/img/releaser/20261015091339.png){: width="60%" .img-center }
+
+O **coração** de cada estágio passa a considerar tanto a **saúde dos serviços** (_healthcheck_ e estado dos _containers_) quanto as **CVEs** das imagens: vermelho com serviço parado ou CVE crítica, laranja com serviço iniciando ou CVE alta. O _Health Check_ mostra os serviços, a origem (servidor e versão do Releaser), a hora do último contato e as vulnerabilidades encontradas:
+
+![Health Check de uma build implantada pelo Releaser]({{ site.baseurl }}/assets/img/releaser/20261015091353.png){: width="80%" .img-center }
+
+![CVEs de uma build implantada pelo Releaser]({{ site.baseurl }}/assets/img/releaser/20261015091420.png){: width="80%" .img-center }
+
+Esses dados também alimentam a [Sentinela]({{ site.baseurl }}/docs/sentinel), que passa a incluir as _builds_ do Releaser nos relatórios do projeto. São três sinais, cada um no seu ritmo:
 
 | Sinal | Quando | O que vai |
 |---|---|---|
-| Versão | Ao fim de cada _deploy_ bem-sucedido | A _tag_ implantada |
+| Versão | Ao fim de cada _deploy_ bem-sucedido (e junto com a saúde) | A _tag_ implantada |
 | Saúde | A cada minuto (_daemon_), ou `io health` | Estado, _healthcheck_, tamanho e idade de cada serviço |
 | CVEs | A cada hora (_daemon_), ou `io cve` | Vulnerabilidades `HIGH` e `CRITICAL` de cada imagem em execução, pelo Trivy |
 
-A autenticação usa o **mesmo `GITLAB_TOKEN`** do `.env` do Releaser: a plataforma valida o _token_ no GitLab e exige que o seu dono seja pelo menos _Developer_ do repositório da _app_. Não há nada novo para configurar. Se o _token_ expirar ou perder o acesso, o relato é recusado (o `io info` mostra o motivo) e, depois de 15 minutos sem contato, a _dashboard_ marca o estágio como "sem contato com o Releaser", em cinza. O valor de `SERVER` é o que aparece na _dashboard_ como o servidor da _build_: use o nome real da máquina, pois é ele que diz à equipe **onde** atuar quando algo falha.
+A autenticação usa o **mesmo `GITLAB_TOKEN`** do `.env` do Releaser: a plataforma valida o _token_ no GitLab e exige que o seu dono seja pelo menos _Developer_ do repositório da _app_. Se o _token_ expirar ou perder o acesso, o relato é recusado (o `io info` mostra o motivo) e, depois de 15 minutos sem contato, a _dashboard_ marca o estágio como "sem contato com o Releaser", em cinza. O valor de `SERVER` é o que aparece na _dashboard_ como o servidor da _build_: use o nome real da máquina, pois é ele que diz à equipe **onde** atuar quando algo falha.
+
+> **Atenção!** Um estágio é implantado pela plataforma **ou** por um Releaser, nunca pelos dois. Se o estágio tiver um _cluster_ configurado na _dashboard_, o relato do Releaser é recusado (código `409`, visível no `io info`) e a plataforma continua mandando. É o caso de _builds_ antigas que ficaram no Releaser depois de migradas para a plataforma: remova-as do servidor (ou renomeie o arquivo para `.bkp`) e derrube os _containers_ com `io stop`.
 
 O que cada _build_ reporta é controlado pelo atributo [`stats`](#setup) do seu arquivo. O Trivy roda como _container_ no próprio servidor (imagem `aquasec/trivy`, banco de vulnerabilidades no volume `releaser_trivy`) e precisa de acesso ao `ghcr.io` para baixar o banco; servidores sem essa saída devem desligar o `cve`. As ações do _Health Check_ que dependem do _deployer_ da plataforma (_backup_, reiniciar, desativar e remover a _build_, terminal) ficam desabilitadas na _dashboard_ para as _builds_ do Releaser: elas continuam sendo feitas pelos comandos `io`.
 
@@ -334,7 +346,9 @@ Toda instância do **Releaser** reporta ao Sentry da plataforma (sentry.io, proj
 
 ## Atualização {#update}
 
-Para atualizar a ferramenta **Releaser** para a última versão, acesse o diretório de configuração (`~/releaser`, no exemplo acima) e execute...
+Para atualizar a ferramenta **Releaser** para a última versão, acesse o diretório de configuração (`~/releaser`, no exemplo acima) e execute os comandos abaixo. Nada mais é necessário: as _builds_ configuradas, o `.env` e as chaves ficam no diretório e continuam valendo, e os recursos novos (como o [relato à plataforma](#report)) entram em funcionamento sozinhos.
+
+Execute...
 
 ...no **Docker Compose**:
 
@@ -465,7 +479,7 @@ docker volume create \
   backup
 ```
 
-Basta agora informar este volume no momento de configurar as _environment variables_ no arquivo `builds.json`.
+Basta agora informar este volume no momento de configurar as _environment variables_ no arquivo da _build_ (em `builds/`).
 
 #### Rotação de _backups_ {#cleaner}
 
@@ -733,7 +747,7 @@ docker exec -it releaser io deploy publica/camunda@release --force
 
 ### Salvaguarda de Segredos e Senhas {#vault}
 
-O arquivo de configuração do **Releaser** (`builds.json`) concentra diversos _passwords_, _hashes_, _secrets_ e valores de variáveis de ambiente que, se perdidos, podem gerar grande dor de cabeça. Assim, é aconselhado utilizar um serviço em nuvem do tipo _password_ ou _secrets management_ para gerência da configuração (controle de versões) destas configurações do **Releaser**, garantindo que estas informações não serão perdidas mesmo que o servidor (_bare metal_) seja irremediavelmente comprometido.
+Os arquivos de configuração das _builds_ do **Releaser** (`builds/*.json`, ou o `builds.json` nas instalações antigas) concentram diversos _passwords_, _hashes_, _secrets_ e valores de variáveis de ambiente que, se perdidos, podem gerar grande dor de cabeça. Assim, é aconselhado utilizar um serviço em nuvem do tipo _password_ ou _secrets management_ para gerência da configuração (controle de versões) destas configurações do **Releaser**, garantindo que estas informações não serão perdidas mesmo que o servidor (_bare metal_) seja irremediavelmente comprometido.
 
 Por exemplo, para guardar seu arquivo com segurança, sem burocracia e de forma gratuita no [Bitwarden](https://bitwarden.com), crie uma conta no serviço e, na VM ou _cluster_ com o **Releaser**, faça:
 
@@ -755,7 +769,7 @@ Ems seguida, crie um arquivo `/root/vault.sh` com o seguinte conteúdo:
 
 export BW_SESSION="$(bw unlock --raw)"
 
-NOTES=$(cat /root/releaser/builds.json)
+NOTES=$(cat /root/releaser/.env /root/releaser/builds/*.json)
 
 jq -n \
   --arg name "Releaser Backup $(hostname) $(date +%F)" \
@@ -766,6 +780,6 @@ jq -n \
 
 Por fim, atribua permissões de execução: `chmod +x /root/vault.sh`.
 
-Sempre que seu arquivo `builds.json` tiver novas configurações, é recomendado executar este script. Ele irá enviar para sua conta do **Bitwarden** a nova versão de forma protegida:
+Sempre que os arquivos de `builds/` (ou o `.env`) tiverem novas configurações, é recomendado executar este script. Ele irá enviar para sua conta do **Bitwarden** a nova versão de forma protegida:
 
 ![Bitwarden]({{ site.baseurl }}/assets/img/releaser/20251217145652.png)
