@@ -5,7 +5,7 @@ subtitle: Relatórios diários ou semanais, gerados por IA, com o que mudou nas 
 tags: [ ia, devops, logs, documentacao ]
 ---
 
-A plataforma **Embrapa I/O** acompanha cada aplicação por meio de várias ferramentas integradas: _logs_ no [**Grafana Loki**](https://log.embrapa.io), erros no [**Sentry**](https://bug.embrapa.io), vulnerabilidades das imagens no [**Trivy**](https://trivy.dev), qualidade do código no [**SonarQube**](https://code.embrapa.io), atividade do repositório no [**GitLab**](https://git.embrapa.io) e acessos no [**Matomo**](https://hit.embrapa.io). Cada uma mostra os seus números no _dashboard_, e são muitos números. Quem tem tempo de abrir seis ferramentas por semana, para cada app, e cruzar o que elas dizem?
+A plataforma **Embrapa I/O** monitora cada aplicação por meio de várias ferramentas integradas: _logs_ no [**Grafana Loki**](https://log.embrapa.io), erros no [**Sentry**](https://bug.embrapa.io), vulnerabilidades das imagens no [**Trivy**](https://trivy.dev), qualidade do código no [**SonarQube**](https://code.embrapa.io), atividade do repositório no [**GitLab**](https://git.embrapa.io) e acessos no [**Matomo**](https://hit.embrapa.io). Cada uma mostra os seus números no _dashboard_, e são muitos números. Quem tem tempo de abrir seis ferramentas por semana, para cada app, e cruzar o que elas dizem?
 
 A partir de hoje esse trabalho é da **Sentinela**, o agente de _insights_ por projeto da plataforma. Ela já aparece no _dashboard_ de todos os projetos e é ativada pelo arquiteto, projeto a projeto, em menos de um minuto.
 
