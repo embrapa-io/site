@@ -22,10 +22,10 @@ Cada execução passa por quatro etapas, sempre nessa ordem:
 | Fonte | O que entra no pacote |
 | --- | --- |
 | Loki | Volume de _logs_ e de erros, códigos HTTP, caminhos sensíveis acessados, origens mais frequentes, reinícios e amostras de linhas |
-| Sentry | _Issues_ não resolvidas no período, novas e regressões, com contagem de eventos e de usuários afetados |
+| Sentry | _Issues_ não resolvidas no período, novas e regressões, com contagem de eventos e de instalações afetadas; para as mais relevantes, de onde vêm (versão, ambiente, navegador, sistema) e as linhas do app mais próximas do erro |
 | Trivy | CVEs altas e críticas nas imagens em execução, por serviço, e quais já têm correção publicada |
-| Dependências | Para aplicativos de loja: CVEs conhecidas (base [OSV](https://osv.dev)) nos pacotes dos _lockfiles_ do repositório, com a versão corrigida. Veja [Dependências dos aplicativos](#deps) |
-| SonarQube | _Quality gate_, notas de manutenibilidade, confiabilidade, segurança e revisão de _hotspots_, cobertura, duplicação, linguagens e os _hotspots_ pendentes |
+| Dependências | Para aplicativos de loja e aplicações fora da plataforma: CVEs conhecidas (base [OSV](https://osv.dev)) nos pacotes dos _lockfiles_ (e, em .NET sem _lockfile_, nas versões do `.csproj`), separando o que chega ao usuário do que é só ferramenta de _build_, e o _framework_ fora de suporte. Veja [Dependências dos aplicativos](#deps) |
+| SonarQube | _Quality gate_ (aprovado, reprovado ou sem análise), a análise que vale (data, ramo e _commit_), notas, cobertura, duplicação, as linguagens do repositório que ficaram fora da análise, as vulnerabilidades abertas de qualquer data, os arquivos que concentram os problemas e os _hotspots_ pendentes |
 | GitLab | _Commits_ (sem autor), _merge requests_ mescladas, abertas e paradas, _tags_ publicadas e _pipelines_ com falha |
 | Matomo | Visitas por dia (até o último dia completo), ações, rejeição, tempo médio e páginas mais vistas; e o retrato do público: visitantes únicos, novos × recorrentes, dispositivos e sistemas, origem do tráfego e sites que mais encaminham, estados do Brasil (ou países), páginas de entrada, duração das visitas e picos de dia e hora. Sempre agregados: nunca um visitante individual |
 | Estágios | Versão implantada em cada estágio, saúde dos serviços e data da última verificação |
@@ -79,8 +79,8 @@ O Trivy enxerga só as imagens em execução nos _clusters_, e aplicativo de loj
 | --- | --- | --- |
 | Flutter | `pubspec.lock` | Pacotes do pub.dev; o relatório também mostra a versão mínima do Flutter declarada |
 | Android nativo (Java, Kotlin) | `gradle.lockfile` | Exige o travamento de dependências do Gradle, descrito abaixo; só o que vai no APK de _release_ é verificado |
-| React Native, Capacitor, Ionic, Cordova | `package-lock.json`, `yarn.lock` ou `pnpm-lock.yaml` | Dependências de desenvolvimento ficam de fora quando o _lockfile_ as distingue; a parte Android nativa, quando houver, segue a linha acima |
-| .NET MAUI, Xamarin | `packages.lock.json` | Gerado com `RestorePackagesWithLockFile` no `.csproj` |
+| React Native, Capacitor, Ionic, Cordova | `package-lock.json`, `yarn.lock` ou `pnpm-lock.yaml` | Dependências de desenvolvimento ficam de fora. No `package-lock.json`, cada vulnerabilidade é marcada pelo que chega ao usuário (app), pelo que é só ferramenta de _build_ (CLI, instaladores) e pela plataforma não publicada (iOS num app só da Play); a severidade do achado segue o que chega ao usuário |
+| .NET (MAUI, Xamarin, ASP.NET Core) | `packages.lock.json` ou, sem ele, o `.csproj` | Com o `.csproj`, só as dependências diretas de versão exata são verificadas; `RestorePackagesWithLockFile` cobre as transitivas. O relatório também aponta o _framework_ fora de suporte (o alvo atual é o .NET 10) |
 | iOS (CocoaPods) | `Podfile.lock` | **Não coberto**: a OSV não tem base para o CocoaPods. O relatório registra a lacuna |
 
 Um projeto Android sem `gradle.lockfile` aparece com o aviso para ligá-lo. Basta incluir no `app/build.gradle`:
@@ -178,7 +178,7 @@ Abaixo dos _insights_ ficam os **achados**, agrupados por categoria, cada um com
 
 ![Insights e achados de uma aplicação]({{ site.baseurl }}/assets/img/sentinel/11.png)
 
-Quando várias aplicações do mesmo _boilerplate_ repetem o mesmo problema (os mesmos _hotspots_ de `Dockerfile`, a mesma varredura, a mesma cobertura zerada), ele aparece uma vez só, na seção **projeto inteiro**, com a ação que resolve para todas. A seção **Continua em aberto** traz o que já foi relatado antes e segue sem ação, e o **Resumo do período** fecha com os números de cada aplicação: estágios, código, _logs_, erros, CVEs, qualidade (com as notas do SonarQube e a proporção de linguagens) e uso.
+Quando várias aplicações do mesmo _boilerplate_ repetem o mesmo problema (os mesmos _hotspots_ de `Dockerfile`, a mesma varredura, a mesma cobertura zerada), ele aparece uma vez só, na seção **projeto inteiro**, com a ação que resolve para todas. Cada achado tem um identificador curto (`ref`), que se mantém de um relatório para o outro enquanto o problema for o mesmo, ainda que descrito com outras palavras: o modelo recebe a lista do que já foi relatado e reconhece a repetição. A seção **Continua em aberto** traz o que já foi relatado antes e segue sem ação, e o **Resumo do período** fecha com os números de cada aplicação: estágios, código, _logs_, erros, CVEs, qualidade (com as notas do SonarQube e a proporção de linguagens) e uso.
 
 ![Resumo do período de uma aplicação]({{ site.baseurl }}/assets/img/sentinel/12.png)
 
@@ -186,7 +186,7 @@ O rodapé de cada relatório informa o provedor, o modelo, os _tokens_ consumido
 
 ## Retorno: útil ou ruído {#feedback}
 
-Cada achado traz os links **útil** e **ruído**. O voto é individual e serve a dois fins: medir a qualidade da análise e silenciar o que não interessa. Um achado marcado como **ruído** não volta nos próximos relatórios daquele projeto, nem como novidade nem como pendência. Marcar como **útil** reverte um voto de ruído anterior. Os links abrem o _dashboard_; o voto é registrado depois do _login_.
+Cada achado traz os links **útil** e **ruído**. O voto é individual e serve a dois fins: medir a qualidade da análise e silenciar o que não interessa. Um achado marcado como **ruído** não volta nos próximos relatórios daquele projeto, nem como novidade nem como pendência, mesmo que reapareça descrito de outro jeito. Marcar como **útil** reverte um voto de ruído anterior. Os links abrem o _dashboard_; o voto é registrado depois do _login_.
 
 ## Privacidade e responsabilidade {#privacy}
 
