@@ -211,4 +211,4 @@ Cada achado traz os links **útil** e **ruído**. O voto é individual e serve a
 
 **Quero voltar atrás.** **Desativar** apaga a configuração e a chave e mantém o histórico. Arquivar o projeto apaga tudo.
 
-**Onde fica a cópia em Markdown?** No repositório `io-doc` do projeto, em `06-Support/Sentinel/<ano>/<data>-semanal.md` ou `-diario.md`, com _front matter_ pensado para servir de insumo a agentes de IA e continuar legível para pessoas.
+**Onde fica a cópia em Markdown?** No repositório `io-doc` do projeto, em `06-Support/Sentinel/<ano>/<data>-weekly.md` ou `-daily.md`, com _front matter_ pensado para servir de insumo a agentes de IA e continuar legível para pessoas.
