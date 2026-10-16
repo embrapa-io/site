@@ -14,7 +14,7 @@ A ideia não é substituir o _dashboard_, que já mostra os números de cada fer
 
 Cada execução passa por quatro etapas, sempre nessa ordem:
 
-1. **Coleta.** A plataforma reúne, para cada aplicação do projeto, um pacote fechado de dados do período: _logs_ do [Loki](https://log.embrapa.io), erros do [Sentry]({{ site.baseurl }}/docs/bug), vulnerabilidades das imagens em execução (Trivy), métricas e _hotspots_ do [SonarQube]({{ site.baseurl }}/docs/quality), _commits_, _merge requests_, _tags_ e _pipelines_ do [GitLab]({{ site.baseurl }}/docs/kanban), acessos do [Matomo]({{ site.baseurl }}/docs/analytics) e o estado dos estágios implantados.
+1. **Coleta.** A plataforma reúne, para cada aplicação do projeto, um pacote fechado de dados do período: _logs_ do [Loki](https://log.embrapa.io), erros do [Sentry]({{ site.baseurl }}/docs/bug), vulnerabilidades das imagens em execução (Trivy) e das dependências dos aplicativos de loja (OSV), métricas e _hotspots_ do [SonarQube]({{ site.baseurl }}/docs/quality), _commits_, _merge requests_, _tags_ e _pipelines_ do [GitLab]({{ site.baseurl }}/docs/kanban), acessos do [Matomo]({{ site.baseurl }}/docs/analytics) e o estado dos estágios implantados.
 2. **Privacidade.** Antes de qualquer envio, segredos (senhas, chaves, _tokens_) são removidos e identificadores pessoais (endereços IP e e-mails) são substituídos por pseudônimos reversíveis. O modelo nunca vê o valor real.
 3. **Análise.** O modelo escolhido pela equipe recebe o pacote de cada aplicação e devolve, num formato fixo, os achados (com evidência e ação sugerida) e de um a três _insights_ por aplicação. Uma segunda passada, mais curta, consolida o que se repete em várias aplicações do mesmo _boilerplate_ num único item do projeto inteiro.
 4. **Relatório.** A plataforma monta o e-mail, reidrata os pseudônimos para a equipe, grava o histórico no _card_ e a cópia em Markdown no `io-doc`.
@@ -24,6 +24,7 @@ Cada execução passa por quatro etapas, sempre nessa ordem:
 | Loki | Volume de _logs_ e de erros, códigos HTTP, caminhos sensíveis acessados, origens mais frequentes, reinícios e amostras de linhas |
 | Sentry | _Issues_ não resolvidas no período, novas e regressões, com contagem de eventos e de usuários afetados |
 | Trivy | CVEs altas e críticas nas imagens em execução, por serviço, e quais já têm correção publicada |
+| Dependências | Para aplicativos de loja: CVEs conhecidas (base [OSV](https://osv.dev)) nos pacotes dos _lockfiles_ do repositório, com a versão corrigida. Veja [Dependências dos aplicativos](#deps) |
 | SonarQube | _Quality gate_, notas de manutenibilidade, confiabilidade, segurança e revisão de _hotspots_, cobertura, duplicação, linguagens e os _hotspots_ pendentes |
 | GitLab | _Commits_ (sem autor), _merge requests_ mescladas, abertas e paradas, _tags_ publicadas e _pipelines_ com falha |
 | Matomo | Visitas por dia (até o último dia completo), ações, rejeição, tempo médio e páginas mais vistas; e o retrato do público: visitantes únicos, novos × recorrentes, dispositivos e sistemas, origem do tráfego e sites que mais encaminham, estados do Brasil (ou países), páginas de entrada, duração das visitas e picos de dia e hora. Sempre agregados: nunca um visitante individual |
@@ -36,7 +37,7 @@ Cada execução passa por quatro etapas, sempre nessa ordem:
 
 Aplicativos nativos para Android não têm estágio implantado na plataforma, mas são apps legítimas do projeto, com Sentry, Matomo e SonarQube. Para eles a Sentinela também lê a **Google Play**, em três frentes:
 
-- **Estabilidade e desempenho** (Android vitals): a taxa de _crash_ e de ANR (_Application Not Responding_) do período e as médias de 28 dias percebidas pelo usuário, que são os números que a Play compara com os limiares de mau comportamento (crash 1,09 %, ANR 0,47 %, 8 % em qualquer modelo de aparelho) para decidir se reduz a visibilidade do app na loja; a quebra por versão, aparelho e versão do Android; o início lento (frio, morno, quente), _wakeups_ excessivos, _wakelocks_ presos e renderização lenta; e os erros agrupados pela loja, com o local e os usuários afetados.
+- **Estabilidade e desempenho** (Android vitals): a taxa de _crash_ e de ANR (_Application Not Responding_) do período e as médias de 28 dias percebidas pelo usuário, que são os números que a Play compara com os limiares de mau comportamento (crash 1,09 %, ANR 0,47 %, 8 % em qualquer modelo de aparelho) para decidir se reduz a visibilidade do app na loja; a quebra por versão, aparelho e versão do Android; o início lento (frio, morno, quente), _wakeups_ excessivos, _wakelocks_ presos e renderização lenta; e os erros agrupados pela loja, com o local e os usuários afetados. Os estouros de limiar viram **achado fixo**, sem depender de o modelo notar: média de 28 dias acima do limiar (alta; crítica no dobro), pico no período com amostra suficiente, modelo de aparelho acima de 8 % e versão nova que passou do limiar quando a anterior estava abaixo (média). O diagnóstico do modelo (o erro agrupado de mais usuários, o local e a correção) é juntado ao achado, e o título fica estável, para o item acompanhar o indicador **Em aberto** até a taxa voltar ao normal.
 - **Loja**: instalações e desinstalações por dia, dispositivos ativos e o funil da ficha (visitantes, aquisições, conversão, por país, origem de tráfego e termo de busca), sempre com o período anterior de mesmo tamanho para comparação. Esses dados vêm da exportação em massa da Play Console, que chega com 3 a 7 dias de atraso: por isso o período de cada arquivo termina no último dia que a Google já publicou, e o relatório mostra essas datas. Abaixo do limiar de privacidade da Google, países, origens e buscas vêm agrupados em "Other" e não aparecem.
 - **Avaliações**: o histórico completo de cada pacote, desde a publicação, com estrelas, versão, aparelho e se a equipe já respondeu. Ele vem do CSV mensal da exportação em massa e da API da Play (que só devolve a última semana) e fica guardado num acervo da Sentinela. Sem a exportação liberada, o acervo se forma com a API a cada execução.
   - **Classificação uma vez só.** O modelo lê cada avaliação com texto uma única vez e registra o sentimento, o tema (falha, lentidão, acesso, dados, usabilidade, pedido de recurso, pergunta, elogio) e se ela pede resposta. A avaliação só volta ao modelo se for editada. Na primeira execução, o acervo é classificado em lotes de 40, as sem resposta primeiro.
@@ -68,7 +69,31 @@ Para a Sentinela enxergar o app, três coisas precisam estar no lugar:
 }
 ```
 
-Um pacote que a conta de serviço não enxerga aparece no relatório como fonte sem acesso, não como achado; sem o bucket, o relatório sai sem instalações e funil da ficha, o histórico de avaliações começa a contar a partir da primeira execução, e o relatório diz isso. Por enquanto só a Google Play é lida; a App Store fica para depois.
+Um pacote que a conta de serviço não enxerga aparece no relatório como fonte sem acesso, não como achado; sem o bucket, o relatório sai sem instalações e funil da ficha, o histórico de avaliações começa a contar a partir da primeira execução, e o relatório diz isso. A Google só gera a exportação de app publicado em **produção**: app que ainda está só em teste interno, fechado ou aberto aparece com o aviso "sem dados na exportação" e as faixas em que há versão no ar, e as instalações ausentes não são tratadas como queda. Os vitals de app em teste também costumam vir vazios, porque a Play só calcula as taxas a partir de um número mínimo de usuários. Por enquanto só a Google Play é lida; a App Store fica para depois.
+
+### Dependências dos aplicativos {#deps}
+
+O Trivy enxerga só as imagens em execução nos _clusters_, e aplicativo de loja não roda em contêiner. Para eles, a Sentinela lê os **_lockfiles_** do repositório, na _branch_ padrão, e consulta cada pacote na [OSV](https://osv.dev), a base aberta de vulnerabilidades mantida pela Google. Entram os apps que declaram `stores` no `.embrapa/settings.json` e os que não têm estágio implantado; apps de servidor continuam com o Trivy. Só sai do repositório o nome e a versão de cada pacote público, nunca código.
+
+| Tecnologia | _Lockfile_ lido | Observação |
+| --- | --- | --- |
+| Flutter | `pubspec.lock` | Pacotes do pub.dev; o relatório também mostra a versão mínima do Flutter declarada |
+| Android nativo (Java, Kotlin) | `gradle.lockfile` | Exige o travamento de dependências do Gradle, descrito abaixo; só o que vai no APK de _release_ é verificado |
+| React Native, Capacitor, Ionic, Cordova | `package-lock.json`, `yarn.lock` ou `pnpm-lock.yaml` | Dependências de desenvolvimento ficam de fora quando o _lockfile_ as distingue; a parte Android nativa, quando houver, segue a linha acima |
+| .NET MAUI, Xamarin | `packages.lock.json` | Gerado com `RestorePackagesWithLockFile` no `.csproj` |
+| iOS (CocoaPods) | `Podfile.lock` | **Não coberto**: a OSV não tem base para o CocoaPods. O relatório registra a lacuna |
+
+Um projeto Android sem `gradle.lockfile` aparece com o aviso para ligá-lo. Basta incluir no `app/build.gradle`:
+
+```groovy
+dependencyLocking {
+	lockAllConfigurations()
+}
+```
+
+e gerar o arquivo com `./gradlew :app:dependencies --write-locks`. Daí em diante, o _build_ falha se uma dependência mudar sem o _lockfile_ acompanhar: ao incluir, remover ou atualizar dependência, regrave-o com o mesmo comando e faça o _commit_ junto. Bibliotecas em JAR solto (`app/libs/*.jar`) ficam fora do _lockfile_ e da verificação, e o relatório as lista: declará-las como dependência Maven resolve.
+
+No relatório, as CVEs das dependências aparecem na célula **CVEs** do _card_ da app e no gráfico de vulnerabilidades do panorama. Diferente de um servidor, a correção só chega ao usuário com uma versão nova na loja: crítica ou alta com correção publicada vira achado de segurança com a atualização do pacote e a publicação.
 
 ## Ativando {#enable}
 
