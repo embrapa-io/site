@@ -143,6 +143,8 @@ Com a Sentinela ativa, a aba **Sobre** mostra o provedor e o modelo, a chave (s�
 
 **Executar Agora** enfileira uma análise imediata com a janela inteira da frequência (os últimos 7 dias no semanal) e envia o e-mail mesmo sem novidade. Serve para o primeiro relatório logo após a ativação e para conferir o efeito de uma correção sem esperar a próxima rodada. Enquanto a análise roda, o botão fica desabilitado e o diálogo se atualiza sozinho; em alguns minutos o relatório chega por e-mail e aparece no histórico.
 
+A seta ao lado do botão oferece a **prévia**: a mesma análise, que aparece só no histórico, marcada como "Prévia", sem e-mail e sem cópia no `io-doc`. Ela não muda nada para o próximo relatório: a janela do agendado, os itens em aberto e a lista de avaliações sem resposta ficam como estavam. Serve para conferir uma correção ou testar a configuração sem encher a caixa da equipe.
+
 A aba **Histórico** lista todos os relatórios, com filtro por período: data, tipo, novidades, itens em aberto, quantidade de achados críticos e altos e o custo estimado. O botão da última coluna abre o relatório numa aba do navegador, pronto para leitura ou para imprimir em PDF.
 
 ![Aba Histórico]({{ site.baseurl }}/assets/img/sentinel/08.png)
