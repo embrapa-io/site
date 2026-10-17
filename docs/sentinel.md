@@ -22,14 +22,36 @@ Cada execução passa por quatro etapas, sempre nessa ordem:
 | Fonte | O que entra no pacote |
 | --- | --- |
 | Loki | Volume de _logs_ e de erros, códigos HTTP, caminhos sensíveis acessados, origens mais frequentes, reinícios e amostras de linhas |
-| Sentry | _Issues_ não resolvidas no período, novas e regressões, com contagem de eventos e de instalações afetadas; para as mais relevantes, de onde vêm (versão, ambiente, navegador, sistema) e as linhas do app mais próximas do erro |
+| Sentry | _Issues_ não resolvidas no período, novas (pelo primeiro evento da vida inteira da _issue_, não só do período) e regressões, com contagem de eventos no período e no total e de instalações afetadas; para as mais relevantes, de onde vêm (versão, ambiente, navegador, sistema) e as linhas do app mais próximas do erro |
 | Trivy | CVEs altas e críticas nas imagens em execução, por serviço, e quais já têm correção publicada |
 | Dependências | Para aplicativos de loja e aplicações fora da plataforma: CVEs conhecidas (base [OSV](https://osv.dev)) nos pacotes dos _lockfiles_ (e, em .NET sem _lockfile_, nas versões do `.csproj`), separando o que chega ao usuário do que é só ferramenta de _build_, e o _framework_ fora de suporte. Veja [Dependências dos aplicativos](#deps) |
 | SonarQube | _Quality gate_ (aprovado, reprovado ou sem análise), a análise que vale (data, ramo e _commit_), notas, cobertura, duplicação, as linguagens do repositório que ficaram fora da análise, as vulnerabilidades abertas de qualquer data, os arquivos que concentram os problemas e os _hotspots_ pendentes |
-| GitLab | _Commits_ (sem autor), _merge requests_ mescladas, abertas e paradas, _tags_ publicadas e _pipelines_ com falha |
-| Matomo | Visitas por dia (até o último dia completo), ações, rejeição, tempo médio e páginas mais vistas; e o retrato do público: visitantes únicos, novos × recorrentes, dispositivos e sistemas, origem do tráfego e sites que mais encaminham, estados do Brasil (ou países), páginas de entrada, duração das visitas e picos de dia e hora. Sempre agregados: nunca um visitante individual |
-| Estágios | Versão implantada em cada estágio, saúde dos serviços e data da última verificação |
+| GitLab | _Commits_ (sem autor), _merge requests_ mescladas, abertas e paradas (número, título e última atualização), _tags_ publicadas e _pipelines_ com falha |
+| Matomo | Visitas por dia (até o último dia completo), ações, rejeição, tempo médio e páginas mais vistas (com o identificador de registro trocado por `:id`, para `/relatorio/:id` contar como uma página só); e o retrato do público: visitantes únicos, novos × recorrentes, dispositivos e sistemas, origem do tráfego e sites que mais encaminham, estados do Brasil (ou países), páginas de entrada, duração das visitas e picos de dia e hora. Sempre agregados: nunca um visitante individual |
+| Estágios | Para cada estágio que existe (com versão no ar ou com _tag_ no GitLab): a versão implantada, a data e a idade dela, a última _tag_ do estágio, quem implanta (o _cluster_ da plataforma ou um [Releaser]({{ site.baseurl }}/docs/releaser#report), com o último contato), o _status_ da _build_ na plataforma, a saúde dos serviços e a data da última verificação. Veja [Estágios](#stages) |
 | Google Play | Para aplicativos nativos publicados na loja: taxa de _crash_ e de ANR por versão, erros agrupados (tipo, local, usuários afetados), instalações, ficha da loja e o histórico de avaliações, sem o nome do autor, com rascunho de resposta para as que pedem uma. Veja [Aplicativos na Google Play](#play) |
+
+### Estágios {#stages}
+
+O relatório traz um inventário de estágios por aplicação, montado pela plataforma e não pelo modelo: as datas e as idades já vêm calculadas, e um estágio que existe nunca some do relatório só porque não respondeu. Um estágio entra quando tem versão no ar ou quando tem _tag_ no GitLab (`V.AA.M-alpha.P`, `V.AA.M-beta.P` ou `V.AA.M-P`).
+
+O estado de um estágio só é confiável quando ele foi verificado. Ele aparece como **não verificado**, com o motivo escrito, quando:
+
+- há _tag_ do estágio, mas nenhum _deploy_ registrado na plataforma (o estágio roda fora do _cluster_, num Releaser anterior à versão que reporta, ou não foi implantado);
+- o Releaser que o implanta não reporta há mais de 24 horas;
+- a _build_ está em rascunho na plataforma, mas a versão antiga continua registrada (contêineres de um _deploy_ antigo);
+- a saúde nunca foi verificada, ou a última verificação tem mais de dois dias.
+
+Um estágio em rascunho e sem _deploy_ é inativo por escolha da equipe: aparece no resumo, sem achado. Um contêiner de execução única que terminou bem (inicialização, migração) não conta como fora do ar, a menos que a _stack_ inteira esteja parada. Quando o `alpha` ou o `beta` estão numa versão anterior à da `release` (por exemplo, `alpha` na série 0 e `release` na série 1), o relatório avisa que a versão do estágio de teste não é o estado do produto.
+
+Quatro situações viram **achado fixo**, sem depender de o modelo notar, com título estável para o item acompanhar o indicador **Em aberto** até ser resolvido:
+
+| Achado | Severidade |
+| --- | --- |
+| Estágio sem verificação de saúde (agrupado no projeto inteiro quando o mesmo motivo se repete em várias aplicações) | alta na `release`, média no `beta`, baixa no `alpha` |
+| Estágio com todos os serviços fora do ar | idem |
+| Última _tag_ do estágio que não chegou ao ar | média |
+| _Merge requests_ abertas sem atualização há mais de uma semana, com o número, o título e a data de cada uma | média quando alguma é de segurança; baixa nas demais |
 
 > **Atenção!** A Sentinela só lê e relata. Nenhuma ação é executada automaticamente nas aplicações: as correções são sugeridas à equipe, que decide o que fazer.
 
@@ -119,7 +141,7 @@ Há duas opções.
 
 ![Passo 2: GPU Server da Embrapa]({{ site.baseurl }}/assets/img/sentinel/04.png)
 
-**Provedor externo.** Google (Gemini), Anthropic (Claude), OpenAI (GPT) ou qualquer API compatível com a da OpenAI (OpenRouter, vLLM, SGLang etc.), com a sua própria chave. Informe a chave e clique em **Validar chave e listar modelos**: a plataforma confere a chave no provedor e carrega os modelos que ela enxerga, com os sugeridos no topo. A chave é gravada cifrada e nunca é exibida de novo.
+**Provedor externo.** Google (Gemini), Anthropic (Claude), OpenAI (GPT), xAI (Grok), OpenRouter (vários modelos com uma chave só) ou qualquer API compatível com a da OpenAI (vLLM, SGLang, Ollama etc.), com a sua própria chave. Uma chave de formato conhecido só é enviada ao provedor dono dela: a plataforma recusa, antes de qualquer conexão, uma chave da Anthropic apontada para outro provedor, por exemplo. Informe a chave e clique em **Validar chave e listar modelos**: a plataforma confere a chave no provedor e carrega os modelos que ela enxerga, com os sugeridos no topo. A chave é gravada cifrada e nunca é exibida de novo.
 
 ![Passo 2: provedor externo]({{ site.baseurl }}/assets/img/sentinel/05.png)
 
@@ -176,11 +198,11 @@ Em seguida vêm as aplicações, da mais crítica para a menos. Cada uma começa
 | Adoção de novidades | Uma funcionalidade ou conteúdo lançado no período (tags, _merge requests_) e como o público o recebeu: acessos desde o lançamento, participação nas visitas, de onde veio o interesse |
 | Tudo em ordem | Nada a fazer naquela aplicação |
 
-Abaixo dos _insights_ ficam os **achados**, agrupados por categoria, cada um com a severidade, a evidência (números, trechos, datas), a ação sugerida, o link para a ferramenta de origem e os votos de retorno.
+Abaixo dos _insights_ ficam os **achados**, agrupados por categoria, cada um com a severidade, a evidência (números, trechos, datas), a ação sugerida, o link para a ferramenta de origem e os votos de retorno. Todo achado pede uma ação concreta: uma observação sem ação (um _deploy_ estável, uma varredura respondida só com `404`) vai para a seção **Para ciência**, sem votos.
 
 ![Insights e achados de uma aplicação]({{ site.baseurl }}/assets/img/sentinel/11.png)
 
-Quando várias aplicações do mesmo _boilerplate_ repetem o mesmo problema (os mesmos _hotspots_ de `Dockerfile`, a mesma varredura, a mesma cobertura zerada), ele aparece uma vez só, na seção **projeto inteiro**, com a ação que resolve para todas. Cada achado tem um identificador curto (`ref`), que se mantém de um relatório para o outro enquanto o problema for o mesmo, ainda que descrito com outras palavras: o modelo recebe a lista do que já foi relatado e reconhece a repetição. A seção **Continua em aberto** traz o que já foi relatado antes e segue sem ação, e o **Resumo do período** fecha com os números de cada aplicação: estágios, código, _logs_, erros, CVEs, qualidade (com as notas do SonarQube e a proporção de linguagens) e uso.
+Quando várias aplicações do mesmo _boilerplate_ repetem o mesmo problema (os mesmos _hotspots_ de `Dockerfile`, a mesma varredura, a mesma cobertura zerada), ele aparece uma vez só, na seção **projeto inteiro**, com a ação que resolve para todas. Cada achado tem um identificador curto (`ref`), que se mantém de um relatório para o outro enquanto o problema for o mesmo, ainda que descrito com outras palavras: o modelo recebe a lista do que já foi relatado e reconhece a repetição. A seção **Continua em aberto** traz o que já foi relatado antes e segue sem ação, e o **Resumo do período** fecha com os números de cada aplicação: estágios, código, _logs_, erros, CVEs, qualidade (com as notas do SonarQube e a proporção de linguagens) e uso. Cada estágio aparece com um selo `[estágio | situação]` (azul com foguete quando a plataforma implanta, laranja com servidor quando é um Releaser; situação saudável, não verificado ou com serviços fora do ar), a versão no ar com a data e a última verificação.
 
 ![Resumo do período de uma aplicação]({{ site.baseurl }}/assets/img/sentinel/12.png)
 
@@ -188,7 +210,18 @@ O rodapé de cada relatório informa o provedor, o modelo, os _tokens_ consumido
 
 ## Retorno: útil ou ruído {#feedback}
 
-Cada achado traz os links **útil** e **ruído**. O voto é individual e serve a dois fins: medir a qualidade da análise e silenciar o que não interessa. Um achado marcado como **ruído** não volta nos próximos relatórios daquele projeto, nem como novidade nem como pendência, mesmo que reapareça descrito de outro jeito. Marcar como **útil** reverte um voto de ruído anterior. Os links abrem o _dashboard_; o voto é registrado depois do _login_.
+Cada achado traz os links **útil** e **ruído**. O voto é individual e serve a dois fins: medir a qualidade da análise e silenciar o que não interessa. Um achado marcado como **ruído** não volta nos próximos relatórios daquele projeto, nem como novidade nem como pendência, mesmo que reapareça descrito de outro jeito. Marcar como **útil** reverte um voto de ruído anterior. Os links abrem o _dashboard_ e só gravam o voto com a pessoa logada nele, naquele navegador.
+
+Quem tria os relatórios com um assistente de IA pode votar em lote pelo [MCP do Dashboard]({{ site.baseurl }}/docs/mcp/io/#sentinel), com um **veredito** e um motivo em uma linha. O veredito separa o achado certo do que acertou o problema e errou a ação, que o voto útil/ruído junta:
+
+| Veredito | Quando | Voto |
+| --- | --- | --- |
+| `ok` | Procede e a ação serve | útil |
+| `wrong_action` | O problema existe, mas a ação sugerida não serve como escrita | útil |
+| `partial` | Parte procede, parte já estava resolvida ou não se aplica | útil |
+| `noise` | Falso positivo, dado mal lido ou observação sem ação | ruído |
+| `stale` | Era verdade antes, mas não no momento do relatório | nenhum (não silencia) |
+| `unverified` | Não foi possível conferir | nenhum (não silencia) |
 
 ## Privacidade e responsabilidade {#privacy}
 
@@ -201,7 +234,7 @@ Cada achado traz os links **útil** e **ruído**. O voto é individual e serve a
 
 ## Perguntas frequentes {#faq}
 
-**Uma aplicação não aparece no relatório.** Entram as aplicações com algum estágio implantado (no _cluster_ da plataforma ou reportado pelo [Releaser]({{ site.baseurl }}/docs/releaser#report)) e também as aplicações ativas sem estágio na plataforma, como os aplicativos nativos para Android e iOS, desde que alguma fonte traga dado no período: Sentry, Matomo, SonarQube ou GitLab. Uma aplicação ativa sem estágio e sem dado em nenhuma fonte fica de fora, sem aviso. Aplicações sem achado e sem _insight_ não ganham seção de achados, mas aparecem no resumo do período.
+**Uma aplicação não aparece no relatório.** Entram as aplicações com algum estágio implantado (no _cluster_ da plataforma ou reportado pelo [Releaser]({{ site.baseurl }}/docs/releaser#report)) ou com _tag_ de estágio no GitLab e também as aplicações ativas sem estágio na plataforma, como os aplicativos nativos para Android e iOS, desde que alguma fonte traga dado no período: Sentry, Matomo, SonarQube ou GitLab. Uma aplicação ativa sem estágio e sem dado em nenhuma fonte fica de fora, sem aviso. Aplicações sem achado e sem _insight_ não ganham seção de achados, mas aparecem no resumo do período.
 
 **O relatório diário não chegou.** No diário, o e-mail só sai quando há novidade; o histórico registra a execução mesmo assim. O semanal é sempre enviado.
 

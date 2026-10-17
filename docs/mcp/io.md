@@ -3,7 +3,7 @@ layout: page
 title: MCP do Dashboard
 subtitle: Acesso a todas as funcionalidades do Painel de Controle da plataforma
 share-title: "MCP do Dashboard | Embrapa I/O"
-share-description: "MCP Server do Embrapa I/O que dá acesso ao Painel de Controle em linguagem natural: projetos, apps, builds, deploys, equipe e qualidade de código, com login OAuth."
+share-description: "MCP Server do Embrapa I/O que dá acesso ao Painel de Controle em linguagem natural: projetos, apps, builds, deploys, equipe, qualidade de código e relatórios da Sentinela, com login OAuth."
 permalink: /docs/mcp/io/
 ---
 
@@ -26,7 +26,7 @@ A autenticação é feita via **OAuth 2.1 com PKCE**. Ao conectar, o fluxo de lo
 
 ## Funcionalidades
 
-O servidor expõe **37 _tools_** e **8 _prompts_ guiados** organizados nos seguintes domínios:
+O servidor expõe **42 _tools_** e **8 _prompts_ guiados** organizados nos seguintes domínios:
 
 **Perfil do Usuário** — Consulta e atualização do perfil na plataforma, incluindo nome de exibição utilizado em todas as interfaces e listagens de equipe.
 
@@ -47,6 +47,8 @@ O servidor expõe **37 _tools_** e **8 _prompts_ guiados** organizados nos segui
 **Monitoramento Consolidado** — Visão agregada por aplicação combinando Matomo, Sentry e SonarQube em uma única consulta. Saúde de _builds_ específicas (`project/app@stage`) em _clusters_ compartilhados: _status_ do _deploy_, _uptime_, histórico de versões deployadas e vulnerabilidades de segurança (CVEs) detectadas pelo Trivy nos _containers_ — complementar à análise estática do SonarQube, cobrindo dependências de _runtime_, imagens base e bibliotecas do SO.
 
 **_Deploy_ Externo (Releaser)** — Geração do arquivo `builds.json` para _deploy_ e atualização contínua em servidores fora da rede de _clusters_ da plataforma. Coleta automática de equipe, variáveis de ambiente, Sentry DSN e Matomo ID a partir da API ou de arquivos locais do _codebase_, com geração de _secrets_ e _passwords_ randômicos.
+
+**Sentinela** — Leitura dos relatórios da [Sentinela]({{ site.baseurl }}/docs/sentinel) guardados na plataforma, inclusive as prévias e os de projetos sem `io-doc`, já estruturados (achados com identificador, severidade, evidência e ação; itens em aberto; _insights_). Busca nos achados de todos os relatórios dos projetos do usuário, para saber se um problema já apareceu e como foi votado, ou comparar padrões entre projetos. Registro em lote do voto útil/ruído, com veredito e motivo.
 
 **_Prompts_ Guiados** — 8 fluxos interativos para operações comuns: visão geral dos projetos, criação de projeto passo-a-passo, criação de aplicação, _deploy_ via _git tag_, diagnóstico de problemas de _build_, gestão de equipe, _status_ de _deploy_ e relatório de saúde do projeto.
 
@@ -97,6 +99,11 @@ Liste os boilerplates disponíveis que suportam Vue.js.
 Gere o builds.json para deploy externo do agrovision/pwa em um servidor próprio.
 ```
 
+```
+Leia o último relatório da Sentinela do agrovision e confira cada achado no código.
+Algum deles já tinha aparecido em relatórios anteriores?
+```
+
 ## Configuração em IDEs e CLIs
 
 A configuração segue o padrão unificado descrito em [Configuração em IDEs e CLIs]({{ site.baseurl }}/docs/mcp/#config). Basta usar a URL `https://mcp.embrapa.io`. Exemplo no **Claude Code**:
@@ -109,7 +116,7 @@ claude mcp add --scope user --transport http io https://mcp.embrapa.io
 
 ## Referência Técnica
 
-### _Tools_ (37)
+### _Tools_ (42)
 
 #### Perfil do Usuário
 
@@ -202,6 +209,16 @@ claude mcp add --scope user --transport http io https://mcp.embrapa.io
 | _Tool_ | Descrição |
 |--------|-----------|
 | `generate_releaser_config` | Gera o arquivo `builds.json` para _deploy_ via [Releaser]({{ site.baseurl }}/docs/releaser) em servidores externos. Coleta equipe, variáveis, Sentry DSN e Matomo ID da API ou de arquivos locais (`.env.io`/`.env`). Gera _secrets_ e _passwords_ randômicos para campos sensíveis. |
+
+#### Sentinela {#sentinel}
+
+| _Tool_ | Descrição |
+|--------|-----------|
+| `list_sentinel_reports` | Lista os relatórios da Sentinela de um projeto, do mais recente para o mais antigo: carimbo (`stamp`), período, frequência, apps, achados novos e em aberto, severidades, custo e se é prévia. Requer ser membro do projeto. |
+| `get_sentinel_report` | Lê um relatório: achados (com `fingerprint`, severidade, categoria, fonte, evidência, ação e link), itens em aberto, observações sem ação ("Para ciência"), _insights_ e avisos da coleta; ou o texto em Markdown. Nunca devolve o HTML. Requer ser membro do projeto. |
+| `search_sentinel_findings` | Busca nos achados de todos os relatórios (inclusive prévias) dos projetos do usuário; gestores da plataforma buscam em todos. Um item por achado, com a primeira e a última vez em que saiu, em quantos relatórios e os votos. Filtros por texto, projeto, data, severidade, categoria e app. |
+| `list_sentinel_votes` | Votos e vereditos já registrados nos achados de um projeto. O e-mail de quem votou só aparece para o Arquiteto da Solução. Requer ser membro do projeto. |
+| `vote_sentinel_findings` | Registra em lote (até 50) o veredito da triagem de cada achado: `ok`, `wrong_action` e `partial` votam útil; `noise` vota ruído e **silencia o achado nos relatórios seguintes**; `stale` e `unverified` registram a triagem sem votar. Votar de novo substitui o voto anterior. Requer confirmação explícita e ser membro do projeto. |
 
 ### _Prompts_ Guiados (8)
 
