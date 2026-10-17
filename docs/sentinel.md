@@ -200,7 +200,7 @@ Em seguida vêm as aplicações, da mais crítica para a menos. Cada uma começa
 | Adoção de novidades | Uma funcionalidade ou conteúdo lançado no período (tags, _merge requests_) e como o público o recebeu: acessos desde o lançamento, participação nas visitas, de onde veio o interesse |
 | Tudo em ordem | Nada a fazer naquela aplicação |
 
-Abaixo dos _insights_ ficam os **achados**, agrupados por categoria, cada um com a severidade, a evidência (números, trechos, datas), a ação sugerida, o link para a ferramenta de origem e os votos de retorno. Todo achado pede uma ação concreta: uma observação sem ação (um _deploy_ estável, uma varredura respondida só com `404`) vai para a seção **Para ciência**, sem votos.
+Abaixo dos _insights_ ficam os **achados**, agrupados por categoria, cada um com a severidade, a evidência (números, trechos, datas), a ação sugerida, o link para a ferramenta de origem e os votos de retorno. Todo achado pede uma ação concreta que a equipe possa executar: uma observação sem ação (um _deploy_ estável, uma varredura respondida só com `404` ou com a página inicial da SPA) vai para a seção **Para ciência**, sem votos, seja qual for a severidade. O que é da própria plataforma (refazer a varredura de CVEs, ajustar a contagem de erros dos _logs_, instalar um _plugin_ no SonarQube) nunca vira tarefa da equipe.
 
 ![Insights e achados de uma aplicação]({{ site.baseurl }}/assets/img/sentinel/11.png)
 
@@ -229,7 +229,7 @@ Quem tria os relatórios com um assistente de IA pode votar em lote pelo [MCP do
 
 - **Nada é executado.** A Sentinela não altera aplicações, repositórios nem servidores.
 - **Segredos nunca chegam ao provedor.** Senhas, chaves e _tokens_ são removidos do pacote antes do envio, inclusive os que aparecem em _logs_ e em linhas de comando.
-- **Dados pessoais são pseudonimizados.** Endereços IP e e-mails viram marcadores (`IP#3`, `EMAIL#1`) antes da análise e só são reidratados no relatório final, que a equipe lê.
+- **Dados pessoais são pseudonimizados.** Endereços IP públicos e e-mails viram marcadores (`IP#C`, `EMAIL#A`) antes da análise e só são reidratados no relatório final, que a equipe lê. Endereços internos (redes privadas e loopback) ficam como estão, e uma verificação final mascara qualquer IP público ou e-mail que tenha sobrado antes do envio ao modelo.
 - **Ninguém é avaliado.** Nenhum achado nomeia autor de _commit_ nem mede produtividade individual; o pacote de código vai sem autores.
 - **É IA.** O relatório pode conter erros, exagerar ou minimizar um risco, e exige revisão humana antes de qualquer decisão.
 - **A chave é de quem configura.** Cifrada, nunca exibida de novo e apagada se a pessoa deixar de ser arquiteta do projeto (os demais arquitetos são avisados por e-mail) ou quando o projeto é arquivado. Outro arquiteto pode sobrescrevê-la a qualquer momento.
