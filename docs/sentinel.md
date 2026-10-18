@@ -153,7 +153,7 @@ Há duas opções.
 
 Por fim, a frequência, os destinatários e a cópia no `io-doc`:
 
-- **Semanal** (recomendado): um relatório por semana, sempre enviado. **Diário**: a análise roda todos os dias, mas o e-mail só sai quando há novidade; o resumo da semana continua vindo no semanal.
+- **Semanal** (recomendado): um relatório por semana, sempre enviado, na madrugada de domingo para segunda (a partir das 2h de Brasília), para a equipe começar a semana com ele. **Diário**: a análise roda todos os dias no mesmo horário, mas o e-mail só sai quando há novidade; o resumo da semana continua vindo no semanal.
 - **Destinatários**: toda a equipe ou só os arquitetos.
 - **Cópia em `io-doc`**: grava cada relatório em Markdown em `06-Support/Sentinel/<ano>/`, no repositório de apoio do projeto. Quando a _branch_ `main` desse repositório só aceita _Maintainers_, a Sentinela grava na _branch_ `sentinela` e abre uma _merge request_.
 
@@ -165,7 +165,7 @@ Com a Sentinela ativa, a aba **Sobre** mostra o provedor e o modelo, a chave (s�
 
 ![Aba Sobre com a Sentinela ativa]({{ site.baseurl }}/assets/img/sentinel/07.png)
 
-**Executar Agora** enfileira uma análise imediata com a janela inteira da frequência (os últimos 7 dias no semanal) e envia o e-mail mesmo sem novidade. Serve para o primeiro relatório logo após a ativação e para conferir o efeito de uma correção sem esperar a próxima rodada. Enquanto a análise roda, o botão fica desabilitado e o diálogo se atualiza sozinho; em alguns minutos o relatório chega por e-mail e aparece no histórico.
+**Executar Agora** enfileira uma análise imediata com a janela inteira da frequência (os últimos 7 dias no semanal) e envia o e-mail mesmo sem novidade. Depois da ativação, o primeiro relatório agendado só sai na rodada seguinte (no semanal, a próxima segunda-feira); para tê-lo na hora, use este botão. Serve também para conferir o efeito de uma correção sem esperar a próxima rodada. Enquanto a análise roda, o botão fica desabilitado e o diálogo se atualiza sozinho; em alguns minutos o relatório chega por e-mail e aparece no histórico.
 
 A seta ao lado do botão oferece a **prévia**: a mesma análise, que aparece só no histórico, marcada como "Prévia", sem e-mail e sem cópia no `io-doc`. Ela não muda nada para o próximo relatório: a janela do agendado, os itens em aberto e a lista de avaliações sem resposta ficam como estavam. Serve para conferir uma correção ou testar a configuração sem encher a caixa da equipe.
 
@@ -173,7 +173,7 @@ A aba **Histórico** lista todos os relatórios, com filtro por período: data, 
 
 ![Aba Histórico]({{ site.baseurl }}/assets/img/sentinel/08.png)
 
-> **Atenção!** Os relatórios agendados cobrem o período desde a última execução. Se a equipe rodar "Executar Agora" na quinta-feira, o semanal de segunda vai cobrir só os dias seguintes a ela. O gráfico de visitas, por sua vez, mostra sempre os últimos sete dias.
+> **Atenção!** Todo relatório cobre o período inteiro da frequência: o semanal, os últimos sete dias, mesmo que a equipe tenha rodado "Executar Agora" no meio da semana. O que já foi relatado e continua sem solução aparece em "Continua em aberto", e não como novidade.
 
 ## O relatório {#report}
 
