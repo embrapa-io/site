@@ -180,6 +180,8 @@ Para verificar a configuração, use o comando `mail` (veja abaixo). Ele mostra 
 
 Além disso, será gerado um par de chaves SSH, caso não exista. Estas chaves são necessárias para a sincronização do código-fonte das aplicações. Você deve acessar novamente seu _profile_ no GitLab da plataforma e ir na opção [SSH Keys](https://git.embrapa.io/-/profile/keys). Cadastre então o conteúdo da chave pública gerada (arquivo `ssh.pub`).
 
+> **Atenção!** No campo "**Usage type**", escolha **Authentication**. O **Releaser** usa a chave apenas para clonar e atualizar o código-fonte das aplicações, nunca para assinar _commits_. Restrita à autenticação, uma eventual cópia da chave não serve para assinar _commits_ em seu nome. No título, identifique o servidor (por exemplo, `Releaser apps001.cnpgc.embrapa.br`), para saber depois qual chave revogar. A data de expiração é opcional; se definir uma, anote-a: quando a chave vencer, o **Releaser** deixa de clonar as novas versões e os _deploys_ automáticos param, com erro de clone no e-mail de _log_.
+
 > **Atenção!** Por padrão, o código-fonte é clonado por SSH, na **porta 22** do `git.embrapa.io`. Se a rede do servidor bloquear essa porta na saída, use a variável opcional `GITLAB_SSH` para clonar por HTTPS, na porta 443. Veja como em [Porta 22 bloqueada](#https).
 
 ![SSH Key no GitLab]({{ site.baseurl }}/assets/img/releaser/20230717164051.png)
