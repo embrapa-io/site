@@ -72,6 +72,18 @@ No Matomo, as visitas concentradas nos Estados Unidos no dia de um envio de vers
 
 No relatório isso vira o bloco **Google Play · loja** no card da app (nota em estrelas com a variação, estabilidade contra os limiares, instalações e ficha, distribuição das avaliações), o gráfico **Instalações e nota na Google Play** no panorama (instalações por dia em oito semanas e a nota em seis meses) e a seção **Avaliações e sentimento na Google Play** (sentimento, avaliações sem resposta com o rascunho e dívida histórica), além dos achados e insights de costume (um crash que estourou o limiar numa versão, um ANR concentrado num aparelho, uma queda de conversão da ficha).
 
+![Gráfico de instalações e nota na Google Play no panorama]({{ site.baseurl }}/assets/img/sentinel/16.png)
+
+No gráfico, as barras verdes são as instalações e as vermelhas, as desinstalações de cada dia, nas oito semanas mais recentes da exportação; à direita, a linha é a nota oficial da Google, um ponto a cada 30 dias, e os círculos são a média das avaliações recebidas em cada mês (maiores quando há mais avaliações).
+
+![Bloco Google Play no card da app]({{ site.baseurl }}/assets/img/sentinel/21.png)
+
+No card da app, o bloco mostra a nota em estrelas e os dispositivos ativos, a estabilidade contra os limiares da Play (com o tamanho da amostra dos vitals), as instalações do período com a variação, o saldo, as datas da exportação e o funil da ficha, e a distribuição das avaliações do período.
+
+![Seção de avaliações e sentimento na Google Play]({{ site.baseurl }}/assets/img/sentinel/18.png)
+
+A seção de avaliações traz, por pacote, o sentimento do público (no selo, melhorando, estável ou piorando) e a leitura do modelo em uma ou duas frases; quando há avaliação que pede resposta, ela aparece abaixo em paráfrase, com o rascunho de resposta e o link para a Play Console.
+
 Para a Sentinela enxergar o app, três coisas precisam estar no lugar:
 
 1. **A conta de serviço da plataforma cadastrada como usuária da conta de desenvolvedor na Play Console.** A Sentinela usa uma única conta de serviço, `sentinela@embrapa-io.iam.gserviceaccount.com`, com duas permissões **somente leitura**, dadas nas **permissões da conta** (e não app por app, para que os apps novos já nasçam visíveis): **Ver informações do app e fazer o download de relatórios em massa** e **Ver informações de qualidade do app** (Android vitals). Elas bastam para ler também as avaliações; a permissão "Responder a avaliações" não é necessária e não deve ser dada, porque a Sentinela nunca responde nada. Na conta de desenvolvedor da **Embrapa** (`aplicativos@embrapa.br`) o cadastro já está feito. Apps publicados na conta de um **parceiro**, como o Pasto Certo na Unipasto, precisam que o administrador da conta do parceiro faça o mesmo cadastro, em "Usuários e permissões", convidando o e-mail da conta de serviço com essas duas permissões no nível da conta.
@@ -155,7 +167,7 @@ Por fim, a frequência, os destinatários e a cópia no `io-doc`:
 
 - **Semanal** (recomendado): um relatório por semana, sempre enviado, na madrugada de domingo para segunda (a partir das 2h de Brasília), para a equipe começar a semana com ele. **Diário**: a análise roda todos os dias no mesmo horário, mas o e-mail só sai quando há novidade; o resumo da semana continua vindo no semanal.
 - **Destinatários**: toda a equipe ou só os arquitetos.
-- **Cópia em `io-doc`**: grava cada relatório em Markdown em `06-Support/Sentinel/<ano>/`, no repositório de apoio do projeto. Quando a _branch_ `main` desse repositório só aceita _Maintainers_, a Sentinela grava na _branch_ `sentinela` e abre uma _merge request_.
+- **Cópia em `io-doc`**: grava cada relatório em Markdown em `06-Support/Sentinel/<ano>/`, no repositório de apoio do projeto. Quando a _branch_ `main` desse repositório só aceita _Maintainers_, a Sentinela grava na _branch_ `sentinela` e abre uma _merge request_. A opção só fica disponível quando o repositório de **Documentação técnica** (`doc`) está ativo nos repositórios de suporte do projeto; sem ele, ela aparece desligada, com o aviso para ativá-lo nas configurações do projeto. Um repositório de suporte desativado é arquivado e deixa de aceitar gravação: nesse caso a Sentinela pula a cópia e registra o motivo no _log_, sem falhar a execução.
 
 ![Passo 3: ajustes]({{ site.baseurl }}/assets/img/sentinel/06.png)
 
@@ -177,11 +189,33 @@ A aba **Histórico** lista todos os relatórios, com filtro por período: data, 
 
 ## O relatório {#report}
 
-O relatório é o mesmo por e-mail, no histórico e no `io-doc`. Ele começa pelo retrato do período: indicadores (novidades, itens em aberto e contagem por severidade) e o **panorama**, com cinco gráficos: novidades por aplicação e severidade; visitas por dia (uma linha por aplicação com site no Matomo, até o último dia completo); quem acessa e de onde, para o projeto inteiro (dispositivos, origem do tráfego e estados do Brasil ou países, em participação); páginas mais acessadas somando todas as aplicações; e vulnerabilidades altas e críticas nas imagens em execução, com a proporção que já tem correção. Os dois gráficos de público existem para que o relatório sirva também a quem não é de TI na equipe publicada.
+O relatório é o mesmo por e-mail, no histórico e no `io-doc`, e se divide em seções numeradas, sempre na mesma ordem: indicadores, panorama, sumário, achados, loja (só quando há app na Google Play), pendências, ciência e atividade. As imagens desta seção vêm de um relatório semanal real, com alguns itens de segurança omitidos.
+
+Ele começa pelo retrato do período: o cabeçalho (período, data de geração, projeto e aplicações) e os **indicadores**, com as novidades, os itens em aberto e a contagem das novidades por severidade.
 
 ![Cabeçalho e indicadores do relatório]({{ site.baseurl }}/assets/img/sentinel/09.png)
 
-![Panorama: gráficos do período]({{ site.baseurl }}/assets/img/sentinel/10.png)
+Em seguida vem o **panorama**, com até seis gráficos, cada um com a ferramenta de origem no canto. O primeiro empilha as novidades por aplicação e severidade:
+
+![Panorama: novidades por app e severidade]({{ site.baseurl }}/assets/img/sentinel/10.png)
+
+As **visitas por dia** trazem uma linha por aplicação com site no Matomo, na mesma escala, até o último dia completo. As linhas tracejadas verticais marcam as _tags_ publicadas no período, para ver se uma versão nova mudou o uso:
+
+![Panorama: visitas por dia]({{ site.baseurl }}/assets/img/sentinel/13.png)
+
+**Quem acessa e de onde** soma as aplicações do projeto: visitantes únicos e dispositivos, a origem do tráfego (sites que encaminham, acesso direto, busca, assistentes de IA) e os estados do Brasil (ou países) com mais visitas, sempre em participação:
+
+![Panorama: quem acessa e de onde]({{ site.baseurl }}/assets/img/sentinel/14.png)
+
+As **páginas mais acessadas** somam todas as aplicações, com a aplicação de cada página no selo; o identificador de registro vira `:id`, para que as páginas de detalhe de cada registro não se espalhem pela lista:
+
+![Panorama: páginas mais acessadas]({{ site.baseurl }}/assets/img/sentinel/15.png)
+
+Quando há app na loja, entra o gráfico de **instalações e nota na Google Play** (descrito em [Aplicativos na Google Play](#play)); por fim, as **vulnerabilidades** altas e críticas nas imagens em execução, por estágio, e nas dependências dos apps de loja, com a proporção que já tem correção publicada. Os gráficos de público existem para que o relatório sirva também a quem não é de TI na equipe. O panorama fecha com **a semana em números**: visitas, requisições e respostas `5xx`, _commits_ e _tags_, reinícios e linhas de erro, e a proporção de CVEs corrigíveis.
+
+![A semana em números]({{ site.baseurl }}/assets/img/sentinel/17.png)
+
+O **sumário** é uma tabela com as novidades de cada aplicação por severidade e os itens em aberto, da aplicação mais crítica para a menos.
 
 Em seguida vêm as aplicações, da mais crítica para a menos. Cada uma começa por até três caixas de **_insight_**: o que mais vale a atenção da equipe naquele momento, em uma ou duas linhas, com a cor e o ícone do tipo:
 
@@ -204,11 +238,21 @@ Abaixo dos _insights_ ficam os **achados**, agrupados por categoria, cada um com
 
 ![Insights e achados de uma aplicação]({{ site.baseurl }}/assets/img/sentinel/11.png)
 
-Quando várias aplicações do mesmo _boilerplate_ repetem o mesmo problema (os mesmos _hotspots_ de `Dockerfile`, a mesma varredura, a mesma cobertura zerada), ele aparece uma vez só, na seção **projeto inteiro**, com a ação que resolve para todas. Cada achado tem um identificador curto (`ref`), que se mantém de um relatório para o outro enquanto o problema for o mesmo, ainda que descrito com outras palavras: o modelo recebe a lista do que já foi relatado e reconhece a repetição. A seção **Continua em aberto** traz o que já foi relatado antes e segue sem ação, e o **Resumo do período** fecha com os números de cada aplicação: estágios, código, _logs_, erros, CVEs, qualidade (com as notas do SonarQube e a proporção de linguagens) e uso. Cada estágio aparece com um selo `[estágio | situação]` (azul com foguete quando a plataforma implanta, laranja com servidor quando é um Releaser; situação saudável, não verificado ou com serviços fora do ar), a versão no ar com a data e a última verificação.
+Na seção **Para ciência** ficam as observações que não pedem ação, numa linha cada, com a aplicação e a evidência. No exemplo, uma varredura de _scanners_ em busca de `.env` e `.git/config` recebeu `200`, mas com o mesmo tamanho da página inicial: era a SPA respondendo, sem vazamento.
 
-![Resumo do período de uma aplicação]({{ site.baseurl }}/assets/img/sentinel/12.png)
+![Seção Para ciência]({{ site.baseurl }}/assets/img/sentinel/20.png)
+
+Quando várias aplicações do mesmo _boilerplate_ repetem o mesmo problema (os mesmos _hotspots_ de `Dockerfile`, a mesma varredura, a mesma cobertura zerada), ele aparece uma vez só, na seção **projeto inteiro**, com a ação que resolve para todas. Cada achado tem um identificador curto (`ref`), que se mantém de um relatório para o outro enquanto o problema for o mesmo, ainda que descrito com outras palavras: o modelo recebe a lista do que já foi relatado e reconhece a repetição. A seção **Continua em aberto** traz o que já foi relatado antes e segue sem ação, com a severidade, a aplicação, a categoria, a fonte e a data em que o item apareceu pela primeira vez:
+
+![Seção Continua em aberto]({{ site.baseurl }}/assets/img/sentinel/19.png)
+
+O **Resumo do período** fecha com os números de cada aplicação: estágios, código, _logs_, erros, CVEs, qualidade (com as notas do SonarQube e a proporção de linguagens) e uso. Cada estágio aparece com um selo `[estágio | situação]` (azul com foguete quando a plataforma implanta, laranja com servidor quando é um Releaser; situação saudável, não verificado ou com serviços fora do ar), a versão no ar com a data e a última verificação.
+
+![Resumo do período: estágios, código e logs de uma aplicação]({{ site.baseurl }}/assets/img/sentinel/12.png)
 
 O rodapé de cada relatório informa o provedor, o modelo, os _tokens_ consumidos e o custo estimado, e lembra que o conteúdo foi gerado por IA e exige revisão humana.
+
+![Rodapé do relatório]({{ site.baseurl }}/assets/img/sentinel/22.png)
 
 ## Retorno: útil ou ruído {#feedback}
 
@@ -224,6 +268,13 @@ Quem tria os relatórios com um assistente de IA pode votar em lote pelo [MCP do
 | `noise` | Falso positivo, dado mal lido ou observação sem ação | ruído |
 | `stale` | Era verdade antes, mas não no momento do relatório | nenhum (não silencia) |
 | `unverified` | Não foi possível conferir | nenhum (não silencia) |
+
+A triagem volta para a Sentinela. A cada voto, a plataforma guarda o veredito, o motivo e um resumo do achado (título, aplicação, fonte, evidência e ação). Na execução seguinte, o modelo recebe isso junto da lista do que já foi relatado:
+
+- o **ruído** é reconhecido mesmo que o problema reapareça descrito com outras palavras, e não volta;
+- nos achados marcados como `wrong_action` ou `partial`, o modelo lê o motivo e não repete a ação condenada nem a parte que não se aplica.
+
+Por isso, vale escrever o motivo como orientação: em vez de "ação errada", "o erro vem do WebView do aparelho; a ação certa é registrar a versão mínima do Android na ficha". Votos em prévias também contam.
 
 ## Privacidade e responsabilidade {#privacy}
 
