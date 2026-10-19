@@ -82,7 +82,7 @@ No card da app, o bloco mostra a nota em estrelas e os dispositivos ativos, a es
 
 ![Seção de avaliações e sentimento na Google Play]({{ site.baseurl }}/assets/img/sentinel/18.png)
 
-A seção de avaliações traz, por pacote, o sentimento do público (no selo, melhorando, estável ou piorando) e a leitura do modelo em uma ou duas frases; quando há avaliação que pede resposta, ela aparece abaixo em paráfrase, com o rascunho de resposta e o link para a Play Console.
+A seção de avaliações traz, por pacote, o sentimento do público (no selo, melhorando, estável ou piorando) e a leitura do modelo em uma ou duas frases; quando há avaliação que pede resposta, ela aparece abaixo em paráfrase, com o rascunho de resposta e o link para a Play Console. São três contagens, cada uma com o seu nome: as **não respondidas no período** (todas as avaliações da semana ainda sem resposta, inclusive elogios que não pedem uma), as que **pedem resposta** nos últimos 12 meses (o que entra no **Em aberto**) e a **dívida histórica** (mais de 12 meses).
 
 Para a Sentinela enxergar o app, três coisas precisam estar no lugar:
 
@@ -189,7 +189,7 @@ A aba **Histórico** lista todos os relatórios, com filtro por período: data, 
 
 ## O relatório {#report}
 
-O relatório é o mesmo por e-mail, no histórico e no `io-doc`, e se divide em seções numeradas, sempre na mesma ordem: indicadores, panorama, sumário, achados, loja (só quando há app na Google Play), pendências, ciência e atividade. As imagens desta seção vêm de um relatório semanal real, com alguns itens de segurança omitidos.
+O relatório é o mesmo por e-mail, no histórico e no `io-doc`, e se divide em seções numeradas, sempre na mesma ordem: indicadores, panorama, sumário, achados, loja (só quando há app na Google Play), pendências, ciência e atividade. As imagens desta seção vêm de um relatório semanal real, com alguns itens de segurança omitidos; só o gráfico de vulnerabilidades usa dados fictícios.
 
 Ele começa pelo retrato do período: o cabeçalho (período, data de geração, projeto e aplicações) e os **indicadores**, com as novidades, os itens em aberto e a contagem das novidades por severidade.
 
@@ -211,7 +211,11 @@ As **páginas mais acessadas** somam todas as aplicações, com a aplicação de
 
 ![Panorama: páginas mais acessadas]({{ site.baseurl }}/assets/img/sentinel/15.png)
 
-Quando há app na loja, entra o gráfico de **instalações e nota na Google Play** (descrito em [Aplicativos na Google Play](#play)); por fim, as **vulnerabilidades** altas e críticas nas imagens em execução, por estágio, e nas dependências dos apps de loja, com a proporção que já tem correção publicada. Os gráficos de público existem para que o relatório sirva também a quem não é de TI na equipe. O panorama fecha com **a semana em números**: visitas, requisições e respostas `5xx`, _commits_ e _tags_, reinícios e linhas de erro, e a proporção de CVEs corrigíveis.
+Quando há app na loja, entra o gráfico de **instalações e nota na Google Play** (descrito em [Aplicativos na Google Play](#play)); por fim, as **vulnerabilidades** altas e críticas nas imagens em execução, por estágio, e nas dependências dos apps de loja, com a proporção que já tem correção publicada (a imagem abaixo usa dados fictícios, no mesmo formato do relatório real):
+
+![Panorama: vulnerabilidades nas imagens em execução e nas dependências (dados fictícios)]({{ site.baseurl }}/assets/img/sentinel/23.png)
+
+Os gráficos de público existem para que o relatório sirva também a quem não é de TI na equipe. O panorama fecha com **a semana em números**: visitas, requisições e respostas `5xx`, _commits_ e _tags_, reinícios e linhas de erro, e a proporção de CVEs corrigíveis.
 
 ![A semana em números]({{ site.baseurl }}/assets/img/sentinel/17.png)
 
