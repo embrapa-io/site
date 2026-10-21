@@ -29,3 +29,7 @@ Por fim, caso a _build_ tenha sido instanciada em um _cluster_ com o recurso de 
 ![Web Terminal]({{ site.baseurl }}/assets/img/posts/Terminal.gif)
 
 Por meio deste terminal o mantenedor poderá depurar, realizar manutenções eventuais e fazer intervenções pontuais em cada um dos containers da _stack_ em execução.
+
+O terminal se ajusta ao tamanho da janela (inclusive ao redimensioná-la) e aceita colar textos com acentos. Ao abrir, ele mostra o andamento da conexão; se ela for recusada (por exemplo, por não haver um container em execução para o serviço) ou cair, a mensagem aparece no próprio terminal. Se não houver resposta do servidor em 15 segundos, o terminal avisa: em geral é a rede local, uma VPN ou um _firewall_ bloqueando a porta do terminal no _cluster_ (por padrão, `65500`). Para encerrar, digite `exit` (ou `Ctrl+D`) ou feche a janela.
+
+> **Dica!** Nem toda imagem tem o `bash`: imagens baseadas em Alpine costumam ter apenas `sh` ou `ash`. Se o terminal fechar logo após abrir com `bash`, tente o `sh`.
