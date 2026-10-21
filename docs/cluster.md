@@ -210,79 +210,34 @@ O recurso de **Web Terminal** permite que [membros do projeto com o papel de **A
 
 A ativação do **Web Terminal** é um recurso opcional, que a equipe de mantenedores do _cluster_ pode ativar ou não (assim como, p.e., a disponibilização de um SMTP para envio de e-mails). Para ativação do recurso no _cluster_ é necessário ter um [utilitário instalado que foi desenvolvido especificamente para esta finalidade](https://hub.docker.com/r/embrapa/terminal).
 
-Para instalá-lo, sugere-se a criação de um _script_ denominado `/root/terminal.sh` com o seguinte conteúdo...
-
-...no **Docker Compose**:
+Para instalá-lo num _cluster_ com **Docker Compose**, execute como `root`:
 
 ```bash
-#!/bin/sh
-
-type docker > /dev/null 2>&1 || { echo >&2 "Command 'docker' has not been found! Aborting."; exit 1; }
-
-set -x
-
-set +e
-
-docker stop terminal
-
-docker rm terminal
-
-set -e
-
-docker pull embrapa/terminal
-
-docker run --name terminal \
-  -v /var/embrapa/ssl/wildcard/cnpxx.crt:/ssl/server.crt:ro \
-  -v /var/embrapa/ssl/wildcard/cnpxx.key:/ssl/server.key:ro \
-  -v /var/run/docker.sock:/var/run/docker.sock:ro \
-  -p 65500:5000 \
-  --restart unless-stopped -d --sig-proxy=false \
-  embrapa/terminal
+curl -fsSL https://embrapa.io/terminal.sh -o /root/terminal.sh && sh /root/terminal.sh install
 ```
 
-...no **Docker Swarm**:
+O _script_ grava um CRON diário (`/etc/cron.d/embrapa-terminal`) e já sobe o terminal. Ele descobre o nome do _cluster_ cruzando o [catálogo de _clusters_]({{ site.baseurl }}/resources/clusters) com os certificados do Let's Encrypt em `/etc/letsencrypt/live/`, lê no catálogo a porta e se o terminal está ativo, usa o `fullchain.pem` e mantém o terminal atualizado: a cada dia baixa a versão mais recente, troca o contêiner só quando ela muda e volta à anterior se a nova não responder. Para conferir o que ele faria, sem mudar nada:
 
 ```bash
-#!/bin/sh
+sh /root/terminal.sh status
+```
 
-type docker > /dev/null 2>&1 || { echo >&2 "Command 'docker' has not been found! Aborting."; exit 1; }
+Ajustes locais (outro nome de certificado, versão fixa, outro diretório do Let's Encrypt) vão em `/root/terminal.env`; veja o cabeçalho do próprio _script_. Para verificar se está tudo certo, acesse `https://<cluster>:65500/health` (ou a porta configurada no catálogo), que responde com a versão, o estado do Docker e a validade do certificado.
 
-set -x
+> **Atenção!** Versões anteriores desta documentação sugeriam um `/root/terminal.sh` que recriava o contêiner a cada execução, muitas vezes chamado pelo `/etc/cron.daily/io`. O comando acima substitui esse _script_ e, ao instalar, retira a chamada antiga dos arquivos de CRON (com cópia de segurança em `/root`), mantendo o restante, como o _backup_ do _cluster_.
 
-set +e
+Em _clusters_ com **Docker Swarm**, o _script_ ainda não se aplica. Crie o serviço manualmente, apontando para o diretório do Let's Encrypt e para o `fullchain.pem` (não o `cert.pem`, que vem sem a cadeia intermediária):
 
-docker service rm terminal
-
-set -e
-
-docker pull embrapa/terminal
-
+```bash
 docker service create --name terminal \
   --mode=global \
-  --mount=type=bind,src=/var/embrapa/ssl/wildcard/cnpxx.crt,dst=/ssl/server.crt,readonly \
-  --mount=type=bind,src=/var/embrapa/ssl/wildcard/cnpxx.key,dst=/ssl/server.key,readonly \
+  --mount=type=bind,src=/etc/letsencrypt,dst=/etc/letsencrypt,readonly \
+  --env SSL_CERT=/etc/letsencrypt/live/<cluster>/fullchain.pem \
+  --env SSL_KEY=/etc/letsencrypt/live/<cluster>/privkey.pem \
   --mount=type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock,readonly \
   --publish published=65500,target=5000 \
   embrapa/terminal
 ```
-
-Repare que os caminhos para os certificados SSL (`cnpxx.crt` e `cnpxx.key`) devem ser alterados para corresponder aos corretos.
-
-Em seguida, atribua permissões (`chmod +x /root/terminal.sh`) e execute. Ao finalizar, para verificar se está tudo certo, dê o comando...
-
-...no **Docker Compose**:
-
-```bash
-docker logs -f terminal
-```
-
-...no **Docker Swarm**:
-
-```bash
-docker logs -f $(docker ps -q -f name=terminal)
-```
-
-Você deverá ver a mensagem "**WebSocket Server running!**".
 
 ## 6. Instalação de um _Distribution Registry_ (opcional) {#registry}
 

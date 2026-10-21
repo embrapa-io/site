@@ -50,6 +50,13 @@ command -v curl > /dev/null || die "curl not found."
 
 MODE=${1:-apply}
 
+# Uma execução por vez (o cron e uma chamada manual podem coincidir).
+if command -v flock > /dev/null; then
+  exec 9> /var/lock/embrapa-terminal.lock
+
+  flock -n 9 || { say "INFO > Another execution is running: nothing to do."; exit 0; }
+fi
+
 case "$MODE" in
   install|apply|status) ;;
   *) die "Unknown command '$MODE'. Use: install, status or nothing (apply)." ;;
@@ -60,15 +67,41 @@ if [ "$MODE" = install ]; then
 
   chmod 700 "$SELF"
 
+  [ -d "$(dirname "$CRON")" ] || die "$(dirname "$CRON") not found: is cron installed?"
+
   # Diário, de madrugada no horário do host. 'root' é o usuário (formato do /etc/cron.d).
   {
     echo 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin'
     echo "17 4 * * * root $SELF >> $LOG 2>&1"
-  } > "$CRON"
+  } > "$CRON" || die "Impossible to write $CRON."
 
   chmod 644 "$CRON"
 
   say "INFO > Daily cron installed in $CRON (04:17, log in $LOG)."
+
+  # Legado: a documentação antiga mandava criar um /root/terminal.sh que recriava o
+  # contêiner a cada chamada, e muitos clusters o chamam pelo /etc/cron.daily/io (junto
+  # com o backup) ou pelo crontab. Só a linha do terminal sai; o backup fica no /root
+  # (dentro do /etc/cron.daily ele seria executado).
+  stamp=$(date +%Y%m%d-%H%M%S)
+
+  for file in /etc/cron.daily/* /etc/crontab; do
+    [ -f "$file" ] && grep -q '/root/terminal\.sh' "$file" || continue
+
+    cp "$file" "/root/$(basename "$file").bak-$stamp"
+
+    sed -i '\#/root/terminal\.sh#d' "$file"
+
+    say "INFO > Legacy call to /root/terminal.sh removed from $file (backup in /root/$(basename "$file").bak-$stamp)."
+  done
+
+  if crontab -l 2> /dev/null | grep -q '/root/terminal\.sh'; then
+    crontab -l > "/root/crontab.bak-$stamp"
+
+    grep -v '/root/terminal\.sh' "/root/crontab.bak-$stamp" | crontab -
+
+    say "INFO > Legacy call to /root/terminal.sh removed from the root crontab (backup in /root/crontab.bak-$stamp)."
+  fi
 
   MODE=apply
 fi
