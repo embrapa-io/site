@@ -30,6 +30,8 @@ Busque erros no projeto arena nas últimas 24 horas e me diga se tem algo preocu
 
 ## MCP do Kanban — GitLab
 
+> **Atualização (21/10/2026):** com a versão 19.5, o GitLab passou a oferecer um **MCP oficial** estável, que opera no Kanban do grupo inteiro e é o recomendado pela própria GitLab. O MCP do Kanban apresentado abaixo perdeu a serventia e **será descontinuado**. Veja como migrar em [MCP do GitLab]({{ site.baseurl }}/docs/mcp/git/).
+
 O **MCP Server do Kanban** conecta assistentes de IA ao [GitLab](https://git.embrapa.io) da plataforma, transformando o assistente em um gerente de projeto integrado ao Kanban.
 
 **URL de conexão:** `https://mcp.git.embrapa.io`
@@ -66,5 +68,5 @@ A configuração segue o mesmo padrão — basta adicionar a URL no cliente de I
 A documentação completa, incluindo referência técnica de todas as _tools_ e exemplos de _prompts_, está disponível em:
 
 - [**MCP de Logs (Grafana Loki) →**]({{ site.baseurl }}/docs/mcp/log/)
-- [**MCP do Kanban (GitLab) →**]({{ site.baseurl }}/docs/mcp/git/)
+- [**MCP do GitLab →**]({{ site.baseurl }}/docs/mcp/git/)
 - [**MCP do Dashboard →**]({{ site.baseurl }}/docs/mcp/io/)
