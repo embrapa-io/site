@@ -222,7 +222,7 @@ O _script_ grava um CRON diário (`/etc/cron.d/embrapa-terminal`) e já sobe o t
 sh /root/terminal.sh status
 ```
 
-Ajustes locais (outro nome de certificado, versão fixa, outro diretório do Let's Encrypt) vão em `/root/terminal.env`; veja o cabeçalho do próprio _script_. Para verificar se está tudo certo, acesse `https://<cluster>:65500/health` (ou a porta configurada no catálogo), que responde com a versão, o estado do Docker e a validade do certificado.
+Ajustes locais (outro nome de certificado, versão fixa, outro diretório do Let's Encrypt ou um certificado fora dele, como o curinga da Unidade, com `CLUSTER`, `CERT` e `KEY`) vão em `/root/terminal.env`; veja o cabeçalho do próprio _script_. Para verificar se está tudo certo, acesse `https://<cluster>:65500/health` (ou a porta configurada no catálogo), que responde com a versão, o estado do Docker e a validade do certificado.
 
 > **Atenção!** Versões anteriores desta documentação sugeriam um `/root/terminal.sh` que recriava o contêiner a cada execução, muitas vezes chamado pelo `/etc/cron.daily/io`. O comando acima substitui esse _script_ e, ao instalar, retira a chamada antiga dos arquivos de CRON (com cópia de segurança em `/root`), mantendo o restante, como o _backup_ do _cluster_.
 

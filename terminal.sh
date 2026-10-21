@@ -21,6 +21,9 @@
 #   CLUSTER=cluster.exemplo.embrapa.br     quando o certificado tem outro nome ou há mais de um
 #   IMAGE=embrapa/terminal:1.26.10-2       fixa uma versão (o padrão segue a 'latest')
 #   LETSENCRYPT=/etc/letsencrypt           outro diretório do Let's Encrypt
+#   CERT=/var/embrapa/ssl/wildcard/x.crt   certificado fora do Let's Encrypt (ex.: curinga da
+#   KEY=/var/embrapa/ssl/wildcard/x.key    Unidade); exige CLUSTER. Use o arquivo com a cadeia
+#                                          completa (certificado + intermediários)
 #
 # Fonte: github.com/embrapa-io/terminal (terminal.sh), publicado em embrapa.io/terminal.sh.
 
@@ -121,6 +124,8 @@ jq () { docker run --rm -i --entrypoint jq "$IMAGE" "$@"; }
 
 catalog=$(curl -fsS --max-time 20 "$CATALOG") || die "Impossible to read $CATALOG."
 
+[ -n "${CERT:-}" ] && [ -z "${CLUSTER:-}" ] && die "CERT is set in /root/terminal.env: set CLUSTER too."
+
 if [ -z "${CLUSTER:-}" ]; then
   for host in $(printf '%s' "$catalog" | jq -r '[.[] | arrays | .[] | .host] | unique | .[]'); do
     [ -f "$LIVE/$host/fullchain.pem" ] && CLUSTER="${CLUSTER:+$CLUSTER }$host"
@@ -163,10 +168,20 @@ fi
 
 [ "$orchestrator" = DockerCompose ] || die "Orchestrator $orchestrator is not supported by this script yet."
 
-cert=$LIVE/$CLUSTER/fullchain.pem
-key=$LIVE/$CLUSTER/privkey.pem
+cert=${CERT:-$LIVE/$CLUSTER/fullchain.pem}
+key=${KEY:-$LIVE/$CLUSTER/privkey.pem}
 
-{ [ -f "$cert" ] && [ -f "$key" ]; } || die "Certificate not found in $LIVE/$CLUSTER."
+{ [ -f "$cert" ] && [ -f "$key" ]; } || die "Certificate not found ($cert, $key)."
+
+# Let's Encrypt: o diretório inteiro (os links de live/ apontam para archive/, e a
+# renovação precisa chegar ao contêiner). Fora dele: só os diretórios dos arquivos.
+if [ -z "${CERT:-}" ]; then
+  mounts="-v $LETSENCRYPT:$LETSENCRYPT:ro"
+else
+  mounts="-v $(dirname "$cert"):$(dirname "$cert"):ro"
+
+  [ "$(dirname "$key")" = "$(dirname "$cert")" ] || mounts="$mounts -v $(dirname "$key"):$(dirname "$key"):ro"
+fi
 
 # --- Estado atual ---
 
@@ -209,7 +224,7 @@ fi
 
 start () {
   docker run -d --name "$NAME" --restart unless-stopped \
-    -v "$LETSENCRYPT:$LETSENCRYPT:ro" \
+    $mounts \
     -e SSL_CERT="$cert" \
     -e SSL_KEY="$key" \
     -v /var/run/docker.sock:/var/run/docker.sock:ro \
