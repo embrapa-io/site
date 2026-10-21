@@ -89,6 +89,8 @@ Depois será necessário rever este arquivo mas, para um primeiro momento, utili
 
 > **Atenção!** Repare que o valor do atributo _boilerplate_ é um _underscore_ (carácter `_`). **Não altere este valor!**
 
+> **Dica!** O atributo `variables` apenas **sugere** as variáveis de ambiente iniciais, que aparecem pré-carregadas no passo "**Variáveis**" do _wizard_ de [configuração da _build_]({{ site.baseurl }}/docs/build). As variáveis que valem no _deploy_ são as configuradas nesse _wizard_ para cada estágio, e é lá que elas podem ser criadas, alteradas ou removidas. Portanto, deixá-lo vazio, como acima, não impede o _deploy_: basta adicionar as variáveis necessárias no _wizard_.
+
 Uma vez que este arquivo de metadados tenha sido criado no repositório, este pode agora pode ser vinculado a uma aplicação homônima por meio da [_dashboard_](https://dashboard.embrapa.io). Para isso, no _card_ do projeto clique em "**Nova App**", aceite os termos do _disclaimer_ e, no passo seguinte, selecione no campo "**Escolha um modelo (_boilerplate_)...**" a opção "**Repositório pré-existente**". Em seguida, insira o **nome Unix do repositório no GitLab** no campo indicado (deve ser <u>exatamente o mesmo nome</u>) e clique em "**Criar App**".
 
 ![Criando uma app a partir de um repositório GIT pré-existente]({{ site.baseurl }}/assets/img/app/07.png)
@@ -103,6 +105,14 @@ Agora, será necessário codificar a nova aplicação ou adaptar o código-fonte
 6. Configurar adequadamente os [metadados]({{ site.baseurl }}/docs/boilerplate#metadata) e os [orquestradores]({{ site.baseurl }}/docs/boilerplate#orchestrator).
 
 > **Atenção!** Repare que no último passo o arquivo `.embrapa/settings.json` será revisitado. Isto é necessário para complementá-lo com os valores padrão das variáveis de ambiente e a configuração de orquestradores, quando aplicável.
+
+Antes de configurar a primeira _build_, confira os pontos que mais causam falha na validação de aplicações vindas de repositórios pré-existentes:
+
+- **`docker-compose.yaml` na raiz do repositório.** Sem ele não há _deploy_ na plataforma; um `Dockerfile` sozinho não basta.
+- **_Merge_ da `main` na _branch_ do estágio.** A validação e o _deploy_ usam a _branch_ do estágio (`alpha`, `beta` ou `release`), não a `main`. Faça o _merge_ da `main` na _branch_ do estágio antes de validar, senão os arquivos novos (como o `.embrapa/settings.json` e o `docker-compose.yaml`) não estarão lá.
+- **Arquivos de ambiente fora do GIT.** O `.env`, o `.env.io` e o `.env.sh` são gerados pela plataforma a cada _deploy_ e guardam segredos: devem estar no `.gitignore` e **não** podem ser versionados. Se já foram commitados, remova-os do repositório com `git rm --cached .env .env.io .env.sh` (o `.gitignore` não retira o que já está no GIT) e troque as senhas e chaves que estavam neles. Já os modelos `.env.example` e `.env.io.example` **devem** ser versionados: um padrão como `.env.*` no `.gitignore` precisa das exceções `!.env.example` e `!.env.io.example`.
+
+> **Dica!** A agente de conformidade [**Alice**]({{ site.baseurl }}/docs/bmad#alice) verifica todos esses pontos, e muitos outros, e propõe as correções. Se utiliza um assistente de IA, peça a ele que siga as instruções do repositório [github.com/embrapa-io/alice](https://github.com/embrapa-io/alice).
 
 Pronto! Feito isso o **Embrapa I/O** irá criar, após algum tempo, a aplicação nas ferramentas satélites e expor no _card_ as informações necessárias de configurações. Estando tudo certo será possível aplicar todos os _pipelines_ e processos de DevOps, assim como em qualquer aplicação criada a partir de um _boilerplate_.
 
