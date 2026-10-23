@@ -191,7 +191,7 @@ A aba **Histórico** lista todos os relatórios, com filtro por período: data, 
 
 O relatório é o mesmo por e-mail, no histórico e no `io-doc`, e se divide em seções numeradas, sempre na mesma ordem: indicadores, panorama, sumário, achados, loja (só quando há app na Google Play), pendências, ciência e atividade. As imagens desta seção vêm de um relatório semanal real, com alguns itens de segurança omitidos; só o gráfico de vulnerabilidades usa dados fictícios.
 
-> **Atenção!** Vulnerabilidades que já estão sendo exploradas na internet e que a plataforma alertou por e-mail aparecem numa seção própria, **Vulnerabilidades em exploração ativa**, no topo do relatório, antes de qualquer outro achado. Essa seção é montada a partir dos dados, não pelo modelo de IA, e essas CVEs saem da lista comum de vulnerabilidades. Veja [como funciona o alerta]({{ site.baseurl }}/docs/cve-alert).
+> **Atenção!** Vulnerabilidades que já estão sendo exploradas na internet e que a plataforma alertou por e-mail aparecem numa seção própria, **Vulnerabilidades em exploração ativa**, no topo do relatório, antes de qualquer outro achado. Essa seção é montada a partir dos dados, não pelo modelo de IA, e essas CVEs saem da lista comum de vulnerabilidades. Veja [como funciona o alerta]({{ site.baseurl }}/docs/cve).
 
 Ele começa pelo retrato do período: o cabeçalho (período, data de geração, projeto e aplicações) e os **indicadores**, com as novidades, os itens em aberto e a contagem das novidades por severidade.
 

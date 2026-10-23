@@ -24,7 +24,7 @@ Além de exibir o **estado de saúde** de todos os _containers_ da instância, �
 
 - **Backup**: É possível aos mantenedores do projeto gerar um backup da instância a qualquer momento. Ná prática o autômato _Doctor_ irá executar o serviço ```backup``` do _stack_ de _containers_. Para entender os detalhes deste processo, veja a [documentação específica sobre _backups_ de instâncias]({{ site.baseurl }}/docs/backup).
 
-> **Atenção!** Quando uma vulnerabilidade encontrada nas imagens da _build_ já está sendo explorada na internet e não exige login, o diálogo a destaca no topo e a equipe recebe um alerta por e-mail. Veja [Vulnerabilidades em exploração ativa]({{ site.baseurl }}/docs/cve-alert).
+> **Atenção!** Quando uma vulnerabilidade encontrada nas imagens da _build_ já está sendo explorada na internet e não exige login, o diálogo a destaca no topo e a equipe recebe um alerta por e-mail. Veja [Vulnerabilidades em exploração ativa]({{ site.baseurl }}/docs/cve).
 
 Por fim, caso a _build_ tenha sido instanciada em um _cluster_ com o recurso de **Web Terminal**, estará habilitado ao lado de cada container um botão que dá acesso ao seu _shell_ (via `ash`, `bash`, `dash` ou `sh`):
 
