@@ -82,7 +82,7 @@ Uma cópia resumida, agrupada por projeto, vai também para o _space_ de alertas
 
 Sobre o "Encerrado":
 
-- Só é enviado se a situação chegou a **Crítica** ou **Emergencial**. Em casos de nível Alta, o encerramento aparece apenas no _dashboard_ e como uma linha no próximo e-mail de alerta, se houver;
+- Só é enviado se a situação chegou a **Crítica** ou **Emergencial**. Em casos de nível Alta, não há e-mail próprio: o encerramento aparece como uma linha no e-mail de alerta do projeto que sair no mesmo ciclo, se houver, e na linha "Corrigidas desde o último relatório" da [Sentinela]({{ site.baseurl }}/docs/sentinel), quando o projeto a tem;
 - Só vale quando a varredura da _build_ é **recente** e a CVE não aparece mais. Uma _build_ que não foi varrida (parada, sem contato ou com varredura que falhou) **nunca** é tratada como resolvida;
 - Tudo o que vence na mesma hora (novos alertas, mudanças de nível, lembretes e encerramentos) vai junto no mesmo e-mail.
 
@@ -94,33 +94,33 @@ Cada item do alerta traz a ação indicada para aquela _build_, escolhida por re
 
 | Situação | Ação |
 |---|---|
-| Há versão corrigida e a imagem é _floating_ (`latest`, `8.3-apache`, sem a versão exata), ou o serviço é `build:` sobre uma base _floating_ | No _dashboard_, abra a _build_, clique em **Reiniciar** e marque **Atualizar imagens** |
-| Há versão corrigida, mas a versão está **fixada** no `Dockerfile` ou no `docker-compose.yml` | Suba a versão fixada para a corrigida no repositório e gere uma nova _tag_ |
-| **Não há** versão corrigida e o nível é Alta | Restrinja o acesso ou pare os estágios que não são de produção (`alpha` e `beta`) |
-| **Não há** versão corrigida e o nível é Crítica ou Emergencial | Recomenda-se **tirar o estágio do ar** até haver correção: faça um **Backup** e depois **Desativar**. Manter no ar é uma decisão consciente da equipe |
 | A _build_ não recebe _deploy_ há mais de 6 meses | **Tire do ar**, com _backup_ antes. Uma _build_ esquecida no ar é exatamente a porta de entrada que se quer fechar |
+| **Não há** versão corrigida e o nível é Alta | Restrinja o acesso ou tire do ar os estágios que não são de produção (`alpha` e `beta`) |
+| **Não há** versão corrigida e o nível é Crítica ou Emergencial | Recomenda-se **tirar o estágio do ar** até haver correção: faça um **Backup** e depois **Desativar**. Manter no ar é uma decisão consciente da equipe |
+| Há versão corrigida, mas a versão está **fixada** no `Dockerfile` ou no `docker-compose.yml` | Suba a versão fixada para a corrigida no repositório e gere uma nova _tag_ |
+| Há versão corrigida e a imagem é _floating_ (`latest`, `8.3-apache`, sem a versão exata), ou o serviço é `build:` sobre uma base _floating_ | No _dashboard_, abra a _build_, clique em **Reiniciar** e marque **Atualizar imagens** |
 
 Se um alerta Emergencial continuar sem correção, ele volta a cada 12 horas dizendo: "Ainda vulnerável. Se não for possível corrigir agora, tire o estágio do ar."
 
 ### _Build_ implantada pelo Releaser {#releaser}
 
-O _dashboard_ não alcança os servidores que usam o [Releaser]({{ site.baseurl }}/docs/releaser), por desenho. Para esses estágios o alerta traz o comando equivalente, a executar no servidor indicado:
+O _dashboard_ não alcança os servidores que usam o [Releaser]({{ site.baseurl }}/docs/releaser), por desenho. As quatro primeiras regras da tabela acima valem também aqui (_build_ antiga, sem versão corrigida e versão fixada). Na última, em vez do **Reiniciar** do _dashboard_, o alerta traz o comando equivalente, a executar no servidor indicado:
 
 ```bash
 io restart <projeto>/<app>@<estágio> --upgrade
 ```
 
-A opção `--upgrade` renova as imagens, reconstrói os serviços `build:` e reinicia a _stack_. Para tirar do ar:
+A opção `--upgrade` renova as imagens, reconstrói os serviços `build:` e reinicia a _stack_. Quando a ação é tirar do ar, o alerta traz também o comando:
 
 ```bash
 io stop <projeto>/<app>@<estágio>
 ```
 
-O comando `io restart --upgrade` existe a partir do Releaser `1.26.10-10`. Se o Releaser daquele servidor for de uma versão anterior, o alerta traz o caminho manual (`docker pull` e `io deploy --force`) e a sugestão de atualizar o Releaser. Se o servidor está há mais de 24 horas sem contato, o alerta sai mesmo assim, avisando a data do último dado de vulnerabilidades.
+O comando `io restart --upgrade` existe a partir do Releaser `1.26.10-10`. Se o Releaser daquele servidor for de uma versão anterior, o alerta traz o caminho manual (`docker pull` e `io deploy --force`) e a sugestão de [atualizar o Releaser]({{ site.baseurl }}/docs/releaser#update). Se o servidor está há mais de 24 horas sem contato, o alerta sai mesmo assim, avisando a data do último dado de vulnerabilidades.
 
 ### Pedir ajuda à Sentinela {#sentinel}
 
-Quando o projeto tem a [Sentinela]({{ site.baseurl }}/docs/sentinel) configurada, o e-mail traz o botão **Pedir à Sentinela uma checagem no código**, que leva ao _card_ do projeto com a execução já aberta.
+Quando o projeto tem a [Sentinela]({{ site.baseurl }}/docs/sentinel) configurada e ativa, o e-mail traz o botão **Pedir à Sentinela uma checagem no código**, que abre no _dashboard_ o diálogo da Sentinela do projeto, de onde se pede a execução. Nada é executado só por abrir o link.
 
 ### A plataforma nunca derruba nada sozinha {#never}
 
