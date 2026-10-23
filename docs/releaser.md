@@ -155,6 +155,25 @@ SMTP_PASS=secret
 LOG_MAIL=cnpgc.suporte@embrapa.br
 ```
 
+Além destas, o `.env` aceita variáveis opcionais, que não são perguntadas pelo assistente. Por exemplo, a partir da versão `1.26.10-12`, a rotação dos _backups_ no volume (`RETENTION`, veja [Rotação de _backups_](#cleaner)) e a [cópia em nuvem](#cloud) para um _bucket_ S3 (`S3_*`):
+
+```bash
+# Rotação dos backups no volume (cleaner): D/S/M/A, padrão 7/4/3/1
+RETENTION=7/4/3/1
+
+# Cópia em nuvem (io cloud): bucket S3 compatível
+S3_ENDPOINT=https://0123456789abcdef0123456789abcdef.r2.cloudflarestorage.com
+S3_BUCKET=releaser-backups
+S3_ACCESS_KEY=0f1e2d3c4b5a69788796a5b4c3d2e1f0
+S3_SECRET_KEY=exemplo-de-segredo-nao-use-este-valor-0123456789abcdef
+S3_REGION=auto
+S3_RETENTION=30/8/12/3
+
+# Imagem do container auxiliar que acessa os volumes de backup, se o Releaser
+# não conseguir descobrir a própria (ex.: container com --hostname trocado)
+# IO_RELEASER_IMAGE=embrapa/releaser:1.26.10-12
+```
+
 Tenha em mente que valor de `SERVER` será injetado no momento do _deploy_ das _builds_ como a variável de ambiente `IO_SERVER`.
 
 O `GITLAB_TOKEN` deve ser obtido por meio da interface do [GitLab do Embrapa I/O](https://git.embrapa.io). Para isso, acesse seu _profile_ e vá na opção [Personal Access Tokens](https://git.embrapa.io/-/profile/personal_access_tokens). Gere um novo _token_ selecionando o _scope_ `read_api`.
@@ -208,7 +227,8 @@ Por fim, você deverá configurar as [_builds_ das aplicações]({{ site.baseurl
     "deploy": true,
     "backup": false,
     "sanitize": false,
-    "cleaner": false
+    "cleaner": false,
+    "cloud": false
   },
   "stats": {
     "version": true,
@@ -236,9 +256,11 @@ O atributo `team` lista os e-mails que irão receber os _logs_ do processo de _d
 
 - ***backup***: Executa **diariamente** o serviço de _backup_ da _stack_ de _containers_ da _build_. É fundamental que o [serviço de _backup_]({{ site.baseurl }}/docs/backup) esteja corretamente configurado na aplicação. Os arquivos de backup serão salvos no volume externo de _backup_;
 
-- ***sanitize***: Executa **mensalmente** o serviço de sanitização, caso esteja corretamenta configurado na _stack_ de _containers_ da _build_. Mais informações sobre os processos de higienização/otimização dos _containers_ podem ser encontradas [no tutorial de criação de _boilerplates_]({{ site.baseurl }}/docs/boilerplate).; e
+- ***sanitize***: Executa **mensalmente** o serviço de sanitização, caso esteja corretamenta configurado na _stack_ de _containers_ da _build_. Mais informações sobre os processos de higienização/otimização dos _containers_ podem ser encontradas [no tutorial de criação de _boilerplates_]({{ site.baseurl }}/docs/boilerplate).;
 
-- ***cleaner***: Executa **diariamente** (logo após o _backup_) a **rotação dos arquivos de _backup_** da _build_, mantendo os últimos **7 diários, 4 semanais e 3 mensais** e apagando o restante. Aceita `false` (padrão, quando ausente), `true` ou `"undated"` — este último inclui na rotação, pela data de modificação, arquivos **sem data no nome** (caso de aplicações que não seguem o [padrão de nome do arquivo de _backup_]({{ site.baseurl }}/docs/boilerplate#cli:backup)). Detalhes na seção [Rotação de _backups_](#cleaner).
+- ***cleaner***: Executa **diariamente** (logo após o _backup_) a **rotação dos arquivos de _backup_** da _build_, mantendo por padrão os últimos **7 diários, 4 semanais, 3 mensais e 1 anual** (a partir da versão `1.26.10-12`; antes, sem o anual) e apagando o restante. Aceita `false` (padrão, quando ausente), `true` ou `"undated"` — este último inclui na rotação, pela data de modificação, arquivos **sem data no nome** (caso de aplicações que não seguem o [padrão de nome do arquivo de _backup_]({{ site.baseurl }}/docs/boilerplate#cli:backup)). Detalhes na seção [Rotação de _backups_](#cleaner); e
+
+- ***cloud*** (a partir da versão `1.26.10-12`): Executa **diariamente** (logo após o _cleaner_) a **cópia dos arquivos de _backup_** da _build_ para um _bucket_ S3 configurado no `.env`, com rotação própria no _bucket_. Aceita `false` (padrão, quando ausente), `true` ou `"undated"` (que inclui na rotação do _bucket_ os arquivos sem data no nome, como no _cleaner_). Detalhes na seção [Cópia em nuvem (S3)](#cloud).
 
 O atributo `stats` define o que a _build_ **reporta à plataforma** (ver [a seção correspondente](#report)): a versão implantada (`version`), as vulnerabilidades das imagens em execução (`cve`) e a saúde dos serviços (`health`). Os três valem `true` por padrão, inclusive quando o atributo está ausente; `"stats": false` desliga os três. O caso típico de desligar é o `cve` num servidor pequeno ou sem acesso ao `ghcr.io`, de onde o Trivy baixa o banco de vulnerabilidades.
 
@@ -254,7 +276,7 @@ Os arquivos de `builds/` são relidos a cada execução: ao alterar o `env` de u
 
 Pronto! Caso tenha seguido corretamente os passos acima, a ferramenta estará pronta para ser executada.
 
-## Utilização
+## Utilização {#usage}
 
 Para utilizar a ferramenta, execute a seguinte instrução...
 
@@ -279,14 +301,22 @@ Os comandos disponíveis são:
 - ***rollback***: Executa o rollback da _build_ para uma versão anterior, inserida pelo usuário. Deve-se informar como parâmetro a _build_ e a _tag_ (por exemplo, `my-project/my-app@beta 3.25.9-beta.17`);
 - ***backup***: Gera um _backup_ da _build_ executando o serviço `backup` do `docker-compose.yaml`. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`. _Builds_ sem esse serviço (caso das aplicações de _frontend_) são ignoradas com um aviso, não com erro;
 - ***sanitize***: Executa o processo de higienização/otimização da _build_ (serviço `sanitize`). Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`. _Builds_ sem esse serviço são ignoradas com um aviso;
-- ***cleaner***: Rotaciona os arquivos do volume de _backup_ da _build_ (mantém os últimos 7 diários, 4 semanais e 3 mensais). Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`, e o parâmetro `--dry-run`, que apenas mostra o que seria mantido e apagado. Ao final, exibe um resumo por _build_ com a quantidade de arquivos e o espaço ocupado antes e depois da rotação. _Builds_ sem volume de _backup_ são ignoradas com um aviso;
+- ***cleaner***: Rotaciona os arquivos do volume de _backup_ da _build_ (mantém, por padrão, os últimos 7 diários, 4 semanais, 3 mensais e 1 anual; ajustável pela variável `RETENTION` do `.env`). Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`, e o parâmetro `--dry-run`, que apenas mostra o que seria mantido e apagado. Ao final, exibe um resumo por _build_ com a quantidade de arquivos e o espaço ocupado antes e depois da rotação. _Builds_ sem volume de _backup_ são ignoradas com um aviso;
+- ***cloud*** (a partir da versão `1.26.10-12`): Copia os arquivos do volume de _backup_ da _build_ para um _bucket_ S3 e os rotaciona lá. Aceita uma lista de _builds_ separadas por vírgula ou `--all`, e os parâmetros `--dry-run` (apenas mostra o que seria enviado e apagado) e `--list` (lista o conteúdo do _bucket_ para a _build_). O _daemon_ executa **diariamente**, após o _cleaner_, para as _builds_ com `auto.cloud` ligado. Detalhes na seção [Cópia em nuvem (S3)](#cloud);
 - ***health***: Inspeciona os _containers_ de cada _build_ neste servidor (estado, _healthcheck_, tamanho, data de criação) e reporta a saúde dos serviços à plataforma. Aceita uma lista de _builds_ ou `--all`. O _daemon_ executa a cada **minuto**, em silêncio;
 - ***cve***: Varre as imagens em execução de cada _build_ com o [Trivy](https://trivy.dev) (só vulnerabilidades `HIGH` e `CRITICAL`) e reporta o resultado à plataforma. Aceita uma lista de _builds_ ou `--all`. O _daemon_ executa a cada **hora**, num minuto sorteado por servidor. Cada imagem distinta é varrida uma vez por rodada; se alguma varredura falhar, a _build_ fica de fora do relato e a plataforma mantém o resultado anterior;
 - ***install***: [Configuração guiada](#install) de uma _build_ nova: escolhe projeto, _app_ e estágio por menus, busca na plataforma a equipe, o DSN do Sentry, o site e o _token_ do Matomo e as variáveis do `.embrapa/settings.json`, gera os valores por tipo e grava o arquivo em `builds/`. Aceita a _build_ como parâmetro (`proj/app@stage`) e `--yes` (sem perguntas, com os valores padrão);
 - ***split***: Migra o `builds.json` antigo para um arquivo por _build_ em `builds/`, guardando o original como `builds.json.bkp`;
-- ***info***: Exibe, por _build_, o arquivo de configuração, o resultado do último relato de cada sinal à plataforma (versão, saúde e CVEs), a versão instanciada e outros comandos úteis do orquestrador; lista também as _builds_ desativadas;
+- ***info***: Exibe, por _build_, o arquivo de configuração, o resultado do último relato de cada sinal à plataforma (versão, saúde e CVEs), a versão instanciada e outros comandos úteis do orquestrador; lista também as _builds_ desativadas. A partir da versão `1.26.10-12`, mostra ainda o resultado da última [cópia em nuvem](#cloud) de cada _build_: `ok` (com data e hora, arquivos e _bytes_ enviados e apagados e o tamanho no _bucket_), `FAILED` (com o motivo e a data do último sucesso), `never run`, `disabled (auto.cloud = false)` ou `bucket not configured`. Por exemplo: `Cloud copy (S3): ok at 2026-10-23T03:10:42-03:00 (1 uploaded, 143,2 MB; 1 deleted; 15 file(s), 2,1 GB in the bucket)`;
 - ***mail***: Testa as configurações de SMTP por meio do envio de um e-mail de teste, detalhando cada tentativa (servidor, porta e motivo da falha). Deve-se informar como parâmetro uma lista de endereços separada por vírgula que receberão a mensagem (por exemplo, `jose.silva@embrapa.br,maria.santos@embrapa.br`). Se o envio funcionar, os e-mails que estavam na fila também são enviados; e
-- ***check*** (a partir da versão `1.26.10-8`): Testa o acesso ao GitLab pelos dois caminhos de que o _deploy_ depende: a API, com o `GITLAB_TOKEN` (alcance, tempo de resposta, validade, escopos e se o _token_ venceu ou foi revogado), e o clone, pela chave SSH ou pela URL de `GITLAB_SSH` (veja [clone por HTTPS](#https)). Ao final, uma linha de resumo que começa com `Success!` (em verde), `Warning!` (em amarelo) ou `Error!` (em vermelho), seguida do resultado da API, do _token_ e do clone. A mesma linha aparece no fim do menu, quando se executa `io` sem comando. O _daemon_ executa o teste **uma vez por dia** e envia e-mail ao `LOG_MAIL` quando o _token_ venceu, foi revogado, não tem o _scope_ `read_api`, vence em 14 dias ou em 7 dias ou menos (neste caso, diariamente), ou quando o clone é recusado. Uma indisponibilidade momentânea do GitLab não gera e-mail.
+- ***check*** (a partir da versão `1.26.10-8`): Testa o acesso ao GitLab pelos dois caminhos de que o _deploy_ depende: a API, com o `GITLAB_TOKEN` (alcance, tempo de resposta, validade, escopos e se o _token_ venceu ou foi revogado), e o clone, pela chave SSH ou pela URL de `GITLAB_SSH` (veja [clone por HTTPS](#https)). Ao final, uma linha de resumo que começa com `Success!` (em verde), `Warning!` (em amarelo) ou `Error!` (em vermelho), seguida do resultado da API, do _token_ e do clone. A mesma linha aparece no fim do menu, quando se executa `io` sem comando. O _daemon_ executa o teste **uma vez por dia** e envia e-mail ao `LOG_MAIL` quando o _token_ venceu, foi revogado, não tem o _scope_ `read_api`, vence em 14 dias ou em 7 dias ou menos (neste caso, diariamente), ou quando o clone é recusado. Uma indisponibilidade momentânea do GitLab não gera e-mail. A partir da versão `1.26.10-12`, quando alguma variável `S3_*` está no `.env`, o teste inclui também a listagem do _bucket_ da [cópia em nuvem](#cloud) (com _timeout_ de 5 segundos) e a resume na mesma linha. O _daemon_ envia e-mail ao `LOG_MAIL` quando o acesso ao _bucket_ falha (no máximo um por dia). Configuração incompleta, _bucket_ inexistente, chave recusada ou provedor inacessível aparecem como `ERROR`. O teste do _bucket_ não entra na linha de resumo do menu do `io` (sem comando), que continua testando só o GitLab. Por exemplo:
+
+```
+INFO > S3 bucket 'releaser-backups' at https://0123456789abcdef0123456789abcdef.r2.cloudflarestorage.com (S3_ENDPOINT)...
+SUCCESS > S3: ok (bucket releaser-backups, 184 ms)
+
+Success! API ok (95 ms) | Token ok, expires on 2027-03-01, in 129 days | SSH: ok as @releaser (310 ms) | S3 ok (bucket releaser-backups, 184 ms)
+```
 
 Por exemplo, para **validar** todas as _builds_ configuradas em um servidor com **Docker Compose**, faríamos:
 
@@ -469,7 +499,7 @@ A seguir são listadas algumas dicas complementares para uso da ferramenta **Rel
 
 Por padrão, os _boilerplates_ de aplicações da plataforma **Embrapa I/O** [implementam um serviço de _backup_]({{ site.baseurl }}/docs/boilerplate#cli:backup). Caso a aplicação instanciada pelo **Releaser** tenha este serviço na _stack_ de _containers_, pode-se habilitá-lo para ser executado diariamente (veja acima).
 
-A dica é utilizar um único volume de _backup_ para todas as aplicações instanciadas no servidor. Com isso ficará mais fácil implementar um _script_ que copie todos os novos arquivos gerados para, p.e., um _storage_ remoto.
+A dica é utilizar um único volume de _backup_ para todas as aplicações instanciadas no servidor. Com isso ficará mais fácil implementar um _script_ que copie todos os novos arquivos gerados para, p.e., um _storage_ remoto. A partir da versão `1.26.10-12`, o próprio **Releaser** faz isso para qualquer _bucket_ compatível com o S3 (veja [Cópia em nuvem (S3)](#cloud)).
 
 No exemplo abaixo criamos um volume denominado `backup` que será utilizado por todas as _builds_ instanciadas:
 
@@ -486,15 +516,27 @@ Basta agora informar este volume no momento de configurar as _environment variab
 
 #### Rotação de _backups_ {#cleaner}
 
-O serviço de _backup_ dos _boilerplates_ gera um arquivo por execução e **não apaga os anteriores**. Com o _backup_ diário ligado, o volume cresce indefinidamente. O comando `cleaner` resolve isso aplicando, ao volume de _backup_ de cada _build_, uma política de retenção do tipo _avô-pai-filho_ **por contagem de períodos com _backup_**:
+O serviço de _backup_ dos _boilerplates_ gera um arquivo por execução e **não apaga os anteriores**. Com o _backup_ diário ligado, o volume cresce indefinidamente. O comando `cleaner` resolve isso aplicando, ao volume de _backup_ de cada _build_, uma política de retenção do tipo _avô-pai-filho_ **por contagem de períodos com _backup_**. Por padrão, mantém:
 
 - **7 diários** — o último _backup_ de cada um dos 7 dias mais recentes que possuem _backup_;
 - **4 semanais** — entre os arquivos restantes, o último de cada uma das 4 semanas mais recentes (na prática, os 4 domingos anteriores);
-- **3 mensais** — entre os arquivos restantes, o **primeiro** _backup_ de cada um dos 3 meses mais recentes.
+- **3 mensais** — entre os arquivos restantes, o **primeiro** _backup_ de cada um dos 3 meses mais recentes; e
+- **1 anual** (a partir da versão `1.26.10-12`) — entre os arquivos restantes, o **primeiro** _backup_ de cada um dos anos mais recentes que têm _backup_ (com 1, o primeiro do ano corrente; com 2, também o primeiro do ano anterior). Assim como o mensal, não muda ao longo do ano. Quem já usava o `cleaner` passa a guardar **um arquivo a mais** (o primeiro do ano), salvo quando ele já está entre os mensais.
 
-Como a contagem considera apenas períodos que têm arquivo, a **ausência de _backups_ novos nunca provoca exclusão**: se hoje não houve _backup_, o de 7 dias atrás continua entre os 7 dias mais recentes e é preservado. Entre uma rotação e a próxima pode haver um ou dois arquivos a mais que os 14 da política. A data de cada arquivo é lida do próprio nome (`AAAA-MM-DD_HH-MM-SS`, como sufixo ou prefixo); arquivos **sem data no nome** (por exemplo, um _dump_ colocado manualmente no volume) não entram na política: são preservados e nunca apagados.
+A quantidade de cada geração pode ser trocada pela variável opcional `RETENTION` do `.env`, no formato `D/S/M/A`: quatro inteiros maiores ou iguais a zero, separados por barra, com quantos dias, semanas, meses e anos guardar. Por exemplo:
 
-Só entram na rotação os arquivos cujo nome começa com o prefixo da própria _build_ (`{projeto}_{app}_{stage}_`). Isso importa quando várias _builds_ compartilham o mesmo diretório de _backup_ no servidor (como sugerido em [Backup](#backup)): cada _build_ só enxerga (e só apaga) os seus próprios arquivos, e a política de 7/4/3 vale por _build_ — arquivos de outras _builds_, com nome fora do padrão ou sem prefixo (por exemplo, `backup_2026-08-01.tar.gz` de versões antigas dos _boilerplates_) nunca são tocados.
+| `RETENTION` | Guarda |
+|---|---|
+| (ausente ou vazia) | `7/4/3/1`: 7 diários, 4 semanais, 3 mensais e 1 anual (padrão) |
+| `14/8/12/3` | 14 diários, 8 semanais, 12 mensais e 3 anuais |
+| `7/4/3/0` | a política anterior à versão `1.26.10-12`, sem anual |
+| `0/0/0/5` | só o primeiro _backup_ de cada um dos 5 anos mais recentes |
+
+Valor malformado (menos de quatro números, número não inteiro ou negativo) **interrompe a rotação com um erro, sem apagar nada**. No _daemon_, se alguma _build_ tem a rotação ligada, o erro vai por e-mail.
+
+Como a contagem considera apenas períodos que têm arquivo, a **ausência de _backups_ novos nunca provoca exclusão**: se hoje não houve _backup_, o de 7 dias atrás continua entre os 7 dias mais recentes e é preservado. Entre uma rotação e a próxima pode haver um ou dois arquivos a mais que os 15 da política padrão. A data de cada arquivo é lida do próprio nome (`AAAA-MM-DD_HH-MM-SS`, como sufixo ou prefixo); arquivos **sem data no nome** (por exemplo, um _dump_ colocado manualmente no volume) não entram na política: são preservados e nunca apagados.
+
+Só entram na rotação os arquivos cujo nome começa com o prefixo da própria _build_ (`{projeto}_{app}_{stage}_`). Isso importa quando várias _builds_ compartilham o mesmo diretório de _backup_ no servidor (como sugerido em [Backup](#backup)): cada _build_ só enxerga (e só apaga) os seus próprios arquivos, e a política de 7/4/3/1 vale por _build_ — arquivos de outras _builds_, com nome fora do padrão ou sem prefixo (por exemplo, `backup_2026-08-01.tar.gz` de versões antigas dos _boilerplates_) nunca são tocados.
 
 Em regime permanente, o volume de _backup_ da _build_ `cnpgc/edge@release` fica assim:
 
@@ -510,7 +552,10 @@ cnpgc_edge_release_1.26.9-3_2026-08-09_02-00-00.tar.gz
 cnpgc_edge_release_1.26.9-2_2026-08-01_02-00-00.tar.gz   ← mensais (3, primeiro backup do mês)
 cnpgc_edge_release_1.26.5-1_2026-07-01_02-00-00.tar.gz
 cnpgc_edge_release_1.26.5-1_2026-06-01_02-00-00.tar.gz
+cnpgc_edge_release_1.26.1-3_2026-01-01_02-00-00.tar.gz   ← anual (1, primeiro backup do ano)
 ```
+
+Quando o primeiro _backup_ do ano é também o primeiro do mês, o mesmo arquivo cumpre as duas funções e não ocupa lugar extra.
 
 Para ver o que seria feito sem apagar nada:
 
@@ -524,14 +569,188 @@ A saída termina com um resumo por _build_, útil para acompanhar o espaço recu
 INFO > Summary:
 
 cnpgc/edge@release
-23 → 14 file(s)
-1,8 GB → 1,1 GB
-freed 700,0 MB
+23 → 15 file(s)
+1,8 GB → 1,2 GB
+freed 600,0 MB
 ```
 
 Para deixar a rotação automática (diária, logo após o _backup_), ligue `"cleaner": true` no atributo `auto` da _build_.
 
 > **Aplicações fora dos _boilerplates_:** se o serviço `backup` de uma aplicação gerar arquivos sem data reconhecível no nome, o `cleaner` os preserva e avisa a cada execução. Ajuste o serviço para o [padrão obrigatório]({{ site.baseurl }}/docs/boilerplate#cli:backup) `{projeto}_{app}_{stage}_{versão}_AAAA-MM-DD_HH-MM-SS.tar.gz` ou, como paliativo, use `"cleaner": "undated"` na _build_ para que esses arquivos entrem na rotação pela data de modificação. O comando acessa o volume diretamente pelo Docker (`{projeto}_{app}_{stage}_backup`, ou o volume `backup` declarado no `docker-compose.yaml`), portanto funciona igual nos orquestradores Docker Compose e Docker Swarm e não depende do serviço `backup` da aplicação.
+
+Para isso, o `cleaner` (e a [cópia em nuvem](#cloud)) usa um _container_ auxiliar efêmero, criado a partir da **própria imagem do Releaser em execução** (a partir da versão `1.26.10-12`; antes, baixava a imagem `alpine:3`). Se o Releaser não conseguir descobrir a própria imagem (por exemplo, num _container_ criado com `--hostname` trocado), informe-a na variável opcional `IO_RELEASER_IMAGE` do `.env`.
+
+#### Cópia em nuvem (S3) {#cloud}
+
+A partir da versão `1.26.10-12`, o **Releaser** pode copiar, todo dia, os arquivos de _backup_ de cada _build_ para um _bucket_ S3 compatível (AWS S3, Cloudflare R2, Backblaze B2, MinIO ou qualquer serviço com a API do S3), guardando uma cópia fora do servidor. O _bucket_ é configurado **uma única vez** no `.env` do **Releaser** e a cópia é ligada **por _build_**, no atributo `auto.cloud`.
+
+```bash
+docker exec -it releaser io cloud [BUILD-1,BUILD-2,...,BUILD-N | --all] [--dry-run | --list]
+```
+
+Por exemplo:
+
+```bash
+# o que seria enviado e apagado, sem tocar no bucket
+docker exec -it releaser io cloud --all --dry-run
+
+# copia (e rotaciona no bucket) uma build
+docker exec -it releaser io cloud meu-projeto/api@release
+
+# lista o que há no bucket para a build
+docker exec -it releaser io cloud meu-projeto/api@release --list
+```
+
+Em modo _daemon_, o comando roda uma vez por dia, **depois** do `backup` e do `cleaner`, para as _builds_ com `auto.cloud` ligado.
+
+##### Configuração do _bucket_
+
+As variáveis abaixo são lidas do `.env` do diretório de configuração:
+
+| Variável | Obrigatória | Descrição |
+|---|---|---|
+| `S3_ENDPOINT` | sim | URL da API S3 do provedor (ex.: `https://<conta>.r2.cloudflarestorage.com`, `https://s3.us-east-005.backblazeb2.com`, `https://s3.sa-east-1.amazonaws.com`, `http://minio.exemplo.br:9000`). |
+| `S3_BUCKET` | sim | Nome do _bucket_ (só o nome, sem `s3://` nem barras). **O _bucket_ precisa existir**: o **Releaser** não o cria. |
+| `S3_ACCESS_KEY` | sim | Chave de acesso (_access key ID_). |
+| `S3_SECRET_KEY` | sim | Segredo da chave (_secret access key_). |
+| `S3_REGION` | não | Região. Padrão `auto`, que funciona no Cloudflare R2. Na AWS e no Backblaze B2, use a região real do _bucket_ (ex.: `sa-east-1`, `us-east-005`); no MinIO, em geral, `us-east-1`. |
+| `S3_RETENTION` | não | Rotação no _bucket_, no formato `D/S/M/A` (veja [Rotação de _backups_](#cleaner)). Se ausente ou vazia, vale o `RETENTION`; se este também faltar, `7/4/3/1`. |
+
+> **Atenção!** A chave precisa de permissão para **listar, ler, gravar e apagar objetos** no _bucket_. Prefira uma chave restrita a esse _bucket_.
+
+Depois de configurar, teste com o comando `io check`, que também verifica o acesso ao _bucket_ (veja o comando `check` em [Utilização](#usage)).
+
+##### Ligando a cópia por _build_
+
+No arquivo da _build_ (`builds/<projeto>_<app>_<estágio>.json`), o atributo `auto.cloud` controla a cópia:
+
+```json
+"auto": {
+  "deploy": true,
+  "backup": true,
+  "sanitize": true,
+  "cleaner": true,
+  "cloud": true
+}
+```
+
+| Valor de `auto.cloud` | Comportamento no _daemon_ |
+|---|---|
+| `false` ou ausente (**padrão**) | Não copia. |
+| `true` | Copia diariamente e rotaciona o _bucket_ com `S3_RETENTION`. |
+| `"undated"` | Idem, e arquivos **sem data no nome** entram na rotação do _bucket_ pela data de modificação (como no _cleaner_). |
+
+Em execução manual (`io cloud ...`), o comando roda para as _builds_ indicadas mesmo com `auto.cloud` desligado.
+
+##### Organização no _bucket_
+
+Os arquivos ficam organizados por _build_:
+
+```
+<bucket>/<projeto>/<app>/<estágio>/<arquivo>
+```
+
+Por exemplo, `meus-backups/meu-projeto/api/release/meu-projeto_api_release_1.26.9-1_2026-10-23_02-00-00.tar.gz`. Assim, um mesmo _bucket_ pode servir a vários servidores e a várias _builds_.
+
+Como no _cleaner_, **só são considerados os arquivos cujo nome começa com `<projeto>_<app>_<estágio>_`**, tanto no volume quanto no _bucket_. Arquivos de outras _builds_ ou com outro nome nunca são enviados nem apagados.
+
+##### Como funciona
+
+A cada execução, para cada _build_, o **Releaser**:
+
+1. lista os arquivos da _build_ no volume de _backup_;
+2. lista os arquivos da _build_ no _bucket_;
+3. envia **só o que falta** no _bucket_ (nunca sobrescreve um arquivo que já está lá); e
+4. aplica a rotação (`S3_RETENTION`) **ao que está no _bucket_** e apaga o excedente.
+
+Arquivos que faltam no _bucket_ mas que a rotação dele já descartaria (por exemplo, quando o volume guarda mais _backups_ que o _bucket_) não são enviados: seriam enviados e apagados de novo a cada dia. Arquivos sem data no nome são enviados e nunca apagados do _bucket_ (salvo com `"undated"`).
+
+Ao final, um resumo por _build_ informa os arquivos e _bytes_ enviados, mantidos e apagados, e o tamanho do _bucket_ antes e depois. O resultado da última cópia aparece no `io info`. Falha de rede ou de permissão numa _build_ é registrada como erro **daquela _build_** (as outras seguem) e, nesse caso, nada é apagado do _bucket_.
+
+> **Atenção!** A cópia em nuvem **não** é um espelho do volume: nada é apagado do _bucket_ porque saiu do volume (por exemplo, pela rotação local do _cleaner_). O _bucket_ tem a própria rotação, `S3_RETENTION`, que pode guardar mais (ou menos) que o volume. Ela também **não gera** _backups_ (copia os arquivos que o serviço `backup` da aplicação gravou no volume), **não cria** o _bucket_ nem configura regras de ciclo de vida, versionamento ou criptografia no provedor, e **não restaura**: para restaurar, baixe o arquivo do _bucket_ (pelo painel do provedor ou por um cliente S3, como `rclone` ou `aws s3 cp`) e use o procedimento de restauração da aplicação.
+
+##### Exemplo: Cloudflare R2
+
+1. No painel da Cloudflare, em **R2**, crie o _bucket_ (por exemplo, `releaser-backups`).
+2. Em **R2 &raquo; Manage API tokens**, crie um _token_ com permissão **Object Read & Write**, restrito ao _bucket_. Anote o _Access Key ID_, o _Secret Access Key_ e o _endpoint_ S3 (`https://<ID da conta>.r2.cloudflarestorage.com`).
+3. No `.env` do **Releaser**, acrescente:
+
+```bash
+S3_ENDPOINT=https://0123456789abcdef0123456789abcdef.r2.cloudflarestorage.com
+S3_BUCKET=releaser-backups
+S3_ACCESS_KEY=0f1e2d3c4b5a69788796a5b4c3d2e1f0
+S3_SECRET_KEY=exemplo-de-segredo-nao-use-este-valor-0123456789abcdef
+S3_RETENTION=30/8/12/3
+```
+
+O `S3_REGION` pode ficar de fora (o padrão, `auto`, é o que o R2 espera).
+
+##### Exemplo: MinIO
+
+Com o **MinIO** acessível pelo servidor (por exemplo, `http://minio.unidade.embrapa.br:9000`), crie o _bucket_ e uma chave com acesso a ele (pelo console do MinIO ou com o `mc`):
+
+```bash
+mc alias set local http://minio.unidade.embrapa.br:9000 ADMIN SENHA-DO-ADMIN
+mc mb local/releaser-backups
+mc admin user add local releaser exemplo-de-segredo-nao-use
+mc admin policy attach local readwrite --user releaser
+```
+
+No `.env` do **Releaser**:
+
+```bash
+S3_ENDPOINT=http://minio.unidade.embrapa.br:9000
+S3_BUCKET=releaser-backups
+S3_ACCESS_KEY=releaser
+S3_SECRET_KEY=exemplo-de-segredo-nao-use
+S3_REGION=us-east-1
+```
+
+##### Exemplo de saída
+
+```
+=== meu-projeto/api@release ===
+
+INFO > Checking if build 'meu-projeto/api@release' has been deployed...
+INFO > Copying backups to the bucket (rotation there: keep last 7 daily, 4 weekly, 3 monthly and 1 yearly)...
+INFO > Backup volume: 'meu-projeto_api_release_backup'
+INFO > Bucket: 's3://releaser-backups/meu-projeto/api/release/' at 'https://0123456789abcdef0123456789abcdef.r2.cloudflarestorage.com'
+INFO > Files of this build: 15 in the volume (2,1 GB), 15 in the bucket (2,1 GB).
+INFO > Uploading 1 file(s) (143,2 MB):
+  143,2 MB  meu-projeto_api_release_1.26.9-1_2026-10-23_02-00-00.tar.gz
+  INFO  : meu-projeto_api_release_1.26.9-1_2026-10-23_02-00-00.tar.gz: Copied (new)
+INFO > Keeping 15 of 16 backup file(s) in the bucket [D = daily, W = weekly, M = monthly, Y = yearly]:
+  D   143,2 MB  meu-projeto_api_release_1.26.9-1_2026-10-23_02-00-00.tar.gz
+  D   142,9 MB  meu-projeto_api_release_1.26.9-1_2026-10-22_02-00-00.tar.gz
+  ...
+  Y   120,4 MB  meu-projeto_api_release_1.26.1-3_2026-01-01_02-00-00.tar.gz
+INFO > Deleting 1 file(s) from the bucket (141,7 MB):
+  141,7 MB  meu-projeto_api_release_1.26.9-1_2026-10-16_02-00-00.tar.gz
+SUCCESS > All done! Build 'meu-projeto/api@release': 1 file(s) uploaded, 15 kept and 1 deleted in the bucket.
+
+INFO > Summary:
+
+meu-projeto/api@release
+uploaded 1 file(s), 143,2 MB
+kept 15, deleted 1 file(s), 141,7 MB
+bucket: 15 → 15 file(s), 2,1 GB → 2,1 GB
+```
+
+E o `io cloud meu-projeto/api@release --list` mostra a marca que a próxima rotação dará a cada arquivo (`-` = será apagado; `?` = sem data no nome, nunca apagado):
+
+```
+INFO > 16 file(s), 2,2 GB [D/W/M/Y = kept by the next rotation, - = deleted by it, ? = no date in the name, never deleted]:
+  D   143,2 MB  2026-10-23 02:00  meu-projeto_api_release_1.26.9-1_2026-10-23_02-00-00.tar.gz
+  ...
+  -   141,7 MB  2026-10-16 02:00  meu-projeto_api_release_1.26.9-1_2026-10-16_02-00-00.tar.gz
+  ?   12,0 MB   2026-03-02 15:10  meu-projeto_api_release_dump-antes-da-migracao.sql.gz
+```
+
+##### Segurança
+
+- As credenciais ficam só no `.env` do **Releaser**. Ele as entrega ao `rclone` por variáveis de ambiente do processo: não há arquivo de configuração do `rclone`, e as chaves não aparecem na linha de comando (`ps`) nem na saída, nos e-mails ou nos _logs_.
+- As variáveis do `.env` do **Releaser** não são repassadas aos _containers_ das aplicações.
+- O volume de _backup_ é montado **somente leitura** para a cópia.
 
 ### Domínios (_virtual proxies_) e certificados SSL/TLS {#proxy}
 
