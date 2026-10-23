@@ -94,7 +94,26 @@ Sobre o "Encerrado":
 
 - Só é enviado se a situação chegou a **Crítica** ou **Emergencial**. Em casos de nível Alta, não há e-mail próprio: o encerramento aparece como uma linha no e-mail de alerta do projeto que sair no mesmo ciclo, se houver, e na linha "Corrigidas desde o último relatório" da [Sentinela]({{ site.baseurl }}/docs/sentinel), quando o projeto a tem;
 - Só vale quando a varredura da _build_ é **recente** e a CVE não aparece mais. Uma _build_ que não foi varrida (parada, sem contato ou com varredura que falhou) **nunca** é tratada como resolvida;
+- O e-mail informa o **motivo** do encerramento (veja a próxima seção);
 - Tudo o que vence na mesma hora (novos alertas, mudanças de nível, lembretes e encerramentos) vai junto no mesmo e-mail.
+
+### Quando o alerta sai sozinho {#auto-close}
+
+O alerta só vale para _build_ **no ar**. Se a _build_ deixa de estar no ar, os itens dela saem da caixa de exploração ativa e o episódio é encerrado, sem que a falha tenha sido corrigida. Uma _build_ é considerada no ar quando:
+
+- **_Build_ da plataforma:** o _status_ do _deploy_ não é `INACTIVATED`, `UNDEPLOYING` nem `REMOVING`;
+- **Plataforma e Releaser:** a saúde mais recente tem ao menos um serviço em execução (`running`);
+- **Releaser:** o último contato do servidor foi há no máximo **7 dias**.
+
+Cada encerramento registra o motivo, que aparece no e-mail "Encerrado":
+
+| Motivo | Significado | E-mail |
+|---|---|---|
+| **Corrigida** (`fixed`) | A CVE não aparece mais na varredura recente da _build_ | **Encerrado**, se chegou a Crítica ou Emergencial |
+| **Desativada** (`deactivated`) | A _build_ foi desativada ou parada, e nenhum serviço está em execução | **Encerrado**, se chegou a Crítica ou Emergencial, dizendo que a _build_ saiu do ar |
+| **Sem contato** (`unreachable`) | O servidor do Releaser está há mais de 7 dias sem contato | Nenhum; só uma linha no _space_ de alertas dos administradores |
+
+> **Atenção!** Sair do ar não é o mesmo que estar corrigida. Se a _build_ voltar a rodar com a falha, o alerta recomeça como um episódio novo.
 
 ## O que fazer {#actions}
 
@@ -107,14 +126,16 @@ Cada item do alerta traz a ação indicada para aquela _build_, escolhida por re
 | **Não há** versão corrigida e a _build_ não é atualizada há mais de 6 meses | **Tire do ar**, com _backup_ antes. Uma _build_ esquecida no ar é exatamente a porta de entrada que se quer fechar. Se há versão corrigida, vale atualizar, mesmo em _build_ antiga: aplicações de prateleira (n8n, WordPress) costumam receber só o _restart_ com atualização das imagens, e nunca um _deploy_ |
 | **Não há** versão corrigida e o nível é Alta | Restrinja o acesso ou tire do ar os estágios que não são de produção (`alpha` e `beta`) |
 | **Não há** versão corrigida e o nível é Crítica ou Emergencial | Recomenda-se **tirar o estágio do ar** até haver correção: faça um **Backup** e depois **Desativar**. Manter no ar é uma decisão consciente da equipe |
-| Há versão corrigida, mas a versão está **fixada** no `Dockerfile` ou no `docker-compose.yml` | Suba a versão fixada para a corrigida no repositório e gere uma nova _tag_ |
-| Há versão corrigida e a imagem é _floating_ (`latest`, `8.3-apache`, sem a versão exata), ou o serviço é `build:` sobre uma base _floating_ | No _dashboard_, abra a _build_, clique em **Reiniciar** e marque **Atualizar imagens** |
+| Há versão corrigida e a falha está em uma **dependência da aplicação** (`npm`, `composer`, `pip`, `gem`, binário Go, `jar`…) | **Atualize a dependência no código** (do pacote e versão instalada para a corrigida, no arquivo de _lock_ indicado no item) e **gere uma nova _tag_**. **Reiniciar não corrige**, porque a dependência vem do código da aplicação, e não da imagem |
+| Há versão corrigida, mas a versão está **fixada** no `Dockerfile` ou no `docker-compose.yml` (versão exata ou _digest_) | Suba a versão fixada para a corrigida no repositório e gere uma nova _tag_ |
+| Há versão corrigida e a imagem é `latest` ou está **sem _tag_** (ou o serviço é `build:` sobre uma base `latest`) | **Fixe antes de atualizar.** Reiniciar com atualização pode saltar de versão maior e, em banco de dados, até tornar o volume ilegível. No `docker-compose.yml` ou no `Dockerfile`, fixe a **versão maior** em uso (por exemplo, `postgres:16`, e não `postgres:latest`), gere uma nova _tag_ e só então atualize as imagens |
+| Há versão corrigida e a imagem é _floating_ parcial (`8.3-apache`, sem a versão exata), ou o serviço é `build:` sobre uma base assim | No _dashboard_, abra a _build_, clique em **Reiniciar** e marque **Atualizar imagens** |
 
 Se um alerta Emergencial continuar sem correção, ele volta a cada 12 horas dizendo: "Ainda vulnerável. Se não for possível corrigir agora, tire o estágio do ar."
 
 ### _Build_ implantada pelo Releaser {#releaser}
 
-O _dashboard_ não alcança os servidores que usam o [Releaser]({{ site.baseurl }}/docs/releaser), por desenho. As quatro primeiras regras da tabela acima valem também aqui (_build_ antiga, sem versão corrigida e versão fixada). Na última, em vez do **Reiniciar** do _dashboard_, o alerta traz o comando equivalente, a executar no servidor indicado:
+O _dashboard_ não alcança os servidores que usam o [Releaser]({{ site.baseurl }}/docs/releaser), por desenho. As regras da tabela acima para _build_ antiga, sem versão corrigida, dependência da aplicação, versão fixada e `latest` ou sem _tag_ valem também aqui, inclusive a de **atualizar a dependência no código e gerar uma nova _tag_**, porque o _restart_ não a corrige. Na última, em vez do **Reiniciar** do _dashboard_, o alerta traz o comando equivalente, a executar no servidor indicado:
 
 ```bash
 io restart <projeto>/<app>@<estágio> --upgrade
@@ -126,7 +147,7 @@ A opção `--upgrade` renova as imagens, reconstrói os serviços `build:` e rei
 io stop <projeto>/<app>@<estágio>
 ```
 
-O comando `io restart --upgrade` existe a partir do Releaser `1.26.10-10`. Se o Releaser daquele servidor for de uma versão anterior, o alerta traz o caminho manual (`docker pull` e `io deploy --force`) e a sugestão de [atualizar o Releaser]({{ site.baseurl }}/docs/releaser#update). Se o servidor está há mais de 24 horas sem contato, o alerta sai mesmo assim, avisando a data do último dado de vulnerabilidades.
+O comando `io restart --upgrade` existe a partir do Releaser `1.26.10-10`. Se o Releaser daquele servidor for de uma versão anterior, o alerta traz o caminho manual (`docker pull` e `io deploy --force`) e a sugestão de [atualizar o Releaser]({{ site.baseurl }}/docs/releaser#update). Se o servidor está há mais de 24 horas sem contato, o alerta sai mesmo assim, avisando a data do último dado de vulnerabilidades. Passados 7 dias sem contato, o alerta é encerrado (veja [Quando o alerta sai sozinho](#auto-close)).
 
 ### Pedir ajuda à Sentinela {#sentinel}
 
@@ -135,6 +156,25 @@ Quando o projeto tem a [Sentinela]({{ site.baseurl }}/docs/sentinel) configurada
 ### A plataforma nunca derruba nada sozinha {#never}
 
 Toda ação é **proposta** pela plataforma e **executada pela equipe**. Nenhuma _build_ é parada, reiniciada ou atualizada automaticamente por causa de um alerta. Isso vale inclusive para o nível Emergencial: tirar do ar é uma recomendação, nunca uma ação automática.
+
+## Correção com apoio de agentes de IA (MCP) {#mcp}
+
+O [MCP do _dashboard_]({{ site.baseurl }}/docs/mcp/io) tem a ferramenta `list_critical_cves` e o _prompt_ guiado `fix_critical_cves`, que reúnem em uma só consulta as _builds_ com alerta ativo dos seus projetos: nível, índice, pacote, versão instalada e corrigida, tipo do pacote (sistema ou dependência da aplicação), arquivo de _lock_ afetado, classificação da imagem, ação indicada, repositório e a versão implantada. Com isso, um agente de IA (Claude, Gemini, Copilot, Cursor…) pode ler o código na **versão que está no ar** e propor a correção _build_ a _build_.
+
+Um exemplo de pergunta:
+
+```
+Verifique os alertas de CVEs críticos em meus projetos e me oriente em cada um como agir.
+```
+
+Para cada alerta, o agente:
+
+1. Lista as _builds_ afetadas, da mais urgente para a menos;
+2. Lê o repositório da _build_ na versão implantada, para saber onde a dependência ou a imagem é declarada;
+3. Propõe a correção conforme a [tabela de ações](#actions): atualizar a dependência e gerar _tag_, fixar a versão maior antes de atualizar, subir a versão fixada ou reiniciar com atualização das imagens;
+4. Aponta, quando for o caso, que a opção mais prudente é tirar o estágio do ar até haver correção.
+
+> **Atenção!** O agente **nunca altera nada sem a sua confirmação**: nem o código, nem a _tag_, nem a _build_. Ele propõe, mostra o que mudaria e espera o seu "pode fazer". Como em todo alerta, a decisão e a execução são da equipe.
 
 ## Onde mais as vulnerabilidades aparecem {#where}
 
@@ -149,7 +189,7 @@ O alerta, o _dashboard_ e a Sentinela leem **o mesmo conjunto** de vulnerabilida
   ![Diálogo de vulnerabilidades com a caixa "Vulnerabilidades em exploração ativa" no topo]({{ site.baseurl }}/assets/img/cve/03.png)
 
 - **Sentinela:** os relatórios diário e semanal trazem, antes de qualquer outro achado, uma seção própria com o mesmo título, com nível, índice, há quanto tempo o primeiro alerta foi enviado, quantos lembretes já saíram e a ação indicada. A seção é montada a partir dos dados, não pelo modelo de IA, que não pode reescrevê-la nem rebaixar a severidade. Essas CVEs saem da seção comum de vulnerabilidades, e as corrigidas na semana aparecem numa linha à parte;
-- **MCP:** as ferramentas `build_info` e `get_build_health` do [MCP do _dashboard_]({{ site.baseurl }}/docs/mcp) trazem o campo `exploited`.
+- **MCP:** as ferramentas `build_info` e `get_build_health` do [MCP do _dashboard_]({{ site.baseurl }}/docs/mcp/io) trazem o campo `exploited`, e `list_critical_cves` lista todas as _builds_ com alerta ativo (veja [Correção com apoio de agentes de IA](#mcp)).
 
 ## Perguntas frequentes {#faq}
 

@@ -26,7 +26,7 @@ A autenticação é feita via **OAuth 2.1 com PKCE**. Ao conectar, o fluxo de lo
 
 ## Funcionalidades
 
-O servidor expõe **42 _tools_** e **8 _prompts_ guiados** organizados nos seguintes domínios:
+O servidor expõe **43 _tools_** e **9 _prompts_ guiados** organizados nos seguintes domínios:
 
 **Perfil do Usuário** — Consulta e atualização do perfil na plataforma, incluindo nome de exibição utilizado em todas as interfaces e listagens de equipe.
 
@@ -44,13 +44,13 @@ O servidor expõe **42 _tools_** e **8 _prompts_ guiados** organizados nos segui
 
 **Catálogos da Plataforma** — Listagem de _boilerplates_ disponíveis (Node.js, Laravel, Vue.js, WordPress, entre outros) com detalhes de _stack_, documentação e licença. Listagem de _clusters_ disponíveis para _deploy_ (capacidade, _aliases_ e configurações SMTP) e orquestradores suportados.
 
-**Monitoramento Consolidado** — Visão agregada por aplicação combinando Matomo, Sentry e SonarQube em uma única consulta. Saúde de _builds_ específicas (`project/app@stage`) em _clusters_ compartilhados: _status_ do _deploy_, _uptime_, histórico de versões deployadas e vulnerabilidades de segurança (CVEs) detectadas pelo Trivy nos _containers_ — complementar à análise estática do SonarQube, cobrindo dependências de _runtime_, imagens base e bibliotecas do SO.
+**Monitoramento Consolidado** — Visão agregada por aplicação combinando Matomo, Sentry e SonarQube em uma única consulta. Saúde de _builds_ específicas (`project/app@stage`) em _clusters_ compartilhados: _status_ do _deploy_, _uptime_, histórico de versões deployadas e vulnerabilidades de segurança (CVEs) detectadas pelo Trivy nos _containers_ — complementar à análise estática do SonarQube, cobrindo dependências de _runtime_, imagens base e bibliotecas do SO. Lista também as _builds_ com [alerta de CVE crítica]({{ site.baseurl }}/docs/cve) ativo, com o repositório e a versão implantada, para que o agente leia o código e oriente a correção.
 
 **_Deploy_ Externo (Releaser)** — Geração do arquivo `builds.json` para _deploy_ e atualização contínua em servidores fora da rede de _clusters_ da plataforma. Coleta automática de equipe, variáveis de ambiente, Sentry DSN e Matomo ID a partir da API ou de arquivos locais do _codebase_, com geração de _secrets_ e _passwords_ randômicos.
 
 **Sentinela** — Leitura dos relatórios da [Sentinela]({{ site.baseurl }}/docs/sentinel) guardados na plataforma, inclusive as prévias e os de projetos sem `io-doc`, já estruturados (achados com identificador, severidade, evidência e ação; itens em aberto; _insights_). Busca nos achados de todos os relatórios dos projetos do usuário, para saber se um problema já apareceu e como foi votado, ou comparar padrões entre projetos. Registro em lote do voto útil/ruído, com veredito e motivo.
 
-**_Prompts_ Guiados** — 8 fluxos interativos para operações comuns: visão geral dos projetos, criação de projeto passo-a-passo, criação de aplicação, _deploy_ via _git tag_, diagnóstico de problemas de _build_, gestão de equipe, _status_ de _deploy_ e relatório de saúde do projeto.
+**_Prompts_ Guiados** — 9 fluxos interativos para operações comuns: visão geral dos projetos, criação de projeto passo-a-passo, criação de aplicação, _deploy_ via _git tag_, diagnóstico de problemas de _build_, gestão de equipe, _status_ de _deploy_, relatório de saúde do projeto e correção de [CVEs críticos]({{ site.baseurl }}/docs/cve).
 
 ## Exemplos de _Prompts_
 
@@ -104,6 +104,10 @@ Leia o último relatório da Sentinela do agrovision e confira cada achado no c�
 Algum deles já tinha aparecido em relatórios anteriores?
 ```
 
+```
+Verifique os alertas de CVEs críticos em meus projetos e me oriente em cada um como agir.
+```
+
 ## Configuração em IDEs e CLIs
 
 A configuração segue o padrão unificado descrito em [Configuração em IDEs e CLIs]({{ site.baseurl }}/docs/mcp/#config). Basta usar a URL `https://mcp.embrapa.io`. Exemplo no **Claude Code**:
@@ -116,7 +120,7 @@ claude mcp add --scope user --transport http io https://mcp.embrapa.io
 
 ## Referência Técnica
 
-### _Tools_ (42)
+### _Tools_ (43)
 
 #### Perfil do Usuário
 
@@ -203,6 +207,7 @@ claude mcp add --scope user --transport http io https://mcp.embrapa.io
 |--------|-----------|
 | `app_info` | Visão agregada de uma aplicação combinando três fontes: Matomo (_analytics_), Sentry (_bugs_) e SonarQube (qualidade de código). |
 | `build_info` | Saúde de uma _build_ específica: _status_ do _deploy_, _cluster_, URLs, _aliases_, histórico de versões, _uptime_ e **CVEs/vulnerabilidades** detectadas pelo Trivy nos _containers_ (complementar ao SonarQube — cobre dependências de _runtime_, imagens base e bibliotecas do SO). |
+| `list_critical_cves` | Lista as _builds_ dos seus projetos com [alerta de CVE crítica]({{ site.baseurl }}/docs/cve) ativo (vulnerabilidade em exploração ativa), da mais urgente para a menos: nível e índice, pacote (sistema ou dependência da aplicação, com o arquivo de _lock_), versões instalada e corrigida, classificação da imagem, ação indicada, repositório no GitLab, versão implantada, servidor e link do _dashboard_. Sem alertas, devolve uma lista vazia. Somente leitura. |
 
 #### _Deploy_ Externo (Releaser)
 
@@ -220,7 +225,7 @@ claude mcp add --scope user --transport http io https://mcp.embrapa.io
 | `list_sentinel_votes` | Votos e vereditos já registrados nos achados de um projeto. O e-mail de quem votou só aparece para o Arquiteto da Solução. Requer ser membro do projeto. |
 | `vote_sentinel_findings` | Registra em lote (até 50) o veredito da triagem de cada achado: `ok`, `wrong_action` e `partial` votam útil; `noise` vota ruído e **silencia o achado nos relatórios seguintes**; `stale` e `unverified` registram a triagem sem votar. Votar de novo substitui o voto anterior. Requer confirmação explícita e ser membro do projeto. |
 
-### _Prompts_ Guiados (8)
+### _Prompts_ Guiados (9)
 
 Os _prompts_ são fluxos interativos pré-definidos que guiam o usuário através de operações comuns.
 
@@ -234,3 +239,4 @@ Os _prompts_ são fluxos interativos pré-definidos que guiam o usuário atravé
 | `troubleshoot_build` | Diagnóstico sistemático de problemas: verifica saúde, configuração, histórico de variáveis e sanitização. Identifica a causa provável e sugere correções. |
 | `team_management` | Gestão interativa da equipe: adicionar, remover ou alterar papel de membros, com verificação de papel do usuário e confirmação antes de cada operação. |
 | `project_health_report` | Relatório consolidado de saúde: qualidade de código (SonarQube), _bugs_ (Sentry), _analytics_ (Matomo), _status_ de cada _build_ e recomendações priorizadas. |
+| `fix_critical_cves` | Guia a correção dos alertas de CVE crítica: chama `list_critical_cves`, lê o repositório de cada _build_ na versão implantada e propõe a correção conforme a ação indicada (atualizar a dependência e gerar _tag_, fixar a versão maior antes de atualizar, subir a versão fixada ou reiniciar com atualização). **Nunca altera nada sem confirmação.** |
