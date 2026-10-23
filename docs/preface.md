@@ -71,7 +71,7 @@ Para quem mantém a plataforma ou estende o que ela oferece: modelos, servidores
 - [Arena de Bots: testes cegos para avaliar agentes de IA]({{ site.baseurl }}/docs/arena)
 - [WebMCP: ferramentas desta documentação para agentes no navegador]({{ site.baseurl }}/docs/webmcp)
 - [Sentinela: relatórios automáticos de _insights_ por projeto]({{ site.baseurl }}/docs/sentinel)
-- [Alerta de CVE: vulnerabilidades em exploração ativa]({{ site.baseurl }}/docs/cve)
+- [CVEs Críticos: alertas de vulnerabilidades em exploração ativa]({{ site.baseurl }}/docs/cve)
 
 ## Recursos
 

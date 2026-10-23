@@ -1,7 +1,7 @@
 ---
 layout: page
-title: Vulnerabilidades em exploração ativa
-subtitle: Falhas que estão sendo exploradas na internet e não exigem login. Corrija conforme o nível indicado.
+title: CVEs Críticos
+subtitle: Alertas de vulnerabilidades que estão sendo exploradas na internet e não exigem login.
 ---
 
 A plataforma **Embrapa I/O** varre toda hora as imagens em execução nos _clusters_ em busca de vulnerabilidades conhecidas (CVEs) com o **Trivy**, e o resultado aparece no diálogo de [monitoramento da _build_]({{ site.baseurl }}/docs/health). Só que a maioria das CVEs `HIGH` e `CRITICAL` que o Trivy encontra nunca foi explorada por ninguém, e um aviso a cada uma delas só ensina a equipe a ignorar avisos.
@@ -53,10 +53,14 @@ O alerta mostra sempre o nível, o índice e a leitura das fontes, por exemplo: 
 
 ## Quando o alerta é enviado {#criteria}
 
-Um alerta só é gerado quando as duas condições são verdadeiras ao mesmo tempo:
+Um alerta só é gerado quando todas as condições abaixo são verdadeiras ao mesmo tempo:
 
 1. O nível é **Alta** ou superior (índice de 25 % ou mais);
-2. A falha pode ser explorada **pela rede** (`AV:N` no vetor CVSS) e **sem nenhum privilégio** (`PR:N`), isto é, por qualquer pessoa na internet, sem login.
+2. A falha pode ser explorada **pela rede** (`AV:N` no vetor CVSS) e **sem nenhum privilégio** (`PR:N`), isto é, por qualquer pessoa na internet, sem login;
+3. A exploração **não depende de ação de um usuário** (`UI:N`), como abrir uma página ou um arquivo. Por isso falhas de navegador embutido (Chromium do Puppeteer ou do Playwright, por exemplo) não entram;
+4. A falha tem **impacto alto no sigilo ou na integridade** dos dados (`C:H` ou `I:H` no CVSS 3.1; `VC:H` ou `VI:H` no 4.0). Falhas que apenas derrubam o serviço não entram.
+
+Pacotes de _kernel_ (`linux`, `kernel`) encontrados na imagem também ficam de fora: o contêiner usa o _kernel_ do servidor, e não o que vem na imagem.
 
 Falhas que exigem acesso local ou uma conta autenticada não entram, por mais graves que sejam. Elas continuam na lista comum de vulnerabilidades da _build_.
 
@@ -94,7 +98,7 @@ Cada item do alerta traz a ação indicada para aquela _build_, escolhida por re
 
 | Situação | Ação |
 |---|---|
-| A _build_ não recebe _deploy_ há mais de 6 meses | **Tire do ar**, com _backup_ antes. Uma _build_ esquecida no ar é exatamente a porta de entrada que se quer fechar |
+| **Não há** versão corrigida e a _build_ não é atualizada há mais de 6 meses | **Tire do ar**, com _backup_ antes. Uma _build_ esquecida no ar é exatamente a porta de entrada que se quer fechar. Se há versão corrigida, vale atualizar, mesmo em _build_ antiga: aplicações de prateleira (n8n, WordPress) costumam receber só o _restart_ com atualização das imagens, e nunca um _deploy_ |
 | **Não há** versão corrigida e o nível é Alta | Restrinja o acesso ou tire do ar os estágios que não são de produção (`alpha` e `beta`) |
 | **Não há** versão corrigida e o nível é Crítica ou Emergencial | Recomenda-se **tirar o estágio do ar** até haver correção: faça um **Backup** e depois **Desativar**. Manter no ar é uma decisão consciente da equipe |
 | Há versão corrigida, mas a versão está **fixada** no `Dockerfile` ou no `docker-compose.yml` | Suba a versão fixada para a corrigida no repositório e gere uma nova _tag_ |
@@ -142,4 +146,4 @@ O alerta, o _dashboard_ e a Sentinela leem **o mesmo conjunto** de vulnerabilida
 
 **A CVE deixou de aparecer sem que eu fizesse nada.** Um catálogo pode ter retirado a entrada, o que reduz o nível. Se a CVE some do _dashboard_ mas a _build_ não foi varrida recentemente, ela **não** é considerada resolvida.
 
-**Posso deixar de receber os alertas?** Não. O alerta vai para toda a equipe do projeto e sai quem sai da equipe.
+**Quem recebe os alertas?** Todos os membros da equipe do projeto que têm conta no **Embrapa I/O** (a conta é criada no primeiro acesso à plataforma). Como a falha pode ser corrigida por qualquer pessoa da equipe, não há opção de descadastro: para deixar de receber, é preciso sair da equipe do projeto.
