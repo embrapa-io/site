@@ -68,9 +68,15 @@ A mensagem é montada em português a partir de dados estruturados (vetor CVSS, 
 
 ## Quem recebe {#recipients}
 
-**Todos os membros da equipe do projeto que têm conta no Embrapa I/O** (arquitetos, desenvolvedores e demais membros), e não só os mantenedores, porque quem reconhece a urgência muitas vezes é o técnico de TI que é apenas membro da equipe. A conta é criada no primeiro acesso ao _dashboard_, com o aceite dos termos: quem está na equipe mas nunca acessou **não recebe**. Cada pessoa recebe **um único e-mail por ciclo**, agrupado por CVE e ordenado pelo nível mais alto. Dentro de cada CVE, cada linha é uma _build_ (`app@estágio`), com os serviços afetados na mesma linha. O rodapé traz o link para esta página.
+**Todos os membros da equipe do projeto que têm conta no Embrapa I/O** (arquitetos, desenvolvedores e demais membros), e não só os mantenedores, porque quem reconhece a urgência muitas vezes é o técnico de TI que é apenas membro da equipe. A conta é criada no primeiro acesso ao _dashboard_, com o aceite dos termos: quem está na equipe mas nunca acessou **não recebe**. Cada pessoa recebe **um único e-mail por ciclo**, agrupado por CVE e ordenado pelo nível mais alto. Dentro de cada CVE, cada _build_ aparece no formato `projeto/app@estágio • serviços`, com o servidor onde roda, a data da última varredura e a ação indicada. O rodapé traz o link para esta página.
 
-**Não há como se descadastrar.** O alerta vai para a equipe do projeto: só deixa de receber quem sai da equipe.
+![E-mail de alerta: cabeçalho, metadados e a CVE com nível, fontes, risco e registro]({{ site.baseurl }}/assets/img/cve/04.png)
+
+![E-mail de alerta: builds afetadas, cada uma com a ação proposta e o link para o dashboard]({{ site.baseurl }}/assets/img/cve/05.png)
+
+As imagens desta página usam **dados fictícios**, de um ambiente de teste.
+
+Como qualquer pessoa da equipe pode corrigir a falha, **não há descadastro**: para deixar de receber, é preciso sair da equipe do projeto.
 
 Uma cópia resumida, agrupada por projeto, vai também para o _space_ de alertas críticos dos administradores da plataforma, que acompanham o que as equipes recebem.
 
@@ -134,7 +140,14 @@ Toda ação é **proposta** pela plataforma e **executada pela equipe**. Nenhuma
 
 O alerta, o _dashboard_ e a Sentinela leem **o mesmo conjunto** de vulnerabilidades em exploração ativa, então os três sempre concordam:
 
-- **Dashboard:** uma caixa **Vulnerabilidades em exploração ativa** no topo do diálogo de vulnerabilidades da _build_, com nível, índice, pacote, versão instalada e corrigida, a ação indicada e o link para esta página. Essas CVEs saem da lista comum logo abaixo, para não aparecerem duas vezes. O ícone `crisis_alert` pulsa na linha do serviço, no _card_ da aplicação e como _badge_ no _card_ do projeto, em laranja para o nível Alta e em vermelho para Crítica e Emergencial. Os projetos com alerta ativo ficam no topo da lista, em **Precisam de atenção imediata**, qualquer que seja o filtro;
+- **Dashboard:** uma caixa **Vulnerabilidades em exploração ativa** no topo do diálogo de vulnerabilidades da _build_, com nível, índice, pacote, versão instalada e corrigida, a ação indicada e o link para esta página. Essas CVEs saem da lista comum logo abaixo, para não aparecerem duas vezes. O ícone `crisis_alert` pulsa na linha do serviço, no _card_ da aplicação e como _badge_ no _card_ do projeto, em laranja para o nível Alta e em vermelho para Crítica e Emergencial. Os projetos com alerta ativo ficam no topo da lista, numa faixa própria, **Precisam de atenção imediata**, qualquer que seja o filtro;
+
+  ![Lista de projetos com a faixa "Precisam de atenção imediata" no topo]({{ site.baseurl }}/assets/img/cve/01.png)
+
+  ![Health Check da build, com o ícone na linha do serviço e o resumo no rodapé]({{ site.baseurl }}/assets/img/cve/02.png)
+
+  ![Diálogo de vulnerabilidades com a caixa "Vulnerabilidades em exploração ativa" no topo]({{ site.baseurl }}/assets/img/cve/03.png)
+
 - **Sentinela:** os relatórios diário e semanal trazem, antes de qualquer outro achado, uma seção própria com o mesmo título, com nível, índice, há quanto tempo o primeiro alerta foi enviado, quantos lembretes já saíram e a ação indicada. A seção é montada a partir dos dados, não pelo modelo de IA, que não pode reescrevê-la nem rebaixar a severidade. Essas CVEs saem da seção comum de vulnerabilidades, e as corrigidas na semana aparecem numa linha à parte;
 - **MCP:** as ferramentas `build_info` e `get_build_health` do [MCP do _dashboard_]({{ site.baseurl }}/docs/mcp) trazem o campo `exploited`.
 

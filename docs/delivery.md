@@ -36,7 +36,7 @@ São _clusters_ previamente configurados e disponibilizados às equipes de desen
 
 - A plataforma cuida de toda a configuração: criação dos volumes, URLs (_virtual proxies_), certificados SSL, variáveis de ambiente, integração com SMTP e GPU Servers.
 - Diversas ferramentas vêm integradas: _log_ centralizado, _web terminal_ para acesso aos _containers_ e monitoramento pela _dashboard_.
-- **Busca ativa de vulnerabilidades (CVEs)** nas imagens construídas para a _build_. Essa varredura só é possível aqui, porque é no _deploy_ pelo _cluster_ que a plataforma constrói as imagens e passa a conhecer todas as dependências da aplicação.
+- **Busca ativa de vulnerabilidades (CVEs)** nas imagens em execução, de hora em hora, com o [alerta de CVEs críticos]({{ site.baseurl }}/docs/cve) e as ações de correção (como o _restart_ com atualização das imagens) direto na _dashboard_.
 
 **Contras:**
 
@@ -60,7 +60,7 @@ O [**Releaser**]({{ site.baseurl }}/docs/releaser) é uma imagem pública no [Do
 - A equipe do projeto (ou o NTI da Unidade) precisa configurar o orquestrador, o DNS, os certificados SSL, o _virtual proxy_ e os volumes.
 - Integrações com servidores SMTP e GPU Servers, por exemplo, precisam ser providenciadas pela própria equipe.
 - A plataforma **não controla** essas instâncias: não consegue suspender, reiniciar ou gerar _backup_ sob demanda pela _dashboard_.
-- **Ainda não há busca ativa de CVEs** nas imagens. Hoje o Releaser puxa imagens prontas e não participa da construção, então não inventaria as dependências. Há plano de levar a varredura (Trivy) ao Releaser; até lá, a proteção é [manter as imagens atualizadas](#images).
+- A varredura de CVEs (Trivy) roda no próprio servidor, a partir da versão `1.26.10-2` do Releaser, e depende de acesso ao `ghcr.io` para baixar o banco de vulnerabilidades. As correções são aplicadas pela equipe, no servidor, com `io restart <build> --upgrade` (veja [manter as imagens atualizadas](#images)).
 - Não há _web terminal_ nem _logs_ na _dashboard_: para isso, recomenda-se instalar o [Portainer]({{ site.baseurl }}/docs/releaser#portainer) ou ferramenta similar e, para centralizar os _logs_ no Grafana da plataforma, configurar o [_plugin_ do Loki]({{ site.baseurl }}/docs/releaser#loki) no Docker do servidor.
 - O _backup_ diário fica **no próprio servidor**. Levá-lo para fora é [responsabilidade da equipe](#responsibilities), como detalhado no [capítulo de _backup_]({{ site.baseurl }}/docs/backup#production).
 
@@ -74,7 +74,7 @@ Há uma segunda razão para separar a produção, que não é técnica: **otimiz
 
 #### A alpha fica no catálogo {#alpha}
 
-A _alpha_ deve permanecer no catálogo de _clusters_. Seu papel é o teste interno rápido e descartável, e ela se beneficia de tudo o que a plataforma automatiza. Mas há um motivo mais forte: **a busca ativa de CVEs acontece apenas nos _clusters_ compartilhados**, nas imagens construídas no _deploy_ da _build_, porque só nesse momento a plataforma conhece todas as dependências da aplicação. O Releaser ainda não faz essa varredura (está planejado). Manter a _alpha_ no catálogo é, portanto, a forma de garantir que toda versão da aplicação passe pela varredura de vulnerabilidades antes de chegar à _beta_ e à _release_.
+A _alpha_ deve permanecer no catálogo de _clusters_. Seu papel é o teste interno rápido e descartável, e ela se beneficia de tudo o que a plataforma automatiza. Além disso, a _alpha_ é o primeiro lugar em que cada versão nova passa pela [varredura de CVEs]({{ site.baseurl }}/docs/cve): uma vulnerabilidade apontada ali chega à equipe antes de a versão seguir para a _beta_ e a _release_.
 
 #### A beta como ensaio da produção {#beta}
 
@@ -82,7 +82,7 @@ O estágio _beta_ é o coringa dessa recomendação. Ele pode ser instanciado no
 
 Isso importa porque a _beta_ é o **último teste antes da produção**. Se ela roda em um ambiente que a plataforma configura sozinha e a _release_ roda em um ambiente que a equipe configura por conta própria, a homologação valida a aplicação, mas não valida a operação: os erros de configuração de DNS, de _proxy_, de volumes ou de variáveis de ambiente só vão aparecer no dia do _deploy_ em produção. Instanciar a _beta_ pelo Releaser antecipa esses erros para a fase em que ainda é barato corrigi-los e, de quebra, serve de treinamento para quem vai operar a produção.
 
-A recomendação, portanto, é gradual: comece a _beta_ no catálogo de _clusters_ enquanto o foco ainda é o comportamento da aplicação e, **assim que a produção estiver no horizonte**, migre-a para o Releaser no _data center_ de destino, de preferência em uma VM separada da de produção (ou, na falta de recursos, na mesma VM, já que o Releaser isola as _builds_ em pilhas de _containers_ independentes). Como a _alpha_ continua no catálogo, a varredura de CVEs segue cobrindo cada versão antes de ela chegar à _beta_.
+A recomendação, portanto, é gradual: comece a _beta_ no catálogo de _clusters_ enquanto o foco ainda é o comportamento da aplicação e, **assim que a produção estiver no horizonte**, migre-a para o Releaser no _data center_ de destino, de preferência em uma VM separada da de produção (ou, na falta de recursos, na mesma VM, já que o Releaser isola as _builds_ em pilhas de _containers_ independentes). Desde a versão `1.26.10-2`, o Releaser também varre as imagens e reporta as CVEs à plataforma, de modo que a _beta_ e a _release_ continuam cobertas pelo [alerta de CVEs críticos]({{ site.baseurl }}/docs/cve).
 
 > **Atenção!** Enquanto a plataforma estiver em _Beta Release_, a disponibilização de aplicações em produção por meio do catálogo de _clusters_ compartilhados é **fortemente desencorajada**, conforme já explicado no [capítulo do Releaser]({{ site.baseurl }}/docs/releaser). Essa é a situação atual, não a arquitetura-alvo: à medida que a plataforma amadurecer e ganhar controle fino de recursos, poderão existir _clusters_ dedicados de produção no próprio catálogo.
 
@@ -119,7 +119,7 @@ O estágio de maturidade e o _Tier_ dão a regra geral. Antes de decidir o desti
 Onde instanciar as _builds_ em cada estágio de desenvolvimento:
 
 - **_development_**: sempre em ambiente local utilizando o Docker, ou seja, no próprio computador do desenvolvedor (Tier 0). Todos os [_boilerplates_]({{ site.baseurl }}/resources/boilerplates) da plataforma já trazem a configuração para isso.
-- **_alpha_**: em servidores compartilhados do [catálogo de _clusters_]({{ site.baseurl }}/resources/clusters) da plataforma (recomendado, pela [varredura de CVEs](#alpha)) ou na Unidade, em Tier 1 ou superior.
+- **_alpha_**: em servidores compartilhados do [catálogo de _clusters_]({{ site.baseurl }}/resources/clusters) da plataforma (recomendado) ou na Unidade, em Tier 1 ou superior.
 - **_beta_**: em servidores compartilhados do catálogo de _clusters_ da plataforma (recomendado) ou na Unidade, em Tier 2 ou superior. Quando a produção estiver próxima, vale instanciá-la pelo Releaser no _data center_ de destino, como [ensaio da produção](#beta).
 - **_release_**:
   - na Unidade, em Tier 3 ou superior, em **VM dedicada**; eventualmente em Tier 2, quando os [critérios adicionais](#criteria) permitirem (por exemplo, aplicação de campo com baixo requisito de disponibilidade e sem dados sensíveis);
@@ -153,10 +153,10 @@ Fixar a versão maior **não protege de um _bug_ introduzido em um _patch_**: el
 
 ### Por que a versão fixada precisa ser atualizada {#images-update}
 
-Fixar não é congelar. Uma imagem de produção parada por meses acumula vulnerabilidades conhecidas, e é justamente isso que a varredura de CVEs do catálogo denuncia nas _builds_ de _alpha_. Enquanto o Releaser não incorpora a varredura, a equipe precisa de uma rotina:
+Fixar não é congelar. Uma imagem de produção parada por meses acumula vulnerabilidades conhecidas, e é justamente isso que a varredura de CVEs denuncia, tanto nos _clusters_ do catálogo quanto, desde a versão `1.26.10-2`, nas _builds_ do Releaser. Quando uma delas está sendo explorada na internet, a equipe recebe o [alerta de CVEs críticos]({{ site.baseurl }}/docs/cve). Além disso, a equipe precisa de uma rotina:
 
-1. Atualizar as imagens da _build_ de produção em cadência definida (mensal, junto da sanitização, é um bom padrão), pelo procedimento de [atualização das imagens do Releaser]({{ site.baseurl }}/docs/releaser#info); nos _clusters_ do catálogo, pelo _restart_ da _build_ com a opção "ATUALIZAR as imagens dos containers" na _dashboard_.
-2. Acompanhar a _alpha_ da mesma aplicação no catálogo: se a varredura de CVEs acusar uma imagem-base, a produção com a mesma versão fixada está exposta e deve ser atualizada fora da cadência.
+1. Atualizar as imagens da _build_ de produção em cadência definida (mensal, junto da sanitização, é um bom padrão), pelo comando `io restart <build> --upgrade` do [Releaser]({{ site.baseurl }}/docs/releaser#info); nos _clusters_ do catálogo, pelo _restart_ da _build_ com a opção "ATUALIZAR as imagens dos containers" na _dashboard_.
+2. Acompanhar as CVEs de todos os estágios no _dashboard_ e o alerta de CVEs críticos: se a varredura acusar uma imagem-base, a produção com a mesma versão fixada está exposta e deve ser atualizada fora da cadência.
 3. Ler as notas de versão antes de avançar uma versão maior e, para bancos de dados, planejar a migração dos dados (na maioria dos casos, não há como voltar).
 4. Antes de qualquer atualização em _release_, ensaiar na [_beta_](#beta) e garantir um [_backup_ fora do servidor]({{ site.baseurl }}/docs/backup#production).
 
@@ -169,7 +169,7 @@ Escolher o Releaser é escolher um **dono para a produção**. A tabela abaixo d
 | Atividade | Catálogo de _clusters_ | Releaser em máquina dedicada |
 |---|---|---|
 | _Deploy_, _rollback_ e atualização de versão | Plataforma (automática, por _tag_) | Releaser (automático, por _tag_); a equipe acompanha |
-| Construção das imagens e **varredura de CVEs** | Plataforma | Ainda sem varredura (Trivy no Releaser está planejado); a equipe [mantém as imagens atualizadas](#images) |
+| Construção das imagens e **varredura de CVEs** | Plataforma | Varredura pelo Releaser (Trivy, desde a `1.26.10-2`), com alerta pela plataforma; correção pela equipe ([imagens atualizadas](#images)) |
 | Monitoramento de disponibilidade e _health check_ | Plataforma (_dashboard_ e alertas) | Equipe (Portainer, Grafana da Unidade ou _plugin_ do Loki) |
 | _Error tracking_ e _analytics_ (Sentry, Matomo) | Plataforma | Plataforma (configurados por _build_) |
 | _Backup_ | Sob demanda pela _dashboard_; rotina do _cluster_ pelo mantenedor | Diário pelo Releaser no servidor; **cópia para fora do servidor pela equipe** ([regra 3-2-1]({{ site.baseurl }}/docs/backup#production)) |
@@ -187,7 +187,7 @@ Escolher o Releaser é escolher um **dono para a produção**. A tabela abaixo d
 | Estágio | Onde | Como |
 |---|---|---|
 | _development_ | Computador do desenvolvedor (Tier 0) | Docker local, a partir do _boilerplate_ |
-| _alpha_ | Catálogo de _clusters_ (recomendado, pela varredura de CVEs) ou Unidade em Tier 1+ | _Tag_ no GitLab; Releaser se for na Unidade |
+| _alpha_ | Catálogo de _clusters_ (recomendado) ou Unidade em Tier 1+ | _Tag_ no GitLab; Releaser se for na Unidade |
 | _beta_ | Catálogo de _clusters_ (recomendado) ou Unidade em Tier 2+; perto da produção, o _data center_ de destino | _Tag_ no GitLab; Releaser se for na Unidade ou como ensaio da produção |
 | _release_ | VM ou VPS **dedicada** em Tier 3 (Sede, AgroDigital ou Unidade); eventualmente Tier 2 ou Tier 4, conforme os [critérios adicionais](#criteria) | Releaser |
 
