@@ -28,7 +28,7 @@ Os catálogos são baixados a cada 6 horas. Se o CIRCL estiver fora do ar, a pla
 
 ## Índice de confiabilidade e níveis {#index}
 
-Os catálogos não são igualmente confiáveis, e a CISA, por exemplo, costuma demorar a incluir falhas recentes. Por isso a plataforma calcula, para cada CVE, um **índice de confiabilidade** de 0 a 100 %, de forma determinística (sem inteligência artificial). O índice leva em conta:
+Os catálogos não são igualmente confiáveis, e a CISA, por exemplo, costuma demorar a incluir falhas recentes. Por isso a plataforma calcula, para cada CVE, um **índice de confiabilidade** de 0 a 100%, de forma determinística (sem inteligência artificial). O índice leva em conta:
 
 - **A qualidade de cada catálogo**, pela nota que o próprio CIRCL publica a partir de critérios como comprovar, situar, antecipar e manter a informação;
 - **O que o catálogo afirma**, de uma simples varredura em massa até comprometimento confirmado, e quão segura ele diz estar disso;
@@ -38,24 +38,24 @@ O índice vira um **nível de urgência**:
 
 | Índice | Nível | Leitura | Prazo sugerido |
 |---|---|---|---|
-| menos de 25 % | Em observação | Sem e-mail e fora da caixa de exploração ativa; a CVE segue na lista comum de vulnerabilidades da _build_ | — |
-| 25 % a menos de 50 % | **Alta** | Programe a correção. | Até 7 dias |
-| 50 % a menos de 75 % | **Crítica** | Corrija hoje. | Até 24 horas |
-| 75 % ou mais | **Emergencial** | Corrija agora. Tirar o estágio do ar é uma opção legítima até a correção. | Imediato |
+| menos de 25% | Em observação | Sem e-mail e fora da caixa de exploração ativa; a CVE segue na lista comum de vulnerabilidades da _build_ | — |
+| 25% a menos de 50% | **Alta** | Programe a correção. | Até 7 dias |
+| 50% a menos de 75% | **Crítica** | Corrija hoje. | Até 24 horas |
+| 75% ou mais | **Emergencial** | Corrija agora. Tirar o estágio do ar é uma opção legítima até a correção. | Imediato |
 
 ### Exemplo: PHP2Shell {#example}
 
-Em 22/10/2026, a falha PHP2Shell (CVE-2026-109618 e CVE-2026-109619, no PHP) já constava como explorada no catálogo Previdian, que registrava exploração bem-sucedida, mas ainda não estava no da CISA. Apoiada por **uma única fonte**, de nota baixa, o índice foi de cerca de **34 %**: nível **Alta**. O alerta saiu, pedindo para programar a correção.
+Em 22/10/2026, a falha PHP2Shell (CVE-2026-109618 e CVE-2026-109619, no PHP) já constava como explorada no catálogo Previdian, que registrava exploração bem-sucedida, mas ainda não estava no da CISA. Apoiada por **uma única fonte**, de nota baixa, o índice foi de cerca de **34%**: nível **Alta**. O alerta saiu, pedindo para programar a correção.
 
-Quando a CISA incluiu a mesma CVE, passou a haver duas fontes independentes e o índice subiu para cerca de **60 %**: nível **Crítica**. A equipe recebeu na hora um novo alerta, agora dizendo "Corrija hoje".
+Quando a CISA incluiu a mesma CVE, passou a haver duas fontes independentes e o índice subiu para cerca de **60%**: nível **Crítica**. A equipe recebeu na hora um novo alerta, agora dizendo "Corrija hoje".
 
-O alerta mostra sempre o nível, o índice e a leitura das fontes, por exemplo: "**Alta (34 %)**: 1 fonte independente (Previdian) relata exploração bem-sucedida".
+O alerta mostra sempre o nível, o índice e a leitura das fontes, por exemplo: "**Alta (34%)**: 1 fonte independente (Previdian) relata exploração bem-sucedida".
 
 ## Quando o alerta é enviado {#criteria}
 
 Um alerta só é gerado quando todas as condições abaixo são verdadeiras ao mesmo tempo:
 
-1. O nível é **Alta** ou superior (índice de 25 % ou mais);
+1. O nível é **Alta** ou superior (índice de 25% ou mais);
 2. A falha pode ser explorada **pela rede** (`AV:N` no vetor CVSS) e **sem nenhum privilégio** (`PR:N`), isto é, por qualquer pessoa na internet, sem login;
 3. A exploração **não depende de ação de um usuário** (`UI:N`), como abrir uma página ou um arquivo. Por isso falhas de navegador embutido (Chromium do Puppeteer ou do Playwright, por exemplo) não entram;
 4. A falha tem **impacto alto no sigilo ou na integridade** dos dados (`C:H` ou `I:H` no CVSS 3.1; `VC:H` ou `VI:H` no 4.0). Falhas que apenas derrubam o serviço não entram.
