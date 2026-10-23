@@ -16,7 +16,7 @@ Antes de iniciar o projeto de desenvolvimento de um novo **ativo digital agropec
 8. [Defina o nível de maturidade a ser alcançado](#trl);
 9. [Atribua licenças de código aos componentes do ativo](#license);
 10. [Registre o ativo digital no INPI](#inpi);
-11. [Acompanhe a saúde e a segurança do ativo com a Sentinela e o alerta de CVEs críticos](#monitoring); e
+11. [Monitore a saúde e a segurança do ativo](#monitoring); e
 12. [Planeje onde cada estágio do ativo será hospedado](#hosting).
 
 ### 1. Avalie se faz sentido realmente um novo ativo digital {#fragmentation}
@@ -133,9 +133,9 @@ Por fim, será necessário realizar o registro (ou depósito) do código-fonte d
 
 > **Atenção!** Para a entrega dos ativos, considere a redação e publicação de um "**Comunicado Técnico**". Além de contribuir com a divulgação do ativo, este tipo de instrumento garante o reconhecimento dos autores, que podem incluir facilmente o trabalho desenvolvido em seus respectivos currículos (inclusive com [ISSN](https://cbissn.ibict.br/)). Além disso, a publicação facilita a entrega do resultado no Ideare/Integro e pode ser utilizada como um memorial descritivo, no momento do depósito no INPI. Por exemplo, cada macro-versão do aplicativo [Pasto Certo](https://www.pastocerto.com) gerou um registro no INPI independente e uma publicação: [Versão 1.0](https://www.embrapa.br/busca-de-publicacoes/-/publicacao/1087190/pasto-certo---versao-10-aplicativo-para-dispositivos-moveis-sobre-forrageiras-tropicais), [Versão 2.0](https://www.embrapa.br/busca-de-publicacoes/-/publicacao/1113229/pasto-certo---versao-20-aplicativo-para-dispositivos-moveis-e-desktop-sobre-forrageiras-tropicais), [Versão 3.0](https://www.embrapa.br/busca-de-publicacoes/-/publicacao/1133853/pasto-certo---versao-30-aplicativo-para-dispositivos-moveis-e-desktop-sobre-forrageiras-tropicais) e [Versão 4.0](https://www.embrapa.br/busca-de-publicacoes/-/publicacao/1166788/pasto-certo---versao-40-aplicativo-para-dispositivos-moveis-e-desktop-sobre-forrageiras-tropicais).
 
-### 11. Acompanhamento contínuo: Sentinela e CVEs críticos {#monitoring}
+### 11. Monitoramento da saúde e da segurança do ativo {#monitoring}
 
-Um ativo digital não termina no lançamento: dependências envelhecem, vulnerabilidades novas são descobertas todos os dias e erros aparecem com o uso. A plataforma **Embrapa I/O** oferece duas ferramentas complementares para que a equipe acompanhe isso sem precisar vigiar cada painel:
+Um ativo digital não termina no lançamento: dependências envelhecem, vulnerabilidades novas são descobertas todos os dias e erros aparecem com o uso. É a outra face da [sustentação perene do ativo](#partner), discutida na busca por parceiros: sustentar não é só garantir quem pague e quem opere o _software_ ao longo dos anos, mas também acompanhar continuamente se ele continua saudável e seguro. A plataforma **Embrapa I/O** oferece duas ferramentas complementares para que a equipe acompanhe isso sem precisar vigiar cada painel:
 
 - **[Sentinela]({{ site.baseurl }}/docs/sentinel):** relatório diário ou semanal, por projeto, com uma leitura qualitativa do que as ferramentas integradas registraram (Sentry, Matomo, SonarQube, varredura de CVEs, _logs_ e saúde das _builds_). É configurada pelo arquiteto da solução no _card_ do projeto, no [_dashboard_]({{ site.baseurl }}/docs/dashboard). **Recomenda-se ativá-la em todo projeto com _builds_ no ar**, e que a equipe leia o relatório e registre como úteis ou como ruído os achados, o que melhora as próximas rodadas.
 - **[Alerta de CVEs críticos]({{ site.baseurl }}/docs/cve):** e-mail enviado a toda a equipe do projeto quando uma vulnerabilidade **em exploração ativa na internet**, explorável sem login, atinge uma _build_ em qualquer estágio, inclusive _alpha_ e _beta_. Não precisa de configuração e vale também para as _builds_ implantadas pelo [Releaser]({{ site.baseurl }}/docs/releaser). O mesmo conjunto aparece no _dashboard_, na faixa **Precisam de atenção imediata**, e no topo dos relatórios da Sentinela.
@@ -145,6 +145,8 @@ As duas ferramentas têm ritmos e papéis diferentes. A Sentinela é a leitura p
 > **Atenção!** Mantenha a equipe do projeto atualizada no _dashboard_: o alerta vai para todos os membros com conta na plataforma, e quem deixou o projeto continua recebendo enquanto estiver na equipe.
 
 ### 12. Hospedagem das _builds_ {#hosting}
+
+A plataforma **Embrapa I/O** é uma ferramenta de DevOps que tem, entre suas diretrizes, otimizar a força de trabalho em TI da Embrapa. Para isso, aposta no trabalho cooperativo, por meio de uma comunidade ativa de desenvolvedores e arquitetos de soluções. Nesse sentido, é importante que as equipes das Unidades Descentralizadas assumam a sustentação dos seus ativos e da infraestrutura em que eles estão hospedados, seja no _data center_ da própria Unidade, seja em serviços de infraestrutura como serviço (IaaS) de autogestão, como o AgroDigital. A equipe central da plataforma provê as ferramentas, os _pipelines_ e o apoio, mas não opera a produção de cada ativo.
 
 Cada estágio de uma aplicação (_alpha_, _beta_ e _release_) é uma [_build_]({{ site.baseurl }}/docs/introduction#build) independente, que pode rodar em um lugar diferente. A regra geral é usar o [catálogo de _clusters_ compartilhados]({{ site.baseurl }}/resources/clusters) da plataforma para os estágios de teste (_alpha_ e _beta_) e uma **máquina dedicada**, operada pelo [Releaser]({{ site.baseurl }}/docs/releaser), para a produção (_release_).
 
