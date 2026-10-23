@@ -6,7 +6,7 @@ subtitle: Fazendo o deploy da build no ambiente remoto
 
 <iframe width="730" height="410" src="https://www.youtube.com/embed/gY3_lgV4U4U" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
-> **Atenção!** Antes de escolher o _cluster_ de destino, veja o capítulo sobre [publicação de aplicações]({{ site.baseurl }}/docs/delivery): ele orienta onde cada estágio da _build_ deve ser instanciado conforme o nível de serviço da infraestrutura.
+> **Atenção!** Antes de escolher o _cluster_ de destino, veja o capítulo sobre [hospedagem de aplicações]({{ site.baseurl }}/docs/delivery): ele orienta onde cada estágio da _build_ deve ser instanciado conforme o nível de serviço da infraestrutura.
 
 Uma vez que a configuração da _build_ tenha sido validada com sucesso, ela está apta a entrar na fila de _deploy_ para ser instanciada no servidor remoto. Para o _deploy_ não é necessário utilizar a [_dashboard_ da plataforma](https://dashboard.embrapa.io), sendo o processo executado diretamente pelo [GitLab](https://git.embrapa.io) ou pelo cliente GIT de sua preferência. Conforme já visto, quando uma nova aplicação é adicionada na plataforma são criadas 4 (quatro) _branches_ em seu repositório GIT: _main_, _alpha_, _beta_ e _release_. Como detalhado no [capítulo de introdução]({{ site.baseurl }}/docs/introduction#build), a _branch_ denominada "_main_" é o tronco (_trunk_) do repositório. As outras três _branches_ são utilizadas pela o _deploy_ de cada um dos estágios de maturidade da aplicação.
 

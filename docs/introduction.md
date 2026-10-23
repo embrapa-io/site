@@ -114,4 +114,4 @@ Da mesma forma, é necessário gerenciar os servidores do tipo _storage_ onde se
 
 É possível [configurar e disponibilizar novos _clusters_ e _storages_]({{ site.baseurl }}/docs/cluster) para comporem a plataforma **Embrapa I/O**, ampliando assim sua capacidade de entrega de soluções.
 
-A escolha de **onde** instanciar cada estágio de uma _build_ (catálogo de _clusters_ compartilhados ou máquina dedicada operada pelo Releaser) segue os critérios do capítulo sobre [publicação de aplicações]({{ site.baseurl }}/docs/delivery).
+A escolha de **onde** instanciar cada estágio de uma _build_ (catálogo de _clusters_ compartilhados ou máquina dedicada operada pelo Releaser) segue os critérios do capítulo sobre [hospedagem de aplicações]({{ site.baseurl }}/docs/delivery).

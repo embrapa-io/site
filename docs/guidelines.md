@@ -14,8 +14,10 @@ Antes de iniciar o projeto de desenvolvimento de um novo **ativo digital agropec
 6. [Não se esqueça da documentação técnica](#docs);
 7. [Evite _marketplaces_ de terceiros](#marketplaces);
 8. [Defina o nível de maturidade a ser alcançado](#trl);
-9. [Atribua licenças de código aos componentes do ativo](#license); e
-10. [Registre o ativo digital no INPI](#inpi).
+9. [Atribua licenças de código aos componentes do ativo](#license);
+10. [Registre o ativo digital no INPI](#inpi);
+11. [Acompanhe a saúde e a segurança do ativo com a Sentinela e o alerta de CVEs críticos](#monitoring); e
+12. [Planeje onde cada estágio do ativo será hospedado](#hosting).
 
 ### 1. Avalie se faz sentido realmente um novo ativo digital {#fragmentation}
 
@@ -107,7 +109,7 @@ Consequentemente, o efeito prático é um ônus ainda maior para sustentação d
 
 Ao contrário de outros tipos de tecnologias, é possível o lançamento de ativos digitais em **TRL 7**, ou seja, em versão "**Beta**". Consequentemente, também é possível divulgar softwares em TRL 7 no [catálogo de tecnologias do portal da Embrapa](https://www.embrapa.br/tecnologias).
 
-Atingido o TRL 7, a aplicação pode ir a produção. Onde e como instanciar cada estágio, conforme o nível de serviço da infraestrutura disponível na Unidade, na Sede ou em nuvem, é assunto do capítulo sobre [publicação de aplicações]({{ site.baseurl }}/docs/delivery).
+Atingido o TRL 7, a aplicação pode ir a produção. Onde e como instanciar cada estágio, conforme o nível de serviço da infraestrutura disponível na Unidade, na Sede ou em nuvem, é assunto do capítulo sobre [hospedagem de aplicações]({{ site.baseurl }}/docs/delivery).
 
 Conforme [comentado anteriormente](#partner), o atingimento de níveis mais altos de maturidade tecnológica (TRL 8 e 9) dependem da formalização de parcerias que garantam a sustentação do software e potencializem a sua adoção, preservando a imagem da marca Embrapa. Leia as [orientações específicas sobre a Escala TRL e distribuição de MVPs]({{ site.baseurl }}/docs/mvp) para maiores detalhes.
 
@@ -130,3 +132,23 @@ A equipe de desenvolvimento, em acordo com a área de negócios e a chefia, deve
 Por fim, será necessário realizar o registro (ou depósito) do código-fonte dos componentes de software que compõem o ativo digital agropecuário. Para maiores detalhes, leia o [artigo sobre registro de software junto ao INPI]({{ site.baseurl }}/docs/register).
 
 > **Atenção!** Para a entrega dos ativos, considere a redação e publicação de um "**Comunicado Técnico**". Além de contribuir com a divulgação do ativo, este tipo de instrumento garante o reconhecimento dos autores, que podem incluir facilmente o trabalho desenvolvido em seus respectivos currículos (inclusive com [ISSN](https://cbissn.ibict.br/)). Além disso, a publicação facilita a entrega do resultado no Ideare/Integro e pode ser utilizada como um memorial descritivo, no momento do depósito no INPI. Por exemplo, cada macro-versão do aplicativo [Pasto Certo](https://www.pastocerto.com) gerou um registro no INPI independente e uma publicação: [Versão 1.0](https://www.embrapa.br/busca-de-publicacoes/-/publicacao/1087190/pasto-certo---versao-10-aplicativo-para-dispositivos-moveis-sobre-forrageiras-tropicais), [Versão 2.0](https://www.embrapa.br/busca-de-publicacoes/-/publicacao/1113229/pasto-certo---versao-20-aplicativo-para-dispositivos-moveis-e-desktop-sobre-forrageiras-tropicais), [Versão 3.0](https://www.embrapa.br/busca-de-publicacoes/-/publicacao/1133853/pasto-certo---versao-30-aplicativo-para-dispositivos-moveis-e-desktop-sobre-forrageiras-tropicais) e [Versão 4.0](https://www.embrapa.br/busca-de-publicacoes/-/publicacao/1166788/pasto-certo---versao-40-aplicativo-para-dispositivos-moveis-e-desktop-sobre-forrageiras-tropicais).
+
+### 11. Acompanhamento contínuo: Sentinela e CVEs críticos {#monitoring}
+
+Um ativo digital não termina no lançamento: dependências envelhecem, vulnerabilidades novas são descobertas todos os dias e erros aparecem com o uso. A plataforma **Embrapa I/O** oferece duas ferramentas complementares para que a equipe acompanhe isso sem precisar vigiar cada painel:
+
+- **[Sentinela]({{ site.baseurl }}/docs/sentinel):** relatório diário ou semanal, por projeto, com uma leitura qualitativa do que as ferramentas integradas registraram (Sentry, Matomo, SonarQube, varredura de CVEs, _logs_ e saúde das _builds_). É configurada pelo arquiteto da solução no _card_ do projeto, no [_dashboard_]({{ site.baseurl }}/docs/dashboard). **Recomenda-se ativá-la em todo projeto com _builds_ no ar**, e que a equipe leia o relatório e registre como úteis ou como ruído os achados, o que melhora as próximas rodadas.
+- **[Alerta de CVEs críticos]({{ site.baseurl }}/docs/cve):** e-mail enviado a toda a equipe do projeto quando uma vulnerabilidade **em exploração ativa na internet**, explorável sem login, atinge uma _build_ em qualquer estágio, inclusive _alpha_ e _beta_. Não precisa de configuração e vale também para as _builds_ implantadas pelo [Releaser]({{ site.baseurl }}/docs/releaser). O mesmo conjunto aparece no _dashboard_, na faixa **Precisam de atenção imediata**, e no topo dos relatórios da Sentinela.
+
+As duas ferramentas têm ritmos e papéis diferentes. A Sentinela é a leitura periódica, que ajuda a planejar a sustentação; o alerta de CVEs críticos é a exceção, que pede ação no prazo indicado pelo nível (de 7 dias a imediato). Por isso, **um alerta de CVE crítico nunca deve ser tratado como mais um item da fila**: na maior parte dos casos, a correção é atualizar as imagens da _build_ (o _restart_ com a opção "Atualizar imagens", no _dashboard_, ou `io restart <build> --upgrade`, no Releaser) e confirmar, na varredura seguinte, que a vulnerabilidade sumiu. Quando não houver correção publicada, avalie restringir o acesso ou tirar o estágio do ar até haver.
+
+> **Atenção!** Mantenha a equipe do projeto atualizada no _dashboard_: o alerta vai para todos os membros com conta na plataforma, e quem deixou o projeto continua recebendo enquanto estiver na equipe.
+
+### 12. Hospedagem das _builds_ {#hosting}
+
+Cada estágio de uma aplicação (_alpha_, _beta_ e _release_) é uma [_build_]({{ site.baseurl }}/docs/introduction#build) independente, que pode rodar em um lugar diferente. A regra geral é usar o [catálogo de _clusters_ compartilhados]({{ site.baseurl }}/resources/clusters) da plataforma para os estágios de teste (_alpha_ e _beta_) e uma **máquina dedicada**, operada pelo [Releaser]({{ site.baseurl }}/docs/releaser), para a produção (_release_).
+
+Essa decisão deve ser tomada **cedo**, e não às vésperas do lançamento, porque envolve outras pessoas e prazos: a solicitação de uma VM na Sede, no AgroDigital ou no _data center_ da Unidade, a definição de quem opera a máquina (sistema operacional, _backup_ fora do servidor, resposta a incidentes), o subdomínio, os certificados e o _virtual proxy_. Uma _release_ sem um responsável nomeado pela máquina é o cenário que mais gera incidentes na plataforma.
+
+O capítulo sobre [hospedagem de aplicações]({{ site.baseurl }}/docs/delivery) detalha os _Tiers_ de infraestrutura, os critérios que podem mudar a regra geral (sensibilidade dos dados, requisito de disponibilidade, público, carga e capacidade de operação), as responsabilidades de cada caminho e como manter as imagens de produção atualizadas.
+

@@ -1,10 +1,10 @@
 ---
 layout: page
-title: Publicação de Aplicações
-subtitle: Onde e como entregar as builds em cada estágio de maturidade
+title: Hospedagem de Aplicações
+subtitle: Onde e como hospedar as builds em cada estágio de maturidade
 ---
 
-Uma dúvida recorrente das equipes e dos Núcleos de Tecnologia da Informação (NTIs) das Unidades é **onde** cada versão de uma aplicação deve rodar e **por qual mecanismo** ela deve ser publicada. A resposta depende de duas variáveis: o **estágio de maturidade** da _build_ e o **_Tier_** da infraestrutura disponível.
+Uma dúvida recorrente das equipes e dos Núcleos de Tecnologia da Informação (NTIs) das Unidades é **onde** cada versão de uma aplicação deve rodar e **por qual mecanismo** ela deve ser instanciada. A resposta depende de duas variáveis: o **estágio de maturidade** da _build_ e o **_Tier_** da infraestrutura disponível.
 
 Chamamos de **_Tier_** (do inglês, patamar ou camada) o nível de robustez e de suporte de uma infraestrutura, numerado de 0 a 4: do computador do desenvolvedor, sem qualquer salvaguarda, até a nuvem contratada com suporte 24x7. É uma classificação **da infraestrutura**, inspirada nos _tiers_ de _data center_ usados pelo mercado, e não um acordo de nível de serviço (SLA) com métricas e penalidades contratuais. Os cinco _Tiers_ estão [definidos adiante](#tiers).
 
@@ -14,13 +14,13 @@ Em uma frase: **use o catálogo de _clusters_ compartilhados da plataforma para 
 
 A plataforma **Embrapa I/O** atende a dois universos distintos de _software_. De um lado estão os **sistemas gerenciais**: sistemas de informação, utilitários e ferramentas de apoio institucional e de automação de processos da Sede e das Unidades, como o Ideare, o Integro, o ERP/SAP, o SEI, o SIExp, o Redape, o Alelo e o GeoInfo. De outro estão os **ativos digitais agropecuários**: aplicativos móveis, aplicações _web_, _software_ embarcado, ferramentas de _desktop_, APIs e modelos de linguagem voltados à agricultura, à pecuária, às florestas, à aquicultura e à indústria de processamento, organizados em produtos e plataformas institucionais e em [ecossistemas temáticos digitais]({{ site.baseurl }}/docs/macroprocess).
 
-Os dois universos compartilham os mesmos desenvolvedores e a mesma plataforma, e é por isso que a orientação sobre publicação vale para ambos. O que muda é o **destino final** da instância de produção: sistemas gerenciais de uso global tendem para o _data center_ da Sede, e ativos digitais agropecuários para o ambiente AgroDigital, na Embrapa Agricultura Digital, ou para a infraestrutura da própria Unidade.
+Os dois universos compartilham os mesmos desenvolvedores e a mesma plataforma, e é por isso que a orientação sobre hospedagem vale para ambos. O que muda é o **destino final** da instância de produção: sistemas gerenciais de uso global tendem para o _data center_ da Sede, e ativos digitais agropecuários para o ambiente AgroDigital, na Embrapa Agricultura Digital, ou para a infraestrutura da própria Unidade.
 
 ## Estágios, builds e o que é instanciado {#stages}
 
 O processo de desenvolvimento da plataforma possui quatro [estágios]({{ site.baseurl }}/docs/introduction#stage): **_development_** (desenvolvimento, no computador do desenvolvedor), **_alpha_** (testes internos, em ambientes de baixa robustez), **_beta_** (testes externos ou homologação, em ambientes de pelo menos média robustez) e **_release_** (produção, em ambientes de alta robustez, com resiliência, monitoramento e salvaguardas).
 
-A unidade de publicação é a [**_build_**]({{ site.baseurl }}/docs/introduction#build), a combinação de uma aplicação com um estágio (`siexp/coletor@alpha`, `siexp/coletor@beta`, `siexp/coletor@release`), que recebe [versões]({{ site.baseurl }}/docs/introduction#version) sucessivas. Cada _build_ é uma instância **totalmente independente das demais**, com seus próprios dados, instanciada como uma pilha (_stack_) de _containers_ com volumes e rede isolados, em um servidor ou VM que pode ser diferente para cada estágio. É esse isolamento que permite escolher o destino de cada _build_ separadamente: a _alpha_ pode viver em um _cluster_ compartilhado enquanto a _release_ roda em uma máquina dedicada.
+A unidade de hospedagem é a [**_build_**]({{ site.baseurl }}/docs/introduction#build), a combinação de uma aplicação com um estágio (`siexp/coletor@alpha`, `siexp/coletor@beta`, `siexp/coletor@release`), que recebe [versões]({{ site.baseurl }}/docs/introduction#version) sucessivas. Cada _build_ é uma instância **totalmente independente das demais**, com seus próprios dados, instanciada como uma pilha (_stack_) de _containers_ com volumes e rede isolados, em um servidor ou VM que pode ser diferente para cada estágio. É esse isolamento que permite escolher o destino de cada _build_ separadamente: a _alpha_ pode viver em um _cluster_ compartilhado enquanto a _release_ roda em uma máquina dedicada.
 
 ## Métodos de deploy {#methods}
 
