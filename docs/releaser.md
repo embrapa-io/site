@@ -205,7 +205,7 @@ Além disso, será gerado um par de chaves SSH, caso não exista. Estas chaves s
 
 ![SSH Key no GitLab]({{ site.baseurl }}/assets/img/releaser/20230717164051.png)
 
-Por fim, você deverá configurar as [_builds_ das aplicações]({{ site.baseurl }}/docs/introduction#build) que serão gerenciadas pela ferramenta **Releaser**. Cada _build_ é **um arquivo JSON** no diretório `builds/` do volume compartilhado com o _container_, com o nome `<projeto>_<app>_<estágio>.json`. O assistente da primeira execução cria um esqueleto para cada _build_ informada, e o comando [`io install`](#install) monta o arquivo completo de forma guiada. Por exemplo, o arquivo `builds/pasto-certo_pwa_release.json`:
+Por fim, você deverá configurar as [_builds_ das aplicações]({{ site.baseurl }}/docs/introduction#build) que serão gerenciadas pela ferramenta **Releaser**. Cada _build_ é **um arquivo JSON** no diretório `builds/` do volume compartilhado com o _container_, com o nome `<projeto>_<app>_<estágio>.json`. A partir da versão 1.26.10-12, o assistente da primeira execução não pede mais as _builds_: ao terminar, ele indica o comando [`io install`](#install), que monta o arquivo completo de forma guiada, buscando na plataforma a equipe, o DSN do **Sentry**, o ID do **Matomo** e as variáveis. Qualquer comando executado logo depois de subir o _container_ (por exemplo, `io install` ou `io cli`) passa antes pelo assistente, se ele ainda não tiver sido feito, e segue em seguida. Por exemplo, o arquivo `builds/pasto-certo_pwa_release.json`:
 
 ```json
 {
