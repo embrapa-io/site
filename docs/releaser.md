@@ -153,6 +153,7 @@ SMTP_FROM=no-reply@embrapa.br
 SMTP_USER=cixin.liu@embrapa.br
 SMTP_PASS=secret
 LOG_MAIL=cnpgc.suporte@embrapa.br
+BACKUP_DIR=/root/backup
 ```
 
 Além destas, o `.env` aceita variáveis opcionais, que não são perguntadas pelo assistente. Por exemplo, a partir da versão `1.26.10-12`, a rotação dos _backups_ no volume (`RETENTION`, veja [Rotação de _backups_](#cleaner)) e a [cópia em nuvem](#cloud) para um _bucket_ S3 (`S3_*`):
@@ -175,6 +176,8 @@ S3_RETENTION=30/8/12/3
 ```
 
 Tenha em mente que valor de `SERVER` será injetado no momento do _deploy_ das _builds_ como a variável de ambiente `IO_SERVER`.
+
+A variável `BACKUP_DIR` (a partir da versão `1.26.10-13`) é a pasta do servidor onde ficam os _backups_ de **todas** as _builds_ (padrão `/root/backup`). O assistente pergunta por ela, e é fácil listar, copiar e restaurar os arquivos dali: os de cada _build_ começam com `projeto_app_estágio_`. Mantenha-a **fora** do diretório do Releaser e, se o servidor tiver um, num disco de dados. Para uma instalação existente, a pasta pode ser alterada em `io cloud --setup` (ou editando o `.env`). O [`io install`](#install) usa esse valor para orientar a criação do volume de _backup_ de cada _build_.
 
 O `GITLAB_TOKEN` deve ser obtido por meio da interface do [GitLab do Embrapa I/O](https://git.embrapa.io). Para isso, acesse seu _profile_ e vá na opção [Personal Access Tokens](https://git.embrapa.io/-/profile/personal_access_tokens). Gere um novo _token_ selecionando o _scope_ `read_api`.
 
@@ -308,6 +311,8 @@ Os comandos disponíveis são:
 - ***install***: [Configuração guiada](#install) de uma _build_ nova: escolhe projeto, _app_ e estágio por menus, busca na plataforma a equipe, o DSN do Sentry, o site e o _token_ do Matomo e as variáveis do `.embrapa/settings.json`, gera os valores por tipo e grava o arquivo em `builds/`. Aceita a _build_ como parâmetro (`proj/app@stage`) e `--yes` (sem perguntas, com os valores padrão);
 - ***split***: Migra o `builds.json` antigo para um arquivo por _build_ em `builds/`, guardando o original como `builds.json.bkp`;
 - ***info***: Exibe, por _build_, o arquivo de configuração, o resultado do último relato de cada sinal à plataforma (versão, saúde e CVEs), a versão instanciada e outros comandos úteis do orquestrador; lista também as _builds_ desativadas. A partir da versão `1.26.10-12`, mostra ainda o resultado da última [cópia em nuvem](#cloud) de cada _build_: `ok` (com data e hora, arquivos e _bytes_ enviados e apagados e o tamanho no _bucket_), `FAILED` (com o motivo e a data do último sucesso), `never run`, `disabled (auto.cloud = false)` ou `bucket not configured`. Por exemplo: `Cloud copy (S3): ok at 2026-10-23T03:10:42-03:00 (1 uploaded, 143,2 MB; 1 deleted; 15 file(s), 2,1 GB in the bucket)`;
+- ***cli*** (a partir da versão `1.26.10-12`): Instala (ou atualiza) o comando `io` no servidor, em `/usr/local/bin/io`. Aceita `--print` (só imprime o _script_), `--uninstall` (remove) e `--yes` (não pergunta). Veja [O comando `io` no servidor](#cli);
+- ***upgrade*** (a partir da versão `1.26.10-14`): Atualiza o próprio Releaser para a versão mais nova publicada (ou `--to VERSÃO`), com volta automática à versão anterior se a nova falhar. Aceita `--dry-run` (só mostra) e `--yes` (não pergunta). Veja [Atualização](#update);
 - ***mail***: Testa as configurações de SMTP por meio do envio de um e-mail de teste, detalhando cada tentativa (servidor, porta e motivo da falha). Deve-se informar como parâmetro uma lista de endereços separada por vírgula que receberão a mensagem (por exemplo, `jose.silva@embrapa.br,maria.santos@embrapa.br`). Se o envio funcionar, os e-mails que estavam na fila também são enviados; e
 - ***check*** (a partir da versão `1.26.10-8`): Testa o acesso ao GitLab pelos dois caminhos de que o _deploy_ depende: a API, com o `GITLAB_TOKEN` (alcance, tempo de resposta, validade, escopos e se o _token_ venceu ou foi revogado), e o clone, pela chave SSH ou pela URL de `GITLAB_SSH` (veja [clone por HTTPS](#https)). Ao final, uma linha de resumo que começa com `Success!` (em verde), `Warning!` (em amarelo) ou `Error!` (em vermelho), seguida do resultado da API, do _token_ e do clone. A mesma linha aparece no fim do menu, quando se executa `io` sem comando. O _daemon_ executa o teste **uma vez por dia** e envia e-mail ao `LOG_MAIL` quando o _token_ venceu, foi revogado, não tem o _scope_ `read_api`, vence em 14 dias ou em 7 dias ou menos (neste caso, diariamente), ou quando o clone é recusado. Uma indisponibilidade momentânea do GitLab não gera e-mail. A partir da versão `1.26.10-12`, quando alguma variável `S3_*` está no `.env`, o teste inclui também a listagem do _bucket_ da [cópia em nuvem](#cloud) (com _timeout_ de 5 segundos) e a resume na mesma linha. O _daemon_ envia e-mail ao `LOG_MAIL` quando o acesso ao _bucket_ falha (no máximo um por dia). Configuração incompleta, _bucket_ inexistente, chave recusada ou provedor inacessível aparecem como `ERROR`. O teste do _bucket_ não entra na linha de resumo do menu do `io` (sem comando), que continua testando só o GitLab. Por exemplo:
 
@@ -345,7 +350,45 @@ docker exec -it releaser io install
 3. Gera os valores por tipo de variável: `PASSWORD` e `SECRET` aleatórios (ou digitados, se você preferir), `PORT` com a **próxima porta livre** a partir da base informada (conferindo as portas em uso no servidor e as já reservadas em outros arquivos de `builds/`), `VOLUME` com o sufixo padrão e `TEXT` com o valor padrão do _boilerplate_, sempre com a chance de alterar.
 4. Grava `builds/<projeto>_<app>_<estágio>.json` com `auto` e `stats` nos valores padrão e mostra o comando do primeiro _deploy_.
 
-Com `--yes` não há perguntas: valem os padrões (senhas aleatórias, próxima porta a partir de `49152`, valores do _boilerplate_). Os **volumes externos** citados pela aplicação ainda precisam ser criados por você antes do primeiro _deploy_ (`docker volume create <projeto>_<app>_<estágio>_<nome>`); o comando lista os nomes ao final. O `io install` não altera _builds_ já configuradas: edite o arquivo diretamente ou remova-o antes.
+Com `--yes` não há perguntas: valem os padrões (senhas aleatórias, próxima porta a partir de `49152`, valores do _boilerplate_). Os **volumes externos** citados pela aplicação ainda precisam ser criados por você antes do primeiro _deploy_ (`docker volume create <projeto>_<app>_<estágio>_<nome>`); o comando mostra **só os que ainda não existem** no servidor. Para o volume de _backup_ (`<projeto>_<app>_<estágio>_backup`, padrão dos _boilerplates_), a partir da versão `1.26.10-13` ele orienta a criá-lo ligado à pasta `BACKUP_DIR` (veja a [configuração inicial](#setup)):
+
+```bash
+mkdir -p /root/backup
+docker volume create --driver local --opt type=none --opt o=bind \
+  --opt device=/root/backup projeto_app_estagio_backup
+```
+
+A pasta é **compartilhada por todas as _builds_** do servidor: o `cleaner` e o `cloud` só tocam nos arquivos com o prefixo de cada _build_. Se a aplicação não tem o serviço `backup`, o volume não é necessário. O `io install` não altera _builds_ já configuradas: edite o arquivo diretamente ou remova-o antes.
+
+## O comando `io` no servidor {#cli}
+
+Todo uso do Releaser passa pelo `io` dentro do _container_: `docker exec -it releaser io backup --all`. A partir da versão `1.26.10-12`, o próprio Releaser instala no servidor um comando `io` que faz esse `docker exec` por você:
+
+```bash
+docker exec -it releaser io cli
+```
+
+Ele mostra o destino (`/usr/local/bin/io`), pede confirmação (`--yes` pula) e grava o _script_. A partir daí, direto no terminal do servidor, no `cron` ou em _scripts_:
+
+```bash
+io                       # o menu
+io backup --all && io cloud --all
+io cloud meu-projeto/api@release --list
+```
+
+- O comando é um _script_ `sh` pequeno que roda `docker exec [-it | -i] releaser io "$@"`: usa `-it` só quando a entrada e a saída são um terminal (senão `-i`, para funcionar em `cron`, _pipes_ e `&&`), repassa os argumentos sem reinterpretá-los e devolve o código de saída do `io` do _container_.
+- Procura o _container_ pelo nome `releaser` (ou pelo que estiver em `RELEASER_CONTAINER`). Se não houver, procura pelo rótulo do serviço do Swarm ou pela imagem `embrapa/releaser`, e falha com mensagem clara se achar nenhum ou mais de um. Também falha com mensagem clara se o Docker não responder ou se o usuário não tiver permissão (fora do grupo `docker`): use `sudo io ...` ou acrescente o usuário ao grupo.
+- Um `/usr/local/bin/io` que **não** tenha sido gerado pelo Releaser nunca é sobrescrito nem removido. `io cli --uninstall` remove o comando, só se for do Releaser.
+- **Atualização automática:** quando a imagem do Releaser é atualizada, a primeira chamada pelo `io` do servidor regrava o _script_ sem perguntar e avisa numa linha. Chamadas diretas (`docker exec releaser io ...`), o `cron` interno e o _daemon_ não tentam atualizar nada.
+- Se a gravação falhar (Docker instalado via _snap_, com AppArmor; Docker _rootless_; `/usr/local/bin` somente leitura), o Releaser não insiste: imprime a alternativa manual, que também serve para instalar o comando pela primeira vez:
+
+```bash
+docker exec releaser io cli --print | sudo tee /usr/local/bin/io > /dev/null && sudo chmod +x /usr/local/bin/io
+```
+
+Nada no diretório `/data` do Releaser muda com o `io cli`.
+
+> **Atenção!** Hoje os comandos do Releaser terminam com código 0 mesmo quando uma _build_ falha (`ERROR >`) ou a execução é interrompida (`CRITICAL >`). Por isso, `io backup --all && io cloud --all` segue para o `cloud` mesmo depois de uma falha no `backup`. Essa mudança está proposta para uma versão futura, porque altera o comportamento de todos os comandos.
 
 ## O que o Releaser reporta à plataforma {#report}
 
@@ -379,7 +422,56 @@ Toda instância do **Releaser** reporta ao Sentry da plataforma (sentry.io, proj
 
 ## Atualização {#update}
 
-Para atualizar a ferramenta **Releaser** para a última versão, acesse o diretório de configuração (`~/releaser`, no exemplo acima) e execute os comandos abaixo. Nada mais é necessário: as _builds_ configuradas, o `.env` e as chaves ficam no diretório e continuam valendo, e os recursos novos (como o [relato à plataforma](#report)) entram em funcionamento sozinhos.
+A partir da versão **1.26.10-14**, o próprio Releaser avisa quando há versão nova e se atualiza com um comando:
+
+```bash
+docker exec -it releaser io upgrade
+```
+
+Ou só `io upgrade`, com o comando `io` instalado no servidor ([`io cli`](#cli)). É o mesmo sentido do `--upgrade` do `io restart`: puxar uma imagem mais nova. Lá, das _builds_; aqui, do próprio Releaser. Nada mais é necessário: as _builds_ configuradas, o `.env` e as chaves ficam no diretório e continuam valendo, e os recursos novos (como o [relato à plataforma](#report)) entram em funcionamento sozinhos.
+
+O que acontece:
+
+1. O Releaser consulta as versões publicadas de `embrapa/releaser` no Docker Hub, mostra de qual para qual versão vai e pede confirmação (`--yes` pula).
+2. **Não atualiza no meio de uma operação**: se um _deploy_, _backup_, cópia em nuvem ou outro comando estiver rodando, recusa e diz qual. Tente de novo quando terminar.
+3. Baixa a imagem nova pela **_tag_ exata** (`docker pull embrapa/releaser:1.26.10-14`), nunca pela `latest`.
+4. Um _container_ auxiliar, da imagem nova, faz a troca: guarda a configuração do _container_ atual (`docker inspect`, em `/data/.update/previous.json`), para o atual, cria o novo com **a mesma configuração** (nome, diretório `/data`, _socket_ do Docker, variáveis definidas no `docker run`, política de _restart_, rede e rótulos), espera ele ficar de pé, configura a chave SSH do GitLab e roda um `io check` silencioso.
+5. **Volta atrás sozinho**: se o _container_ novo não subir, ficar reiniciando ou o `io check` não rodar até o fim, o auxiliar remove o novo e religa o anterior, com a configuração de antes. GitLab ou _bucket_ fora do ar no momento **não** contam como falha da atualização.
+6. O _container_ anterior só é removido depois que o novo passou em tudo. A imagem anterior continua no servidor (`docker image prune` a remove quando quiser).
+
+A sessão do `docker exec` termina quando o _container_ antigo para, o que é esperado: a troca continua no auxiliar. Depois de alguns segundos, rode de novo:
+
+```bash
+docker exec -it releaser io info
+```
+
+O resultado aparece no início (`Last upgrade: 1.26.10-13 -> 1.26.10-14: ok at ...`) e, uma vez, na próxima abertura do menu. Se a atualização voltou atrás, o Releaser também manda um e-mail ao `LOG_MAIL` com o registro completo, que fica em `/data/.update/upgrade.log`.
+
+Opções:
+
+| Opção | O que faz |
+|---|---|
+| `--to VERSÃO` | Atualiza para uma versão específica (ex.: `--to 1.26.10-14`), inclusive para voltar a uma anterior |
+| `--dry-run` | Só mostra o que seria feito e a configuração que o _container_ novo vai manter; não baixa, não para, não cria nada |
+| `--yes` | Não pede confirmação |
+
+Durante a troca (no máximo alguns minutos), os _jobs_ automáticos do Releaser não começam: o _deploy_ seguinte roda normalmente no _container_ novo.
+
+### Aviso de versão nova
+
+- **Menu** (`io` sem comando): uma linha em amarelo, `Update available: 1.26.10-14 (current 1.26.10-13): run 'io upgrade'`, e o comando `upgrade` destacado.
+- **`io check`**: a versão aparece na linha de resumo (`Releaser update available: ...`).
+- **E-mail**: o _check_ diário do _daemon_ avisa o `LOG_MAIL` **uma vez por versão nova**, nunca todo dia.
+
+A consulta ao Docker Hub é guardada por 24 horas e tem tempo limite de 3 segundos: o menu não fica lento nem depende da rede, e falha de rede não gera erro.
+
+### Docker Swarm {#update-swarm}
+
+No Swarm, o `io upgrade` faz `docker service update --image embrapa/releaser:<versão> --update-failure-action rollback` no serviço do Releaser: a especificação do serviço (montagens, _constraint_, variáveis) fica como está, só a imagem muda, e o próprio Swarm volta à versão anterior se a tarefa nova não subir. Depois, o `io check` roda na tarefa nova e, se falhar, o Releaser pede o _rollback_ do serviço. O comando precisa rodar num nó _manager_; num _worker_, o Releaser recusa e mostra o comando para rodar no _manager_.
+
+### Atualização manual {#update-manual}
+
+Use o procedimento manual quando o `io upgrade` não for possível: _container_ do Releaser parado ou com problema (não há onde rodar o `docker exec`), Releaser sem o _socket_ do Docker montado, _container_ criado por Docker Compose ou versões anteriores à **1.26.10-14**, que não têm o comando. Acesse o diretório de configuração (`~/releaser`, no exemplo acima, o que está montado em `/data`) e execute os comandos abaixo. Repita no `docker run` as demais opções usadas na instalação (outras variáveis `-e`, rede, rótulos).
 
 Execute...
 
@@ -418,6 +510,21 @@ docker service create --name releaser \
 
 docker exec -it $(docker ps -q -f name=releaser) io
 ```
+
+> **Atenção!** Servidores que usam o `~/releaser-update.sh`: faça uma última atualização com o _script_ (ou com os comandos acima) até a versão **1.26.10-14** ou mais nova. Daí em diante, use `io upgrade`: o _script_ deixa de ser necessário e pode ficar guardado como alternativa manual. O `io upgrade` funciona mesmo que o _container_ tenha sido criado com a imagem `embrapa/releaser` sem _tag_ (a `latest`); a partir dele, o _container_ passa a usar a _tag_ exata da versão.
+
+### Se a troca for interrompida
+
+O auxiliar não depende do terminal de quem chamou. Se ele mesmo for interrompido no meio (servidor reiniciado, Docker parado), o _container_ anterior **não é apagado**: fica parado com o nome `releaser-previous`, e a configuração dele está em `/data/.update/previous.json`. Para voltar:
+
+```bash
+docker rm -f releaser                      # o novo, se existir
+docker rename releaser-previous releaser
+docker update --restart unless-stopped releaser
+docker start releaser
+```
+
+Com o comando `io` instalado no servidor ([`io cli`](#cli)), nada muda: a primeira chamada depois da atualização regrava o _script_ para a versão nova e avisa numa linha.
 
 ## Solução de Problemas
 
@@ -500,6 +607,8 @@ A seguir são listadas algumas dicas complementares para uso da ferramenta **Rel
 Por padrão, os _boilerplates_ de aplicações da plataforma **Embrapa I/O** [implementam um serviço de _backup_]({{ site.baseurl }}/docs/boilerplate#cli:backup). Caso a aplicação instanciada pelo **Releaser** tenha este serviço na _stack_ de _containers_, pode-se habilitá-lo para ser executado diariamente (veja acima).
 
 A dica é utilizar um único volume de _backup_ para todas as aplicações instanciadas no servidor. Com isso ficará mais fácil implementar um _script_ que copie todos os novos arquivos gerados para, p.e., um _storage_ remoto. A partir da versão `1.26.10-12`, o próprio **Releaser** faz isso para qualquer _bucket_ compatível com o S3 (veja [Cópia em nuvem (S3)](#cloud)).
+
+A partir da versão `1.26.10-13`, essa pasta é a `BACKUP_DIR` do `.env` (padrão `/root/backup`, alterável em `io cloud --setup`), e o [`io install`](#install) mostra o comando que cria o volume `_backup` de cada _build_ ligado a ela. Veja a [configuração inicial](#setup).
 
 No exemplo abaixo criamos um volume denominado `backup` que será utilizado por todas as _builds_ instanciadas:
 
