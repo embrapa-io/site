@@ -461,6 +461,7 @@ Durante a troca (no máximo alguns minutos), os _jobs_ automáticos do Releaser 
 
 - **Menu** (`io` sem comando): uma linha em amarelo, `Update available: 1.26.10-14 (current 1.26.10-13): run 'io upgrade'`, e o comando `upgrade` destacado.
 - **`io check`**: a versão aparece na linha de resumo (`Releaser update available: ...`).
+- **`io info`**: um bloco `=== Releaser ===` no início, com a versão em uso, a mais nova publicada e o resultado da última atualização.
 - **E-mail**: o _check_ diário do _daemon_ avisa o `LOG_MAIL` **uma vez por versão nova**, nunca todo dia.
 
 A consulta ao Docker Hub é guardada por 24 horas e tem tempo limite de 3 segundos: o menu não fica lento nem depende da rede, e falha de rede não gera erro.
