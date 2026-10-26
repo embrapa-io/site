@@ -46,7 +46,7 @@ O servidor expõe **48 _tools_** e **9 _prompts_ guiados** organizados nos segui
 
 **Monitoramento Consolidado** — Visão agregada por aplicação combinando Matomo, Sentry e SonarQube em uma única consulta. Saúde de _builds_ específicas (`project/app@stage`) em _clusters_ compartilhados: _status_ do _deploy_, _uptime_, histórico de versões deployadas e vulnerabilidades de segurança (CVEs) detectadas pelo Trivy nos _containers_ — complementar à análise estática do SonarQube, cobrindo dependências de _runtime_, imagens base e bibliotecas do SO. Lista também as _builds_ com [alerta de CVE crítica]({{ site.baseurl }}/docs/cve) ativo, com o repositório e a versão implantada, para que o agente leia o código e oriente a correção.
 
-**_Deploy_ Externo (Releaser)** — Geração do arquivo `builds.json` para _deploy_ e atualização contínua em servidores fora da rede de _clusters_ da plataforma. Coleta automática de equipe, variáveis de ambiente, Sentry DSN e Matomo ID a partir da API ou de arquivos locais do _codebase_, com geração de _secrets_ e _passwords_ randômicos.
+**_Deploy_ Externo (Releaser)** — Geração do arquivo `builds.json` para _deploy_ e atualização contínua em servidores fora da rede de _clusters_ da plataforma. Coleta automática de equipe, variáveis de ambiente, Sentry DSN e Matomo ID a partir da API ou de arquivos locais do _codebase_. Os valores sensíveis nunca passam pelo assistente: o arquivo sai com marcadores e um comando curto, executado no próprio servidor, gera as _secrets_ e _passwords_ a partir de `/dev/urandom`.
 
 **Sentinela** — Leitura dos relatórios da [Sentinela]({{ site.baseurl }}/docs/sentinel) guardados na plataforma, inclusive as prévias e os de projetos sem `io-doc`, já estruturados (achados com identificador, severidade, evidência e ação; itens em aberto; _insights_). Busca nos achados de todos os relatórios dos projetos do usuário, para saber se um problema já apareceu e como foi votado, ou comparar padrões entre projetos. Registro em lote do voto útil/ruído, com veredito e motivo.
 
@@ -218,7 +218,7 @@ claude mcp add --scope user --transport http io https://mcp.embrapa.io
 
 | _Tool_ | Descrição |
 |--------|-----------|
-| `generate_releaser_config` | Gera o arquivo `builds.json` para _deploy_ via [Releaser]({{ site.baseurl }}/docs/releaser) em servidores externos. Coleta equipe, variáveis, Sentry DSN e Matomo ID da API ou de arquivos locais (`.env.io`/`.env`). Gera _secrets_ e _passwords_ randômicos para campos sensíveis. |
+| `generate_releaser_config` | Gera o arquivo `builds.json` para _deploy_ via [Releaser]({{ site.baseurl }}/docs/releaser) em servidores externos. Coleta equipe, variáveis, Sentry DSN e Matomo ID da API ou de arquivos locais (`.env.io`/`.env`). `SECRET` e `PASSWORD` vazios saem como `__GENERATE_SECRET_256__` e `__GENERATE_PASSWORD_32__`, trocados no _host_ por um comando de _shell_ que sorteia os valores direto no arquivo (sem exibi-los); valores sensíveis já configurados saem como `__FILL_FROM_DASHBOARD__`, para a pessoa copiar do _dashboard_ no servidor. |
 
 #### Sentinela {#sentinel}
 
