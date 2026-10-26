@@ -66,7 +66,7 @@ vm.max_map_count=524288
 net.ipv4.ip_local_reserved_ports=49152-65535
 ```
 
-O último parâmetro é **obrigatório**. As portas que a plataforma reserva para as aplicações (faixa de 49152 a 65535, [ver abaixo](#ports)) coincidem em boa parte com a faixa de portas efêmeras do Linux (`net.ipv4.ip_local_port_range`, por padrão de 32768 a 60999), que o próprio _host_ usa nas conexões de saída (o Docker baixando imagens, o envio de _logs_ ao Loki etc.). Sem a reserva, uma dessas conexões pode estar com a porta da aplicação no momento do _deploy_, que então falha com `address already in use` (aconteceu em 22/10/2026 no _cluster_ `ucb.agro.rocks`). A reserva só impede o uso automático pelas conexões de saída: a publicação explícita das portas pelo Docker continua funcionando. Para aplicar sem reiniciar, rode `sysctl --system` e confira com `sysctl net.ipv4.ip_local_reserved_ports`.
+O último parâmetro é **obrigatório**. As portas que a plataforma reserva para as aplicações (faixa de 49152 a 65535, [ver abaixo](#ports)) coincidem em boa parte com a faixa de portas efêmeras do Linux (`net.ipv4.ip_local_port_range`, por padrão de 32768 a 60999), que o próprio _host_ usa nas conexões de saída (o Docker baixando imagens, o envio de _logs_ ao Loki, etc). Sem a reserva, uma dessas conexões pode estar com a porta da aplicação no momento do _deploy_, que então falha com `address already in use`. A reserva só impede o uso automático pelas conexões de saída: a publicação explícita das portas pelo Docker continua funcionando. Para aplicar sem reiniciar, rode `sysctl --system` e confira com `sysctl net.ipv4.ip_local_reserved_ports`.
 
 ### Docker Swarm {#swarm}
 
