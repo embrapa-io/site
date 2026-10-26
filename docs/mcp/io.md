@@ -26,15 +26,15 @@ A autenticação é feita via **OAuth 2.1 com PKCE**. Ao conectar, o fluxo de lo
 
 ## Funcionalidades
 
-O servidor expõe **43 _tools_** e **9 _prompts_ guiados** organizados nos seguintes domínios:
+O servidor expõe **48 _tools_** e **9 _prompts_ guiados** organizados nos seguintes domínios:
 
 **Perfil do Usuário** — Consulta e atualização do perfil na plataforma, incluindo nome de exibição utilizado em todas as interfaces e listagens de equipe.
 
 **Gestão de Projetos** — Criação de projetos (ativos digitais) com provisionamento automático de GitLab, Sentry, Matomo e SonarQube. Classificação por ecossistemas produtivos (agricultura, pecuária, florestal, aquicultura, indústria) ou corporativo. Gerenciamento de repositórios de suporte (documentação pública, Swagger, identidade visual, binários para lojas, TWA). Arquivamento de projetos com confirmação por PIN via e-mail.
 
-**Aplicações e _Builds_** — Criação de aplicações a partir de _boilerplates_ pré-configurados do catálogo, com _fork_ automático no GitLab e 4 _branches_ (`main`, `alpha`, `beta`, `release`). Configuração completa de _builds_ (_cluster_, variáveis de ambiente, volumes, URLs públicas e _aliases_/subdomínios), com validação automática de aderência entre _codebase_ e configuração. Histórico de alterações de variáveis para auditoria. Remoção de _builds_ com confirmação por PIN.
+**Aplicações e _Builds_** — Criação de aplicações a partir de _boilerplates_ pré-configurados do catálogo, com _fork_ automático no GitLab e 4 _branches_ (`main`, `alpha`, `beta`, `release`). Configuração completa de _builds_ (_cluster_, variáveis de ambiente, volumes, URLs públicas e _aliases_/subdomínios), com validação automática de aderência entre _codebase_ e configuração. Histórico de alterações de variáveis para auditoria. As variáveis secretas (`SECRET`, `PASSWORD` e as de texto com nome de segredo, como `*_TOKEN`) nunca chegam ao assistente: saem mascaradas e, ao salvar, as vazias são geradas no servidor (ou mantêm o valor atual). Remoção de _builds_ e de aplicações criadas por engano, com confirmação por PIN.
 
-**Operações de _Build_** — Reiniciar instâncias, remover _deploy_ sem apagar configuração, solicitar _backup_ de dados persistentes, e ativar/desativar sanitização periódica (limpeza e otimização mensal). Revalidação de _builds_ que falharam na validação anterior. Consulta de saúde dos _containers_ (_status_, _uptime_, alertas).
+**Operações de _Build_** — Reiniciar instâncias, remover _deploy_ sem apagar configuração, solicitar _backup_ de dados persistentes, e ativar/desativar sanitização periódica (limpeza e otimização mensal). Revalidação de _builds_ que falharam na validação anterior, interrupção de validação presa e retorno ao rascunho de _build_ inválida nunca implantada. Publicação de versão pela plataforma: _merge_ da `main` no ramo do estágio e criação da próxima _tag_, sem _git_ local. Consulta de saúde dos _containers_ (_status_, _uptime_, alertas).
 
 **Gestão de Equipe** — Definição da equipe completa de um projeto com dois papéis: Arquiteto da Solução (_Maintainer_ — gerencia configuração, _deploy_ em produção e _backup_) e Membro da Equipe (_Developer_ — codifica e faz _deploy_ em `alpha`/`beta`).
 
@@ -120,7 +120,7 @@ claude mcp add --scope user --transport http io https://mcp.embrapa.io
 
 ## Referência Técnica
 
-### _Tools_ (43)
+### _Tools_ (48)
 
 #### Perfil do Usuário
 
@@ -144,17 +144,22 @@ claude mcp add --scope user --transport http io https://mcp.embrapa.io
 | _Tool_ | Descrição |
 |--------|-----------|
 | `create_app` | Cria uma aplicação a partir de um _boilerplate_ do catálogo. Faz _fork_ no GitLab com 4 _branches_ (`main`, `alpha`, `beta`, `release`). O nome unix do app (máx. 10 caracteres) é **irreversível**. Requer _Maintainer_. |
-| `get_build_config` | Obtém a configuração de uma _build_ (`project/app@stage`): _cluster_, variáveis, volumes, URLs e _aliases_. Requer _Maintainer_. |
-| `save_build_config` | Salva a configuração completa de uma _build_. Após salvar, a plataforma dispara validação automática (não chamar `revalidate_build`). Antes de salvar, recomenda-se verificar se a _branch_ do estágio está atualizada com a `main`. Requer _Maintainer_. |
+| `get_build_config` | Obtém a configuração de uma _build_ (`project/app@stage`): _cluster_, variáveis, volumes, URLs e _aliases_. O valor das variáveis secretas sai mascarado (`__IO_SECRET_KEPT__`). Requer _Maintainer_. |
+| `save_build_config` | Salva a configuração completa de uma _build_. Após salvar, a plataforma dispara validação automática (não chamar `revalidate_build`). Antes de salvar, recomenda-se verificar se a _branch_ do estágio está atualizada com a `main`. O marcador das variáveis secretas volta ao valor real; `SECRET` e `PASSWORD` vazios mantêm o valor da _build_ ou são gerados no servidor (`PASSWORD` com 32 e `SECRET` com 256 caracteres), e a resposta diz só «gerado» ou «mantido». Requer _Maintainer_. |
 | `get_variable_history` | Histórico de alterações das variáveis de ambiente de uma _build_ (cada alteração incrementa a versão). Requer vínculo Embrapa. |
-| `request_build_removal` | Solicita remoção completa de uma _build_ (configuração + instância). Envia PIN por e-mail. Diferente de `undeploy_build` (que preserva a configuração). Requer _Maintainer_. |
+| `request_build_removal` | Solicita remoção completa de uma _build_ já implantada (configuração + instância). Envia PIN por e-mail. Diferente de `undeploy_build` (que preserva a configuração). _Build_ nunca implantada não tem o que remover: use `reset_build` ou a remoção do app. Requer _Maintainer_. |
 | `confirm_build_removal` | Confirma remoção permanente com o PIN recebido. |
+| `request_app_removal` | Solicita a remoção de uma aplicação do projeto (por exemplo, criada por engano). Só é aceita se nenhuma _build_ do app foi implantada. Envia PIN por e-mail. Requer _Maintainer_. |
+| `confirm_app_removal` | Confirma a remoção do app com o PIN: o repositório é arquivado no GitLab, as portas são liberadas e o app sai do projeto. |
 
 #### Operações de _Build_
 
 | _Tool_ | Descrição |
 |--------|-----------|
 | `revalidate_build` | Reenvia uma _build_ para revalidação. Funciona **apenas** para _builds_ com _status_ `INVALID` ou `INACTIVATED`. Não usar logo após `save_build_config` (validação já é automática). |
+| `invalidate_build` | Interrompe a validação de uma _build_ presa em `VALIDATING`, passando-a a `INVALID`. |
+| `reset_build` | Devolve ao rascunho (`DRAFT`) uma _build_ `INVALID` nunca implantada: apaga _cluster_, URLs, _aliases_ e domínios e mantém as variáveis. |
+| `publish_version` | Publica uma versão: _merge_ da `main` no ramo do estágio (por _merge request_, sem _push_ forçado) e criação da próxima _tag_ do estágio pela plataforma. A _build_ precisa estar `VALID`. Em `release`, só o _Maintainer_. |
 | `restart_build` | Reinicia a instância de uma _build_ no _cluster_ (com opção de _upgrade_ de imagem). Requer _Maintainer_. |
 | `undeploy_build` | Remove a instância sem apagar a configuração. A _build_ pode ser redeployada depois. Requer _Maintainer_. |
 | `request_backup` | Dispara _backup_ dos dados persistentes de uma _build_. Requer _Maintainer_. |
