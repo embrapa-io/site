@@ -23,7 +23,8 @@ Cada execução passa por quatro etapas, sempre nessa ordem:
 | --- | --- |
 | Loki | Volume de _logs_ e de erros, códigos HTTP, caminhos sensíveis acessados, origens mais frequentes, reinícios e amostras de linhas |
 | Sentry | _Issues_ não resolvidas no período, novas (pelo primeiro evento da vida inteira da _issue_, não só do período) e regressões, com contagem de eventos no período e no total e de instalações afetadas; para as mais relevantes, de onde vêm (versão, ambiente, navegador, sistema) e as linhas do app mais próximas do erro |
-| Trivy | CVEs altas e críticas nas imagens em execução, por serviço, e quais já têm correção publicada |
+| Trivy | CVEs altas e críticas nas imagens em execução, por serviço, e quais já têm correção publicada, com o **caminho da correção** de cada uma, decidido pela plataforma: reconstruir a imagem (base flutuante), subir a base fixada no `Dockerfile` (na aplicação ou no _boilerplate_, conforme o fork diverge ou não dele), atualizar a imagem do fornecedor (binário de terceiro, como `gosu` ou MinIO) ou subir a dependência direta que traz a vulnerável |
+| Ficha do repositório | O que os arquivos de _build_ dizem, lidos na _tag_ mais recente e reduzidos a fatos, nunca ao conteúdo: no `Dockerfile`, a imagem base, o usuário, `COPY . .`, `npm ci` e `ARG` com nome de segredo; no `.dockerignore`, se exclui `.git` e `.env`; no `docker-compose`, portas publicadas, bancos e ferramentas de administração e senha escrita no `command`; na configuração do nginx, o _fallback_ da SPA; no `package-lock.json`, qual dependência direta traz cada pacote vulnerável; e o que veio do _boilerplate_ de origem |
 | Dependências | Para aplicativos de loja e aplicações fora da plataforma: CVEs conhecidas (base [OSV](https://osv.dev)) nos pacotes dos _lockfiles_ (e, em .NET sem _lockfile_, nas versões do `.csproj`), separando o que chega ao usuário do que é só ferramenta de _build_, e o _framework_ fora de suporte. Veja [Dependências dos aplicativos](#deps) |
 | SonarQube | _Quality gate_ (aprovado, reprovado ou sem análise), a análise que vale (data, ramo e _commit_), notas, cobertura, duplicação, as linguagens do repositório que ficaram fora da análise, as vulnerabilidades abertas de qualquer data, os arquivos que concentram os problemas e os _hotspots_ pendentes |
 | GitLab | _Commits_ (sem autor), _merge requests_ mescladas, abertas e paradas (número, título e última atualização), _tags_ publicadas e _pipelines_ com falha |
@@ -51,9 +52,35 @@ Quatro situações viram **achado fixo**, sem depender de o modelo notar, com t�
 | Estágio sem verificação de saúde (agrupado no projeto inteiro quando o mesmo motivo se repete em várias aplicações) | alta na `release`, média no `beta`, baixa no `alpha` |
 | Estágio com todos os serviços fora do ar | idem |
 | Última _tag_ do estágio que não chegou ao ar | média |
-| _Merge requests_ abertas sem atualização há mais de uma semana, com o número, o título e a data de cada uma | média quando alguma é de segurança; baixa nas demais |
+| _Merge requests_ abertas sem atualização há mais de uma semana, com o número, o título, a _branch_ alvo, a data e o que fazer com cada uma (fechar, porque o conteúdo já está na _branch_ alvo; _rebase_, por conflito; ou mesclar) | média quando alguma é de segurança; baixa nas demais |
+| _Merge requests_ mescladas depois da _tag_ mais recente, portanto fora de qualquer versão no ar (num item só quando a mesma correção foi mesclada em várias aplicações) | média quando há correção de segurança; baixa nas demais |
+| Serviço que iniciou mais de 20 vezes no período | alta na `release`, média no `beta`, baixa no `alpha` |
+| Contêineres antigos do estágio num servidor que não é o _cluster_ do _build_ ativo (eles nunca dizem o estado do estágio) | média se estão no ar; baixa se parados |
+| Aplicação sem _commit_ no período e com todas as versões no ar de mais de 120 dias | média com CVE crítica corrigível; baixa nas demais |
+| CVE crítica com correção numa imagem sem nenhum achado do Trivy para a aplicação | alta |
+| Segredo passado como `ARG` de _build_ no `Dockerfile` | alta se gravado em `ENV` ou arquivo; média nas demais |
+| `COPY . .` sem `.dockerignore` que exclua `.git` e `.env` | média |
+| Banco de dados ou ferramenta de administração (pgAdmin, Adminer, MailHog…) com porta publicada no servidor, dizendo quando veio do _compose_ do _boilerplate_ | alta |
+| Senha escrita no `command` de um serviço do _compose_ | média |
+| Análise do SonarQube antiga, ou de uma _branch_ atrás da que vai ao ar, em várias aplicações (um item só, pedindo reanálise antes de agir) | baixa |
 
 > **Atenção!** A Sentinela só lê e relata. Nenhuma ação é executada automaticamente nas aplicações: as correções são sugeridas à equipe, que decide o que fazer.
+
+Aplicação que tem estágios na plataforma, mas nenhum `release`, ganha um aviso em **Para ciência**: se há produção, ela roda fora da plataforma, e os _logs_, erros, CVEs e saúde dela não estão no relatório. O modelo também é instruído a não chamar `alpha` ou `beta` de produção.
+
+### Aplicação pausada de propósito {#paused}
+
+Quando a equipe pausa uma aplicação (por exemplo, enquanto espera outro projeto), estágio parado, falta de _logs_ e zero visitas não são problema. Para a Sentinela saber disso, declare o estado no `.embrapa/settings.json` do repositório da aplicação, na _branch_ padrão:
+
+```json
+"lifecycle": {
+  "state": "paused",
+  "until": "2027-03",
+  "reason": "aguarda a conclusão do projeto X"
+}
+```
+
+O `state` aceita `paused` (pausada), `maintenance` (em manutenção) e `active`; `until` (ano e mês da retomada) e `reason` são opcionais. Com a aplicação pausada, os achados de estágio parado e de falta de uso viram ciência, e os de segurança continuam, porque as imagens que seguem no ar continuam vulneráveis: a ação sugerida passa a incluir desligar os estágios ou reconstruir as imagens durante a pausa. A 30 dias da retomada, o relatório lembra de reconstruir as imagens antes de voltar. Uma aplicação sem esse campo, sem _commit_ no período e com versões antigas no ar recebe o achado de aplicação sem atividade, que sugere declarar a pausa.
 
 ### Aplicativos na Google Play {#play}
 
@@ -248,6 +275,8 @@ Na seção **Para ciência** ficam as observações que não pedem ação, numa 
 
 ![Seção Para ciência]({{ site.baseurl }}/assets/img/sentinel/20.png)
 
+Cada item de **Continua em aberto** vindo de uma fonte de eventos (_logs_, Sentry, Google Play) mostra a data da última ocorrência. O item que parou no meio do período (sem ocorrência nas últimas 48 horas) sai das pendências e vai para **Para ciência**, como "Parou em DD/MM", e volta como novidade se reaparecer. Uma novidade que repete um item já em aberto (o mesmo problema, com outras palavras ou somando outra aplicação) segue como o item em aberto, com o identificador dele, em vez de aparecer duas vezes.
+
 Quando várias aplicações do mesmo _boilerplate_ repetem o mesmo problema (os mesmos _hotspots_ de `Dockerfile`, a mesma varredura, a mesma cobertura zerada), ele aparece uma vez só, na seção **projeto inteiro**, com a ação que resolve para todas. Cada achado tem um identificador curto (`ref`), que se mantém de um relatório para o outro enquanto o problema for o mesmo, ainda que descrito com outras palavras: o modelo recebe a lista do que já foi relatado e reconhece a repetição. A seção **Continua em aberto** traz o que já foi relatado antes e segue sem ação, com a severidade, a aplicação, a categoria, a fonte e a data em que o item apareceu pela primeira vez:
 
 ![Seção Continua em aberto]({{ site.baseurl }}/assets/img/sentinel/19.png)
@@ -255,6 +284,8 @@ Quando várias aplicações do mesmo _boilerplate_ repetem o mesmo problema (os 
 O **Resumo do período** fecha com os números de cada aplicação: estágios, código, _logs_, erros, CVEs, qualidade (com as notas do SonarQube e a proporção de linguagens) e uso. Cada estágio aparece com um selo `[estágio | situação]` (azul com foguete quando a plataforma implanta, laranja com servidor quando é um Releaser; situação saudável, não verificado ou com serviços fora do ar), a versão no ar com a data e a última verificação.
 
 ![Resumo do período: estágios, código e logs de uma aplicação]({{ site.baseurl }}/assets/img/sentinel/12.png)
+
+Quando uma fonte não trouxe nada para a aplicação, o cartão diz o motivo: aplicação sem projeto no SonarQube, sem site no Matomo, _logs_ indisponíveis naquela execução e assim por diante. Uma aplicação do projeto que ficou de fora do relatório inteiro (sem estágio implantado e sem dados em nenhuma fonte) aparece em **Para ciência**, com o motivo. Todas as datas e horas do relatório estão no horário de Brasília.
 
 O rodapé de cada relatório informa o provedor, o modelo, os _tokens_ consumidos e o custo estimado, e lembra que o conteúdo foi gerado por IA e exige revisão humana.
 
