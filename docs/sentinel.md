@@ -186,6 +186,14 @@ Há duas opções.
 
 ![Passo 2: provedor externo]({{ site.baseurl }}/assets/img/sentinel/05.png)
 
+Os GPU Servers servem um modelo por vez e podem ser trocados ou desligados, e um modelo de provedor externo pode ser descontinuado. Por isso, antes de cada execução, a Sentinela confere se o modelo configurado ainda é servido. Se não for, o relatório não é gerado, o motivo aparece no card em **Último problema** e os arquitetos de solução do projeto (e só eles) recebem um aviso por e-mail, uma vez por problema a cada 24 horas:
+
+- **o servidor não respondeu:** pode ser passageiro; veja a situação dos servidores em [status.embrapa.io](https://status.embrapa.io) e, quando ele voltar, rode a Sentinela pelo card (**Executar agora**);
+- **o servidor saiu de operação:** o GPU Server configurado não é mais oferecido pela plataforma; escolha outro provedor nas configurações da Sentinela;
+- **o modelo não é mais servido:** o servidor está no ar, mas oferece outro modelo; o aviso lista os disponíveis, para a escolha nas configurações.
+
+Trocar o modelo nas configurações não gera aviso: quem troca é a própria equipe.
+
 > **Atenção!** Assinantes dos planos pagos de alguns provedores recebem créditos mensais de API que expiram sem acumular. Uma chave criada na organização vinculada ao plano consome esses créditos. Para um uso controlado, crie um espaço de trabalho (_workspace_) próprio para a Sentinela no painel do provedor, com limite de gasto, e gere a chave nele.
 
 ### 3. Ajustes {#settings}
