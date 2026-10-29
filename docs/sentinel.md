@@ -4,6 +4,8 @@ title: Sentinela
 subtitle: Relatórios automáticos de insights sobre segurança, estabilidade, desempenho, qualidade e uso por projeto
 ---
 
+<iframe width="730" height="410" src="https://www.youtube.com/embed/YjcE0gCOI4g" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 A **Sentinela** é o agente de _insights_ da plataforma **Embrapa I/O**. A cada dia ou semana ela lê o que as ferramentas integradas já registram sobre as aplicações de um [projeto]({{ site.baseurl }}/docs/project), pede a um modelo de inteligência artificial uma leitura qualitativa e envia à equipe, por e-mail, um relatório com o que mudou, o que merece atenção e o que continua em aberto. Uma cópia de cada relatório fica no histórico do projeto, no [_dashboard_ da plataforma]({{ site.baseurl }}/docs/dashboard), e outra, em Markdown, no repositório `io-doc` do projeto.
 
 A ideia não é substituir o _dashboard_, que já mostra os números de cada ferramenta. A Sentinela cruza esses números e conta o que eles significam: uma varredura de _scanners_ que está recebendo resposta `200` em `/.env`, um erro que se repete no Sentry desde o último _deploy_, um estágio que está parado há semanas, uma vulnerabilidade com correção publicada que ninguém aplicou.

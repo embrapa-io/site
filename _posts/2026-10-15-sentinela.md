@@ -9,6 +9,10 @@ A plataforma **Embrapa I/O** monitora cada aplicação por meio de várias ferra
 
 A partir de hoje esse trabalho é da **Sentinela**, o agente de _insights_ por projeto da plataforma. Ela já aparece no _dashboard_ de todos os projetos e é ativada pelo arquiteto, projeto a projeto, em menos de um minuto.
 
+> **Atualização (28/10/2026):** veja a Sentinela em ação, da ativação ao relatório completo, na nova vídeo-aula:
+
+<iframe width="730" height="410" src="https://www.youtube.com/embed/YjcE0gCOI4g" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 ## O que ela faz {#what}
 
 A cada dia ou semana, conforme a configuração, a Sentinela lê o que as ferramentas registraram sobre as apps do projeto no período, pede a um modelo de inteligência artificial uma leitura qualitativa e envia à equipe, por e-mail, um relatório em três partes:
