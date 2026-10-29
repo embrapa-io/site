@@ -306,11 +306,12 @@ Os comandos disponíveis são:
 - ***sanitize***: Executa o processo de higienização/otimização da _build_ (serviço `sanitize`). Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`. _Builds_ sem esse serviço são ignoradas com um aviso;
 - ***cleaner***: Rotaciona os arquivos do volume de _backup_ da _build_ (mantém, por padrão, os últimos 7 diários, 4 semanais, 3 mensais e 1 anual; ajustável pela variável `RETENTION` do `.env`). Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`, e o parâmetro `--dry-run`, que apenas mostra o que seria mantido e apagado. Ao final, exibe um resumo por _build_ com a quantidade de arquivos e o espaço ocupado antes e depois da rotação. _Builds_ sem volume de _backup_ são ignoradas com um aviso;
 - ***cloud*** (a partir da versão `1.26.10-12`): Copia os arquivos do volume de _backup_ da _build_ para um _bucket_ S3 e os rotaciona lá. Aceita uma lista de _builds_ separadas por vírgula ou `--all`, e os parâmetros `--dry-run` (apenas mostra o que seria enviado e apagado) e `--list` (lista o conteúdo do _bucket_ para a _build_). O _daemon_ executa **diariamente**, após o _cleaner_, para as _builds_ com `auto.cloud` ligado. Detalhes na seção [Cópia em nuvem (S3)](#cloud);
+- ***restore*** (a partir da versão `1.26.10-16`): Restaura numa _build_ um _backup_ do volume de _backup_ ou do _bucket_ S3, com _backup_ prévio marcado `_before-restore_` (fora da rotação por 30 dias), conferência do arquivo (SHA-256 e `tar`) e o serviço `restore` da _app_. Aceita uma _build_ por vez e os parâmetros `--list`, `--file`, `--from`, `--sha256`, `--check` (baixa e confere sem restaurar) e `--yes` (automação). Detalhes na seção [Restore](#restore);
 - ***health***: Inspeciona os _containers_ de cada _build_ neste servidor (estado, _healthcheck_, tamanho, data de criação) e reporta a saúde dos serviços à plataforma. Aceita uma lista de _builds_ ou `--all`. O _daemon_ executa a cada **minuto**, em silêncio;
 - ***cve***: Varre as imagens em execução de cada _build_ com o [Trivy](https://trivy.dev) (só vulnerabilidades `HIGH` e `CRITICAL`) e reporta o resultado à plataforma. Aceita uma lista de _builds_ ou `--all`. O _daemon_ executa a cada **hora**, num minuto sorteado por servidor. Cada imagem distinta é varrida uma vez por rodada; se alguma varredura falhar, a _build_ fica de fora do relato e a plataforma mantém o resultado anterior;
 - ***install***: [Configuração guiada](#install) de uma _build_ nova: escolhe projeto, _app_ e estágio por menus, busca na plataforma a equipe, o DSN do Sentry, o site e o _token_ do Matomo e as variáveis do `.embrapa/settings.json`, gera os valores por tipo e grava o arquivo em `builds/`. Aceita a _build_ como parâmetro (`proj/app@stage`) e `--yes` (sem perguntas, com os valores padrão);
 - ***split***: Migra o `builds.json` antigo para um arquivo por _build_ em `builds/`, guardando o original como `builds.json.bkp`;
-- ***info***: Exibe, por _build_, o arquivo de configuração, o resultado do último relato de cada sinal à plataforma (versão, saúde e CVEs), a versão instanciada e outros comandos úteis do orquestrador; lista também as _builds_ desativadas. A partir da versão `1.26.10-12`, mostra ainda o resultado da última [cópia em nuvem](#cloud) de cada _build_: `ok` (com data e hora, arquivos e _bytes_ enviados e apagados e o tamanho no _bucket_), `FAILED` (com o motivo e a data do último sucesso), `never run`, `disabled (auto.cloud = false)` ou `bucket not configured`. Por exemplo: `Cloud copy (S3): ok at 2026-10-23T03:10:42-03:00 (1 uploaded, 143,2 MB; 1 deleted; 15 file(s), 2,1 GB in the bucket)`;
+- ***info***: Exibe, por _build_, o arquivo de configuração, o resultado do último relato de cada sinal à plataforma (versão, saúde e CVEs), a versão instanciada e outros comandos úteis do orquestrador; lista também as _builds_ desativadas. A partir da versão `1.26.10-12`, mostra ainda o resultado da última [cópia em nuvem](#cloud) de cada _build_: `ok` (com data e hora, arquivos e _bytes_ enviados e apagados e o tamanho no _bucket_), `FAILED` (com o motivo e a data do último sucesso), `never run`, `disabled (auto.cloud = false)` ou `bucket not configured`. Por exemplo: `Cloud copy (S3): ok at 2026-10-23T03:10:42-03:00 (1 uploaded, 143,2 MB; 1 deleted; 15 file(s), 2,1 GB in the bucket)`. A partir da versão `1.26.10-16`, mostra também o último [restore](#restore) da _build_ (`Last restore`);
 - ***cli*** (a partir da versão `1.26.10-12`): Instala (ou atualiza) o comando `io` no servidor, em `/usr/local/bin/io`. Aceita `--print` (só imprime o _script_), `--uninstall` (remove) e `--yes` (não pergunta). Veja [O comando `io` no servidor](#cli);
 - ***upgrade*** (a partir da versão `1.26.10-14`): Atualiza o próprio Releaser para a versão mais nova publicada (ou `--to VERSÃO`), com volta automática à versão anterior se a nova falhar. Aceita `--dry-run` (só mostra) e `--yes` (não pergunta). Veja [Atualização](#update);
 - ***mail***: Testa as configurações de SMTP por meio do envio de um e-mail de teste, detalhando cada tentativa (servidor, porta e motivo da falha). Deve-se informar como parâmetro uma lista de endereços separada por vírgula que receberão a mensagem (por exemplo, `jose.silva@embrapa.br,maria.santos@embrapa.br`). Se o envio funcionar, os e-mails que estavam na fila também são enviados; e
@@ -861,6 +862,59 @@ INFO > 16 file(s), 2,2 GB [D/W/M/Y = kept by the next rotation, - = deleted by i
 - As credenciais ficam só no `.env` do **Releaser**. Ele as entrega ao `rclone` por variáveis de ambiente do processo: não há arquivo de configuração do `rclone`, e as chaves não aparecem na linha de comando (`ps`) nem na saída, nos e-mails ou nos _logs_.
 - As variáveis do `.env` do **Releaser** não são repassadas aos _containers_ das aplicações.
 - O volume de _backup_ é montado **somente leitura** para a cópia.
+
+#### Restore {#restore}
+
+Desde a versão `1.26.10-16`, o comando `io restore` restaura numa _build_ um _backup_ do **volume de backup** do próprio servidor ou do **_bucket_ S3** da cópia em nuvem (`io cloud`). Ele segue o mesmo contrato e as mesmas etapas do restore dos _clusters_ compartilhados da plataforma, então a _app_ não precisa de nada além do serviço `restore` (veja os serviços [_backup_]({{ site.baseurl }}/docs/boilerplate#cli:backup) e [_restore_]({{ site.baseurl }}/docs/boilerplate#cli:restore)).
+
+```bash
+io restore <projeto>/<app>@<estágio> [--list] [--file [GRUPO/]ARQUIVO] [--from local|s3] [--sha256 HASH] [--check] [--yes] [--accept-cross-stage] [--accept-upload]
+```
+
+Exemplos:
+
+```bash
+# interativo: lista os backups, pergunta qual e pede para digitar o nome da build
+io restore meu-projeto/api@release
+
+# só lista o que pode ser restaurado
+io restore meu-projeto/api@release --list
+
+# ensaio de uma migração: baixa e confere o arquivo, sem restaurar nada
+io restore meu-projeto/api@alpha --file upload/sistema-antigo.tar.gz --check --sha256 <hash>
+
+# sem perguntas (automação)
+io restore meu-projeto/api@release --file meu-projeto_api_release_1.26.10-3_2026-10-28_02-00-00.tar.gz --yes
+```
+
+##### O que pode ser restaurado
+
+A lista junta, do mais recente para o mais antigo:
+
+- os arquivos da **mesma _app_** no volume de backup, nos três estágios. Com a pasta `BACKUP_DIR` compartilhada, os _backups_ do release aparecem também para o alpha;
+- com o S3 configurado, os arquivos de `<bucket>/<projeto>/<app>/<alpha|beta|release|upload>/`.
+
+A pasta `upload/` do _bucket_ é para arquivos enviados à mão, como os dados de um sistema antigo, migrados para a _app_. O arquivo precisa ter **a mesma estrutura dos `.tar.gz` que o serviço `backup` da _app_ gera**, porque quem o lê é o serviço `restore`. O nome tem de terminar em `.tar.gz` e ter só letras, números, ponto, hífen e sublinhado.
+
+Um arquivo que está nos dois lados aparece uma vez, como `local+s3`, e é restaurado do volume, sem _download_. Para forçar o do _bucket_, use `--from s3`.
+
+##### Como funciona
+
+1. **Confirmação.** O comando pede para digitar o nome da _build_. Arquivos de outro estágio, por exemplo o release no alpha, e da pasta `upload/` pedem uma confirmação a mais. Dados de produção num estágio de teste podem incluir dados pessoais (LGPD).
+2. **Backup antes do restore.** Roda o `backup` da _build_ e marca o arquivo com `_before-restore_` antes da data. Esse arquivo fica **fora da rotação por 30 dias**, no `cleaner` e no `cloud`, e, com S3, é enviado ao _bucket_. Se o _backup_ falhar, nada é restaurado.
+3. **Download**, só para arquivos do _bucket_. Exige no disco do volume o dobro do tamanho do arquivo livre e confere o tamanho baixado.
+4. **Conferência.** Calcula o SHA-256 (e o compara com o `--sha256`, se informado) e lê o `.tar.gz` inteiro, numa passada só.
+5. **Restore.** Roda o serviço `restore` da _app_ com `BACKUP_FILE_TO_RESTORE`, por até 12 horas, e mostra as últimas linhas da saída.
+
+No fim, o arquivo baixado do _bucket_ é apagado do volume, porque a cópia continua no _bucket_. Um arquivo escolhido no volume nunca é apagado.
+
+O resultado vai por e-mail (`LOG_MAIL` e a equipe da _build_) e aparece no `io info` ("Last restore"). Enquanto o restore roda, o _daemon_ não faz _deploy_, _backup_, rotação nem cópia em nuvem nessa _build_.
+
+Para **desfazer** um restore, restaure o arquivo `_before-restore_` gerado no passo 2.
+
+> **Atenção!** Com `--yes`, o comando não pergunta nada: `--file` é obrigatório, e restaurar arquivo de outro estágio ou de `upload/` exige `--accept-cross-stage` ou `--accept-upload`. Use em automações, com cuidado.
+
+O `io restore` funciona com o orquestrador **Docker Compose**. No Docker Swarm, ainda não.
 
 ### Domínios (_virtual proxies_) e certificados SSL/TLS {#proxy}
 
