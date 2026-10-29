@@ -66,6 +66,7 @@ Para quem mantém a plataforma ou estende o que ela oferece: modelos, servidores
 - [_Merge Request_: propondo melhorias a um _boilerplate_]({{ site.baseurl }}/docs/merge)
 - [_Cluster_: configurando e disponibilizando um servidor]({{ site.baseurl }}/docs/cluster)
 - [Releaser: _deploy_ de _builds_ em servidores externos à plataforma]({{ site.baseurl }}/docs/releaser)
+- [Backup S3: cópia dos _backups_ em nuvem e _restore_ a partir do _bucket_]({{ site.baseurl }}/docs/s3)
 - [MCP Servers: conectando agentes de IA à plataforma]({{ site.baseurl }}/docs/mcp)
 - [Spec-Driven Development: programação assistida por IA com o BMAD Method]({{ site.baseurl }}/docs/bmad)
 - [Arena de Bots: testes cegos para avaliar agentes de IA]({{ site.baseurl }}/docs/arena)

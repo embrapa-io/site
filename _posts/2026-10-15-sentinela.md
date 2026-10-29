@@ -11,7 +11,7 @@ A partir de hoje esse trabalho é da **Sentinela**, o agente de _insights_ por p
 
 > **Atualização (28/10/2026):** veja a Sentinela em ação, da ativação ao relatório completo, na nova vídeo-aula:
 
-<iframe width="730" height="410" src="https://www.youtube.com/embed/YjcE0gCOI4g" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<iframe width="730" height="410" src="https://www.youtube.com/embed/paY1iwZVzM4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
 ## O que ela faz {#what}
 

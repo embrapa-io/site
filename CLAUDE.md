@@ -36,7 +36,7 @@ A imagem `bretfisher/jekyll-serve:alpine` já existe no Docker local. O `Gemfile
 | `_includes/catalog.html`, `assets/js/catalog.js`, `assets/css/catalog.css` | Implementação dos catálogos. O JS escapa todo texto da API e **nunca exibe** IPs, sub-redes, SMTP, SSH, telefones ou e-mails, mesmo que o JSON os contenha. Manter isso ao evoluir. |
 | `_includes/`, `_layouts/` | Tema (Beautiful Jekyll). Evitar mexer; preferir `_includes` novos e `assets/css/custom-styles.css`. |
 | `terminal.sh` | **Cópia publicada** (em `https://embrapa.io/terminal.sh`) do instalador do Web Terminal nos _clusters_. A fonte é `terminal.sh` no repositório `embrapa-io/terminal`: não edite aqui; mude lá e copie para cá (veja o `CLAUDE.md` do terminal). |
-| `assets/img/<capítulo>/NN.png` | Capturas de tela referenciadas pelos docs como `{{ site.baseurl }}/assets/img/...`. |
+| `assets/img/<capítulo>/NN.png` | Capturas de tela referenciadas pelos docs como `{{ site.baseurl }}/assets/img/...`. Sem conteúdo cortado por rolagem interna (diálogo, tabela) nem texto cortado no recorte; redimensionar só proporcionalmente, pela largura, ou não redimensionar. As do Dashboard com dados fictícios saem do simulador do repositório `youtube` (ver o `CLAUDE.md` de lá). |
 
 ## Convenções de escrita
 

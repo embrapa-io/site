@@ -172,7 +172,7 @@ Escolher o Releaser é escolher um **dono para a produção**. A tabela abaixo d
 | Construção das imagens e **varredura de CVEs** | Plataforma | Varredura pelo Releaser (Trivy, desde a `1.26.10-2`), com alerta pela plataforma; correção pela equipe ([imagens atualizadas](#images)) |
 | Monitoramento de disponibilidade e _health check_ | Plataforma (_dashboard_ e alertas) | Equipe (Portainer, Grafana da Unidade ou _plugin_ do Loki) |
 | _Error tracking_ e _analytics_ (Sentry, Matomo) | Plataforma | Plataforma (configurados por _build_) |
-| _Backup_ | Sob demanda pela _dashboard_; rotina do _cluster_ pelo mantenedor | Diário pelo Releaser no servidor; **cópia para fora do servidor pela equipe** ([regra 3-2-1]({{ site.baseurl }}/docs/backup#production)) |
+| _Backup_ | Sob demanda pela _dashboard_; rotina do _cluster_ pelo mantenedor; cópia diária para um _bucket_ S3 e _restore_ pelo [Backup S3]({{ site.baseurl }}/docs/s3#clusters), configurado pela equipe | Diário pelo Releaser no servidor; **cópia para fora do servidor configurada pela equipe**, com o [`io cloud`]({{ site.baseurl }}/docs/releaser#cloud) para um _bucket_ S3 ([regra 3-2-1]({{ site.baseurl }}/docs/backup#production)) |
 | Sanitização e limpeza de _cache_ | Plataforma | Releaser (mensal) |
 | Sistema operacional, Docker e segurança da máquina | Mantenedor do _cluster_ | Equipe |
 | DNS, _virtual proxy_ e certificados SSL | Plataforma (automático) | Equipe |
