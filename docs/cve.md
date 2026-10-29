@@ -141,7 +141,11 @@ O _dashboard_ não alcança os servidores que usam o [Releaser]({{ site.baseurl 
 io restart <projeto>/<app>@<estágio> --upgrade
 ```
 
-A opção `--upgrade` renova as imagens, reconstrói os serviços `build:` e reinicia a _stack_. Quando a ação é tirar do ar, o alerta traz também o comando:
+A opção `--upgrade` renova as imagens, reconstrói os serviços `build:` e reinicia a _stack_. Quando a imagem é `latest` ou está sem _tag_, o alerta pede primeiro para fixar a versão maior no `docker-compose.yaml` e gerar uma nova _tag_; depois do _deploy_ pelo Releaser, vem o mesmo `io restart --upgrade`.
+
+Para distinguir versão fixada, `latest` e imagem sem _tag_, a plataforma precisa saber a imagem de cada serviço, que o Releaser informa a partir da versão `1.26.10-18`. Com um Releaser anterior, toda vulnerabilidade de imagem cai no `io restart --upgrade`: [atualize o Releaser]({{ site.baseurl }}/docs/releaser#update) para receber a orientação completa.
+
+Quando a ação é tirar do ar, o alerta traz também o comando:
 
 ```bash
 io stop <projeto>/<app>@<estágio>
