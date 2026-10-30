@@ -33,3 +33,5 @@ Por padrão, o SonarQube está configurado para examinar todos os _commits_ apen
 Adicionalmente, existe um recurso visual para exibir de forma simplificada e gráfica as **linguagens de programação que predominam nas aplicações**:
 
 ![Gráfico de linguagens de programação predominantes]({{ site.baseurl }}/assets/img/posts/20250310154339.png)
+
+> **Dica!** As _issues_, o _Quality Gate_ e as métricas do SonarQube também podem ser consultados por um assistente de IA, em linguagem natural, pelo [MCP do SonarQube]({{ site.baseurl }}/docs/mcp/code/).

@@ -2,8 +2,8 @@
 layout: page
 title: MCP Servers
 subtitle: Conectores Model Context Protocol para LLMs
-share-title: "MCP Servers do Embrapa I/O: Dashboard, GitLab, Loki, Sentry, Matomo e SEG"
-share-description: "MCP Servers da plataforma Embrapa I/O para Claude, Gemini, Copilot e Cursor: projetos, deploys, logs, issues, erros, analytics e dados do SEG, com login OAuth."
+share-title: "MCP Servers do Embrapa I/O: Dashboard, GitLab, Loki, Sentry, SonarQube, Matomo e SEG"
+share-description: "MCP Servers da plataforma Embrapa I/O para Claude, Gemini, Copilot e Cursor: projetos, deploys, logs, issues, erros, qualidade do código, analytics e dados do SEG."
 permalink: /docs/mcp/
 ---
 
@@ -21,12 +21,13 @@ O **Embrapa I/O** disponibiliza os seguintes MCP Servers que permitem interagir 
 - [**MCP do SEG**]({{ site.baseurl }}/docs/mcp/seg/) (`seg.mcp.embrapa.io`) — provê _tools_ para consultar dados corporativos do **Sistema Embrapa de Gestão** (projetos, planos, atividades), do catálogo **CatSoft** (softwares), do **portal embrapa.br** (notícias, palavras-chave) e da base de **empregados** da Empresa.
 - [**MCP do Matomo**]({{ site.baseurl }}/docs/mcp/hit/) (`mcp.hit.embrapa.io`) — provê _tools_ para consultar os _analytics_ de acesso das aplicações (tráfego, origens, páginas, campanhas) no [Matomo](https://hit.embrapa.io) da plataforma, via plugin oficial da Matomo.
 - [**MCP do Sentry**]({{ site.baseurl }}/docs/mcp/bug/) — provê _tools_ para investigar erros, _issues_ e _releases_ das aplicações no [Sentry](https://bug.embrapa.io) (rastreamento de _bugs_) da plataforma.
+- [**MCP do SonarQube**]({{ site.baseurl }}/docs/mcp/code/) — provê _tools_ para consultar a qualidade do código das aplicações no [SonarQube](https://code.embrapa.io) da plataforma: _issues_, _Quality Gate_, métricas, duplicações e _hotspots_ de segurança, e até analisar um trecho de código antes do _commit_.
 
-> **Dica!** Os seis MCPs podem ser utilizados **simultaneamente**. Com todos conectados, é possível consultar a configuração de uma _build_ na Dashboard, verificar os logs no Loki, investigar erros no Sentry, criar uma _issue_ no Kanban, buscar projetos do SEG ou perfis de empregados e ainda analisar os acessos no Matomo — tudo em uma única conversa.
+> **Dica!** Os sete MCPs podem ser utilizados **simultaneamente**. Com todos conectados, é possível consultar a configuração de uma _build_ na Dashboard, verificar os logs no Loki, investigar erros no Sentry, conferir no SonarQube o trecho de código envolvido, criar uma _issue_ no Kanban, buscar projetos do SEG ou perfis de empregados e ainda analisar os acessos no Matomo — tudo em uma única conversa.
 
 ## Configuração em IDEs e CLIs {#config}
 
-Todos os MCPs da plataforma seguem **o mesmo padrão de configuração** — muda apenas a **URL** de cada servidor (e, opcionalmente, o nome local que você dá ao conector). Nos exemplos abaixo, **substitua a URL pela do MCP desejado** (veja a lista acima); usamos `https://mcp.embrapa.io` como exemplo.
+Os MCPs da plataforma com URL de conexão seguem **o mesmo padrão de configuração** — muda apenas a **URL** de cada servidor (e, opcionalmente, o nome local que você dá ao conector). Nos exemplos abaixo, **substitua a URL pela do MCP desejado** (veja a lista acima); usamos `https://mcp.embrapa.io` como exemplo. Os MCPs do [Sentry]({{ site.baseurl }}/docs/mcp/bug/) e do [SonarQube]({{ site.baseurl }}/docs/mcp/code/) são a exceção: rodam localmente (transporte `stdio`), com um _token_ pessoal, e a configuração de cada um está na sua página.
 
 A maioria dos clientes suporta **OAuth nativo**: ao conectar, o fluxo de _login_ abre automaticamente no _browser_. Os clientes que não suportam OAuth requerem um _access token_ manual no _header_ `Authorization`.
 
