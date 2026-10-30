@@ -20,6 +20,10 @@ Devido a estes pontos, foi criada uma ferramenta, denominada **Releaser**, visan
 
 É importante ressaltar que a ferramenta **Releaser** implementa alguns dos _pipelines_ de DevOps do **Embrapa I/O**, <u>mas não todos</u>. A responsabilidade pela configuração de rotas, das URLs (CNAMEs), balanceamento de carga e certificados SSL (criação e atualização periódica), por exemplo, ficarão a cargo de um administrador da rede, que deverá realizar estas tarefas manualmente.
 
+O primeiro vídeo da série mostra a instalação e o primeiro _deploy_, numa máquina de laboratório:
+
+<iframe width="730" height="410" src="https://www.youtube.com/embed/HIPg-lgIgcs" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 ## Instalação
 
 A ferramenta está [disponível publicamente como uma imagem no **Docker Hub**](https://hub.docker.com/r/embrapa/releaser). Para utilizá-la, primeiramente **crie um diretório** onde serão colocados os **arquivos de configuração**:
@@ -420,6 +424,10 @@ O que cada _build_ reporta é controlado pelo atributo [`stats`](#setup) do seu 
 ## Monitoramento do Releaser
 
 Toda instância do **Releaser** reporta ao Sentry da plataforma (sentry.io, projeto `releaser`): erros internos da própria ferramenta como _issues_ e a saída de cada execução como _logs_ (com `operation`, `build`, `project`, `app` e `stage`). O `environment` é o valor de `SERVER` do `.env` e o `release` é a versão da imagem. Nada precisa ser configurado. Erros de _deploy_ ou _backup_ de uma _build_ **não** viram _issue_ do Releaser: eles são enviados por e-mail à equipe da _build_, e cada aplicação tem o próprio DSN do Sentry. O _health check_ de cada minuto só envia _logs_ de aviso ou erro.
+
+O segundo vídeo da série mostra o dia a dia do servidor: `io info`, `io check`, `io upgrade`, rotação dos _backups_, cópia em nuvem e `io restore`:
+
+<iframe width="730" height="410" src="https://www.youtube.com/embed/ut1Q9zNUAkw" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
 ## Atualização {#update}
 
