@@ -26,7 +26,7 @@ A autenticação é feita via **OAuth 2.1 com PKCE**. Ao conectar, o fluxo de lo
 
 ## Funcionalidades
 
-O servidor expõe **48 _tools_** e **9 _prompts_ guiados** organizados nos seguintes domínios:
+O servidor expõe **55 _tools_** e **9 _prompts_ guiados** organizados nos seguintes domínios:
 
 **Perfil do Usuário** — Consulta e atualização do perfil na plataforma, incluindo nome de exibição utilizado em todas as interfaces e listagens de equipe.
 
@@ -120,7 +120,7 @@ claude mcp add --scope user --transport http io https://mcp.embrapa.io
 
 ## Referência Técnica
 
-### _Tools_ (48)
+### _Tools_ (55)
 
 #### Perfil do Usuário
 
@@ -167,6 +167,18 @@ claude mcp add --scope user --transport http io https://mcp.embrapa.io
 | `get_sanitize_status` | Consulta se a sanitização periódica está ativa, data da última execução e próxima agendada. Requer _Maintainer_. |
 | `start_sanitize` | Ativa sanitização periódica (mensal) — executa o serviço `sanitize` do _stack_ para limpeza e otimização. Requer _Maintainer_. |
 | `stop_sanitize` | Desativa a sanitização periódica. Requer _Maintainer_. |
+
+#### _Backup_ S3 e restauração
+
+| _Tool_ | Descrição |
+|--------|-----------|
+| `get_backup_s3` | Mostra a configuração do [_Backup_ S3]({{ site.baseurl }}/docs/s3) do projeto (_bucket_, _endpoint_, estágios incluídos, hora da rodada diária, retenção, último teste, último envio e último problema) e o que acontece com cada _build_ no _backup_ diário. O segredo do _bucket_ não passa pelo assistente: a configuração é feita no Dashboard. |
+| `test_backup_s3` | Testa o _bucket_ configurado: lista e grava no prefixo do projeto sem deixar nada. Não altera a configuração nem os arquivos. Requer _Maintainer_. |
+| `run_backup_s3_now` | Antecipa a rodada diária do _Backup_ S3 (o botão **Executar Agora** do Dashboard). No máximo uma vez a cada 10 minutos por projeto. Requer _Maintainer_. |
+| `list_backup_s3_runs` | Histórico do _Backup_ S3 do projeto: data, app, estágio, tipo (diário, sob demanda, pré-_deploy_, pré-_restore_, _restore_), arquivo, tamanho, SHA-256, resultado e retenção aplicada. |
+| `list_restore_files` | Arquivos do _bucket_ que podem ser restaurados numa _build_ (todos os estágios da mesma app e a pasta `upload/`), com origem, data, tamanho, SHA-256 e validade do nome, além do estado do _restore_ em andamento. |
+| `request_restore` | Primeiro passo do _restore_: envia ao e-mail do usuário um PIN de 6 dígitos, válido por 5 minutos, preso ao arquivo e à _build_. Avisa sobre arquivo de outro estágio (dados de produção em teste, LGPD) e sobre arquivo sem registro. Requer _Maintainer_. |
+| `confirm_restore` | Confirma o _restore_ com o PIN e o põe na fila única da plataforma. Antes, a plataforma faz um _backup_ da _build_ atual (para reverter) e confere o arquivo (tamanho, SHA-256, gzip e tar). Requer _Maintainer_. |
 
 #### Equipe
 
