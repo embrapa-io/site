@@ -9,6 +9,8 @@ permalink: /docs/mcp/io/
 
 {% include mcp-copy-url.html %}
 
+<iframe width="730" height="410" src="https://www.youtube.com/embed/CS-fjG0qXq0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 O **MCP Server** do **Embrapa I/O** é um _middleware_ inteligente entre **clientes de IA** e a API da plataforma que implementa o [Model Context Protocol (MCP)](https://modelcontextprotocol.io), permitindo que assistentes de IA como Claude, Gemini, Copilot e Cursor interajam diretamente — criando projetos, configurando _builds_, monitorando _deploys_ e muito mais — tudo via linguagem natural.
 
 ## Conectar
