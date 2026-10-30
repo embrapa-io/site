@@ -4,6 +4,8 @@ title: Cluster
 subtitle: Configurando e disponibilizando um cluster
 ---
 
+<iframe width="730" height="410" src="https://www.youtube.com/embed/yVHHmz7xYf4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 > **Catálogo:** a lista dos _clusters_ disponíveis, com os recursos de cada um, está em [Recursos → Clusters]({{ site.baseurl }}/resources/clusters); os servidores de inferência acessíveis a partir deles, em [Recursos → GPU Servers]({{ site.baseurl }}/resources/gpus).
 
 Conforme explicado no [capítulo de arquitetura]({{ site.baseurl }}/docs/architecture), o **Embrapa I/O** é uma plataforma do tipo _Cloud Agnostic Architecture_. Ou seja, se propõe a atuar com <u>diferentes tecnologias de conteinerização e clusterização em nuvem</u>, às quais são aqui chamadas de "**orquestradores**".
@@ -44,17 +46,15 @@ Neste primeiro passo será abordado o provisionamento básico do(s) servidor(es)
 
 ### Docker Compose {#docker}
 
-Para instalação do orquestrador em [Docker Compose](https://docs.docker.com/compose/) é necessário disponibilizar um único servidor dedicado (_bare metal_) ou máquina virtual. É recomendado o uso da distribuição [Linux Ubuntu Server 24.04 LTS](https://ubuntu.com/download/server). <u>É necessário que seja utilizada a arquitetura <b>amd64</b></u>. No momento da instalação do SO, haverá a possibilidade de instalar pacotes adicionais. Neste momento, selecione o **SSH Server**.
+Para instalação do orquestrador em [Docker Compose](https://docs.docker.com/compose/) é necessário disponibilizar um único servidor dedicado (_bare metal_) ou máquina virtual. É recomendado o uso da distribuição [Linux Ubuntu Server 26.04 LTS](https://ubuntu.com/download/server) (a 24.04 LTS continua aceita). <u>É necessário que seja utilizada a arquitetura <b>amd64</b></u>. No momento da instalação do SO, haverá a possibilidade de instalar pacotes adicionais. Neste momento, selecione o **SSH Server**.
 
 Uma vez que o _shell_ esteja disponível, atualize completamente a distribuição (`apt update && apt upgrade -y && apt dist-upgrade -y && apt autoremove -y && apt autoclean`) e proceda com o [passo-a-passo oficial para instalação do Docker](https://docs.docker.com/engine/install/ubuntu/).
 
 > **Atenção!** Após concluir da instalação, é fortemente recomendado efetuar o [login no Docker](https://docs.docker.com/engine/reference/commandline/login/) utilizando uma conta institucional. O uso do Docker não-autenticado pode resultar em erros durante o processo de _deploy_ (p.e., `Temporary failure in name resolution`).
 
-Agora será necessário configurar um _storer_ associado ao _cluster_, que é o servidor físico onde serão armazenados os _volumes_ utilizados pelos containers para persistir dados:
+Agora será necessário configurar o _storer_ associado ao _cluster_, ou seja, o local em que serão armazenados os _volumes_ utilizados pelos containers para persistir dados. Em **Docker Compose**, os _volumes_ ficam em **disco local**, no próprio servidor (_storer_ `DockerLocal`): basta um diretório dedicado, criado com as permissões descritas [no passo 2](#sudoers). Nos exemplos desta documentação, o diretório é o `/var/io`. Dimensione o disco considerando os bancos de dados e os arquivos de todas as aplicações do _cluster_.
 
-- `DockerLocal`: Caso não haja uma outra VM ou um outro servidor do tipo _storage_ disponível, que seria o equipamento mais apropriado, é possível configurar um _storer_ local. Na prática será um diretório no próprio _cluster_ onde todos os _volumes_ serão criados fisicamente. Para isto, basta criar um diretório em qualquer local no servidor e atribuir permissões de escrita.
-
-- `DockerNFSv4`: Havendo uma outra VM ou outro servidor físico de _storage_ disponível, os mantenedores poderão [instalar e/ou habilitar o NFS (versão 4)](https://phoenixnap.com/kb/ubuntu-nfs-server) nele. É importante que no arquivo `/etc/exports` sejam parametrizados, pelo menos, as seguintes opções no diretório a ser montado: `rw`, `no_root_squash`, `sync`, `no_subtree_check` e `insecure`.
+> **Atenção!** **Não utilize NFS** para os _volumes_ de um _cluster_ em Docker Compose. A plataforma já ofereceu essa opção (`DockerNFSv4`), mas ela causou incidentes graves: bancos de dados com os arquivos num _storage_ NFS travam quando a rede ou o servidor NFS oscila, os processos ficam presos sem poder ser encerrados (nem com `kill -9`) e arrastam junto o serviço do Docker, exigindo a reinicialização do servidor. O NFS só é indicado para o [Docker Swarm](#swarm), e com uma arquitetura própria para isso.
 
 É fortemente recomendado ajustar alguns parâmetros do Linux (`sysctl`). Normalmente estes parâmetros são ajustados editando o arquivo `/etc/sysctl.d/99-sysctl.conf` (ou diretamente o `/etc/sysctl.conf` em distribuições mais antigas). Considere os seguintes parâmetros e correspondentes valores mínimos:
 
@@ -70,7 +70,9 @@ O último parâmetro é **obrigatório**. As portas que a plataforma reserva par
 
 ### Docker Swarm {#swarm}
 
-Para instalação do orquestrador em [Docker Swarm](https://docs.docker.com/engine/swarm/) é necessário disponibilizar três ou mais servidores dedicados (_bare metal_) ou máquinas virtuais. Em cada uma delas deverá ser instalado, preferencialmente, a distribuição [Linux Ubuntu Server 24.04 LTS](https://ubuntu.com/download/server). <u>É necessário que seja utilizada a arquitetura <b>amd64</b></u>. No momento da instalação do SO, haverá a possibilidade de instalar pacotes adicionais. Neste momento, selecione o **SSH Server**.
+O [Docker Swarm](https://docs.docker.com/engine/swarm/) distribui os containers das aplicações entre vários servidores. Com ele, uma mesma aplicação pode rodar em várias réplicas, com **balanceamento de carga** entre elas, e continuar no ar quando um dos servidores falha ou passa por manutenção. É a opção indicada para sistemas com **grande volume de acesso** ou que exigem **alta disponibilidade**. Em troca, demanda mais servidores, um _storage_ compartilhado e uma arquitetura de aplicação preparada para isso (veja [abaixo](#swarm-architecture)).
+
+Para instalação do orquestrador em [Docker Swarm](https://docs.docker.com/engine/swarm/) é necessário disponibilizar três ou mais servidores dedicados (_bare metal_) ou máquinas virtuais. Em cada uma delas deverá ser instalado, preferencialmente, a distribuição [Linux Ubuntu Server 26.04 LTS](https://ubuntu.com/download/server) (a 24.04 LTS continua aceita). <u>É necessário que seja utilizada a arquitetura <b>amd64</b></u>. No momento da instalação do SO, haverá a possibilidade de instalar pacotes adicionais. Neste momento, selecione o **SSH Server**.
 
 Uma vez que o _shell_ esteja disponível, atualize completamente a distribuição (`apt update && apt upgrade -y && apt dist-upgrade -y && apt autoremove -y && apt autoclean`) em cada um dos nós e proceda com o [passo-a-passo oficial para instalação do Docker](https://docs.docker.com/engine/install/ubuntu/).
 
@@ -87,6 +89,18 @@ docker service create --name registry --publish published=5000,target=5000 regis
 Configure agora um _storer_ associado ao _cluster_, que é o servidor físico onde serão armazenados os _volumes_ utilizados pelos containers para persistir dados:
 
 - `SwarmNFSv4`: Será necessário ter um servidor de _storage_ dedicado ao _cluster_ em **Docker Swarm**. Nele, os mantenedores deverão [instalar e/ou habilitar o NFS (versão 4)](https://phoenixnap.com/kb/ubuntu-nfs-server). É importante que no arquivo `/etc/exports` sejam parametrizados, pelo menos, as seguintes opções no diretório a ser montado: `rw`, `no_root_squash`, `sync`, `no_subtree_check` e `insecure`. Todos os nós do _cluster_ devem ser capazes de montar o _storage_ NFS.
+
+O _storage_ compartilhado é necessário porque, no Swarm, um container pode ser reiniciado em qualquer nó, e os dados precisam estar acessíveis em todos eles. O _storage_ deve ficar no mesmo _data center_ dos nós, numa rede de baixa latência, de preferência dedicada, e com redundância de disco e de energia. Uma oscilação dele afeta, de uma só vez, todas as aplicações do _cluster_.
+
+#### Arquitetura das aplicações no Swarm {#swarm-architecture}
+
+O NFS não é adequado para os **arquivos de bancos de dados** (PostgreSQL, MongoDB, MySQL, etc.). Esses bancos fazem escritas pequenas e sincronizadas o tempo todo e dependem de travas de arquivo. Sobre NFS, ficam lentos e, quando o _storage_ oscila, os processos travam à espera do disco e não podem ser encerrados, o que derruba o serviço do Docker no nó. Por isso, uma aplicação só deve ir para um _cluster_ em Docker Swarm se a sua arquitetura separar o banco de dados da pilha (_stack_) que roda no _swarm_:
+
+- **Banco de dados fora do _swarm_**: o banco roda num servidor ou VM próprio, com disco local, ou num serviço de banco de dados gerenciado, e a aplicação o acessa pela rede, com o endereço e as credenciais informados por variáveis de ambiente. Assim, os arquivos do banco nunca passam pelo NFS. Neste caso, o _backup_ e a manutenção do banco ficam a cargo da equipe que o opera, e não do [_backup_ da plataforma]({{ site.baseurl }}/docs/backup), que alcança apenas os _volumes_ da _build_.
+- **_Backend_ sem estado** (_stateless_): os serviços da API e do _frontend_ não guardam dados no próprio container, o que permite executar várias réplicas e distribuir a carga entre elas. Sessões e _cache_ vão para o banco ou para um serviço próprio (como o Redis).
+- **NFS só para arquivos que toleram latência**: _uploads_ de usuários, imagens e documentos gerados podem ficar em _volumes_ no NFS. Mesmo assim, evite operações que varram o _volume_ inteiro (como `find` ou cópias recursivas) e _health checks_ que escrevam nele.
+
+Essa separação exige um _boilerplate_ e uma aplicação pensados para ela. Antes de levar uma aplicação para um _cluster_ em Docker Swarm, converse com a equipe da plataforma.
 
 ## 2. Integração (via SSH) do _cluster_ à plataforma {#ssh}
 
@@ -110,17 +124,27 @@ usermod -aG docker io
 
 Com isso o usuário terá as permissões necessárias para executar os comandos do Docker.
 
-### b. Adição do usuário ao _sudoers_:
+### b. Adição do usuário ao _sudoers_ {#sudoers}
 
-Caso seu _cluster_ esteja utilizando um _storage_ desacoplado, execute os comandos abaixo apenas neste _storage_. Caso o armazenamento de volumes seja local, ou seja, no próprio _cluster_, execute os comando abaixo nele.
+Execute os comandos abaixo no servidor em que os _volumes_ ficam armazenados: no próprio _cluster_, em Docker Compose, ou no _storage_ NFS, em [Docker Swarm](#swarm).
 
-As instruções criam os diretórios em que os volumes serão armazenados e concede ao usuário de DevOps a permissão de alterar o proprietário e permissões de suas subpastas. Para exemplificar, foi considerado que o diretório de armazenamento de volumes será o `/mnt/nfs` e que o usuário de DevOps tem o login "**io**":
+As instruções criam o diretório em que os _volumes_ serão armazenados e concedem ao usuário de DevOps a permissão de alterar o proprietário e as permissões das suas subpastas. Para exemplificar, foi considerado que o diretório de armazenamento de _volumes_ será o `/var/io` e que o usuário de DevOps tem o login "**io**":
 
 ```bash
-mkdir /mnt/nfs && chown io:io /mnt/nfs && chmod 700 /mnt/nfs
+mkdir /var/io && chown io:io /var/io && chmod 700 /var/io
 
-echo "io ALL=(ALL) NOPASSWD: /bin/chown * /mnt/nfs/*, /bin/chmod * /mnt/nfs/*" > /etc/sudoers.d/io
+echo "io ALL=(ALL) NOPASSWD: /bin/chown * /var/io/*, /bin/chmod * /var/io/*" > /etc/sudoers.d/io
 ```
+
+O diretório escolhido é informado à equipe da plataforma junto com os demais dados do _cluster_, para o cadastro no catálogo.
+
+> **Atenção!** A partir do Ubuntu 26.04, o `sudo` padrão é o [`sudo-rs`](https://github.com/trifectatechfoundation/sudo-rs), que **não aceita curingas** (`*`) nos argumentos de comando: com ele, a regra acima é ignorada (`wildcards are not allowed in command arguments`) e todo _deploy_ falha ao ajustar as permissões dos volumes. Antes de criar a regra, volte ao `sudo` clássico, que já vem instalado:
+>
+> ```bash
+> update-alternatives --set sudo /usr/bin/sudo.ws
+> ```
+>
+> O mesmo vale para quem **atualizar** um _cluster_ ou _storage_ do 24.04 para o 26.04 (`do-release-upgrade`): depois da atualização, confira com `sudo --version`, que deve mostrar `Sudo version 1.9…`, e não `sudo-rs`.
 
 ### c. Configuração da chave SSH:
 
@@ -146,9 +170,37 @@ Repare que, com esta configuração, os autômatos do **Embrapa I/O** conseguir�
 
 ## 3. Liberação das demais portas no _firewall_ {#ports}
 
-O **Embrapa I/O** expõe as aplicações instanciadas em portas na **faixa de 49152 a 65535**. Portanto, toda esta faixa de portas deverá ser exposta para acesso público nos servidores de aplicação que compõem o _cluster_ (p.e., todos os nós _managers_ e _workers_ no [Docker Swarm](https://docs.docker.com/engine/swarm/)).
+O **Embrapa I/O** expõe as aplicações instanciadas em portas na **faixa de 49152 a 65535**. Portanto, toda esta faixa de portas deverá ser exposta para acesso público, em **TCP e UDP**, nos servidores de aplicação que compõem o _cluster_ (p.e., todos os nós _managers_ e _workers_ no [Docker Swarm](https://docs.docker.com/engine/swarm/)).
 
-> **Atenção!** Existe um limite de **30 projetos** para cada cada _cluster_ do **Embrapa I/O**. Este limite está relacionado ao limite padrão do Docker, onde um único _host_ não deve possuir mais do que 30 _networks_. É possível contornar esta limitação, mas visando manter uma complexidade comedida da gestão das VMs, sugere-se mantê-lo. É importante frisar que o número de aplicações em cada projeto e de containers em cada aplicação não é limitado pela plataforma e, portanto, ficará a cargo das limitações de _hardware_, sistema operacional e outros recursos escassos, tal como a quantidade máxima de portas expostas em cada _cluster_ (no caso, 16.383).
+Um _cluster_ da plataforma pode receber qualquer tipo de aplicação de agricultura digital ou de gestão institucional, e não apenas sistemas _web_. O roteador da plataforma atende as requisições HTTP e HTTPS pelo nome de domínio, mas muitas aplicações usam outros protocolos, comuns em Internet das Coisas (IoT), em automação e em integrações, que não passam por ele e precisam ser acessados diretamente no endereço `host:porta`. Alguns exemplos:
+
+| Protocolo | Transporte | Uso típico |
+|---|---|---|
+| **MQTT** / MQTTS | TCP | Telemetria de sensores e estações, plataformas IoT como o ThingsBoard |
+| **CoAP** / CoAPS (DTLS) | UDP | Dispositivos com pouca energia, como sensores a bateria no campo |
+| **LwM2M** | UDP (sobre CoAP) | Gestão remota de dispositivos IoT |
+| **LoRaWAN** (_packet forwarder_) | UDP | _Gateways_ LoRa no campo enviando dados ao servidor de rede |
+| **AMQP** | TCP | Filas de mensagens e integração entre sistemas |
+| **NTRIP** | TCP | Correção RTK do GNSS na agricultura de precisão |
+| **OPC UA** e **Modbus TCP** | TCP | Automação na agroindústria e em equipamentos |
+| **RTSP** | TCP/UDP | Fluxos de vídeo de câmeras (monitoramento animal, lavouras) |
+| **gRPC** e WebSockets dedicados | TCP | Integração entre serviços e comunicação em tempo real |
+
+Por isso, o acesso direto às portas da faixa, em TCP e em UDP, é uma **exigência da plataforma** para os _clusters_ do catálogo. A porta é declarada no `docker-compose.yaml` da aplicação, com o protocolo quando for UDP (p.e., `"${COAP_PORT}:5683/udp"`), e alocada pela plataforma como qualquer outra.
+
+> **Atenção!** Sempre que o protocolo tiver uma versão com criptografia (MQTTS na porta 8883 em vez do MQTT na 1883, CoAPS com DTLS em vez do CoAP), é ela que deve ser exposta. Serviço sem criptografia aberto na internet é alvo de varreduras e de notificações dos centros de resposta a incidentes.
+
+### Capacidade do _cluster_ {#capacity}
+
+Cada [_build_]({{ site.baseurl }}/docs/introduction#build) (uma aplicação num estágio, como `siexp/coletor@alpha`) recebe uma **rede Docker própria**, que isola os seus containers dos das demais. Com a sub-rede do estágio informada no [catálogo](#catalog) (atributo `network.subnet`, p.e. `172.30.0.0`), a plataforma atribui a cada _build_ uma faixa `/24` dentro dela (`172.30.1.0/24`, `172.30.2.0/24` e assim por diante). Assim, o _cluster_ comporta:
+
+- até **255 _builds_ por estágio**, uma para cada faixa `/24` da sub-rede (estágios com sub-redes diferentes somam as suas capacidades);
+- até cerca de **253 containers por _build_**, um para cada endereço da faixa; e
+- **16.348 portas** (de 49152 a 65499) divididas entre todas as _builds_ de todos os estágios do _cluster_. As portas a partir da 65500 ficam reservadas a serviços da plataforma no próprio servidor, como o [_Web Terminal_](#terminal).
+
+> **Atenção!** Informar a sub-rede no catálogo é **obrigatório** para novos _clusters_. Sem ela, o Docker usa o seu conjunto padrão de endereços, que comporta apenas cerca de 30 redes, ou seja, cerca de 30 _builds_ no servidor.
+
+Na prática, o que limita um _cluster_ é o _hardware_ (memória, processamento e disco) muito antes das redes ou das portas. Acompanhe o consumo do servidor e avise a equipe da plataforma quando ele estiver perto do limite, para que novas _builds_ sejam direcionadas a outro _cluster_.
 
 ## 4. Configuração do _plugin_ para _logging_ {#loki}
 
@@ -434,7 +486,7 @@ O processo de _build_ do Docker gera uma imensa quantidade de imagens e outros a
 
 > **Atenção!** Ainda que opte por não configurar o processo de _backup_ sugerido acima, considere criar um _schedular job_ para executar as linhas de limpeza do _cache_ diariamente.
 
-# Disponibilizando no Catálogo
+# Disponibilizando no Catálogo {#catalog}
 
 Uma vez configurado o _cluster_, basta montar as configurações em formato JSON e [enviar para a equipe de gestão da plataforma](mailto:io@embrapa.br). O exemplo abaixo demonstra como deverão ser as configurações:
 
@@ -453,9 +505,8 @@ Uma vez configurado o _cluster_, basta montar as configurações em formato JSON
       "location": "Campo Grande - MS",
       "orchestrator": "DockerCompose",
       "storage": {
-        "type": "DockerNFSv4",
-        "host": "storage.facom.ufms.br",
-        "path": "/mnt/nfs"
+        "type": "DockerLocal",
+        "path": "/var/io"
       },
       "aliases": [
         "releases.facom.ufms.br",
@@ -566,9 +617,8 @@ Uma vez configurado o _cluster_, basta montar as configurações em formato JSON
       "location": "Campo Grande - MS",
       "orchestrator": "DockerCompose",
       "storage": {
-        "type": "DockerNFSv4",
-        "host": "storage.facom.ufms.br",
-        "path": "/mnt/nfs"
+        "type": "DockerLocal",
+        "path": "/var/io"
       },
       "aliases": [
         "test.facom.ufms.br",
@@ -619,7 +669,7 @@ Uma vez configurado o _cluster_, basta montar as configurações em formato JSON
       "orchestrator": "DockerCompose",
       "storage": {
         "type": "DockerLocal",
-        "path": "/mnt/volumes"
+        "path": "/var/io"
       },
       "aliases": [
         "sandbox.facom.ufms.br",
@@ -661,11 +711,11 @@ Uma vez configurado o _cluster_, basta montar as configurações em formato JSON
 
 Repare que o _cluster_ deve ser configurado especificamente para cada estágio da aplicação. Assim, ele pode estar disponível para os estágios _alpha_, _beta_ e/ou _release_, ou seja, não necessariamente para todos. O `host` deverá apontar para o IP real do servidor ou VM. O atributo `ssh.user` permite especificar o [usuário exclusivo para acionar os processos de _deploy_ no _cluster_](#ssh). Já os atributos `local` e `location` indicam a Unidade da Embrapa, instituição ou empresa e a sua localização geográfica.
 
-Para evitar conflitos com outros _hosts_ na rede do _data center_ que abriga as máquinas do _cluster_, é possível especificar em qual _subnet_ interna (faixa de IPs) o orquestrador irá alocar as redes (do tipo _bridge_) das _stacks_ de containers. Repare que nas configurações do _cluster_ `io.facom.ufms.br` as _subnets_ estão definidas. Para cada estágio em que a _subnet_ for configurada, será permitido sempre o provisionamento de 255 _stacks_ (ou seja, para o estágio _alpha_ no exemplo acima, será de `172.28.1.0/24` até `172.28.255.0/24`). Em cada _stack_, por sua vez, será permitida a alocação de 256 IPs (CIDR `/24`). Na prática, cada serviço da _stack_ de containers recebe um destes IPs. É possível verificar se uma _subnet_ está vaga no _host_ com o comando `ip route show` e em todo o _data center_ por meio do comando `nmap` (para a faixa de IPs do exemplo, o comando preciso seria `nmap -sn 172.28.0.0/16`). Normalmente as _subnets_ na faixa de `172.19.0.0/16` a `172.31.0.0/16` são escolhas práticas seguras para as redes dos containers.
+Para evitar conflitos com outros _hosts_ na rede do _data center_ que abriga as máquinas do _cluster_, deve-se especificar em qual _subnet_ interna (faixa de IPs) o orquestrador irá alocar as redes (do tipo _bridge_) das _stacks_ de containers. O atributo é obrigatório para novos _clusters_ (veja [capacidade do _cluster_](#capacity)). Repare que nas configurações do _cluster_ `io.facom.ufms.br` as _subnets_ estão definidas. Para cada estágio em que a _subnet_ for configurada, será permitido sempre o provisionamento de 255 _stacks_ (ou seja, para o estágio _alpha_ no exemplo acima, será de `172.28.1.0/24` até `172.28.255.0/24`). Em cada _stack_, por sua vez, há 256 endereços (CIDR `/24`), dos quais cerca de 253 ficam disponíveis para os containers. Na prática, cada serviço da _stack_ de containers recebe um destes IPs. É possível verificar se uma _subnet_ está vaga no _host_ com o comando `ip route show` e em todo o _data center_ por meio do comando `nmap` (para a faixa de IPs do exemplo, o comando preciso seria `nmap -sn 172.28.0.0/16`). Normalmente as _subnets_ na faixa de `172.19.0.0/16` a `172.31.0.0/16` são escolhas práticas seguras para as redes dos containers.
 
 O `orchestrator` indica o _driver_ de orquestração que está sendo utilizado. No exemplo acima, o _cluster_ `io.facom.ufms.br` está configurado com o orquestrador **Docker Compose** e, portanto, é composto por um único servidor para _deploy_ dos containers. Já o _cluster_ `cluster.cnpgc.embrapa.br` está configurado com o orquestrador **Docker Swarm** e é, portanto, composto por diversos nós. Neste caso, no atributo `host` deverá ser referenciado um _manager node_ principal, que no nosso exemplo é o `cluster`. No atributo `node` estão declarados explicitamente os demais nós, sendo `manager1` e `manager2` como _manager nodes_ e `worker1` como um _worker node_, totalizando assim os 4 (quatro) nós que formam este _cluster_.
 
-O atributo `storage` contém o _driver_ de _storer_ e atributos relacionados. Por exemplo, para o estágio _alpha_ foi configurado um _storer_ utilizando o _driver_ `DockerLocal` e, desta forma, os _volumes_ serão criados no diretório `/mnt/volumes` indicado no atributo `path`. Já em estágio _beta_ e _release_ está sendo utilizado o _driver_ para **NFSv4** e, desta forma, os _volumes_ serão criados fisicamente no diretório remoto `/mnt/nfs` do _storage_ `storage.facom.ufms.br`.
+O atributo `storage` contém o _driver_ de _storer_ e atributos relacionados. No exemplo, os três estágios do _cluster_ `io.facom.ufms.br` usam o _driver_ `DockerLocal` e, desta forma, os _volumes_ são criados em disco local, no diretório `/var/io` indicado no atributo `path`. Já o _cluster_ `cluster.cnpgc.embrapa.br`, em **Docker Swarm**, usa o _driver_ `SwarmNFSv4`, com os _volumes_ no diretório remoto indicado em `path`, no _storage_ indicado em `host`. O NFS só deve ser usado com o Docker Swarm e com a [arquitetura adequada](#swarm-architecture).
 
 Os `aliases` são subdomínios configurados pela Unidade da Embrapa, instituição ou empresa parceira que [possibilitam alocar as aplicações em domínios mais condizentes semanticamente com a sua finalidade]({{ site.baseurl }}/docs/build#urls). Estes aliases **devem ser configurados no DNS** da seguinte forma:
 

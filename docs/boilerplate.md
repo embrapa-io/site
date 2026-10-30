@@ -442,10 +442,10 @@ docker volume create --driver local --opt type=none --opt device=$(pwd)/data/wp 
 docker volume create --driver local --opt type=none --opt device=$(pwd)/data/backup --opt o=bind agroproj_agroapp_backup
 ```
 
-Em ambientes de _deploy_ (_alpha_, _beta_ e _release_) o volume será criado automaticamente utilizando o _driver_ de _storer_ configurado no _cluster_. Por exemplo, para um [_cluster_ com orquestrador **Docker Compose** utilizando como _storer_ o **NFSv4**]({{ site.baseurl }}/docs/cluster), teríamos algo do tipo:
+Em ambientes de _deploy_ (_alpha_, _beta_ e _release_) o volume será criado automaticamente utilizando o _driver_ de _storer_ configurado no _cluster_. Por exemplo, para um [_cluster_ com orquestrador **Docker Compose** utilizando como _storer_ o disco local (`DockerLocal`)]({{ site.baseurl }}/docs/cluster), teríamos algo do tipo:
 
 ```bash
-docker volume create --driver local --opt type=nfs --opt o=addr=storage.sede.embrapa.br,rw --opt device=:/mnt/nfs/cluster.sede.embrapa.br/agroproj_agroapp_alpha_wp agroproj_agroapp_alpha_wp
+docker volume create --driver local --opt type=none --opt device=/var/io/io.cnpgc.embrapa.br/agroproj_agroapp_alpha_wp --opt o=bind agroproj_agroapp_alpha_wp
 ```
 
 Por segurança, todos os _volumes_ e a _network_ alocados no _stack_ de containers são checados antes do _deploy_. Assim, **não é possível uma aplicação referenciar e acessar o _volume_ e/ou _network_ de outra aplicação**. Uma vez que os _volumes_ e a _network_ estejam criados, o desenvolvedor da aplicação poderá instanciá-la com o seguinte comando:
