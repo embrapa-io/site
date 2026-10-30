@@ -4,6 +4,8 @@ title: Upgrade
 subtitle: Como manter suas apps atualizadas em relação ao boilerplate?
 ---
 
+<iframe width="730" height="410" src="https://www.youtube.com/embed/zpfSsxY4GBE" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 *[UI]: User Interface
 
 Uma das maiores capacidades do **Embrapa I/O** é o de fomentar o **desenvolvimento colaborativo de ativos digitais**. Para isso, a plataforma faz uso intensivo dos recursos do [GIT](https://git-scm.com/), possibilitando que manutenções corretivas e evolutivas no código-fonte de diferentes aplicações em projetos distintos possam ser compartilhadas. Este recurso está fortemente embasado no [conceito de _boilerplates_]({{ site.baseurl }}/docs/boilerplate) inerente à plataforma, que faz com que toda aplicação criada seja na realidade um [_fork_ de um repositório-base](https://docs.gitlab.com/ee/user/project/repository/forking_workflow.html). Desta forma, uma vez estabelecido um vínculo entre o repositório-base (_upstream_) e o derivado (_fork_), torna-se possível que alterações sejam mescladas (do inglês, _merged_) do primeiro para o segundo e vice-versa.

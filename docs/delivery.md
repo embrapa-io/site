@@ -4,6 +4,8 @@ title: Hospedagem de Aplicações
 subtitle: Onde e como hospedar as builds em cada estágio de maturidade
 ---
 
+<iframe width="730" height="410" src="https://www.youtube.com/embed/wF-dTS0O6YQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 Uma dúvida recorrente das equipes e dos Núcleos de Tecnologia da Informação (NTIs) das Unidades é **onde** cada versão de uma aplicação deve rodar e **por qual mecanismo** ela deve ser instanciada. A resposta depende de duas variáveis: o **estágio de maturidade** da _build_ e o **_Tier_** da infraestrutura disponível.
 
 Chamamos de **_Tier_** (do inglês, patamar ou camada) o nível de robustez e de suporte de uma infraestrutura, numerado de 0 a 4: do computador do desenvolvedor, sem qualquer salvaguarda, até a nuvem contratada com suporte 24x7. É uma classificação **da infraestrutura**, inspirada nos _tiers_ de _data center_ usados pelo mercado, e não um acordo de nível de serviço (SLA) com métricas e penalidades contratuais. Os cinco _Tiers_ estão [definidos adiante](#tiers).

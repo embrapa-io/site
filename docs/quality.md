@@ -4,6 +4,8 @@ title: Qualidade do Código
 subtitle: Análise estática e detecção de problemas
 ---
 
+<iframe width="730" height="410" src="https://www.youtube.com/embed/S_MfwAUnIQE" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 Dentre as diversas ferramentas com as quais a plataforma **Embrapa I/O** é integrada, há uma de análise estática de código-fonte que detecta _bugs_, vulnerabilidades e problemas de qualidade, denominada [SonarQube](https://www.sonarsource.com/products/sonarqube/). Assim como as demais integrações, ela é automaticamente configurada no momento da criação de [projetos]({{ site.baseurl }}/docs/project) e [aplicações]({{ site.baseurl }}/docs/app) e está disponível para acesso em:
 
 <div style="margin: 0 auto; text-align: center;">

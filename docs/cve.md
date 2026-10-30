@@ -4,6 +4,8 @@ title: CVEs Críticos
 subtitle: Alertas de vulnerabilidades que estão sendo exploradas na internet e não exigem login.
 ---
 
+<iframe width="730" height="410" src="https://www.youtube.com/embed/2AJF_TLKJRY" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 A plataforma **Embrapa I/O** varre toda hora as imagens em execução nos _clusters_ em busca de vulnerabilidades conhecidas (CVEs) com o **Trivy**, e o resultado aparece no diálogo de [monitoramento da _build_]({{ site.baseurl }}/docs/health). Só que a maioria das CVEs `HIGH` e `CRITICAL` que o Trivy encontra nunca foi explorada por ninguém, e um aviso a cada uma delas só ensina a equipe a ignorar avisos.
 
 O **alerta de vulnerabilidades em exploração ativa** faz o oposto: cruza o que o Trivy encontrou com catálogos públicos de falhas **que já estão sendo exploradas** e só se manifesta quando há algo que exige ação. Se chegou um alerta, ele merece atenção.
