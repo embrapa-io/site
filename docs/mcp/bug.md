@@ -31,12 +31,12 @@ npx -y @sentry/mcp-server@latest --access-token=SEU_TOKEN --host=bug.embrapa.io 
 ### Criar o Auth Token
 
 1. Acesse [bug.embrapa.io](https://bug.embrapa.io) e faça _login_;
-2. Vá em **User Settings → Auth Tokens** (`https://bug.embrapa.io/settings/account/api/auth-tokens/`);
-3. Clique em **Create New Token** e selecione os _scopes_:
+2. No menu lateral, abra **Settings** e vá em **Personal Tokens** (`https://bug.embrapa.io/settings/account/api/auth-tokens/`);
+3. Clique em **Create New Token**, dê um nome (ex.: `mcp`) e, em **Permissions**, escolha **Read** em _Organization_ e **Read & Write** em _Project_, _Team_ e _Issue & Event_. A prévia logo abaixo deve mostrar os _scopes_:
    ```
-   org:read   project:read   project:write   team:read   team:write   event:write
+   org:read   project:read   project:write   team:read   team:write   event:read   event:write
    ```
-4. Copie o token gerado (começa com `sntryu_…`) — ele **não** é exibido novamente.
+4. Clique em **Create Token** e copie o token gerado (começa com `sntryu_…`) — ele **não** é exibido novamente.
 
 > **Atenção!** O token herda as permissões da **sua conta**: você só enxerga as organizações e projetos aos quais já tem acesso no `bug.embrapa.io`.
 
