@@ -9,6 +9,8 @@ permalink: /docs/mcp/hit/
 
 {% include mcp-copy-url.html %}
 
+<iframe width="730" height="410" src="https://www.youtube.com/embed/ECtpMIUF6ik" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 O **MCP do Matomo** conecta assistentes de IA aos dados de _analytics_ de acesso das aplicações da plataforma, hospedados no [Matomo](https://hit.embrapa.io) do **Embrapa I/O**. Diferentemente dos demais MCPs da plataforma (desenvolvidos internamente), este utiliza o **plugin oficial [MCP Server da Matomo](https://plugins.matomo.org/McpServer)**, mantido pela própria Matomo, permitindo perguntar em linguagem natural sobre tráfego, origens de visitas, páginas mais acessadas, campanhas e comportamento dos usuários — sem precisar navegar pelos relatórios.
 
 O servidor atua como uma **camada de mediação**: aceita as requisições via MCP, encaminha à API de _Analytics_ do Matomo e retorna os dados de forma estruturada. Toda interpretação é feita pelo LLM — o Matomo não gera, analisa nem treina modelos com os dados. O acesso é **limitado aos mesmos sites e relatórios** que o usuário já enxerga no Matomo.
