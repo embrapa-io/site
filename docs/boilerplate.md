@@ -41,7 +41,7 @@ Para criar e disponibilizar seu _boilerplate_, você precisará seguir os seguin
 A plataforma oferece uma ferramenta oficial que executa estes passos com você: a _skill_ **`embrapa-io-boilerplate`**, para o [**Claude Code**](https://claude.com/claude-code). Ela parte de uma aplicação **já aderente** à plataforma (validada pela agente [**Alice**](https://github.com/embrapa-io/alice), que trata as integrações, os contêineres, as variáveis de ambiente e os serviços-padrões) e faz a genericação:
 
 - troca os valores do projeto (nome, identificadores _unix_, versão, ano, ID do Matomo) pelas [_keywords_ de customização](#keyword) em `.env.io.example`, `.env.example` e `README.md`;
-- ajusta o `LICENSE` para MIT, mantendo os avisos de _copyright_ de terceiros quando o código veio de outro autor;
+- ajusta o `LICENSE` para MIT, mantendo no `THIRD-PARTY-NOTICES` os avisos de _copyright_ de terceiros quando o código veio de outro autor;
 - prepara o `.gitlab-io.yml` (análise do SonarQube para código próprio; arquivo sem _pipeline_ para ferramentas de prateleira) e o `.gitignore`;
 - revisa o português da documentação; e
 - orienta a análise do SonarQube **antes** de o _boilerplate_ entrar no catálogo.
@@ -779,7 +779,7 @@ Já no arquivo `LICENSE` estará presente a licença de uso e derivação do _bo
 
 Assim, como sugestão, recomendamos fortemente o uso da [licença MIT](https://mit-license.org) em todo _boilerplate_ desenvolvido.
 
-> **Atenção!** Se o _boilerplate_ nasceu de código de terceiros com licença permissiva (um _template_ da comunidade, p.e.), mantenha no `LICENSE` o aviso de _copyright_ do autor original e acrescente o da Embrapa abaixo dele: a própria licença MIT exige que o aviso acompanhe todas as cópias.
+> **Atenção!** Se o _boilerplate_ nasceu de código de terceiros com licença permissiva (um _template_ da comunidade, p.e.), o aviso de _copyright_ e o texto da licença original não podem ser apagados: a própria licença MIT exige que acompanhem todas as cópias. Guarde-os no arquivo `THIRD-PARTY-NOTICES`, na raiz (a agente Alice já faz isso ao adequar uma aplicação), e mantenha-o no _boilerplate_. Código de terceiros sob licença _copyleft_ (GPL e afins) precisa ser analisado antes de virar _boilerplate_.
 
 ## 12. Distribua o _boilerplate_ {#publish}
 
