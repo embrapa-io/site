@@ -36,6 +36,35 @@ Para criar e disponibilizar seu _boilerplate_, você precisará seguir os seguin
 11. [Documente e inclua a licença](#readme); e
 12. [Distribua o _boilerplate_](#publish).
 
+### A _skill_ oficial no Claude Code {#skill}
+
+A plataforma oferece uma ferramenta oficial que executa estes passos com você: a _skill_ **`embrapa-io-boilerplate`**, para o [**Claude Code**](https://claude.com/claude-code). Ela parte de uma aplicação **já aderente** à plataforma (validada pela agente [**Alice**](https://github.com/embrapa-io/alice), que trata as integrações, os contêineres, as variáveis de ambiente e os serviços-padrões) e faz a genericação:
+
+- troca os valores do projeto (nome, identificadores _unix_, versão, ano, ID do Matomo) pelas [_keywords_ de customização](#keyword) em `.env.io.example`, `.env.example` e `README.md`;
+- ajusta o `LICENSE` para MIT, mantendo os avisos de _copyright_ de terceiros quando o código veio de outro autor;
+- prepara o `.gitlab-io.yml` (análise do SonarQube para código próprio; arquivo sem _pipeline_ para ferramentas de prateleira) e o `.gitignore`;
+- revisa o português da documentação; e
+- orienta a análise do SonarQube **antes** de o _boilerplate_ entrar no catálogo.
+
+O uso da _skill_ é **recomendado** para todo _boilerplate_ novo: ela segue exatamente este capítulo e evita os erros mais comuns (_placeholders_ inventados, valores reais esquecidos, licença restritiva). A _skill_ é distribuída como _plugin_ no repositório público [github.com/embrapa-io/skills](https://github.com/embrapa-io/skills), que reunirá também as próximas _skills_ da plataforma.
+
+Para instalar, no Claude Code:
+
+```
+/plugin marketplace add embrapa-io/skills
+/plugin install embrapa-io-boilerplate@embrapa-io-skills
+```
+
+Depois, na pasta do repositório do _boilerplate_ (já com o código da aplicação aderente), peça ao Claude algo como:
+
+```
+Transforme esta app em um boilerplate do Embrapa I/O.
+```
+
+Para receber as versões novas da _skill_, use `/plugin marketplace update embrapa-io-skills`.
+
+> **Atenção!** A _skill_ não substitui a Alice: se a aplicação ainda não estiver aderente (por exemplo, sem os serviços de _backup_ e _restore_ ou com valores de variáveis de ambiente versionados), rode antes a Alice. E ela não publica nada sozinha: o repositório em `io/boilerplate`, a visibilidade pública e a entrada no catálogo continuam seguindo o [passo 12](#publish).
+
 É possível [criar um repositório de aplicação]({{ site.baseurl }}/docs/app) sem utilizar um _boilerplate_. Esta função é útil para instanciar na plataforma sistemas que antecedem o próprio **Embrapa I/O**. Entretanto, será necessário criar manualmente um repositório no [GitLab](https://git.embrapa.io) e adaptar seu código fonte de forma que ele tenha **toda a estrutura de pastas e arquivos requeridos para um _boilerplate_** (ou seja, seguir os mesmos passos aqui descritos). Em seguida, no momento de criar a aplicação pela _dashboard_, selecione a opção de um "**repositório pré-existente**" (conforme a imagem abaixo).
 
 ![Criando uma aplicação sem o boilerplate]({{ site.baseurl }}/assets/img/boilerplate/01.png)
@@ -748,7 +777,9 @@ Ao contrário do `deployment.yaml`, na declaração dos serviços **CLI** o atri
 
 Já no arquivo `LICENSE` estará presente a licença de uso e derivação do _boilerplate_ em si. É fundamental que esta licença seja de código-aberto e extremamente permissiva, de forma a não "contaminar" a aplicação derivada. Por exemplo, é indesejável o uso de uma licença do tipo GNU GPL v3, uma vez que ela obriga todo código-fonte derivado a ter a mesma licença do original (e, desta forma, ser também _open source_). Como muitas aplicações aspiram a produtos com apelo mercadológico, o uso do _boilerplate_ seria impossibilitado. Falamos mais sobre este assunto no [capítulo de licenciamento]({{ site.baseurl }}/docs/licensing).
 
-Assim, como sugestão, recomendamos fortemente o uso da [licensa MIT](https://mit-license.org) em todo _boilerplate_ desenvolvido.
+Assim, como sugestão, recomendamos fortemente o uso da [licença MIT](https://mit-license.org) em todo _boilerplate_ desenvolvido.
+
+> **Atenção!** Se o _boilerplate_ nasceu de código de terceiros com licença permissiva (um _template_ da comunidade, p.e.), mantenha no `LICENSE` o aviso de _copyright_ do autor original e acrescente o da Embrapa abaixo dele: a própria licença MIT exige que o aviso acompanhe todas as cópias.
 
 ## 12. Distribua o _boilerplate_ {#publish}
 
@@ -756,7 +787,7 @@ Para distribuir o _boilerplate_ para uso pela comunidade de desenvolvedores, ser
 
 > **Atenção!** Após efetuar o _fork_ da aplicação, criando o _boilerplate_, é necessário **alterar a visibilidade no _boilerplate_ para 'Public'** (Settings &raquo; General &raquo; Visibility, project features, permissions &raquo; Project visibility).
 
-Além disso, ele deverá constar e estar ativo no [catálogo de _boilerplates_](http://localhost:8029/io/boilerplate/metadata/-/blob/main/boilerplates.json). Para ser inserido na listagem, os mantenedores precisarão passar para a [equipe de suporte do **Embrapa I/O**](mailto:io@embrapa.br) o **nome _unix_** do _boilerplate_, um **nome legível** (rótulo), uma **breve descrição** (de uma linha) e um **ícone** que melhor represente as tecnologias utilizadas. Atualmente, os ícones permitidos são:
+Além disso, ele deverá constar e estar ativo no [catálogo de _boilerplates_](https://git.embrapa.io/io/boilerplate/metadata/-/blob/main/boilerplates.json). Para ser inserido na listagem, os mantenedores precisarão passar para a [equipe de suporte do **Embrapa I/O**](mailto:io@embrapa.br) o **nome _unix_** do _boilerplate_, um **nome legível** (rótulo), uma **breve descrição** (de uma linha) e um **ícone** que melhor represente as tecnologias utilizadas. Atualmente, os ícones permitidos são:
 
 <li class="cell"><i class="fa-brands fa-android"></i><div class="subtile">fa-brands<br />fa-android</div></li>
 <li class="cell"><i class="fa-brands fa-angular"></i><div class="subtile">fa-brands<br />fa-angular</div></li>
