@@ -16,7 +16,7 @@ Para criar uma nova aplicação a partir de um [_boilerplate_]({{ site.baseurl }
 
 ![Disclaimer de criação de app]({{ site.baseurl }}/assets/img/app/01.png)
 
-No segundo passo, o usuário deverá selecionar o _boilerplate_ que será utilizado para gerar o código-fonte inicial da aplicação. Conforme foi [explicado no capítulo de introdução]({{ site.baseurl }}/docs/introduction#boilerplate), o _boilerplate_ é necessário para estruturar a aplicação no padrão requerido pelo **Embrapa I/O**. Na maioria das vezes o _boilerplate_ será apenas uma espécie de `Hello Word`, ou seja, o menor conjunto de código-fonte possível para instanciar uma aplicação em determinada linguagem de programação ou _framework_ de desenvolvimento, porém estruturado com os requisitos para torná-lo aderente aos _pipelines_ de DevOps do Embrapa I/O.
+No segundo passo, o usuário deverá selecionar o _boilerplate_ que será utilizado para gerar o código-fonte inicial da aplicação. Conforme foi [explicado no capítulo de introdução]({{ site.baseurl }}/docs/introduction#boilerplate), o _boilerplate_ é necessário para estruturar a aplicação no padrão requerido pelo **Embrapa I/O**. Na maioria das vezes o _boilerplate_ será apenas uma espécie de `Hello World`, ou seja, o menor conjunto de código-fonte possível para instanciar uma aplicação em determinada linguagem de programação ou _framework_ de desenvolvimento, porém estruturado com os requisitos para torná-lo aderente aos _pipelines_ de DevOps do Embrapa I/O.
 
 É possível criar uma aplicação sem utilizar um _boilerplate_ como base. Para isso deverá ser utilizada a opção "**repositório pré-existente**" no campo de seleção. Neste caso, o repositório da aplicação deverá ser criado de antemão e possuir a mesma estrutura requerida por um _boilerplate_, [conforme explicado no tutorial de criação de _boilerplates_]({{ site.baseurl }}/docs/boilerplate).
 
@@ -42,7 +42,11 @@ Por fim, o repositório da aplicação estará disponível no grupo do projeto n
 
 ### 2. A partir de um repositório GIT {#git}
 
-Quando a aplicação é criada a partir de um _boilerplate_ existe o grande benefício desta já nascer inerentemente conteinerizada, integrada às ferramentas de monitoramento ([Matomo](https://hit.embrapa.io), [Sentry](https://bug.embrapa.io), [SonarQube](https://code.embrapa.io), etc) e aderente aos _pipelines_ de _deploy_ de aplicações da plataforma. Entretanto, exitem situações em que a criação da aplicação a partir de um _boilerplate_ não será adequada. Os casos mais comuns são:
+<iframe width="730" height="410" src="https://www.youtube.com/embed/w7Qwwf2RFx0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+O vídeo acima mostra todo o caminho desta seção com um código real, o [template oficial de FastAPI com React e PostgreSQL](https://github.com/fastapi/full-stack-fastapi-template): do repositório vazio no GitLab até o _deploy_ em _alpha_, passando pela agente de conformidade [**Alice**](#alice).
+
+Quando a aplicação é criada a partir de um _boilerplate_ existe o grande benefício desta já nascer inerentemente conteinerizada, integrada às ferramentas de monitoramento ([Matomo](https://hit.embrapa.io), [Sentry](https://bug.embrapa.io), [SonarQube](https://code.embrapa.io), etc) e aderente aos _pipelines_ de _deploy_ de aplicações da plataforma. Entretanto, existem situações em que a criação da aplicação a partir de um _boilerplate_ não será adequada. Os casos mais comuns são:
 
 - quando não há no catálogo de _boilerplates_ algum que atenda às especificações tecnológicas definidas para a aplicação; e
 - quando se trata de uma aplicação existente que está sendo migrada para a plataforma **Embrapa I/O**.
@@ -61,9 +65,22 @@ Na próxima tela, você terá a escolha de criar um repositório em branco ou im
 
 > **Atenção!** A _branch_ principal (_trunk_) do projeto deve obrigatoriamente se chamar `main`. Se o repositório estiver utilizando outro nome (tal como `master`, `development` ou qualquer variante) renomeie-a para `main` antes de prosseguir.
 
-Se estiver criando um repositório vazio para, posteriormente, por meio de um _scaffold_ inicializar o código fonte em determinada linguagem e/ou arcabouço de desenvolvimento, recomenda-se criar um "_blank project_" e inicializá-lo com o `README`.
+Se estiver criando um repositório vazio para, posteriormente, por meio de um _scaffold_ inicializar o código fonte em determinada linguagem e/ou arcabouço de desenvolvimento, recomenda-se criar um "_blank project_" e inicializá-lo com o `README`. Já para trazer um código que **existe e é versionado com GIT** em outro lugar, crie o "_blank project_" **sem** inicializá-lo com o `README` (desmarque a opção): o repositório precisa nascer vazio para receber o histórico.
 
 ![Configurando o novo repositório GIT]({{ site.baseurl }}/assets/img/app/06.png)
+
+Com o repositório vazio criado, leve o código **com todo o seu histórico** trocando o _remote_ na sua cópia local. Mantenha o _remote_ antigo com outro nome, para não perdê-lo, e envie a _branch_ principal já como `main`:
+
+```bash
+cd minha-app
+git remote -v                                     # para onde o repositório aponta hoje
+git remote rename origin github                   # mantém o remote antigo como "github"
+git remote add origin git@git.embrapa.io:<projeto>/<app>.git
+git branch -m master main                         # só se a branch principal não for main
+git push -u origin main
+```
+
+> **Atenção!** A ordem dos próximos passos importa. O DSN do **Sentry** e o identificador do site no **Matomo** só existem depois que a plataforma reconhece o repositório como uma aplicação. Por isso, primeiro vão para o repositório só os metadados mínimos (a seguir) e a aplicação é criada na _dashboard_; só depois o código é adaptado, já com esses identificadores em mãos.
 
 É necessário que o **Embrapa I/O** reconheça este repositório como uma [aplicação]({{ site.baseurl }}/docs/introduction#app) para que esta seja criada também nas ferramentas satélites ([Matomo](https://hit.embrapa.io), [Sentry](https://bug.embrapa.io) e [SonarQube](https://code.embrapa.io)), provendo assim os identificadores necessários para configurar a integração do código-fonte com estas ferramentas. Assim, é necessário configurar manualmente os metadados da aplicação. Para isso, crie um diretório na raiz denominado `.embrapa` e, dentro dele, um arquivo `settings.json` com o seguinte conteúdo:
 
@@ -85,15 +102,19 @@ Se estiver criando um repositório vazio para, posteriormente, por meio de um _s
 }
 ```
 
-Depois será necessário rever este arquivo mas, para um primeiro momento, utilize este conteúdo acima alterando apenas o valor do atributo `platform` para a linguagem predominante na aplicação que será desenvolvida, dentre as seguintes opções: `android`, `apple`, `dart`, `dotnet`, `electron`, `elixir`, `flutter`, `go`, `java`, `javascript`, `kotlin`, `native`, `node`, `php`, `python`, `react-native`, `ruby`, `rust`, `unity` e `unreal`.
+Depois será necessário rever este arquivo mas, para um primeiro momento, utilize este conteúdo acima alterando apenas o valor do atributo `platform` para a linguagem predominante na aplicação, dentre as seguintes opções: `android`, `apple`, `dart`, `dotnet`, `electron`, `elixir`, `flutter`, `go`, `java`, `javascript`, `kotlin`, `native`, `node`, `php`, `python`, `react-native`, `ruby`, `rust`, `unity` e `unreal`. Este valor é a família de SDK do [Sentry](https://bug.embrapa.io) que a plataforma usa ao criar o projeto de monitoramento de erros: um valor fora da lista não gera erro, mas o projeto nasce no Sentry sem plataforma. Exemplos e detalhes estão no [capítulo sobre _boilerplates_]({{ site.baseurl }}/docs/boilerplate#platform).
+
+Faça o _commit_ do `.embrapa/settings.json` e o _push_ para a `main`.
 
 > **Atenção!** Repare que o valor do atributo _boilerplate_ é um _underscore_ (carácter `_`). **Não altere este valor!**
 
 > **Dica!** O atributo `variables` apenas **sugere** as variáveis de ambiente iniciais, que aparecem pré-carregadas no passo "**Variáveis**" do _wizard_ de [configuração da _build_]({{ site.baseurl }}/docs/build). As variáveis que valem no _deploy_ são as configuradas nesse _wizard_ para cada estágio, e é lá que elas podem ser criadas, alteradas ou removidas. Portanto, deixá-lo vazio, como acima, não impede o _deploy_: basta adicionar as variáveis necessárias no _wizard_.
 
-Uma vez que este arquivo de metadados tenha sido criado no repositório, este pode agora pode ser vinculado a uma aplicação homônima por meio da [_dashboard_](https://dashboard.embrapa.io). Para isso, no _card_ do projeto clique em "**Nova App**", aceite os termos do _disclaimer_ e, no passo seguinte, selecione no campo "**Escolha um modelo (_boilerplate_)...**" a opção "**Repositório pré-existente**". Em seguida, insira o **nome Unix do repositório no GitLab** no campo indicado (deve ser <u>exatamente o mesmo nome</u>) e clique em "**Criar App**".
+Uma vez que este arquivo de metadados tenha sido enviado ao repositório, este pode ser vinculado a uma aplicação homônima por meio da [_dashboard_](https://dashboard.embrapa.io). Para isso, no _card_ do projeto clique em "**Nova App**", aceite os termos do _disclaimer_ e, no passo seguinte, selecione no campo "**Escolha um modelo (_boilerplate_)...**" a opção "**Repositório pré-existente**". Em seguida, insira o **nome Unix do repositório no GitLab** no campo indicado (deve ser <u>exatamente o mesmo nome</u>), marque a confirmação de que leu as instruções e clique em "**Criar App**".
 
 ![Criando uma app a partir de um repositório GIT pré-existente]({{ site.baseurl }}/assets/img/app/07.png)
+
+Em instantes a plataforma cria a aplicação nas ferramentas satélites ([Matomo](https://hit.embrapa.io), [Sentry](https://bug.embrapa.io) e [SonarQube](https://code.embrapa.io)) e exibe no _card_ da aplicação os identificadores necessários: o DSN do Sentry e o identificador do site no Matomo. São eles que a integração do código vai usar.
 
 Agora, será necessário codificar a nova aplicação ou adaptar o código-fonte existente realizando alguns procedimentos (mas não todos) que são tratados no [artigo sobre desenvolvimento e disponibilização de _boilerplates_]({{ site.baseurl }}/docs/boilerplate). Mais especificamente, será necessário:
 
@@ -112,9 +133,29 @@ Antes de configurar a primeira _build_, confira os pontos que mais causam falha 
 - **_Merge_ da `main` na _branch_ do estágio.** A validação e o _deploy_ usam a _branch_ do estágio (`alpha`, `beta` ou `release`), não a `main`. Faça o _merge_ da `main` na _branch_ do estágio antes de validar, senão os arquivos novos (como o `.embrapa/settings.json` e o `docker-compose.yaml`) não estarão lá.
 - **Arquivos de ambiente fora do GIT.** O `.env`, o `.env.io` e o `.env.sh` são gerados pela plataforma a cada _deploy_ e guardam segredos: devem estar no `.gitignore` e **não** podem ser versionados. Se já foram commitados, remova-os do repositório com `git rm --cached .env .env.io .env.sh` (o `.gitignore` não retira o que já está no GIT) e troque as senhas e chaves que estavam neles. Já os modelos `.env.example` e `.env.io.example` **devem** ser versionados: um padrão como `.env.*` no `.gitignore` precisa das exceções `!.env.example` e `!.env.io.example`.
 
-> **Dica!** A agente de conformidade [**Alice**]({{ site.baseurl }}/docs/bmad#alice) verifica todos esses pontos, e muitos outros, e propõe as correções. Se utiliza um assistente de IA, peça a ele que siga as instruções do repositório [github.com/embrapa-io/alice](https://github.com/embrapa-io/alice).
+- **Toda porta exposta precisa de valor.** Se um serviço do `docker-compose.yaml` publica uma porta por variável (como `${PGADMIN_PORT}`), essa variável precisa estar preenchida no _wizard_ da _build_ do estágio; com o valor vazio, a validação recusa a _build_ por tentar expor uma porta aleatória.
+- **O _restore_ desfaz exatamente o _backup_.** O arquivo gerado pelo serviço `backup` tem de ser restaurado por inteiro pelo serviço `restore`, que a plataforma executa com `BACKUP_FILE_TO_RESTORE`. É isso que permite guardar os _backups_ no [Backup S3]({{ site.baseurl }}/docs/s3) e migrar dados entre servidores. Teste a ida e a volta no ambiente de desenvolvimento antes do primeiro _deploy_.
+- **Serviços de inicialização terminam.** Um serviço que só roda migrações e encerra (como o `prestart` do exemplo do vídeo) deve terminar com código 0; a plataforma o conta como saudável.
 
-Pronto! Feito isso o **Embrapa I/O** irá criar, após algum tempo, a aplicação nas ferramentas satélites e expor no _card_ as informações necessárias de configurações. Estando tudo certo será possível aplicar todos os _pipelines_ e processos de DevOps, assim como em qualquer aplicação criada a partir de um _boilerplate_.
+#### A agente de conformidade Alice {#alice}
+
+A agente [**Alice**]({{ site.baseurl }}/docs/bmad#alice) verifica todos esses pontos, e muitos outros, e faz as adequações. No [Claude Code](https://claude.com/claude-code), instale-a como _plugin_, sem precisar do BMAD:
+
+```bash
+claude plugin marketplace add embrapa-io/alice
+claude plugin install compliance@embrapa-io
+```
+
+Depois, abra o Claude Code na pasta da aplicação e chame `/alice`. O menu traz os comandos, que podem ser chamados a qualquer momento da conversa:
+
+- **VC** (verificar conformidade): analisa o código e gera o relatório do que falta;
+- **IA** (implementar ajustes): executa os itens do relatório;
+- **CR** (_code review_): confere se a implementação ficou 100% conforme;
+- **BR** (testar _backup_ e _restore_): faz o _backup_, apaga os volumes de dados, restaura e compara, provando a ida e a volta (só no ambiente de desenvolvimento).
+
+Outros assistentes de IA (Gemini CLI, OpenCode, GitHub Copilot, Codex e outros) usam a Alice pelo BMAD, conforme as instruções do repositório [github.com/embrapa-io/alice](https://github.com/embrapa-io/alice).
+
+Pronto! Com o código adaptado, faça o _merge_ da `main` na _branch_ do estágio, [configure a _build_]({{ site.baseurl }}/docs/build) (o _cluster_, os volumes, as variáveis de ambiente e os endereços) e crie a _tag_ da versão para disparar o _deploy_. A partir daí valem todos os _pipelines_ e processos de DevOps, assim como em qualquer aplicação criada a partir de um _boilerplate_. Como o `settings.json` mínimo não sugere variáveis, elas são cadastradas no próprio _wizard_ (ou pelo seu assistente de IA, com o [MCP do Dashboard]({{ site.baseurl }}/docs/mcp)).
 
 ## Removendo uma aplicação {#remove}
 
