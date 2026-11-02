@@ -36,6 +36,16 @@ Para criar e disponibilizar seu _boilerplate_, você precisará seguir os seguin
 11. [Documente e inclua a licença](#readme); e
 12. [Distribua o _boilerplate_](#publish).
 
+### Na prática, em vídeo {#video}
+
+A série «Do código existente ao _boilerplate_» mostra o caminho completo com um exemplo real: o _template_ oficial de FastAPI com React e PostgreSQL. No **Vídeo 1**, o código existente vira uma aplicação do **Embrapa I/O**, aderente à plataforma com a ajuda da agente Alice (o passo a passo escrito está em [Aplicações → repositório pré-existente]({{ site.baseurl }}/docs/app#git)):
+
+<iframe width="730" height="410" src="https://www.youtube.com/embed/w7Qwwf2RFx0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+No **Vídeo 2**, essa aplicação vira o _boilerplate_ `python-fastapi-react-postgresql`: o repositório em `io/boilerplate` com os mantenedores na equipe, a Alice com o _plugin_ `boilerplate`, os metadados e as variáveis padrão do `settings.json`, o SonarQube, a entrada no catálogo e, como prova, uma aplicação nova criada a partir dele e implantada em _alpha_ sem mudar uma linha de código:
+
+<iframe width="730" height="410" src="https://www.youtube.com/embed/y1jHk8kJer4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 ### A agente Alice no Claude Code {#skill}
 
 A plataforma oferece uma ferramenta oficial que executa estes passos com você: a agente [**Alice**](https://github.com/embrapa-io/alice), com o _plugin_ **`boilerplate`**, para o [**Claude Code**](https://claude.com/claude-code). Ela parte de uma aplicação **já aderente** à plataforma (validada pela própria Alice com o _plugin_ [`compliance`]({{ site.baseurl }}/docs/app#alice), que trata as integrações, os contêineres, as variáveis de ambiente e os serviços-padrões) e faz a genericação:
