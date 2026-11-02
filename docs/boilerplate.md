@@ -597,7 +597,10 @@ O atributo `boilerplate` deve conter o nome único do _boilerplate_ em toda a pl
 
 > **Atenção!** Caso esteja apenas adequando uma aplicação legada para ficar aderente à plataforma, insira o valor "_" (underscore) no atributo `boilerplate`.
 
-O atributo `platform` corresponde ao SDK do [Sentry](https://sentry.io) que deverá ser utilizado neste _boilerplate_. As _keywords_ para as [plataformas aceitas pelo Sentry](https://docs.sentry.io/platforms/) são: ```android```, ```apple```, ```dart```, ```dotnet```, ```electron```, ```elixir```, ```flutter```, ```go```, ```java```, ```javascript```, ```kotlin```, ```native```, ```node```, ```php```, ```python```, ```react-native```, ```ruby```, ```rust```, ```unity``` e ```unreal```. Defina corretamente a palavra-chave no atributo para assegurar a melhor experiência dos desenvolvedores no [monitoramento de erros da aplicação]({{ site.baseurl }}/docs/bug).
+<a id="platform"></a>
+O atributo `platform` indica a plataforma do projeto que o **Embrapa I/O** cria no [Sentry](https://sentry.io) para o [monitoramento de erros da aplicação]({{ site.baseurl }}/docs/bug), ou seja, a família de SDK do Sentry que o código vai usar. **Use um destes valores**, os únicos que a plataforma aceita: ```android```, ```apple```, ```dart```, ```dotnet```, ```electron```, ```elixir```, ```flutter```, ```go```, ```java```, ```javascript```, ```kotlin```, ```native```, ```node```, ```php```, ```python```, ```react-native```, ```ruby```, ```rust```, ```unity``` e ```unreal```.
+
+Escolha a da linguagem predominante do código: ```python``` para FastAPI ou Django, ```javascript``` para Vue ou React no navegador, ```node``` para APIs em Node.js, ```php``` para Laravel, e assim por diante. Vale também para a aplicação que vem de um código existente (`boilerplate` com "_"). Um valor fora da lista não gera erro, mas o projeto nasce no Sentry sem plataforma e perde as instruções de configuração do SDK. Os SDKs de cada família estão na [documentação do Sentry](https://docs.sentry.io/platforms/).
 
 Os atributos `label`, `description`, `references` e `maintainers` (auto-explicativos) e são renderizados pela [_dashboard_ da plataforma](https://dashboard.embrapa.io) no momento da escolha do _boilerplate_ na [criação de aplicações]({{ site.baseurl }}/docs/app).
 
