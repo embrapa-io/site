@@ -36,34 +36,34 @@ Para criar e disponibilizar seu _boilerplate_, você precisará seguir os seguin
 11. [Documente e inclua a licença](#readme); e
 12. [Distribua o _boilerplate_](#publish).
 
-### A _skill_ oficial no Claude Code {#skill}
+### A agente Alice no Claude Code {#skill}
 
-A plataforma oferece uma ferramenta oficial que executa estes passos com você: a _skill_ **`embrapa-io-boilerplate`**, para o [**Claude Code**](https://claude.com/claude-code). Ela parte de uma aplicação **já aderente** à plataforma (validada pela agente [**Alice**](https://github.com/embrapa-io/alice), que trata as integrações, os contêineres, as variáveis de ambiente e os serviços-padrões) e faz a genericação:
+A plataforma oferece uma ferramenta oficial que executa estes passos com você: a agente [**Alice**](https://github.com/embrapa-io/alice), com o _plugin_ **`boilerplate`**, para o [**Claude Code**](https://claude.com/claude-code). Ela parte de uma aplicação **já aderente** à plataforma (validada pela própria Alice com o _plugin_ [`compliance`]({{ site.baseurl }}/docs/app#alice), que trata as integrações, os contêineres, as variáveis de ambiente e os serviços-padrões) e faz a genericação:
 
 - troca os valores do projeto (nome, identificadores _unix_, versão, ano, ID do Matomo) pelas [_keywords_ de customização](#keyword) em `.env.io.example`, `.env.example` e `README.md`;
 - ajusta o `LICENSE` para MIT, mantendo no `THIRD-PARTY-NOTICES` os avisos de _copyright_ de terceiros quando o código veio de outro autor;
+- gera o `AGENTS.md`, com as diretrizes para os assistentes de IA de quem criar aplicações a partir do _boilerplate_;
 - prepara o `.gitlab-io.yml` (análise do SonarQube para código próprio; arquivo sem _pipeline_ para ferramentas de prateleira) e o `.gitignore`;
+- preenche os metadados e os mantenedores no `.embrapa/settings.json`;
 - revisa o português da documentação; e
 - orienta a análise do SonarQube **antes** de o _boilerplate_ entrar no catálogo.
 
-O uso da _skill_ é **recomendado** para todo _boilerplate_ novo: ela segue exatamente este capítulo e evita os erros mais comuns (_placeholders_ inventados, valores reais esquecidos, licença restritiva). A _skill_ é distribuída como _plugin_ no repositório público [github.com/embrapa-io/skills](https://github.com/embrapa-io/skills), que reunirá também as próximas _skills_ da plataforma.
+O uso da Alice é **recomendado** para todo _boilerplate_ novo: ela segue exatamente este capítulo e evita os erros mais comuns (_placeholders_ inventados, valores reais esquecidos, licença restritiva). O _plugin_ `boilerplate` é instalado à parte, porque só quem mantém _boilerplates_ precisa dele. No Claude Code:
 
-Para instalar, no Claude Code:
-
-```
-/plugin marketplace add embrapa-io/skills
-/plugin install embrapa-io-boilerplate@embrapa-io-skills
+```bash
+claude plugin marketplace add embrapa-io/alice   # se ainda não adicionou o marketplace
+claude plugin install boilerplate@embrapa-io
 ```
 
-Depois, na pasta do repositório do _boilerplate_ (já com o código da aplicação aderente), peça ao Claude algo como:
+Depois, na pasta do repositório do _boilerplate_ (já com o código da aplicação aderente), chame `/boilerplate:alice` (digitar `/alice` lista todas as Alices instaladas). O menu traz o fluxo completo (**GB**, gerar o _boilerplate_) e as etapas avulsas: auditoria de versões (**VS**), `.gitlab-io.yml` (**GL**), SonarQube antes do catálogo (**SQ**) e publicação no catálogo (**CT**). Também é possível pedir direto, por exemplo:
 
 ```
-Transforme esta app em um boilerplate do Embrapa I/O.
+/boilerplate:alice Transforme esta app em um boilerplate do Embrapa I/O, chamado <nome>. Os mantenedores são …
 ```
 
-Para receber as versões novas da _skill_, use `/plugin marketplace update embrapa-io-skills`.
+Para receber as versões novas, use `claude plugin marketplace update embrapa-io`.
 
-> **Atenção!** A _skill_ não substitui a Alice: se a aplicação ainda não estiver aderente (por exemplo, sem os serviços de _backup_ e _restore_ ou com valores de variáveis de ambiente versionados), rode antes a Alice. E ela não publica nada sozinha: o repositório em `io/boilerplate`, a visibilidade pública e a entrada no catálogo continuam seguindo o [passo 12](#publish).
+> **Atenção!** O _plugin_ `boilerplate` não substitui o `compliance`: se a aplicação ainda não estiver aderente (por exemplo, sem os serviços de _backup_ e _restore_ ou com valores de variáveis de ambiente versionados), rode antes `/compliance:alice`. E a Alice não publica nada sozinha: o repositório em `io/boilerplate` e a entrada no catálogo continuam seguindo o [passo 12](#publish).
 
 É possível [criar um repositório de aplicação]({{ site.baseurl }}/docs/app) sem utilizar um _boilerplate_. Esta função é útil para instanciar na plataforma sistemas que antecedem o próprio **Embrapa I/O**. Entretanto, será necessário criar manualmente um repositório no [GitLab](https://git.embrapa.io) e adaptar seu código fonte de forma que ele tenha **toda a estrutura de pastas e arquivos requeridos para um _boilerplate_** (ou seja, seguir os mesmos passos aqui descritos). Em seguida, no momento de criar a aplicação pela _dashboard_, selecione a opção de um "**repositório pré-existente**" (conforme a imagem abaixo).
 
@@ -786,9 +786,9 @@ Assim, como sugestão, recomendamos fortemente o uso da [licença MIT](https://m
 
 ## 12. Distribua o _boilerplate_ {#publish}
 
-Para distribuir o _boilerplate_ para uso pela comunidade de desenvolvedores, será necessário disponibilizá-lo no grupo de repositórios `/io/boilerplate` do [GitLab da plataforma](https://git.embrapa.io), onde estará **visível publicamente para todos os usuários**.
+Para distribuir o _boilerplate_ para uso pela comunidade de desenvolvedores, será necessário disponibilizá-lo no grupo de repositórios `/io/boilerplate` do [GitLab da plataforma](https://git.embrapa.io). O repositório é criado pela [equipe de suporte do **Embrapa I/O**](mailto:io@embrapa.br), a pedido, com os mantenedores do _boilerplate_ como membros.
 
-> **Atenção!** Após efetuar o _fork_ da aplicação, criando o _boilerplate_, é necessário **alterar a visibilidade no _boilerplate_ para 'Public'** (Settings &raquo; General &raquo; Visibility, project features, permissions &raquo; Project visibility).
+> **Atenção!** Os repositórios de _boilerplates_ são **privados**. Quem cria uma aplicação não precisa de acesso a eles: a plataforma faz a cópia do _boilerplate_ para o grupo do projeto no momento da criação. Não altere a visibilidade do repositório.
 
 Além disso, ele deverá constar e estar ativo no [catálogo de _boilerplates_](https://git.embrapa.io/io/boilerplate/metadata/-/blob/main/boilerplates.json). Para ser inserido na listagem, os mantenedores precisarão passar para a [equipe de suporte do **Embrapa I/O**](mailto:io@embrapa.br) o **nome _unix_** do _boilerplate_, um **nome legível** (rótulo), uma **breve descrição** (de uma linha) e um **ícone** que melhor represente as tecnologias utilizadas. Atualmente, os ícones permitidos são:
 
