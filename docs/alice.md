@@ -37,18 +37,32 @@ Ou, de dentro de uma conversa no Claude Code:
 ```
 /plugin marketplace add embrapa-io/alice
 /plugin install compliance@embrapa-io
+/plugin install sentinel@embrapa-io
+/plugin install cve@embrapa-io
+/plugin install boilerplate@embrapa-io
+/reload-plugins
 ```
 
-Depois de instalar, reinicie o Claude Code (ou abra uma conversa nova) para os comandos aparecerem.
+O `/reload-plugins` carrega os _plugins_ na conversa aberta. Se instalou pelo terminal com o Claude Code aberto, rode-o
+na conversa (ou abra uma conversa nova) para os comandos aparecerem.
 
 ### Atualização {#update}
 
-A Alice muda com a plataforma. Para receber as versões novas:
+A Alice muda com a plataforma. Para receber as versões novas, atualize o _marketplace_ e depois cada _plugin_ que
+tiver instalado. No terminal:
 
 ```bash
 claude plugin marketplace update embrapa-io
-claude plugin update compliance@embrapa-io        # repita para cada plugin instalado
+
+claude plugin update compliance@embrapa-io
+claude plugin update sentinel@embrapa-io
+claude plugin update cve@embrapa-io
+claude plugin update boilerplate@embrapa-io
 ```
+
+Se o Claude Code estiver aberto, rode `/reload-plugins` na conversa depois de atualizar.
+
+Para conferir o que está instalado e em que versão: `claude plugin list`.
 
 ### Remoção e troca de nome {#uninstall}
 
