@@ -139,7 +139,7 @@ Antes de configurar a primeira _build_, confira os pontos que mais causam falha 
 
 #### A agente de conformidade Alice {#alice}
 
-A agente [**Alice**]({{ site.baseurl }}/docs/bmad#alice) verifica todos esses pontos, e muitos outros, e faz as adequações. No [Claude Code](https://claude.com/claude-code), instale-a como _plugin_, sem precisar do BMAD:
+A agente [**Alice**]({{ site.baseurl }}/docs/alice) verifica todos esses pontos, e muitos outros, e faz as adequações. No [Claude Code](https://claude.com/claude-code), instale-a como _plugin_, sem precisar do BMAD:
 
 ```bash
 claude plugin marketplace add embrapa-io/alice
@@ -153,7 +153,7 @@ Depois, abra o Claude Code na pasta da aplicação e chame `/alice`. O menu traz
 - **CR** (_code review_): confere se a implementação ficou 100% conforme;
 - **BR** (testar _backup_ e _restore_): faz o _backup_, apaga os volumes de dados, restaura e compara, provando a ida e a volta (só no ambiente de desenvolvimento).
 
-Outros assistentes de IA (Gemini CLI, OpenCode, GitHub Copilot, Codex e outros) usam a Alice pelo BMAD, conforme as instruções do repositório [github.com/embrapa-io/alice](https://github.com/embrapa-io/alice).
+Outros assistentes de IA (Gemini CLI, OpenCode, GitHub Copilot, Codex e outros) usam a Alice pelo BMAD, conforme as instruções do repositório [github.com/embrapa-io/alice](https://github.com/embrapa-io/alice). Instalação, atualização e os outros _plugins_ da Alice (Sentinela, CVEs críticos e _boilerplates_) estão no capítulo [Alice]({{ site.baseurl }}/docs/alice).
 
 Pronto! Com o código adaptado, faça o _merge_ da `main` na _branch_ do estágio, [configure a _build_]({{ site.baseurl }}/docs/build) (o _cluster_, os volumes, as variáveis de ambiente e os endereços) e crie a _tag_ da versão para disparar o _deploy_. A partir daí valem todos os _pipelines_ e processos de DevOps, assim como em qualquer aplicação criada a partir de um _boilerplate_. Como o `settings.json` mínimo não sugere variáveis, elas são cadastradas no próprio _wizard_ (ou pelo seu assistente de IA, com o [MCP do Dashboard]({{ site.baseurl }}/docs/mcp)).
 

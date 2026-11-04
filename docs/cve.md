@@ -182,6 +182,20 @@ Para cada alerta, o agente:
 
 > **Atenção!** O agente **nunca altera nada sem a sua confirmação**: nem o código, nem a _tag_, nem a _build_. Ele propõe, mostra o que mudaria e espera o seu "pode fazer". Como em todo alerta, a decisão e a execução são da equipe.
 
+### Com a agente Alice no Claude Code {#alice}
+
+O _plugin_ **`cve`** da [agente Alice]({{ site.baseurl }}/docs/alice#cve) faz esse caminho inteiro dentro do repositório
+da app, sempre com a sua confirmação: lista as _builds_ com alerta, confere cada CVE na versão implantada, verifica se a
+imagem nova do fornecedor já corrige e executa a ação indicada, _build_ a _build_.
+
+```bash
+claude plugin marketplace add embrapa-io/alice
+claude plugin install cve@embrapa-io
+```
+
+Na pasta da app, chame `/cve:alice`. O menu e os pré-requisitos estão no capítulo
+[Alice]({{ site.baseurl }}/docs/alice#cve).
+
 ## Onde mais as vulnerabilidades aparecem {#where}
 
 O alerta, o _dashboard_ e a Sentinela leem **o mesmo conjunto** de vulnerabilidades em exploração ativa, então os três sempre concordam:

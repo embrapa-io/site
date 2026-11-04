@@ -323,6 +323,21 @@ A triagem volta para a Sentinela. A cada voto, a plataforma guarda o veredito, o
 
 Por isso, vale escrever o motivo como orientação: em vez de "ação errada", "o erro vem do WebView do aparelho; a ação certa é registrar a versão mínima do Android na ficha". Votos em prévias também contam.
 
+## Tratando o relatório com a Alice {#alice}
+
+O _plugin_ **`sentinel`** da [agente Alice]({{ site.baseurl }}/docs/alice#sentinel) faz a triagem completa do relatório
+dentro do seu código, no **Claude Code**: confere cada achado, registra o que procede como _issues_ no Kanban do grupo
+(com _milestones_, responsáveis e prazos), guia a correção _issue_ por _issue_ e registra os vereditos acima no
+Dashboard. Na pasta do projeto:
+
+```bash
+claude plugin marketplace add embrapa-io/alice
+claude plugin install sentinel@embrapa-io
+```
+
+Depois, chame `/sentinel:alice`. Instalação, pré-requisitos e o menu completo estão no capítulo
+[Alice]({{ site.baseurl }}/docs/alice#sentinel).
+
 ## Privacidade e responsabilidade {#privacy}
 
 - **Nada é executado.** A Sentinela não altera aplicações, repositórios nem servidores.

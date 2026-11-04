@@ -71,7 +71,7 @@ Depois, na pasta do repositório do _boilerplate_ (já com o código da aplicaç
 /boilerplate:alice Transforme esta app em um boilerplate do Embrapa I/O, chamado <nome>. Os mantenedores são …
 ```
 
-Para receber as versões novas, use `claude plugin marketplace update embrapa-io`.
+Para receber as versões novas, use `claude plugin marketplace update embrapa-io` e `claude plugin update boilerplate@embrapa-io`. Instalação, atualização e os outros _plugins_ estão no capítulo [Alice]({{ site.baseurl }}/docs/alice).
 
 > **Atenção!** O _plugin_ `boilerplate` não substitui o `compliance`: se a aplicação ainda não estiver aderente (por exemplo, sem os serviços de _backup_ e _restore_ ou com valores de variáveis de ambiente versionados), rode antes `/compliance:alice`. E a Alice não publica nada sozinha: o repositório em `io/boilerplate` e a entrada no catálogo continuam seguindo o [passo 12](#publish).
 

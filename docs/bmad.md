@@ -84,6 +84,8 @@ A **Alice** é um módulo do BMAD Method específico para o **Embrapa I/O**. Tra
 
 > **Dica!** Se seguiu os passos da seção anterior, a agente **Alice** já está disponível. Para invocar: `/alice`.
 
+> **Atenção!** No **Claude Code**, a Alice não precisa do BMAD: ela se instala como _plugin_, junto com os _plugins_ da Sentinela, dos CVEs críticos e dos _boilerplates_. Veja o capítulo [Alice]({{ site.baseurl }}/docs/alice).
+
 A Alice opera sobre as **4 Verdades Fundamentais** da plataforma:
 
 | # | Verdade | Descrição |

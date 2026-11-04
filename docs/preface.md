@@ -68,6 +68,7 @@ Para quem mantém a plataforma ou estende o que ela oferece: modelos, servidores
 - [Releaser: _deploy_ de _builds_ em servidores externos à plataforma]({{ site.baseurl }}/docs/releaser)
 - [Backup S3: cópia dos _backups_ em nuvem e _restore_ a partir do _bucket_]({{ site.baseurl }}/docs/s3)
 - [MCP Servers: conectando agentes de IA à plataforma]({{ site.baseurl }}/docs/mcp)
+- [Alice: a agente de IA da plataforma, em _plugins_ do Claude Code]({{ site.baseurl }}/docs/alice)
 - [Spec-Driven Development: programação assistida por IA com o BMAD Method]({{ site.baseurl }}/docs/bmad)
 - [Arena de Bots: testes cegos para avaliar agentes de IA]({{ site.baseurl }}/docs/arena)
 - [WebMCP: ferramentas desta documentação para agentes no navegador]({{ site.baseurl }}/docs/webmcp)
