@@ -17,9 +17,12 @@ navbar-links:
   Sobre: "about"
   Documentação: "docs/preface"
   Videoaulas:
-    - Overview: https://www.youtube.com/watch?v=DFc2iZy4Ox4&list=PLBTsCa6Rsuz3jh0S2P8aTBlvhk7Mr3gbS
-    - Quickstart: https://www.youtube.com/watch?v=wnN1tiGVcu4&list=PLBTsCa6Rsuz2x75zbYwAB1mEYLXbUA1RP
-    - Advanced: https://www.youtube.com/watch?v=V7hKe-axlsw&list=PLSMuLTEGhNrU
+    - Visão geral: https://www.youtube.com/playlist?list=PLBTsCa6Rsuz3jh0S2P8aTBlvhk7Mr3gbS
+    - Primeiros passos: https://www.youtube.com/playlist?list=PLBTsCa6Rsuz2x75zbYwAB1mEYLXbUA1RP
+    - Avançado: https://www.youtube.com/playlist?list=PLSMuLTEGhNrU
+    - Boilerplates: https://www.youtube.com/playlist?list=PLcYLxJ-IPTvo
+    - IA: https://www.youtube.com/playlist?list=PLBTsCa6Rsuz1vsofd7jNhVIMatKfArMpj
+    - Releaser: https://www.youtube.com/playlist?list=PLLte_dO8_BwA
   Ferramentas:
     - Dashboard: "https://dashboard.embrapa.io"
     - GitLab: "https://git.embrapa.io"
