@@ -372,12 +372,12 @@ services:
     image: mariadb:latest
     restart: "no"
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWD}
-      MYSQL_DATABASE: ${IO_PROJECT}_${IO_APP}
-      MYSQL_USER: wordpress
-      MYSQL_PASSWORD: ${DB_PASSWD}
+      MYSQL_PWD: ${DB_ROOT_PASSWD}
+      DB_NAME: ${IO_PROJECT}_${IO_APP}
+      BACKUP_NAME: ${IO_PROJECT}_${IO_APP}_${IO_STAGE}_${IO_VERSION}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     links:
       - db
     volumes:
@@ -385,14 +385,21 @@ services:
       - data_wp:/var/www/html
     networks:
       - stack
-    command: >
-      sh -c  "set -ex &&
-        export BACKUP_DIR=${IO_PROJECT}_${IO_APP}_${IO_STAGE}_${IO_VERSION}_$$(date +'%Y-%m-%d_%H-%M-%S') &&
-        trap 'rm -rf /backup/$$BACKUP_DIR' EXIT &&
-        cd /backup && mkdir $$BACKUP_DIR &&
-        mysqldump --host db -uroot -p${DB_ROOT_PASSWD} ${IO_PROJECT}_${IO_APP} > $$BACKUP_DIR/db.sql &&
-        cp -R /var/www/html $$BACKUP_DIR/ &&
-        tar -czf $$BACKUP_DIR.tar.gz $$BACKUP_DIR"
+    # Gera /backup/<nome>_<data>.tar.gz com a pasta <nome>_<data>/ contendo db.sql (dump lógico) e html/ (todo o
+    # /var/www/html, incluindo wp-content/uploads). A senha vai por MYSQL_PWD, nunca na linha de comando.
+    command:
+      - sh
+      - -c
+      - |
+        set -eu
+        NAME="$${BACKUP_NAME}_$$(date +'%Y-%m-%d_%H-%M-%S')"
+        WORK="/backup/.work-$$$$"
+        trap 'rm -rf "$$WORK" "/backup/$$NAME.tar.gz.part"' EXIT
+        mkdir -p "$$WORK/$$NAME"
+        mariadb-dump --host db -uroot --default-character-set=utf8mb4 --single-transaction --routines --triggers --events "$$DB_NAME" > "$$WORK/$$NAME/db.sql"
+        cp -a /var/www/html "$$WORK/$$NAME/html"
+        tar -czf "/backup/$$NAME.tar.gz.part" -C "$$WORK" "$$NAME"
+        mv "/backup/$$NAME.tar.gz.part" "/backup/$$NAME.tar.gz"
     profiles:
       - cli
 
@@ -400,12 +407,12 @@ services:
     image: mariadb:latest
     restart: "no"
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWD}
-      MYSQL_DATABASE: ${IO_PROJECT}_${IO_APP}
-      MYSQL_USER: wordpress
-      MYSQL_PASSWORD: ${DB_PASSWD}
+      MYSQL_PWD: ${DB_ROOT_PASSWD}
+      DB_NAME: ${IO_PROJECT}_${IO_APP}
+      FILE_TO_RESTORE: ${BACKUP_FILE_TO_RESTORE:-no_file_to_restore}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     links:
       - db
     volumes:
@@ -413,31 +420,48 @@ services:
       - data_wp:/var/www/html
     networks:
       - stack
-    command: >
-      sh -c  "set -ex &&
-        export FILE_TO_RESTORE=${BACKUP_FILE_TO_RESTORE:-no_file_to_restore} &&
-        test -f /backup/$$FILE_TO_RESTORE &&
-        RESTORE_DIR=$$(mktemp -d) &&
-        tar -xf /backup/$$FILE_TO_RESTORE -C $$RESTORE_DIR --strip-components=1 &&
-        mysql --host db -uroot -p${DB_ROOT_PASSWD} ${IO_PROJECT}_${IO_APP} < $$RESTORE_DIR/db.sql &&
-        cp -Rf $$RESTORE_DIR/html/. /var/www/html &&
-        find /var/www/html -type d -exec chmod 755 {} \\; &&
-        find /var/www/html -type f -exec chmod 644 {} \\; &&
-        rm -rf $$RESTORE_DIR"
+    # Restaura o banco (recriado do zero) e os arquivos (/var/www/html esvaziado antes). Serve para todos os formatos
+    # já gerados pelo boilerplate: pasta única com db.sql e html/ (mysqldump ou mariadb-dump).
+    command:
+      - sh
+      - -c
+      - |
+        set -eu
+        case "$$FILE_TO_RESTORE" in */*|"") echo "Nome de arquivo inválido" >&2; exit 1;; esac
+        test -f "/backup/$$FILE_TO_RESTORE" || { echo "Arquivo /backup/$$FILE_TO_RESTORE não encontrado" >&2; exit 1; }
+        WORK="/backup/.restore-$$$$"
+        trap 'rm -rf "$$WORK"' EXIT
+        mkdir -p "$$WORK"
+        tar -xzf "/backup/$$FILE_TO_RESTORE" -C "$$WORK" --strip-components=1
+        test -s "$$WORK/db.sql"
+        test -d "$$WORK/html"
+        mariadb --host db -uroot -e "DROP DATABASE IF EXISTS \`$$DB_NAME\`; CREATE DATABASE \`$$DB_NAME\`"
+        mariadb --host db -uroot --default-character-set=utf8mb4 "$$DB_NAME" < "$$WORK/db.sql"
+        find /var/www/html -mindepth 1 -delete
+        cp -a "$$WORK/html/." /var/www/html/
+        chown -R 33:33 /var/www/html
+        find /var/www/html -type d -exec chmod 755 {} +
+        find /var/www/html -type f -exec chmod 644 {} +
     profiles:
       - cli
 
   sanitize:
     image: mariadb:latest
     restart: "no"
+    environment:
+      MYSQL_PWD: ${DB_ROOT_PASSWD}
+      DB_NAME: ${IO_PROJECT}_${IO_APP}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     links:
       - db
     networks:
       - stack
-    command: >
-      sh -c  "mysqlcheck --host db -uroot -p${DB_ROOT_PASSWD} -o --auto-repair --flush ${IO_PROJECT}_${IO_APP}"
+    command:
+      - sh
+      - -c
+      - mariadb-check --host db -uroot -o --auto-repair --flush "$$DB_NAME"
     profiles:
       - cli
 
@@ -543,7 +567,13 @@ No `docker-compose.yaml` isso corresponde a `${IO_PROJECT}_${IO_APP}_${IO_STAGE}
 
 > **Atenção!** Dois componentes da plataforma dependem deste padrão: o [autômato _Doctor_]({{ site.baseurl }}/docs/architecture#doctor), que publica apenas os `*.tar.gz` da raiz do volume no [_backup_ sob demanda]({{ site.baseurl }}/docs/backup), e o [**Releaser**]({{ site.baseurl }}/docs/releaser#cleaner), que lê a data do nome do arquivo para aplicar a rotação de _backups_ (7 diários, 4 semanais e 3 mensais). Arquivos com nome fora do padrão **não são rotacionados** e ficam no volume indefinidamente.
 
-Na [seção anterior](#docker) é possível observar este e os demais serviços CLI devidamente configurados no `docker-compose.yaml` para um _boilerplate_ do [WordPress](https://br.wordpress.org). Repare que naquele exemplo é realizado o _dump_ do [MariaDB](https://mariadb.org) e é copiada integralmente a pasta `/var/www/html`, com todos os arquivos do WordPress. Quando da execução do processo de _backup_, o arquivo `.tar.gz` resultante é copiado para o volume `backup` que é então montado pelo [autômato _Doctor_]({{ site.baseurl }}/docs/architecture#doctor), que atribui uma URL (protegida por login e senha de acesso) e informa os mantenedores do projeto via e-mail.
+Na [seção anterior](#docker) é possível observar este e os demais serviços CLI devidamente configurados no `docker-compose.yaml` para um _boilerplate_ do [WordPress](https://br.wordpress.org). Repare que naquele exemplo é realizado o _dump_ lógico do [MariaDB](https://mariadb.org) e é copiada integralmente a pasta `/var/www/html`, com todos os arquivos do WordPress. Quando da execução do processo de _backup_, o arquivo `.tar.gz` resultante é copiado para o volume `backup` que é então montado pelo [autômato _Doctor_]({{ site.baseurl }}/docs/architecture#doctor), que atribui uma URL (protegida por login e senha de acesso) e informa os mantenedores do projeto via e-mail.
+
+**Contrato do _backup_ íntegro.** Um _backup_ só serve se o _restore_ devolver a aplicação idêntica. Por isso, todos os _boilerplates_ com estado seguem as regras abaixo:
+
+- o arquivo `.tar.gz` contém **todo** o estado da aplicação: o banco por _dump_ lógico e os volumes de arquivos (_uploads_, bases SQLite etc.);
+- o arquivo é gravado primeiro com a extensão `.part` e só depois renomeado com `mv`, de modo que ninguém (o **Doctor**, o **Releaser**, a cópia para o S3) enxergue um arquivo pela metade; um `trap` remove os temporários em qualquer saída, e **qualquer falha termina com código diferente de zero** (`set -eu`, sem `|| true`);
+- **nenhum segredo vai para o _log_**: nada de `set -x` e nenhuma senha em argumento de linha de comando. Use `PGPASSWORD`, `MYSQL_PWD` ou um arquivo temporário (como no exemplo da [seção anterior](#docker)).
 
 Repare que este serviço é essencial para manter a autonomia dos mantenedores dos projetos de ativos digitais, reforçando as diretrizes de DevOps adotadas pela plataforma **Embrapa I/O**.
 
@@ -555,11 +585,22 @@ O serviço de _restore_ objetiva, principalmente, auxiliar os mantenedores do pr
 env $(cat .env.sh) BACKUP_FILE_TO_RESTORE=agroproj_agroapp_alpha_1.22.7-alpha.34_2022-06-23_09-30-04.tar.gz docker-compose run --rm --no-deps restore
 ```
 
+O serviço deve cumprir o contrato abaixo, espelho do [_backup_](#cli:backup):
+
+- **valida o arquivo antes de apagar qualquer coisa**: nome sem `/`, arquivo existente, `tar` legível e com o conteúdo esperado (por exemplo, o _dump_ não vazio). Se algo estiver errado, sai com erro e o estado atual permanece intacto;
+- **apaga o estado atual e restaura idêntico**, não importa o estado do banco: com dados, vazio ou parcial. Por isso o banco é recriado (`DROP` e `CREATE`) em vez de apenas receber o _dump_ por cima, e os diretórios de arquivos são esvaziados antes da cópia;
+- **aceita os formatos antigos** que o _boilerplate_ já gerou, porque esses arquivos permanecem no _bucket_ por até um ano;
+- não expõe segredos (mesmas regras do _backup_) e sai com código diferente de zero em qualquer falha.
+
+> **Atenção!** Desde a versão `1.26.11-beta.9` do _backend_, o autômato [_Doctor_]({{ site.baseurl }}/docs/architecture#doctor) **para os serviços da _build_ antes do _restore_** e os sobe de novo depois, com ou sem sucesso. Ficam de pé apenas as dependências declaradas no serviço `restore` (o banco). Assim, aplicações que guardam estado em arquivo, como o SQLite, não têm o arquivo substituído sob os pés. Para isso funcionar, o serviço `restore` **deve declarar o banco em `depends_on`**, como no exemplo da [seção anterior](#docker).
+
+Cada _boilerplate_ com estado traz o teste `test/backup-roundtrip.sh`, que prova o contrato de ida e volta. Em Docker e com nomes aleatórios, ele popula o banco e os arquivos, executa o _backup_, estraga tudo, executa o _restore_ e compara um _hash_ do estado antes e depois. O teste cobre o formato atual, os formatos antigos, o banco vazio e o _sanitize_. Todo _boilerplate_ novo deve incluí-lo.
+
 #### d) _sanitize_ {#cli:sanitize}
 
 A plataforma **Embrapa I/O** implementa um [processo de higienização/otimização das aplicações]({{ site.baseurl }}/docs/health). Este processo pode ser relevante para aplicações que tenham tarefas de _garbage collection_, análise/reparação/otimização de esquemas em seus BDs, limpeza de cache, etc. Nada impede, obviamente, a equipe de desenvolvimento da aplicação desenvolver seus próprios _schedular jobs_ para executar as mesmas tarefas na forma de containers no _stack_ da aplicação. Entretanto, este serviço visa simplificar este trabalho.
 
-No `docker-compose.yaml` do [exemplo da seção anterior](#docker) é utilizada a ferramenta de linha de comando `mysqlcheck` para efetuar a [manutenção das tabelas](https://mariadb.com/kb/en/mysqlcheck/) do banco de dados [MariaDB](https://mariadb.org) utilizado no [WordPress](https://br.wordpress.org). Outras ferramentas e comandos similares que podem ser utilizadas neste serviço são o [_vacuum_ do PostgreSQL](https://www.postgresql.org/docs/current/sql-vacuum.html), o [_shrink_ do SQL Server](https://docs.microsoft.com/en-us/sql/relational-databases/databases/shrink-a-database), o [_compact_ do MongoDB](https://www.mongodb.com/docs/manual/reference/command/compact/), etc.
+No `docker-compose.yaml` do [exemplo da seção anterior](#docker) é utilizada a ferramenta de linha de comando `mariadb-check` (antigo `mysqlcheck`) para efetuar a [manutenção das tabelas](https://mariadb.com/kb/en/mysqlcheck/) do banco de dados [MariaDB](https://mariadb.org) utilizado no [WordPress](https://br.wordpress.org). O serviço não deve esconder falhas (nada de `|| true`): se a manutenção falhar, o código de saída precisa refletir isso. Outras ferramentas e comandos similares que podem ser utilizadas neste serviço são o [_vacuum_ do PostgreSQL](https://www.postgresql.org/docs/current/sql-vacuum.html), o [_shrink_ do SQL Server](https://docs.microsoft.com/en-us/sql/relational-databases/databases/shrink-a-database), o [_compact_ do MongoDB](https://www.mongodb.com/docs/manual/reference/command/compact/), etc.
 
 ## 9. Configure os metadados {#metadata}
 
