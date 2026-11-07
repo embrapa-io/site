@@ -627,11 +627,23 @@ Outro exemplo de uso é para setar o _environment_ interno aos arcabouços de pr
 As variáveis definidas podem ser de cinco tipos:
 
 - **TEXT**: Uma sequência de caracteres livre, porém **sem espaços** (`/^[^\s]*$/`). Caso não seja passado um valor padrão (atributo `value`), será deixado em branco.
-- **PASSWORD**: Utilizado para armazenar **senhas**. Uma sequência de caracteres livre, porém **sem espaços** (`/^[^\s]*$/`). Caso não seja passado um valor padrão (atributo `value`), será atribuída uma _string_ randômica (`/^[a-zA-Z0-9]{16}$/`).
-- **SECRET**: Utilizado para armazenar **chaves privadas**. Uma sequência de caracteres livre, porém **sem espaços** (`/^[^\s]*$/`). Caso não seja passado um valor padrão (atributo `value`), será atribuída uma _string_ randômica (`/^[a-zA-Z0-9]{256}$/`).
+- **PASSWORD**: Utilizado para armazenar **senhas**. Uma sequência de caracteres livre, porém **sem espaços** (`/^[^\s]*$/`). Caso não seja passado um valor padrão (atributo `value`), será atribuída uma _string_ randômica (`/^[a-zA-Z0-9]{32}$/`), a menos que a variável tenha `"mask": "empty"` ([veja abaixo](#mask)).
+- **SECRET**: Utilizado para armazenar **chaves privadas**. Uma sequência de caracteres livre, porém **sem espaços** (`/^[^\s]*$/`). Caso não seja passado um valor padrão (atributo `value`), será atribuída uma _string_ randômica (`/^[a-zA-Z0-9]{256}$/`), a menos que a variável tenha `"mask": "empty"` ([veja abaixo](#mask)).
 - **PORT**: Utilizado para armazenar as **portas expostas publicamente** da aplicação. O valor desta variável será setado na [configuração da _build_]({{ site.baseurl }}/docs/build) considerando as portas vagas do _cluster_ escolhido para _deploy_.
 - **VOLUME**: Utilizado para referenciar os **volumes** da aplicação. Os valores inseridos aqui serão utilizados na [configuração da _build_]({{ site.baseurl }}/docs/build), no passo de definição de volumes, para preencher automaticamente a lista dos volumes da aplicação.
 - **EMPTY**: Força o uso de uma _string_ vazia como valor da variável. Útil para desabilitar variáveis em determinados ambientes de _deploy_.
+
+<a id="mask"></a>
+Cada variável aceita ainda o atributo opcional `mask`, que diz se a plataforma **sorteia** o valor quando ele está vazio:
+
+- `"mask": "random"`: o valor vazio recebe uma _string_ randômica na configuração inicial da _build_. É o **padrão** dos tipos `SECRET` e `PASSWORD`, ou seja, o que acontece quando o atributo não é informado.
+- `"mask": "empty"`: a plataforma **nunca sorteia** o valor. A variável fica vazia, sinalizada como "a preencher", até alguém informá-lo na [configuração da _build_]({{ site.baseurl }}/docs/build#variables). É o caso dos segredos que **vêm de fora**, como chaves de API e _tokens_ de serviços de terceiros: um valor sorteado não serve para nada e esconde que falta configurar a variável.
+
+```json
+{ "name": "OPENAI_API_KEY", "type": "SECRET", "mask": "empty" }
+```
+
+Nos demais tipos (`TEXT`, `PORT`, `VOLUME` e `EMPTY`) o atributo é aceito, mas por enquanto **não tem efeito**: está reservado para usos futuros. A ausência de `mask` mantém o comportamento de sempre. Um valor diferente de `empty` e `random` é ignorado (com aviso no _log_ da criação da aplicação). A marcação é lida quando a aplicação é criada a partir do _boilerplate_; nas [aplicações que usam o Releaser]({{ site.baseurl }}/docs/releaser), o comando de instalação também a respeita e pede o valor em vez de sorteá-lo.
 
 ![Volumes pré-configurados a partir das variáveis de ambiente]({{ site.baseurl }}/assets/img/boilerplate/03.png)
 
