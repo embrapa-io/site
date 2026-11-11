@@ -315,18 +315,23 @@ Os comandos disponíveis são:
 - ***cve***: Varre as imagens em execução de cada _build_ com o [Trivy](https://trivy.dev) (só vulnerabilidades `HIGH` e `CRITICAL`) e reporta o resultado à plataforma. Aceita uma lista de _builds_ ou `--all`. O _daemon_ executa a cada **hora**, num minuto sorteado por servidor. Cada imagem distinta é varrida uma vez por rodada; se alguma varredura falhar, a _build_ fica de fora do relato e a plataforma mantém o resultado anterior;
 - ***install***: [Configuração guiada](#install) de uma _build_ nova: escolhe projeto, _app_ e estágio por menus, busca na plataforma a equipe, o DSN do Sentry, o site e o _token_ do Matomo e as variáveis do `.embrapa/settings.json`, gera os valores por tipo e grava o arquivo em `builds/`. Aceita a _build_ como parâmetro (`proj/app@stage`) e `--yes` (sem perguntas, com os valores padrão);
 - ***split***: Migra o `builds.json` antigo para um arquivo por _build_ em `builds/`, guardando o original como `builds.json.bkp`;
-- ***info***: Exibe, por _build_, o arquivo de configuração, o resultado do último relato de cada sinal à plataforma (versão, saúde e CVEs), a versão instanciada e outros comandos úteis do orquestrador; lista também as _builds_ desativadas. A partir da versão `1.26.10-12`, mostra ainda o resultado da última [cópia em nuvem](#cloud) de cada _build_: `ok` (com data e hora, arquivos e _bytes_ enviados e apagados e o tamanho no _bucket_), `FAILED` (com o motivo e a data do último sucesso), `never run`, `disabled (auto.cloud = false)` ou `bucket not configured`. Por exemplo: `Cloud copy (S3): ok at 2026-10-23T03:10:42-03:00 (1 uploaded, 143,2 MB; 1 deleted; 15 file(s), 2,1 GB in the bucket)`. A partir da versão `1.26.10-16`, mostra também o último [restore](#restore) da _build_ (`Last restore`);
+- ***info***: Exibe, por _build_, o arquivo de configuração, o resultado do último relato de cada sinal à plataforma (versão, saúde e CVEs), a versão instanciada e outros comandos úteis do orquestrador; lista também as _builds_ desativadas. A partir da versão `1.26.10-12`, mostra ainda o resultado da última [cópia em nuvem](#cloud) de cada _build_: `ok` (com data e hora, arquivos e _bytes_ enviados e apagados e o tamanho no _bucket_), `FAILED` (com o motivo e a data do último sucesso), `never run`, `disabled (auto.cloud = false)` ou `bucket not configured`. Por exemplo: `Cloud copy (S3): ok at 2026-10-23T03:10:42-03:00 (1 uploaded, 143,2 MB; 1 deleted; 15 file(s), 2,1 GB in the bucket)`. A partir da versão `1.26.10-16`, mostra também o último [restore](#restore) da _build_ (`Last restore`). A partir da versão `1.26.11-4`, as _builds_ de um projeto com [configuração própria do _bucket_](#cloud-projects) mostram ainda a linha `S3 settings: own of project '…'`, com o arquivo, o _bucket_ e o _endpoint_;
 - ***cli*** (a partir da versão `1.26.10-12`): Instala (ou atualiza) o comando `io` no servidor, em `/usr/local/bin/io`. Aceita `--print` (só imprime o _script_), `--uninstall` (remove) e `--yes` (não pergunta). Veja [O comando `io` no servidor](#cli);
 - ***upgrade*** (a partir da versão `1.26.10-14`): Atualiza o próprio Releaser para a versão mais nova publicada (ou `--to VERSÃO`), com volta automática à versão anterior se a nova falhar. Aceita `--dry-run` (só mostra) e `--yes` (não pergunta). Veja [Atualização](#update);
 - ***mail***: Testa as configurações de SMTP por meio do envio de um e-mail de teste, detalhando cada tentativa (servidor, porta e motivo da falha). Deve-se informar como parâmetro uma lista de endereços separada por vírgula que receberão a mensagem (por exemplo, `jose.silva@embrapa.br,maria.santos@embrapa.br`). Se o envio funcionar, os e-mails que estavam na fila também são enviados; e
-- ***check*** (a partir da versão `1.26.10-8`): Testa o acesso ao GitLab pelos dois caminhos de que o _deploy_ depende: a API, com o `GITLAB_TOKEN` (alcance, tempo de resposta, validade, escopos e se o _token_ venceu ou foi revogado), e o clone, pela chave SSH ou pela URL de `GITLAB_SSH` (veja [clone por HTTPS](#https)). Ao final, uma linha de resumo que começa com `Success!` (em verde), `Warning!` (em amarelo) ou `Error!` (em vermelho), seguida do resultado da API, do _token_ e do clone. A mesma linha aparece no fim do menu, quando se executa `io` sem comando. O _daemon_ executa o teste **uma vez por dia** e envia e-mail ao `LOG_MAIL` quando o _token_ venceu, foi revogado, não tem o _scope_ `read_api`, vence em 14 dias ou em 7 dias ou menos (neste caso, diariamente), ou quando o clone é recusado. Uma indisponibilidade momentânea do GitLab não gera e-mail. A partir da versão `1.26.10-12`, quando alguma variável `S3_*` está no `.env`, o teste inclui também a listagem do _bucket_ da [cópia em nuvem](#cloud) (com _timeout_ de 5 segundos) e a resume na mesma linha. O _daemon_ envia e-mail ao `LOG_MAIL` quando o acesso ao _bucket_ falha (no máximo um por dia). Configuração incompleta, _bucket_ inexistente, chave recusada ou provedor inacessível aparecem como `ERROR`. O teste do _bucket_ não entra na linha de resumo do menu do `io` (sem comando), que continua testando só o GitLab. Por exemplo:
+- ***check*** (a partir da versão `1.26.10-8`): Testa o acesso ao GitLab pelos dois caminhos de que o _deploy_ depende: a API, com o `GITLAB_TOKEN` (alcance, tempo de resposta, validade, escopos e se o _token_ venceu ou foi revogado), e o clone, pela chave SSH ou pela URL de `GITLAB_SSH` (veja [clone por HTTPS](#https)). Ao final, uma linha de resumo que começa com `Success!` (em verde), `Warning!` (em amarelo) ou `Error!` (em vermelho), seguida do resultado da API, do _token_ e do clone. A mesma linha aparece no fim do menu, quando se executa `io` sem comando. O _daemon_ executa o teste **uma vez por dia** e envia e-mail ao `LOG_MAIL` quando o _token_ venceu, foi revogado, não tem o _scope_ `read_api`, vence em 14 dias ou em 7 dias ou menos (neste caso, diariamente), ou quando o clone é recusado. Uma indisponibilidade momentânea do GitLab não gera e-mail. A partir da versão `1.26.10-12`, o teste inclui também o _bucket_ da [cópia em nuvem](#cloud) e o resume na mesma linha: a listagem (com _timeout_ de 5 segundos) e, desde a `1.26.10-15`, a gravação, sem deixar nada no _bucket_. A partir da `1.26.11-4`, o teste é feito **uma vez por configuração**: a do servidor, quando alguma variável `S3_*` está no `.env`, e a de cada [projeto com configuração própria](#cloud-projects). A gravação é testada na pasta de cada projeto que usa a configuração e tem a cópia ligada, porque uma chave restrita a um projeto lista o _bucket_ inteiro e só grava na pasta dele. O _daemon_ envia e-mail ao `LOG_MAIL` quando o acesso ao _bucket_ falha (no máximo um por dia). Configuração incompleta, _bucket_ inexistente, chave recusada, chave sem permissão de gravar ou provedor inacessível aparecem como `ERROR`. O teste do _bucket_ não entra na linha de resumo do menu do `io` (sem comando), que continua testando só o GitLab. Para testar só o _bucket_, use `io cloud --check` (veja [Cópia em nuvem](#cloud)). Por exemplo:
 
 ```
-INFO > S3 bucket 'releaser-backups' at https://0123456789abcdef0123456789abcdef.r2.cloudflarestorage.com (S3_ENDPOINT)...
-SUCCESS > S3: ok (bucket releaser-backups, 184 ms)
+INFO > S3 bucket 'backup' at https://s3.cnpxx.embrapa.br (settings of the server, S3_* in the '.env' file)...
+SUCCESS > S3: ok (bucket backup, listing and writing, 184 ms)
 
-Success! API ok (95 ms) | Token ok, expires on 2027-03-01, in 129 days | SSH: ok as @releaser (310 ms) | S3 ok (bucket releaser-backups, 184 ms)
+INFO > S3 bucket 'backup' at https://s3.cnpxx.embrapa.br (settings of project 'calda-certa', /data/s3/calda-certa.json)...
+SUCCESS > S3: ok (bucket backup, listing and writing, 171 ms)
+
+Success! API ok (95 ms) | Token ok, expires on 2027-03-01, in 129 days | SSH: ok as @releaser (310 ms) | S3 ok (2 settings: server, project 'calda-certa')
 ```
+
+Quando a chave do `.env` é de um projeto e o servidor tem _builds_ de outro com a cópia ligada, o teste acusa `listing ok, but writing denied…`, com a pasta recusada, e indica o `io cloud --setup <project>`.
 
 Por exemplo, para **validar** todas as _builds_ configuradas em um servidor com **Docker Compose**, faríamos:
 
@@ -382,7 +387,7 @@ io cloud meu-projeto/api@release --list
 ```
 
 - O comando é um _script_ `sh` pequeno que roda `docker exec [-it | -i] releaser io "$@"`: usa `-it` só quando a entrada e a saída são um terminal (senão `-i`, para funcionar em `cron`, _pipes_ e `&&`), repassa os argumentos sem reinterpretá-los e devolve o código de saída do `io` do _container_.
-- Procura o _container_ pelo nome `releaser` (ou pelo que estiver em `RELEASER_CONTAINER`). Se não houver, procura pelo rótulo do serviço do Swarm ou pela imagem `embrapa/releaser`, e falha com mensagem clara se achar nenhum ou mais de um. Também falha com mensagem clara se o Docker não responder ou se o usuário não tiver permissão (fora do grupo `docker`): use `sudo io ...` ou acrescente o usuário ao grupo.
+- Procura o _container_ pelo nome `releaser` (ou pelo que estiver em `RELEASER_CONTAINER`). Se não houver, procura pelo rótulo do serviço do Swarm ou pela imagem `embrapa/releaser`; se não achar nenhum, mostra como trazer o _container_ de volta ([abaixo](#cli-recover)) e, com mais de um, pede o nome em `RELEASER_CONTAINER`. Também falha com mensagem clara se o Docker não responder ou se o usuário não tiver permissão (fora do grupo `docker`): use `sudo io ...` ou acrescente o usuário ao grupo.
 - Um `/usr/local/bin/io` que **não** tenha sido gerado pelo Releaser nunca é sobrescrito nem removido. `io cli --uninstall` remove o comando, só se for do Releaser.
 - **Atualização automática:** quando a imagem do Releaser é atualizada, a primeira chamada pelo `io` do servidor regrava o _script_ sem perguntar e avisa numa linha. Chamadas diretas (`docker exec releaser io ...`), o `cron` interno e o _daemon_ não tentam atualizar nada.
 - Se a gravação falhar (Docker instalado via _snap_, com AppArmor; Docker _rootless_; `/usr/local/bin` somente leitura), o Releaser não insiste: imprime a alternativa manual, que também serve para instalar o comando pela primeira vez:
@@ -392,6 +397,25 @@ docker exec releaser io cli --print | sudo tee /usr/local/bin/io > /dev/null && 
 ```
 
 Nada no diretório `/data` do Releaser muda com o `io cli`.
+
+### _Container_ parado ou removido {#cli-recover}
+
+A partir da versão `1.26.11-4`, quando o _container_ do **Releaser** não está no ar, o comando `io` diz por quê e mostra como trazê-lo de volta. Se o _container_ está **parado**, mostra o `docker start`. Se foi **removido**, mostra o `docker run` que o recria como ele era quando o comando foi gerado: mesmo nome, mesmas pastas montadas, mesma política de reinício, `--add-host`, `--dns` e rede, e a imagem pela **_tag_ exata da versão** que estava em uso. Em terminal, ele pergunta se deve executar o comando e, com a resposta sim, segue com o que foi pedido:
+
+```
+$ io info
+io: the Releaser container 'releaser' was not found on this server (removed?). To create it again, as it
+was when this command was generated (version 1.26.11-4):
+  docker run -d --name releaser -v /root/releaser:/data -v /var/run/docker.sock:/var/run/docker.sock --restart always embrapa/releaser:1.26.11-4
+Create it now? (y/N):
+```
+
+> **Atenção!** Recrie o _container_ por esse comando, e não por `embrapa/releaser` sem _tag_: num servidor já atualizado pelo `io upgrade`, a imagem `latest` local é a da instalação, e o **Releaser** voltaria à versão antiga.
+
+- No `cron`, em _scripts_ e em _pipes_ nada é perguntado nem executado: o comando só mostra a mensagem e termina com erro (código 125).
+- Variáveis de ambiente passadas na criação do _container_ (`-e`) não entram no comando mostrado, porque o _script_ é legível por qualquer usuário do servidor. Os nomes delas aparecem num aviso, para serem acrescentadas à mão.
+- Em Docker Swarm, quem recria o _container_ é o serviço.
+- O comando gravado é o do momento em que o `io` foi gerado ou atualizado: a cada versão nova do **Releaser**, ou com `io cli`. Se o _container_ for recriado à mão com outras opções, rode `io cli` para atualizá-lo.
 
 > **Atenção!** Hoje os comandos do Releaser terminam com código 0 mesmo quando uma _build_ falha (`ERROR >`) ou a execução é interrompida (`CRITICAL >`). Por isso, `io backup --all && io cloud --all` segue para o `cloud` mesmo depois de uma falha no `backup`. Essa mudança está proposta para uma versão futura, porque altera o comportamento de todos os comandos.
 
@@ -701,10 +725,12 @@ Para isso, o `cleaner` (e a [cópia em nuvem](#cloud)) usa um _container_ auxili
 
 #### Cópia em nuvem (S3) {#cloud}
 
-A partir da versão `1.26.10-12`, o **Releaser** pode copiar, todo dia, os arquivos de _backup_ de cada _build_ para um _bucket_ S3 compatível (AWS S3, Cloudflare R2, Backblaze B2, MinIO ou qualquer serviço com a API do S3), guardando uma cópia fora do servidor. O _bucket_ é configurado **uma única vez** no `.env` do **Releaser** e a cópia é ligada **por _build_**, no atributo `auto.cloud`.
+A partir da versão `1.26.10-12`, o **Releaser** pode copiar, todo dia, os arquivos de _backup_ de cada _build_ para um _bucket_ S3 compatível (AWS S3, Cloudflare R2, Backblaze B2, MinIO ou qualquer serviço com a API do S3), guardando uma cópia fora do servidor. O _bucket_ é configurado no `.env` do **Releaser**, para todas as _builds_ do servidor, ou [por projeto](#cloud-projects), e a cópia é ligada **por _build_**, no atributo `auto.cloud`.
 
 ```bash
-docker exec -it releaser io cloud [BUILD-1,BUILD-2,...,BUILD-N | --all] [--dry-run | --list]
+docker exec -it releaser io cloud [BUILD-1,BUILD-2,...,BUILD-N | --all] [--dry-run | --list | --verify]
+docker exec -it releaser io cloud --check [PROJETO]
+docker exec -it releaser io cloud --setup [PROJETO]
 ```
 
 Por exemplo:
@@ -718,6 +744,12 @@ docker exec -it releaser io cloud meu-projeto/api@release
 
 # lista o que há no bucket para a build
 docker exec -it releaser io cloud meu-projeto/api@release --list
+
+# testa o acesso ao bucket (listagem e gravação) de cada configuração em uso, sem copiar nada
+docker exec -it releaser io cloud --check
+
+# testa a configuração que as builds de um projeto usam, gravando na pasta dele
+docker exec -it releaser io cloud --check meu-projeto
 ```
 
 Em modo _daemon_, o comando roda uma vez por dia, **depois** do `backup` e do `cleaner`, para as _builds_ com `auto.cloud` ligado.
@@ -737,7 +769,61 @@ As variáveis abaixo são lidas do `.env` do diretório de configuração:
 
 > **Atenção!** A chave precisa de permissão para **listar, ler, gravar e apagar objetos** no _bucket_. Prefira uma chave restrita a esse _bucket_.
 
-Depois de configurar, teste com o comando `io check`, que também verifica o acesso ao _bucket_ (veja o comando `check` em [Utilização](#usage)).
+Depois de configurar, teste com `io cloud --check` ou com o comando `io check`, que também verifica o acesso ao _bucket_ (veja o comando `check` em [Utilização](#usage)).
+
+##### Configuração por projeto {#cloud-projects}
+
+A partir da versão `1.26.11-4`, as _builds_ de um projeto podem usar um _bucket_ ou uma chave **só delas**, no lugar dos que estão no `.env`. É o caso do S3 da Unidade, em que cada projeto tem uma chave restrita à própria pasta (veja [Uma chave por projeto]({{ site.baseurl }}/docs/s3#keys)), num servidor que hospeda _builds_ de mais de um projeto. Também serve a um projeto que guarda os _backups_ em outro S3.
+
+```bash
+docker exec -it releaser io cloud --setup meu-projeto
+```
+
+O assistente pergunta o _endpoint_, o _bucket_, a chave, o segredo, a região e a retenção no _bucket_. O _endpoint_, o _bucket_ e a região do servidor vêm como sugestão, porque o caso comum é o mesmo S3 com outra chave. Ele **testa a listagem e a gravação na pasta do projeto** antes de salvar. Sem o nome do projeto, `io cloud --setup` mostra, em terminal, um menu com o servidor e os projetos que têm _build_ nele.
+
+A configuração fica em `s3/<projeto>.json`, no diretório de configuração do **Releaser** (`/data/s3/` no _container_), legível só pelo dono do arquivo:
+
+```json
+{
+    "endpoint": "https://s3.cnpxx.embrapa.br",
+    "bucket": "backup",
+    "access_key": "meu-projeto",
+    "secret_key": "…",
+    "region": "auto"
+}
+```
+
+| Campo | Obrigatório | Equivale a |
+|---|---|---|
+| `endpoint` | sim | `S3_ENDPOINT` |
+| `bucket` | sim | `S3_BUCKET` |
+| `access_key` | sim | `S3_ACCESS_KEY` |
+| `secret_key` | sim | `S3_SECRET_KEY` |
+| `region` | não | `S3_REGION` (padrão `auto`) |
+| `retention` | não | `S3_RETENTION`; se ausente, vale a do servidor |
+
+Para conferir, a qualquer momento, qual configuração as _builds_ de um projeto usam e se ela grava na pasta dele:
+
+```bash
+docker exec -it releaser io cloud --check meu-projeto
+```
+
+```
+INFO > Builds of project 'meu-projeto' on this server: meu-projeto/api@release (auto.cloud on), meu-projeto/web@release (auto.cloud off).
+INFO > S3 bucket 'backup' at https://s3.cnpxx.embrapa.br (settings of project 'meu-projeto', /data/s3/meu-projeto.json)...
+SUCCESS > S3: ok (bucket backup, listing and writing, 171 ms)
+```
+
+Quando o projeto não tem configuração própria, a saída diz que as _builds_ dele usam a do servidor e testa a gravação na pasta do projeto com a chave do `.env`.
+
+Regras:
+
+- Vale para **todas as _builds_ do projeto** no servidor, em `io cloud`, `io restore`, `io check` e `io info`. Os projetos sem arquivo seguem com a configuração do `.env`.
+- O arquivo substitui o `.env` por inteiro: os campos não se misturam. Só a retenção, quando ausente, herda a do servidor.
+- Um arquivo incompleto ou com JSON inválido conta como **não configurado**: a cópia do projeto para, com erro, e nunca é feita com a chave do servidor.
+- Para voltar à configuração do servidor, rode `io cloud --setup meu-projeto`, responda não e confirme a remoção (ou apague o arquivo).
+
+> **Atenção!** O arquivo contém o segredo da chave. Ele não é repassado aos _containers_ das aplicações, mas entra em qualquer cópia que se faça do diretório de configuração do **Releaser**: trate-o como o `.env`.
 
 ##### Ligando a cópia por _build_
 
@@ -867,7 +953,7 @@ INFO > 16 file(s), 2,2 GB [D/W/M/Y = kept by the next rotation, - = deleted by i
 
 ##### Segurança
 
-- As credenciais ficam só no `.env` do **Releaser**. Ele as entrega ao `rclone` por variáveis de ambiente do processo: não há arquivo de configuração do `rclone`, e as chaves não aparecem na linha de comando (`ps`) nem na saída, nos e-mails ou nos _logs_.
+- As credenciais ficam só no `.env` do **Releaser** e, quando há [configuração por projeto](#cloud-projects), nos arquivos de `s3/`, gravados com permissão só para o dono. Ele as entrega ao `rclone` por variáveis de ambiente do processo: não há arquivo de configuração do `rclone`, e as chaves não aparecem na linha de comando (`ps`) nem na saída, nos e-mails ou nos _logs_.
 - As variáveis do `.env` do **Releaser** não são repassadas aos _containers_ das aplicações.
 - O volume de _backup_ é montado **somente leitura** para a cópia.
 
@@ -900,7 +986,7 @@ io restore meu-projeto/api@release --file meu-projeto_api_release_1.26.10-3_2026
 A lista junta, do mais recente para o mais antigo:
 
 - os arquivos da **mesma _app_** no volume de backup, nos três estágios. Com a pasta `BACKUP_DIR` compartilhada, os _backups_ do release aparecem também para o alpha;
-- com o S3 configurado, os arquivos de `<bucket>/<projeto>/<app>/<alpha|beta|release|upload>/`.
+- com o S3 configurado, os arquivos de `<bucket>/<projeto>/<app>/<alpha|beta|release|upload>/`. O _bucket_ lido é o da configuração da _build_: a [do projeto](#cloud-projects), se houver, ou a do servidor.
 
 A pasta `upload/` do _bucket_ é para arquivos enviados à mão, como os dados de um sistema antigo, migrados para a _app_. O arquivo precisa ter **a mesma estrutura dos `.tar.gz` que o serviço `backup` da _app_ gera**, porque quem o lê é o serviço `restore`. O nome tem de terminar em `.tar.gz` e ter só letras, números, ponto, hífen e sublinhado.
 
