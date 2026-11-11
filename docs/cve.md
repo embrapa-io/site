@@ -82,7 +82,7 @@ Como qualquer pessoa da equipe pode corrigir a falha, **não há descadastro**: 
 
 Uma cópia resumida, agrupada por projeto, vai também para o _space_ de alertas críticos dos administradores da plataforma, que acompanham o que as equipes recebem.
 
-Toda segunda-feira, a **ETIR** (Equipe de Tratamento e Resposta a Incidentes em Redes Computacionais da Embrapa) recebe por e-mail um resumo semanal das CVEs nos níveis **Crítica** e **Emergencial** que seguem em aberto nas _builds_: para cada CVE, as _builds_ afetadas, onde rodam, as URLs públicas, os arquitetos da solução e há quanto tempo o primeiro alerta foi enviado, além das exposições corrigidas ou tiradas do ar na semana. O nível Alta não entra. O resumo vai só para a ETIR, nunca para um _space_ de chat, porque a lista de exposições é sigilosa.
+> **Atenção!** A **ETIR** (Equipe de Tratamento e Resposta a Incidentes em Redes Computacionais da Embrapa) recebe toda segunda-feira um relatório consolidado das CVEs nos níveis **Crítica** e **Emergencial** (índice de 50% ou mais) que seguem em aberto nas _builds_: onde rodam, as URLs públicas, os arquitetos responsáveis e há quanto tempo o primeiro alerta foi enviado à equipe. A correção continua com as equipes. [Veja o que a ETIR recebe e os critérios do relatório]({{ site.baseurl }}/docs/etir).
 
 ## Repetição, mudança de nível e encerramento {#cycle}
 

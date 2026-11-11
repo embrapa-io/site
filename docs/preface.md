@@ -74,6 +74,7 @@ Para quem mantém a plataforma ou estende o que ela oferece: modelos, servidores
 - [WebMCP: ferramentas desta documentação para agentes no navegador]({{ site.baseurl }}/docs/webmcp)
 - [Sentinela: relatórios automáticos de _insights_ por projeto]({{ site.baseurl }}/docs/sentinel)
 - [CVEs Críticos: alertas de vulnerabilidades em exploração ativa]({{ site.baseurl }}/docs/cve)
+- [Relatório semanal à ETIR: CVEs Críticas e Emergenciais em aberto]({{ site.baseurl }}/docs/etir)
 
 ## Recursos
 
