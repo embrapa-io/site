@@ -60,8 +60,8 @@ O cabeçalho de cada CVE traz:
 
 E, para cada _build_ afetada:
 
-- `projeto/app@estágio` e os serviços (contêineres) com o pacote vulnerável;
-- **onde roda:** _cluster_ da plataforma ou servidor do Releaser, com a **Unidade** da Embrapa (pelo cadastro do _cluster_ ou pela sigla do nome do servidor, como `cnpgc` para a Embrapa Gado de Corte). Sigla desconhecida aparece como "Unidade não identificada", sem palpite;
+- `project/app@stage` e os serviços (contêineres) com o pacote vulnerável;
+- **onde roda:** _cluster_ da plataforma ou servidor do Releaser, com o local de hospedagem: o do cadastro do _cluster_ no [catálogo]({{ site.baseurl }}/resources/clusters) (por exemplo, "GTI, Brasília - DF") ou, no Releaser, o que a sigla do nome do servidor indica (por exemplo, "Nuvem da Embrapa"). É onde a _build_ roda, não a Unidade responsável pelo projeto, que a plataforma não registra: quem responde por ela são os arquitetos, logo abaixo;
 - **URLs públicas** registradas na plataforma: subdomínios, subcaminhos, _aliases_ e domínios próprios. Quando não há URL registrada, o que é comum nos servidores do Releaser, o relatório diz "URL pública não registrada na plataforma (pode existir)" e informa o _host_ e o IP;
 - **responsáveis:** os arquitetos do projeto com e-mail `@embrapa.br` ou `@colaborador.embrapa.br`. Projeto sem nenhum deles aparece marcado **sem responsável Embrapa**, o que já é um achado por si;
 - **em alerta desde** a data do primeiro alerta à equipe, com os dias decorridos e o número de alertas e lembretes já enviados. Mais de 7 e mais de 30 dias ganham destaque.
@@ -112,6 +112,6 @@ Para manter os responsáveis corretos, confira se os arquitetos do projeto no _d
 
 **Tirei o estágio do ar. Isso conta como corrigido?** Não: aparece como **desativada**, que é diferente de corrigida. Se a _build_ voltar a rodar com a falha, a exposição volta ao relatório.
 
-**A Unidade da minha build está errada ou "não identificada".** A Unidade vem do cadastro do _cluster_ ou da sigla no nome do servidor do Releaser. Avise a equipe do **Embrapa I/O** para corrigir a tabela.
+**Por que o relatório não diz a Unidade do meu projeto?** Porque a plataforma não registra a Unidade responsável por um projeto. O relatório informa onde a _build_ roda (o _cluster_ ou o servidor) e identifica quem responde por ela pelos arquitetos do projeto. Por isso é importante manter no _dashboard_ ao menos um arquiteto com e-mail `@embrapa.br` ou `@colaborador.embrapa.br`.
 
 **Posso receber uma cópia do relatório?** Não. As equipes recebem o alerta das suas _builds_, que traz tudo o que é preciso para corrigir; o relatório consolidado de todos os projetos fica restrito à ETIR e à equipe da plataforma.

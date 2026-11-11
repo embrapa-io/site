@@ -70,7 +70,7 @@ A mensagem é montada em português a partir de dados estruturados (vetor CVSS, 
 
 ## Quem recebe {#recipients}
 
-**Todos os membros da equipe do projeto que têm conta no Embrapa I/O** (arquitetos, desenvolvedores e demais membros), e não só os mantenedores, porque quem reconhece a urgência muitas vezes é o técnico de TI que é apenas membro da equipe. A conta é criada no primeiro acesso ao _dashboard_, com o aceite dos termos: quem está na equipe mas nunca acessou **não recebe**. Cada pessoa recebe **um único e-mail por ciclo**, agrupado por CVE e ordenado pelo nível mais alto. Dentro de cada CVE, cada _build_ aparece no formato `projeto/app@estágio • serviços`, com o servidor onde roda, a data da última varredura e a ação indicada. O rodapé traz o link para esta página.
+**Todos os membros da equipe do projeto que têm conta no Embrapa I/O** (arquitetos, desenvolvedores e demais membros), e não só os mantenedores, porque quem reconhece a urgência muitas vezes é o técnico de TI que é apenas membro da equipe. A conta é criada no primeiro acesso ao _dashboard_, com o aceite dos termos: quem está na equipe mas nunca acessou **não recebe**. Cada pessoa recebe **um único e-mail por ciclo**, agrupado por CVE e ordenado pelo nível mais alto. Dentro de cada CVE, cada _build_ aparece no formato `project/app@stage • serviços`, com o servidor onde roda, a data da última varredura e a ação indicada. O rodapé traz o link para esta página.
 
 ![E-mail de alerta: cabeçalho, metadados e a CVE com nível, fontes, risco e registro]({{ site.baseurl }}/assets/img/cve/04.png)
 
