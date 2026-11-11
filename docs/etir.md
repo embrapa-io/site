@@ -63,7 +63,7 @@ E, para cada _build_ afetada:
 - `project/app@stage` e os serviços (contêineres) com o pacote vulnerável;
 - **onde roda:** _cluster_ da plataforma ou servidor do Releaser, com o local de hospedagem: o do cadastro do _cluster_ no [catálogo]({{ site.baseurl }}/resources/clusters) (por exemplo, "GTI, Brasília - DF") ou, no Releaser, o que a sigla do nome do servidor indica (por exemplo, "Nuvem da Embrapa"). É onde a _build_ roda, não a Unidade responsável pelo projeto, que a plataforma não registra: quem responde por ela são os arquitetos, logo abaixo;
 - **URLs públicas** registradas na plataforma: subdomínios, subcaminhos, _aliases_ e domínios próprios. Quando não há URL registrada, o que é comum nos servidores do Releaser, o relatório diz "URL pública não registrada na plataforma (pode existir)" e informa o _host_ e o IP;
-- **responsáveis:** os arquitetos do projeto com e-mail `@embrapa.br` ou `@colaborador.embrapa.br`. Projeto sem nenhum deles aparece marcado **sem responsável Embrapa**, o que já é um achado por si;
+- **responsáveis:** nome e e-mail dos arquitetos do projeto;
 - **em alerta desde** a data do primeiro alerta à equipe, com os dias decorridos e o número de alertas e lembretes já enviados. Mais de 7 e mais de 30 dias ganham destaque.
 
 ![Relatório à ETIR: CVEs em aberto, resolvidas na semana e rodapé com o critério]({{ site.baseurl }}/assets/img/etir/02.png)
@@ -102,8 +102,6 @@ Nada no fluxo de correção: o alerta continua chegando a todos os membros da eq
 
 O que muda é a visibilidade: uma CVE **Crítica** ou **Emergencial** que fica em aberto por semanas aparece toda segunda-feira no relatório, com o tempo decorrido desde o primeiro alerta e os responsáveis. A ETIR pode procurar a equipe a qualquer momento, como já faz em qualquer incidente. A forma mais simples de não aparecer no relatório é corrigir a falha ou, enquanto não houver correção, tirar o estágio do ar, como indica o [capítulo de CVEs Críticos]({{ site.baseurl }}/docs/cve#actions).
 
-Para manter os responsáveis corretos, confira se os arquitetos do projeto no _dashboard_ incluem ao menos uma pessoa com e-mail `@embrapa.br` ou `@colaborador.embrapa.br`.
-
 ## Perguntas frequentes {#faq}
 
 **Minha build tem uma CVE de nível Alta. Ela vai para a ETIR?** Não. O relatório só traz os níveis Crítica e Emergencial. Se outro catálogo incluir a mesma CVE e o nível subir, a equipe recebe um novo alerta na hora, e a exposição passa a entrar no relatório da segunda-feira seguinte.
@@ -112,6 +110,6 @@ Para manter os responsáveis corretos, confira se os arquitetos do projeto no _d
 
 **Tirei o estágio do ar. Isso conta como corrigido?** Não: aparece como **desativada**, que é diferente de corrigida. Se a _build_ voltar a rodar com a falha, a exposição volta ao relatório.
 
-**Por que o relatório não diz a Unidade do meu projeto?** Porque a plataforma não registra a Unidade responsável por um projeto. O relatório informa onde a _build_ roda (o _cluster_ ou o servidor) e identifica quem responde por ela pelos arquitetos do projeto. Por isso é importante manter no _dashboard_ ao menos um arquiteto com e-mail `@embrapa.br` ou `@colaborador.embrapa.br`.
+**Por que o relatório não diz a Unidade do meu projeto?** Porque a plataforma não registra a Unidade responsável por um projeto. O relatório informa onde a _build_ roda (o _cluster_ ou o servidor) e identifica quem responde por ela pelos arquitetos do projeto.
 
 **Posso receber uma cópia do relatório?** Não. As equipes recebem o alerta das suas _builds_, que traz tudo o que é preciso para corrigir; o relatório consolidado de todos os projetos fica restrito à ETIR e à equipe da plataforma.
