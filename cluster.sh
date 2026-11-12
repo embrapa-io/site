@@ -19,6 +19,7 @@
 #   PANEL=arcane|none                   painel local (padrão: o escolhido no assistente, senão arcane)
 #   DOCKERHUB_USER e DOCKERHUB_TOKEN    login no Docker Hub sem pergunta (token só leitura do NTI)
 #   IO_TEST=1                           laboratório: aceita pouco espaço em disco, certificado autoassinado, sem Web Terminal
+#   IO_TEST_DOCKERHUB=ask               no laboratório, pede o login do Docker Hub (sem ele, a subetapa é pulada)
 #
 # Log completo: /var/log/embrapa.io-cluster-setup.log
 #
@@ -29,7 +30,7 @@ if [ -z "${BASH_VERSION:-}" ]; then exec bash "$0" "$@"; fi
 
 set -uo pipefail
 
-VERSION=1.26.11-12
+VERSION=1.26.11-13
 
 [ -f /root/cluster.env ] && . /root/cluster.env
 
@@ -490,7 +491,7 @@ step_dockerhub () {
   local user=${DOCKERHUB_USER:-} token=${DOCKERHUB_TOKEN:-}
 
   if [ -z "$user" ] || [ -z "$token" ]; then
-    if [ "$IO_TEST" = 1 ]; then echo "Docker Hub: pulado no laboratório"; return 0; fi
+    if [ "$IO_TEST" = 1 ] && [ "${IO_TEST_DOCKERHUB:-}" != ask ]; then echo "Docker Hub: pulado no laboratório"; return 0; fi
     [ -r /dev/tty ] || { echo "Sem terminal para pedir o token do Docker Hub (use DOCKERHUB_USER e DOCKERHUB_TOKEN)"; return 1; }
     # Os pedidos vão direto ao terminal: a saída da subetapa (inclusive o stderr do read -p) vai para o log.
     say ""
@@ -1047,7 +1048,8 @@ cmd_setup () {
 
   say "Embrapa I/O — instalação de cluster (cluster.sh $VERSION)"
   load_request
-  say "Cluster: $HOST · estágios: $STAGES · painel: $PANEL$( [ "$IO_TEST" = 1 ] && echo ' · LABORATÓRIO (IO_TEST=1)')"
+  say "Cluster: $HOST · estágios: $STAGES · painel: $PANEL"
+  [ "$IO_TEST" = 1 ] && echo "$(date '+%F %T') Laboratório (IO_TEST=1)" >> "$LOG"
 
   trap stop_check_server EXIT
   start_check_server
