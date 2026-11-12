@@ -29,7 +29,7 @@ if [ -z "${BASH_VERSION:-}" ]; then exec bash "$0" "$@"; fi
 
 set -uo pipefail
 
-VERSION=1.26.11-11
+VERSION=1.26.11-12
 
 [ -f /root/cluster.env ] && . /root/cluster.env
 
@@ -1089,7 +1089,9 @@ cmd_setup () {
   if [ -f "$STATE/panel-password-new" ] && [ -s "$PANEL_FILE" ]; then
     local who secret
     who=$(sed -n 2p "$PANEL_FILE"); secret=$(sed -n 3p "$PANEL_FILE")
-    say "   $who · $secret"
+    # A senha só vai para a tela: o log fica com o usuário e a indicação do arquivo.
+    echo "   $who · $secret" >&3
+    echo "$(date '+%F %T')    $who · Senha: (em $PANEL_FILE)" >> "$LOG"
     say "   (anote agora; uma cópia ficou em $PANEL_FILE, só para o root)"
     rm -f "$STATE/panel-password-new"
   fi
