@@ -155,7 +155,7 @@ site-js:
 # obtido em https://developer.chrome.com/origintrials/#/register_trial/4163014905550602241.
 # Vazio = sem token (funciona com a flag chrome://flags/#enable-webmcp-testing, ChatGPT desktop e extensões-ponte).
 webmcp:
-  origin_trial_token: "Am3yPGAwcXIGBnKNHuotsn7xswCFqd22cnoTqCmPkF92VvQYy22HhqNAc+fkG+g6Ik6HlWCX5B/0x1is+qV44QIAAABOeyJvcmlnaW4iOiJodHRwczovL3d3dy5lbWJyYXBhLmlvOjQ0MyIsImZlYXR1cmUiOiJXZWJNQ1AiLCJleHBpcnkiOjE3OTQ4NzM2MDB9"
+  origin_trial_token: "An0fhFejoehSmJlKkIBCvGPjN4ywLr51z4EF5ruRHVpWJNhO+YvuJ2Oo3z0Zvkv638sWplNgSoMKLKmzxTi36gYAAABOeyJvcmlnaW4iOiJodHRwczovL3d3dy5lbWJyYXBhLmlvOjQ0MyIsImZlYXR1cmUiOiJXZWJNQ1AiLCJleHBpcnkiOjE4MDYzNjQ4MDB9"
   api: "https://core.embrapa.io"
 
 # --- Web Analytics Section --- #
