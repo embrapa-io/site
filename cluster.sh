@@ -29,7 +29,7 @@ if [ -z "${BASH_VERSION:-}" ]; then exec bash "$0" "$@"; fi
 
 set -uo pipefail
 
-VERSION=1.26.11-9
+VERSION=1.26.11-10
 
 [ -f /root/cluster.env ] && . /root/cluster.env
 
@@ -337,6 +337,9 @@ apply_cron () {
 # Embrapa I/O (cluster.sh): cache de build e imagens sem uso há mais de 24 h.
 30 4 * * * root docker builder prune -af --filter until=24h > /dev/null 2>&1; docker image prune -af --filter until=24h > /dev/null 2>&1
 EOF
+  # O cron ignora arquivo com escrita para o grupo ou outros («INSECURE MODE»): com umask 002, como no Debian do NTI, a
+  # limpeza nunca rodava.
+  chmod 644 /etc/cron.d/embrapa-io-cleanup
   cat > /etc/logrotate.d/embrapa-io << 'EOF'
 /var/log/embrapa.io*.log /var/log/embrapa-*.log {
   weekly
@@ -869,7 +872,7 @@ cmd_status () {
   check "nginx ativo" systemctl is-active --quiet nginx
   check "Painel respondendo" bash -c "curl -fsk --resolve $host:443:127.0.0.1 -o /dev/null https://$host/"
   check "Web Terminal (CRON)" test -f /etc/cron.d/embrapa-terminal
-  check "CRON de limpeza" test -f /etc/cron.d/embrapa-io-cleanup
+  check "CRON de limpeza" bash -c 'test "$(stat -c %a /etc/cron.d/embrapa-io-cleanup 2> /dev/null)" = 644'
   [ -f "$PANEL_DIR/compose.yaml" ] && check "Painel: atualização noturna (CRON)" test -x "$PANEL_DIR/update.sh" -a -f /etc/cron.d/embrapa-io-panel
   check "unattended-upgrades (só segurança, Docker retido)" grep -q docker-ce /etc/apt/apt.conf.d/52embrapa-io-unattended
   say ""
