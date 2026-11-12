@@ -29,7 +29,7 @@ if [ -z "${BASH_VERSION:-}" ]; then exec bash "$0" "$@"; fi
 
 set -uo pipefail
 
-VERSION=1.26.11-7
+VERSION=1.26.11-8
 
 [ -f /root/cluster.env ] && . /root/cluster.env
 
@@ -495,7 +495,7 @@ step_dockerhub () {
     say "  Crie um token de acesso (read-only) em «Personal Access Tokens» em https://app.docker.com (o token fica só nesta VM)"
     printf '    Usuário: ' > /dev/tty
     read -r user < /dev/tty
-    printf '    Senha: ' > /dev/tty
+    printf '    Token: ' > /dev/tty
     read -r -s token < /dev/tty
     printf '\n' > /dev/tty
     say ""
