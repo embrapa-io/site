@@ -29,7 +29,7 @@ if [ -z "${BASH_VERSION:-}" ]; then exec bash "$0" "$@"; fi
 
 set -uo pipefail
 
-VERSION=1.26.11-6
+VERSION=1.26.11-7
 
 [ -f /root/cluster.env ] && . /root/cluster.env
 
@@ -489,10 +489,15 @@ step_dockerhub () {
   if [ -z "$user" ] || [ -z "$token" ]; then
     if [ "$IO_TEST" = 1 ]; then echo "Docker Hub: pulado no laboratório"; return 0; fi
     [ -r /dev/tty ] || { echo "Sem terminal para pedir o token do Docker Hub (use DOCKERHUB_USER e DOCKERHUB_TOKEN)"; return 1; }
+    # Os pedidos vão direto ao terminal: a saída da subetapa (inclusive o stderr do read -p) vai para o log.
     say ""
-    say "  Login no Docker Hub (conta do NTI, token de acesso só leitura; o token fica só nesta VM):"
-    read -r -p "    Usuário: " user < /dev/tty
-    read -r -s -p "    Token: " token < /dev/tty
+    say "  Login no Docker Hub (conta do NTI)"
+    say "  Crie um token de acesso (read-only) em «Personal Access Tokens» em https://app.docker.com (o token fica só nesta VM)"
+    printf '    Usuário: ' > /dev/tty
+    read -r user < /dev/tty
+    printf '    Senha: ' > /dev/tty
+    read -r -s token < /dev/tty
+    printf '\n' > /dev/tty
     say ""
   fi
 
