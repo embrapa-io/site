@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Instalador dos clusters do Embrapa I/O. Prepara uma VM Ubuntu Server 26.04 (amd64) para receber as builds da
+# Instalador dos clusters do Embrapa I/O. Prepara uma VM Ubuntu Server 26.04 ou Debian 13 (amd64) para receber as builds da
 # plataforma, conversando com o assistente de cluster da Dashboard, que gera o token e acompanha cada etapa.
 #
 # Uso (como root, na VM):
@@ -29,7 +29,7 @@ if [ -z "${BASH_VERSION:-}" ]; then exec bash "$0" "$@"; fi
 
 set -uo pipefail
 
-VERSION=1.26.11-5
+VERSION=1.26.11-6
 
 [ -f /root/cluster.env ] && . /root/cluster.env
 
@@ -48,10 +48,17 @@ MIN_CPU=4
 MIN_RAM_GB=15
 MIN_DATA_GB=190
 
+# Sistemas aceitos: Ubuntu Server 26.04 LTS (recomendado) e Debian 13, ambos amd64. DISTRO decide os repositórios.
+DISTRO=$( . /etc/os-release 2> /dev/null; echo "${ID:-}" )
+case "$DISTRO" in
+  debian) OS_REPO=http://deb.debian.org/debian/ ;;
+  *) DISTRO=ubuntu; OS_REPO=http://archive.ubuntu.com/ubuntu/ ;;
+esac
+
 # Saída que a VM precisa ter (qualquer resposta HTTP serve: o teste é de rede, não de autorização).
 OUTBOUND=(
-  "Repositório do Ubuntu|http://archive.ubuntu.com/ubuntu/"
-  "Repositório do Docker|https://download.docker.com/linux/ubuntu/"
+  "Repositório do sistema|$OS_REPO"
+  "Repositório do Docker|https://download.docker.com/linux/$DISTRO/"
   "Docker Hub|https://registry-1.docker.io/v2/"
   "Loki do Embrapa I/O|https://loki.embrapa.io/ready"
   "Prometheus do Embrapa I/O|https://prometheus.embrapa.io/"
@@ -91,7 +98,7 @@ ok () { say "  ✅ $*"; }
 bad () { say "  ❌ $*"; }
 die () { say ""; say "❌ $*"; exit 1; }
 
-# JSON sem dependências além do python3 (presente na instalação mínima do Ubuntu).
+# JSON sem dependências além do python3 (need_python garante que exista).
 json_get () { python3 -c 'import json,sys
 d=json.load(sys.stdin)
 for k in sys.argv[1].split("."):
@@ -144,13 +151,16 @@ print(json.dumps(b, ensure_ascii=False))')
 
 need_root () { [ "$(id -u)" = 0 ] || die "Rode como root (sudo -i)."; }
 
-os_ok () { . /etc/os-release; [ "${ID:-}" = ubuntu ] && [ "${VERSION_ID:-}" = 26.04 ]; }
+os_ok () { . /etc/os-release; { [ "${ID:-}" = ubuntu ] && [ "${VERSION_ID:-}" = 26.04 ]; } || { [ "${ID:-}" = debian ] && [ "${VERSION_ID:-}" = 13 ]; }; }
 
 docker_snap () { snap list docker > /dev/null 2>&1; }
 
 docker_apt () { dpkg -s docker-ce > /dev/null 2>&1; }
 
-sudo_classic () { readlink -f /usr/bin/sudo | grep -q 'sudo\.ws$'; }
+os_amd64 () { os_ok && [ "$(uname -m)" = x86_64 ]; }
+
+# O clássico se apresenta como "Sudo version"; o sudo-rs, como "sudo-rs".
+sudo_classic () { sudo -V 2> /dev/null | head -1 | grep -q '^Sudo version'; }
 
 # Primeiros dois octetos de uma sub-rede "172.28.0.0" → "172.28."
 prefix16 () { echo "$1" | cut -d. -f1-2; }
@@ -207,7 +217,7 @@ preflight () { # grava as evidências em $1; devolve 1 se algum item obrigatóri
   : > "$ev"
 
   . /etc/os-release
-  if os_ok; then add 1 "Sistema" "$PRETTY_NAME"; else add 0 "Sistema" "$PRETTY_NAME (é preciso o Ubuntu Server 26.04 LTS)"; fi
+  if os_ok; then add 1 "Sistema" "$PRETTY_NAME"; else add 0 "Sistema" "$PRETTY_NAME (é preciso o Ubuntu Server 26.04 LTS ou o Debian 13)"; fi
 
   local arch; arch=$(uname -m)
   if [ "$arch" = x86_64 ]; then add 1 "Arquitetura" "amd64"; else add 0 "Arquitetura" "$arch (é preciso amd64)"; fi
@@ -300,8 +310,11 @@ EOF
 }
 
 apply_sudo () {
-  # Ubuntu 26.04: o sudo-rs recusa curingas nos argumentos e ignora a regra de chown/chmod do usuário io.
-  update-alternatives --set sudo /usr/bin/sudo.ws
+  # Ubuntu 26.04: o sudo-rs (padrão) recusa curingas nos argumentos e ignora a regra de chown/chmod do usuário io; volta
+  # para o sudo clássico. O Debian 13 já usa o clássico (e a instalação mínima pode nem trazer o sudo).
+  command -v sudo > /dev/null || apt_q install sudo
+  if [ -e /usr/bin/sudo.ws ]; then update-alternatives --set sudo /usr/bin/sudo.ws; fi
+  sudo_classic
 }
 
 apply_sudoers () {
@@ -335,7 +348,7 @@ EOF
 EOF
   # Só atualizações de segurança, sem reinício automático; o Docker fica para o NTI, numa janela (reinicia as builds).
   cat > /etc/apt/apt.conf.d/52embrapa-io-unattended << 'EOF'
-Unattended-Upgrade::Allowed-Origins { "${distro_id}:${distro_codename}-security"; };
+Unattended-Upgrade::Origins-Pattern { "origin=Ubuntu,archive=${distro_codename}-security"; "origin=Debian,codename=${distro_codename}-security,label=Debian-Security"; };
 Unattended-Upgrade::Package-Blacklist { "docker-ce"; "docker-ce-cli"; "docker-ce-rootless-extras"; "containerd.io"; "docker-buildx-plugin"; "docker-compose-plugin"; };
 Unattended-Upgrade::Automatic-Reboot "false";
 EOF
@@ -374,9 +387,9 @@ step_docker () {
   if ! docker_apt; then
     . /etc/os-release
     install -m 0755 -d /etc/apt/keyrings
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    curl -fsSL "https://download.docker.com/linux/$DISTRO/gpg" -o /etc/apt/keyrings/docker.asc
     chmod a+r /etc/apt/keyrings/docker.asc
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $VERSION_CODENAME stable" > /etc/apt/sources.list.d/docker.list
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/$DISTRO $VERSION_CODENAME stable" > /etc/apt/sources.list.d/docker.list
     apt_q update
     apt_q install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
   fi
@@ -833,9 +846,9 @@ cmd_status () {
   say "Embrapa I/O — conferência do cluster $host (cluster.sh $VERSION)"
   say ""
   check "Hostname com domínio ($host)" bash -c "[[ '$host' == *.* ]]"
-  check "Ubuntu 26.04 amd64" bash -c ". /etc/os-release; [ \"\$VERSION_ID\" = 26.04 ] && [ \"\$(uname -m)\" = x86_64 ]"
+  check "Ubuntu 26.04 ou Debian 13, amd64" os_amd64
   check "Reserva de portas $PORT_RANGE" bash -c "sysctl -n net.ipv4.ip_local_reserved_ports | grep -q '$PORT_RANGE'"
-  check "Sudo clássico (sudo.ws)" sudo_classic
+  check "Sudo clássico (não o sudo-rs)" sudo_classic
   check "Docker do repositório oficial (sem snap)" bash -c "dpkg -s docker-ce > /dev/null && ! snap list docker > /dev/null 2>&1"
   check "Docker Compose" docker compose version
   check "Usuário io no grupo docker" bash -c "id -nG io | tr ' ' '\n' | grep -qx docker"
@@ -966,8 +979,17 @@ sys.exit(0 if d.get("ok") else 1)' | tee -a "$LOG"
   return "${PIPESTATUS[1]}"
 }
 
+# O script usa python3 para JSON desde a verificação prévia. A instalação mínima do Ubuntu sempre o traz; a do Debian
+# pode não trazer: é a única coisa instalada antes da confirmação.
+need_python () {
+  command -v python3 > /dev/null && return 0
+  say "Instalando o python3, que o cluster.sh usa (a instalação mínima do Debian não traz)..."
+  { apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3; } >> "$LOG" 2>&1 || die "Não foi possível instalar o python3 (veja $LOG)."
+}
+
 cmd_setup () {
   need_root
+  need_python
   TOKEN=${1:-}
   [[ "$TOKEN" =~ ^[A-Za-z0-9_-]{16,128}$ ]] || die "Uso: sh cluster.sh setup <token> (o token vem do assistente da Dashboard)."
 
