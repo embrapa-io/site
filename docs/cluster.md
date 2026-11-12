@@ -1,752 +1,205 @@
 ---
 layout: page
 title: Cluster
-subtitle: Configurando e disponibilizando um cluster
+subtitle: Configurando e disponibilizando um cluster pela Dashboard
 ---
-
-<iframe width="730" height="410" src="https://www.youtube.com/embed/yVHHmz7xYf4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
 > **Catálogo:** a lista dos _clusters_ disponíveis, com os recursos de cada um, está em [Recursos → Clusters]({{ site.baseurl }}/resources/clusters); os servidores de inferência acessíveis a partir deles, em [Recursos → GPU Servers]({{ site.baseurl }}/resources/gpus).
 
-Conforme explicado no [capítulo de arquitetura]({{ site.baseurl }}/docs/architecture), o **Embrapa I/O** é uma plataforma do tipo _Cloud Agnostic Architecture_. Ou seja, se propõe a atuar com <u>diferentes tecnologias de conteinerização e clusterização em nuvem</u>, às quais são aqui chamadas de "**orquestradores**".
+Um _cluster_ do catálogo é um servidor (físico ou, mais comumente, uma máquina virtual) de uma Unidade da Embrapa ou de um parceiro, em que a plataforma publica as aplicações das equipes. Ele é de **uso compartilhado**: várias aplicações dividem a mesma máquina. A plataforma faz cada _deploy_ por SSH, e a Unidade, pelos **mantenedores** do _cluster_, cuida da máquina: sistema operacional, disco, rede, _firewall_ e atualizações.
 
-Assim, é possível que uma aplicação, devidamente conteinerizada, seja instanciada em estágio _alpha_ (para testes internos) em um orquestrador [Docker Swarm](https://docs.docker.com/engine/swarm/) rodando em um cluster de servidores localizado fisicamente na [Embrapa Gado de Corte](https://www.embrapa.br/gado-de-corte). A mesma aplicação poderia ser instanciada em estágio _beta_ (para testes externos) em um orquestrador [Kubernetes](https://kubernetes.io/pt-br/) rodando em um cluster de servidores localizado fisicamente na [Embrapa Agricultura Digital](https://www.embrapa.br/agricultura-digital). Por fim, esta mesma aplicação poderia estar instanciada em estágio _release_ (produção) em um orquestrador [Cloud Foundry](https://www.cloudfoundry.org) rodando na [IBM Cloud](https://www.ibm.com/cloud).
+Desde novembro de 2026, o NTI da Unidade coloca um servidor no catálogo **sozinho, pela Dashboard**, sem depender da equipe da plataforma. O assistente de _clusters_ orienta o planejamento, gera um comando único que instala tudo na máquina (o `cluster.sh`), verifica os pré-requisitos a partir do servidor da plataforma, valida a instalação e, com o termo assinado pelos mantenedores, publica o _cluster_ no catálogo.
 
-Para possibilitar a "orquestração" dos ativos digitais nesta rede descentralizada de _clusters_, a plataforma implementa **_drivers_** de serviços. Estes _drivers_ podem ser de dois tipos:
+> **Atenção!** Os _clusters_ do catálogo são compartilhados e não há como garantir recursos de _hardware_ dedicados a uma aplicação. Para aplicações em **produção** (_release_), a recomendação é uma VM dedicada operada pelo [Releaser]({{ site.baseurl }}/docs/releaser), conforme o capítulo sobre [hospedagem de aplicações]({{ site.baseurl }}/docs/delivery). Se o _cluster_ oferecer o estágio _release_ e uma equipe o usar mesmo assim, ela deve ativar o [_backup_ automático na nuvem (S3)]({{ site.baseurl }}/docs/s3).
 
-- **orquestrador**: que efetua tarefas de validação dos _stacks_ de _containers_, _deploy_/_undeploy_, _health check_, _backup_, sanitização, etc; e
+O processo anterior, em que a Unidade preparava o servidor à mão e pedia a entrada no catálogo, continua documentado em [Cluster: processo manual]({{ site.baseurl }}/docs/cluster/manual), com o vídeo correspondente. Ele ainda é a referência para o **Docker Swarm**, que o assistente não cobre.
 
-- **storer**: que instancia _volumes_ no próprio _cluster_ ou em servidores externos do tipo _storage_.
+# Planejamento {#planning}
 
-O provisionamento de novos _clusters_, _storages_ e o desenvolvimento de _drivers_, estão alinhados com a estratégia de desenvolvimento colaborativo e manutenção compartilhada da plataforma. Assim, [da mesma forma que ocorre com os _boilerplates_]({{ site.baseurl }}/docs/boilerplate), _clusters_ são mantidos por equipes descentralizadas, que podem ser internas ou externas à Embrapa.
+## Finalidade: projetos e laboratórios virtuais {#purpose}
 
-![Detalhes do cluster escolhido para deploy da aplicação]({{ site.baseurl }}/assets/img/cluster/20250311144415.png)
+Ao cadastrar o _cluster_, a Unidade diz para que ele serve:
 
-Desta forma, unidades descentralizadas, instituições e empresas parceiras da Embrapa podem compor a rede de _clusters_ do **Embrapa I/O**, integrando servidores reais ou VMs de seus próprios CPDs. Com isso, a gestão das aplicações nestes servidores físicos ou máquinas virtuais passa a ser realizada pelos processos de DevOps da plataforma.
+- **Projetos**: recebe as _builds_ das aplicações das equipes, como os _clusters_ que a plataforma sempre teve.
+- **Laboratórios**: recebe os **laboratórios virtuais** do [Forge](https://forge.embrapa.io), ferramentas prontas, criadas a partir dos _boilerplates_, para quem trabalha com pesquisa, comunicação ou gestão sem precisar programar.
 
-> **Atenção!** Os _clusters_ do catálogo são de **uso compartilhado** e destinam-se aos estágios _alpha_ e _beta_. Para _release_, a orientação é uma VM dedicada operada pelo [Releaser]({{ site.baseurl }}/docs/releaser), conforme o capítulo sobre [hospedagem de aplicações]({{ site.baseurl }}/docs/delivery).
+O mesmo _cluster_ pode servir às duas finalidades. Um _cluster_ **só de laboratórios** aparece na configuração das _builds_ apenas para consulta: a Dashboard avisa que ele é exclusivo dos laboratórios virtuais e não deixa escolhê-lo para o _deploy_ de um projeto. A finalidade pode ser mudada depois, na aba **Dados** do _cluster_.
 
-> **Atenção!** Os processos automatizados de _backup_ nos _clusters_ são de atribuição da equipe de mantenedores, sendo que o **Embrapa I/O** aborda apenas o _backup_ sob demanda, [já detalhado anteriormente]({{ site.baseurl }}/docs/backup). Da mesma forma, recursos essenciais adicionais, tal como envio de e-mail (SMTP) devem ser disponibilizados na rede interna em que o servidor está instalado e devidamente informado na documentação do _cluster_.
+## A máquina {#install}
 
-# Passo-a-Passo de Configuração
+<span id="docker"></span>
 
-A seguir são listados os passos básicos para disponibilização do _cluster_.
+| Tamanho | vCPU | Memória | Disco de dados |
+|---|---|---|---|
+| Pequeno | 4 | 16 GB | 200 GB |
+| Médio | 8 | 32 GB | 500 GB |
+| Laboratórios | 16 | 64 GB | 1 TB |
 
-1. [Instalação do orquestrador](#install) (com [Docker Compose](#docker) ou [Docker Swarm](#swarm));
-2. [Integração (via SSH) do _cluster_ ao Embrapa I/O](#ssh);
-3. [Liberação das demais portas no _firewall_](#ports);
-4. [Configuração do _plugin_ para _logging_](#loki);
-5. [Ativação do _Web Terminal_ (opcional)](#terminal);
-6. [Instalação de um _Distribution Registry_ (opcional)](#registry); e
-7. [Configuração do Portainer (opcional)](#portainer).
+- **Sistema operacional:** [Ubuntu Server 26.04 LTS](https://ubuntu.com/download/server) (preferencial, a versão que a plataforma usa em todos os seus servidores) ou **Debian 13**, comum nos hipervisores das Unidades.
+- **Arquitetura:** <u>obrigatoriamente <b>amd64</b></u>.
+- **Instalação mínima**, só com o servidor SSH. **Não instale o Docker** nem outros serviços: o `cluster.sh` instala o Docker do repositório oficial e tudo o mais.
+- **IP público próprio** da VM. Uma segunda placa de rede, interna, é opcional.
 
-## 1. Instalação do orquestrador {#install}
+> **Atenção!** No Ubuntu 26.04, o `sudo` padrão é o [`sudo-rs`](https://github.com/trifectatechfoundation/sudo-rs), que não aceita a regra usada pela plataforma para ajustar as permissões dos volumes. O `cluster.sh` volta ao `sudo` clássico, que já vem instalado, e a validação confere isso.
 
-Neste primeiro passo será abordado o provisionamento básico do(s) servidor(es) - físico(s) ou virtual(is) - do _cluster_, tal como a instalação do sistema operacional sugerido, o orquestrador e _storer_ associado.
+## O disco de dados em /var/io {#storage}
 
-### Docker Compose {#docker}
+Os dados das aplicações (bancos de dados e arquivos enviados pelos usuários) ficam em _volumes_ no diretório `/var/io`, em **disco local** (_storer_ `DockerLocal`). A boa prática é que ele seja um **segundo disco**, montado nesse ponto:
 
-Para instalação do orquestrador em [Docker Compose](https://docs.docker.com/compose/) é necessário disponibilizar um único servidor dedicado (_bare metal_) ou máquina virtual. É recomendado o uso da distribuição [Linux Ubuntu Server 26.04 LTS](https://ubuntu.com/download/server) (a 24.04 LTS continua aceita). <u>É necessário que seja utilizada a arquitetura <b>amd64</b></u>. No momento da instalação do SO, haverá a possibilidade de instalar pacotes adicionais. Neste momento, selecione o **SSH Server**.
+- os dados não enchem o disco do sistema;
+- o disco de dados pode crescer sem mexer no resto;
+- o _snapshot_ e o _backup_ podem tratar os dois discos de forma diferente;
+- dá para reinstalar o sistema sem perder os dados.
 
-Uma vez que o _shell_ esteja disponível, atualize completamente a distribuição (`apt update && apt upgrade -y && apt dist-upgrade -y && apt autoremove -y && apt autoclean`) e proceda com o [passo-a-passo oficial para instalação do Docker](https://docs.docker.com/engine/install/ubuntu/).
+Não é obrigatório: sem um disco próprio, o `cluster.sh` só avisa, desde que haja espaço livre suficiente no disco do sistema. Com um disco próprio montado em `/var/io`, ele precisa ter pelo menos 200 GB.
 
-> **Atenção!** Após concluir da instalação, é fortemente recomendado efetuar o [login no Docker](https://docs.docker.com/engine/reference/commandline/login/) utilizando uma conta institucional. O uso do Docker não-autenticado pode resultar em erros durante o processo de _deploy_ (p.e., `Temporary failure in name resolution`).
+> **Atenção!** **Não use NFS** para os _volumes_ de um _cluster_ em Docker Compose: bancos de dados sobre NFS travam quando a rede ou o _storage_ oscila e arrastam junto o serviço do Docker. Os detalhes estão no [processo manual]({{ site.baseurl }}/docs/cluster/manual#install).
 
-Agora será necessário configurar o _storer_ associado ao _cluster_, ou seja, o local em que serão armazenados os _volumes_ utilizados pelos containers para persistir dados. Em **Docker Compose**, os _volumes_ ficam em **disco local**, no próprio servidor (_storer_ `DockerLocal`): basta um diretório dedicado, criado com as permissões descritas [no passo 2](#sudoers). Nos exemplos desta documentação, o diretório é o `/var/io`. Dimensione o disco considerando os bancos de dados e os arquivos de todas as aplicações do _cluster_.
+## As sub-redes {#subnets}
 
-> **Atenção!** **Não utilize NFS** para os _volumes_ de um _cluster_ em Docker Compose. A plataforma já ofereceu essa opção (`DockerNFSv4`), mas ela causou incidentes graves: bancos de dados com os arquivos num _storage_ NFS travam quando a rede ou o servidor NFS oscila, os processos ficam presos sem poder ser encerrados (nem com `kill -9`) e arrastam junto o serviço do Docker, exigindo a reinicialização do servidor. O NFS só é indicado para o [Docker Swarm](#swarm), e com uma arquitetura própria para isso.
+Cada _build_ (uma aplicação num estágio) ganha uma **rede Docker própria**, e essas redes saem de uma faixa `/16` escolhida para cada estágio no cadastro (por padrão, `172.28.0.0` para o _alpha_, `172.29.0.0` para o _beta_ e `172.30.0.0` para o _release_). O assistente aceita as faixas de `172.16.0.0` a `172.31.0.0`.
 
-É fortemente recomendado ajustar alguns parâmetros do Linux (`sysctl`). Normalmente estes parâmetros são ajustados editando o arquivo `/etc/sysctl.d/99-sysctl.conf` (ou diretamente o `/etc/sysctl.conf` em distribuições mais antigas). Considere os seguintes parâmetros e correspondentes valores mínimos:
-
-```bash
-fs.file-max=2000000
-kernel.pid_max=128000
-kernel.threads-max=128000
-vm.max_map_count=524288
-net.ipv4.ip_local_reserved_ports=49152-65535
-```
-
-O último parâmetro é **obrigatório**. As portas que a plataforma reserva para as aplicações (faixa de 49152 a 65535, [ver abaixo](#ports)) coincidem em boa parte com a faixa de portas efêmeras do Linux (`net.ipv4.ip_local_port_range`, por padrão de 32768 a 60999), que o próprio _host_ usa nas conexões de saída (o Docker baixando imagens, o envio de _logs_ ao Loki, etc). Sem a reserva, uma dessas conexões pode estar com a porta da aplicação no momento do _deploy_, que então falha com `address already in use`. A reserva só impede o uso automático pelas conexões de saída: a publicação explícita das portas pelo Docker continua funcionando. Para aplicar sem reiniciar, rode `sysctl --system` e confira com `sysctl net.ipv4.ip_local_reserved_ports`.
-
-### Docker Swarm {#swarm}
-
-O [Docker Swarm](https://docs.docker.com/engine/swarm/) distribui os containers das aplicações entre vários servidores. Com ele, uma mesma aplicação pode rodar em várias réplicas, com **balanceamento de carga** entre elas, e continuar no ar quando um dos servidores falha ou passa por manutenção. É a opção indicada para sistemas com **grande volume de acesso** ou que exigem **alta disponibilidade**. Em troca, demanda mais servidores, um _storage_ compartilhado e uma arquitetura de aplicação preparada para isso (veja [abaixo](#swarm-architecture)).
-
-Para instalação do orquestrador em [Docker Swarm](https://docs.docker.com/engine/swarm/) é necessário disponibilizar três ou mais servidores dedicados (_bare metal_) ou máquinas virtuais. Em cada uma delas deverá ser instalado, preferencialmente, a distribuição [Linux Ubuntu Server 26.04 LTS](https://ubuntu.com/download/server) (a 24.04 LTS continua aceita). <u>É necessário que seja utilizada a arquitetura <b>amd64</b></u>. No momento da instalação do SO, haverá a possibilidade de instalar pacotes adicionais. Neste momento, selecione o **SSH Server**.
-
-Uma vez que o _shell_ esteja disponível, atualize completamente a distribuição (`apt update && apt upgrade -y && apt dist-upgrade -y && apt autoremove -y && apt autoclean`) em cada um dos nós e proceda com o [passo-a-passo oficial para instalação do Docker](https://docs.docker.com/engine/install/ubuntu/).
-
-> **Atenção!** Após concluir da instalação, é fortemente recomendado efetuar o [login no Docker](https://docs.docker.com/engine/reference/commandline/login/) utilizando uma conta institucional (pelo menos nos nós do tipo _manager_). O uso do Docker não-autenticado pode resultar em erros durante o processo de _deploy_ (p.e., `Temporary failure in name resolution`).
-
-Para instalar o **Docker Swarm**, [siga os passos da documentação oficial](https://docs.docker.com/engine/swarm/swarm-tutorial/). Você deverá definir a quantidade de servidores que atuará como _manager nodes_ e como _worker nodes_. Considere a [orientação da documentação oficial](https://docs.docker.com/engine/swarm/admin_guide/#distribute-manager-nodes) para otimizar a tolerância à falhas, onde o número de _managers_ deverá ser sempre ímpar. Assim, caso tenha 4 servidores/VMs em seu _cluster_, considere criar 3 _manager nodes_ e 1 _worker node_. Por fim, [adicione todos os nós ao _swarm_](https://docs.docker.com/engine/swarm/swarm-tutorial/add-nodes/).
-
-Todo _cluster_ **Docker Swarm** deverá possuir um [servidor para registro de imagens (Docker Registry)](https://docs.docker.com/registry/) rodando localmente na porta padrão. Ele será utilizado para registrar as imagens criadas no _build_ em tempo de _deploy_ das aplicações. Para criá-lo no _swarm_, faça:
-
-```bash
-docker service create --name registry --publish published=5000,target=5000 registry:3
-```
-
-Configure agora um _storer_ associado ao _cluster_, que é o servidor físico onde serão armazenados os _volumes_ utilizados pelos containers para persistir dados:
-
-- `SwarmNFSv4`: Será necessário ter um servidor de _storage_ dedicado ao _cluster_ em **Docker Swarm**. Nele, os mantenedores deverão [instalar e/ou habilitar o NFS (versão 4)](https://phoenixnap.com/kb/ubuntu-nfs-server). É importante que no arquivo `/etc/exports` sejam parametrizados, pelo menos, as seguintes opções no diretório a ser montado: `rw`, `no_root_squash`, `sync`, `no_subtree_check` e `insecure`. Todos os nós do _cluster_ devem ser capazes de montar o _storage_ NFS.
-
-O _storage_ compartilhado é necessário porque, no Swarm, um container pode ser reiniciado em qualquer nó, e os dados precisam estar acessíveis em todos eles. O _storage_ deve ficar no mesmo _data center_ dos nós, numa rede de baixa latência, de preferência dedicada, e com redundância de disco e de energia. Uma oscilação dele afeta, de uma só vez, todas as aplicações do _cluster_.
-
-#### Arquitetura das aplicações no Swarm {#swarm-architecture}
-
-O NFS não é adequado para os **arquivos de bancos de dados** (PostgreSQL, MongoDB, MySQL, etc.). Esses bancos fazem escritas pequenas e sincronizadas o tempo todo e dependem de travas de arquivo. Sobre NFS, ficam lentos e, quando o _storage_ oscila, os processos travam à espera do disco e não podem ser encerrados, o que derruba o serviço do Docker no nó. Por isso, uma aplicação só deve ir para um _cluster_ em Docker Swarm se a sua arquitetura separar o banco de dados da pilha (_stack_) que roda no _swarm_:
-
-- **Banco de dados fora do _swarm_**: o banco roda num servidor ou VM próprio, com disco local, ou num serviço de banco de dados gerenciado, e a aplicação o acessa pela rede, com o endereço e as credenciais informados por variáveis de ambiente. Assim, os arquivos do banco nunca passam pelo NFS. Neste caso, o _backup_ e a manutenção do banco ficam a cargo da equipe que o opera, e não do [_backup_ da plataforma]({{ site.baseurl }}/docs/backup), que alcança apenas os _volumes_ da _build_.
-- **_Backend_ sem estado** (_stateless_): os serviços da API e do _frontend_ não guardam dados no próprio container, o que permite executar várias réplicas e distribuir a carga entre elas. Sessões e _cache_ vão para o banco ou para um serviço próprio (como o Redis).
-- **NFS só para arquivos que toleram latência**: _uploads_ de usuários, imagens e documentos gerados podem ficar em _volumes_ no NFS. Mesmo assim, evite operações que varram o _volume_ inteiro (como `find` ou cópias recursivas) e _health checks_ que escrevam nele.
-
-Essa separação exige um _boilerplate_ e uma aplicação pensados para ela. Antes de levar uma aplicação para um _cluster_ em Docker Swarm, converse com a equipe da plataforma.
-
-## 2. Integração (via SSH) do _cluster_ à plataforma {#ssh}
-
-Para realizar a integração do novo _cluster_ com a plataforma **Embrapa I/O**, os mantenedores deverão configurar nas máquinas (todos os nós do _cluster_ e o _storage_, caso exista), reais ou virtuais, um usuário e a chave única de acesso SSH.
-
-> **Atenção!** Nos comandos abaixo o `sudo` foi omitido, mas talvez você precise adicioná-lo no início das sentenças para executá-los de forma apropriada.
-
-### a. Criação do usuário exclusivo:
-
-Você deverá criar um usuário que será utilizado exclusivamente para executar os _pipelines_ de DevOps do **Embrapa I/O** neste _cluster_. O usuário pode ter qualquer _username_, porém, para exemplificar, utilizaremos o login "**io**":
-
-```bash
-adduser --disabled-login --gecos "" --shell /bin/bash io
-```
-
-Nos _clusters_, ou seja, as máquinas em que o Docker estiver executando (tal como todos os nós de um orquestrador [Docker Swarm](#swarm)), adicione este usuário ao grupo apropriado:
-
-```bash
-usermod -aG docker io
-```
-
-Com isso o usuário terá as permissões necessárias para executar os comandos do Docker.
-
-### b. Adição do usuário ao _sudoers_ {#sudoers}
-
-Execute os comandos abaixo no servidor em que os _volumes_ ficam armazenados: no próprio _cluster_, em Docker Compose, ou no _storage_ NFS, em [Docker Swarm](#swarm).
-
-As instruções criam o diretório em que os _volumes_ serão armazenados e concedem ao usuário de DevOps a permissão de alterar o proprietário e as permissões das suas subpastas. Para exemplificar, foi considerado que o diretório de armazenamento de _volumes_ será o `/var/io` e que o usuário de DevOps tem o login "**io**":
-
-```bash
-mkdir /var/io && chown io:io /var/io && chmod 700 /var/io
-
-echo "io ALL=(ALL) NOPASSWD: /bin/chown * /var/io/*, /bin/chmod * /var/io/*" > /etc/sudoers.d/io
-```
-
-O diretório escolhido é informado à equipe da plataforma junto com os demais dados do _cluster_, para o cadastro no catálogo.
-
-> **Atenção!** A partir do Ubuntu 26.04, o `sudo` padrão é o [`sudo-rs`](https://github.com/trifectatechfoundation/sudo-rs), que **não aceita curingas** (`*`) nos argumentos de comando: com ele, a regra acima é ignorada (`wildcards are not allowed in command arguments`) e todo _deploy_ falha ao ajustar as permissões dos volumes. Antes de criar a regra, volte ao `sudo` clássico, que já vem instalado:
->
-> ```bash
-> update-alternatives --set sudo /usr/bin/sudo.ws
-> ```
->
-> O mesmo vale para quem **atualizar** um _cluster_ ou _storage_ do 24.04 para o 26.04 (`do-release-upgrade`): depois da atualização, confira com `sudo --version`, que deve mostrar `Sudo version 1.9…`, e não `sudo-rs`.
-
-### c. Configuração da chave SSH:
-
-Adicione agora a seguinte chave pública SSH no arquivo `.ssh/authorized_keys` do usuário:
-
-```bash
-ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCykAvX7CZmqw1bgOCOmRtgpfr55cjqO0v1+DImp4pKrITdFxZu0OqsJgHjio/yp4w5+KvWmFJa5woYbZry9inFciwKo3+rpGjBHJfNfDq70/q3VdSSInFrSMtWgBk0x5QZQ78ENkNkO9DRIdnnffN9bY1uibR6ZX0pCSSyTGgx3NlAakW47tYIzVcrrUGKGG8vZwSkl7GhEEXtNETp02WQpkUvYrNqgRrmw2lvv41QfRETIuNN7PDhJrDO4tYHtix5D+Pvd05IacgTVQxpi6vnMVdgrwbZ1RPw9TLLkoy3kZs45hLG9oipiYOiD6rxiIYC0f1iUaKz9PKZdfnF8Ya5XJFoL6NcBTPDGh01dkEBonOWt3lgpC/2SBM/SeClt8M2lI6KtqAkjPEKWhnirDP0lXzY2CYamnu2rD6p4z4OWAYG6ngQcCIK45vQvsSz8mfitWnJe89WCCaEVj+L1QO/hjnKJ+eKf5ze35HagFRhpIAB34FmGHO3N8yFCLqvHFNLw6dKl5IXU2cvJF1jwhL3coOx9oeFZLPk45Zze2e/Itjd9x84gWtmo60MvXVBsYGYlcZLzSgAbNGldMuxAFWs0ZvghNx+KZjg6fZ2hAlPHIg1MiAlztyLbbjV2Mjc6ke6sjBDvPkPZQde6G/T8Mp56cCtAb/77/dw78zruX5qyQ== embrapa.io
-```
-
-Por exemplo, considerando que foi criado um usuário com login "**io**" e que a chave acima está na variável `$PUBLIC_KEY`, faça (em todos os nós do _cluster_ e no _storage_, caso exista):
-
-```bash
-mkdir -p /home/io/.ssh && chmod 700 /home/io/.ssh
-echo "$PUBLIC_KEY" > /home/io/.ssh/authorized_keys
-chmod 600 /home/io/.ssh/authorized_keys && chown -R io:io /home/io/.ssh
-```
-
-Além de autorizar a chave, assegure que o _firewall_ permita o acesso do _host_ `core.embrapa.io` (IP `200.202.148.38`) em cada uma das máquinas (inclusive o _storage_, caso exista) via SSH na **porta 22**.
-
-> **Atenção!** Neste momento não é possível ainda alterar a porta do SSH. Esta configuração simples tem implicações profundas no Docker CLI e na forma como ele está integrado à plataforma **Embrapa I/O**.
-
-Repare que, com esta configuração, os autômatos do **Embrapa I/O** conseguirão acessar os servidores do _cluster_. Isso é necessário para que a plataforma consiga provisionar no servidor todos os artefatos para _deploy_ das aplicações (tal como diretórios, _networks_ e _volumes_, além de realizar a _build_ e instanciação das imagens e containers).
-
-## 3. Liberação das demais portas no _firewall_ {#ports}
-
-O **Embrapa I/O** expõe as aplicações instanciadas em portas na **faixa de 49152 a 65535**. Portanto, toda esta faixa de portas deverá ser exposta para acesso público, em **TCP e UDP**, nos servidores de aplicação que compõem o _cluster_ (p.e., todos os nós _managers_ e _workers_ no [Docker Swarm](https://docs.docker.com/engine/swarm/)).
-
-Um _cluster_ da plataforma pode receber qualquer tipo de aplicação de agricultura digital ou de gestão institucional, e não apenas sistemas _web_. O roteador da plataforma atende as requisições HTTP e HTTPS pelo nome de domínio, mas muitas aplicações usam outros protocolos, comuns em Internet das Coisas (IoT), em automação e em integrações, que não passam por ele e precisam ser acessados diretamente no endereço `host:porta`. Alguns exemplos:
-
-| Protocolo | Transporte | Uso típico |
-|---|---|---|
-| **MQTT** / MQTTS | TCP | Telemetria de sensores e estações, plataformas IoT como o ThingsBoard |
-| **CoAP** / CoAPS (DTLS) | UDP | Dispositivos com pouca energia, como sensores a bateria no campo |
-| **LwM2M** | UDP (sobre CoAP) | Gestão remota de dispositivos IoT |
-| **LoRaWAN** (_packet forwarder_) | UDP | _Gateways_ LoRa no campo enviando dados ao servidor de rede |
-| **AMQP** | TCP | Filas de mensagens e integração entre sistemas |
-| **NTRIP** | TCP | Correção RTK do GNSS na agricultura de precisão |
-| **OPC UA** e **Modbus TCP** | TCP | Automação na agroindústria e em equipamentos |
-| **RTSP** | TCP/UDP | Fluxos de vídeo de câmeras (monitoramento animal, lavouras) |
-| **gRPC** e WebSockets dedicados | TCP | Integração entre serviços e comunicação em tempo real |
-
-Por isso, o acesso direto às portas da faixa, em TCP e em UDP, é uma **exigência da plataforma** para os _clusters_ do catálogo. A porta é declarada no `docker-compose.yaml` da aplicação, com o protocolo quando for UDP (p.e., `"${COAP_PORT}:5683/udp"`), e alocada pela plataforma como qualquer outra.
-
-> **Atenção!** Sempre que o protocolo tiver uma versão com criptografia (MQTTS na porta 8883 em vez do MQTT na 1883, CoAPS com DTLS em vez do CoAP), é ela que deve ser exposta. Serviço sem criptografia aberto na internet é alvo de varreduras e de notificações dos centros de resposta a incidentes.
+- **Nunca** use uma faixa que a rede da Unidade já usa: o servidor perde o caminho até essas máquinas. Combine as faixas livres com o NTI.
+- Prefira **uma faixa por estágio**. Estágios podem usar a mesma faixa, mas passam a dividir as mesmas 255 sub-redes, e o IP deixa de dizer de que estágio é a _build_.
+- No _data center_ da **Sede**, a única faixa liberada é a `172.30.0.0`.
 
 ### Capacidade do _cluster_ {#capacity}
 
-Cada [_build_]({{ site.baseurl }}/docs/introduction#build) (uma aplicação num estágio, como `siexp/coletor@alpha`) recebe uma **rede Docker própria**, que isola os seus containers dos das demais. Com a sub-rede do estágio informada no [catálogo](#catalog) (atributo `network.subnet`, p.e. `172.30.0.0`), a plataforma atribui a cada _build_ uma faixa `/24` dentro dela (`172.30.1.0/24`, `172.30.2.0/24` e assim por diante). Assim, o _cluster_ comporta:
+Com a faixa do estágio, a plataforma atribui a cada _build_ uma sub-rede `/24` dentro dela (`172.28.1.0/24`, `172.28.2.0/24` e assim por diante). Assim, o _cluster_ comporta:
 
-- até **255 _builds_ por estágio**, uma para cada faixa `/24` da sub-rede (estágios com sub-redes diferentes somam as suas capacidades);
-- até cerca de **253 containers por _build_**, um para cada endereço da faixa; e
-- **16.348 portas** (de 49152 a 65499) divididas entre todas as _builds_ de todos os estágios do _cluster_. As portas a partir da 65500 ficam reservadas a serviços da plataforma no próprio servidor, como o [_Web Terminal_](#terminal).
+- até **255 _builds_ por estágio** (estágios com faixas diferentes somam as suas capacidades);
+- até cerca de **253 containers por _build_**; e
+- **16.348 portas** (de 49152 a 65499) divididas entre todas as _builds_ do _cluster_. As portas a partir da 65500 ficam reservadas a serviços da plataforma no próprio servidor, como o [_Web Terminal_](#terminal).
 
-> **Atenção!** Informar a sub-rede no catálogo é **obrigatório** para novos _clusters_. Sem ela, o Docker usa o seu conjunto padrão de endereços, que comporta apenas cerca de 30 redes, ou seja, cerca de 30 _builds_ no servidor.
+Na prática, o que limita um _cluster_ é o _hardware_ muito antes das redes ou das portas. Acompanhe o consumo na aba **Saúde** do _cluster_ e, se ele estiver perto do limite, desligue as novas implantações do estágio na aba **Dados**.
 
-Na prática, o que limita um _cluster_ é o _hardware_ (memória, processamento e disco) muito antes das redes ou das portas. Acompanhe o consumo do servidor e avise a equipe da plataforma quando ele estiver perto do limite, para que novas _builds_ sejam direcionadas a outro _cluster_.
+## Firewall e DNS {#ports}
 
-## 4. Configuração do _plugin_ para _logging_ {#loki}
+| Porta | Origem | Para quê |
+|---|---|---|
+| 22/TCP | só o `core.embrapa.io` (`200.202.148.38`) | _deploy_ e validação, por SSH |
+| 80 e 443/TCP | internet | certificado do Let's Encrypt e painel local |
+| 49152 a 65535 (TCP e UDP) | o _core_ (obrigatório) e a internet (opcional) | acesso às aplicações |
+| 65500/TCP | rede da Embrapa | _Web Terminal_ |
 
-O **Embrapa I/O** utiliza o [Grafana Loki](https://grafana.com/docs/loki/latest/) para permitir a coleta e análise de _log_ de todos os containers instanciados. Assim, é necessário [instalar o _plugin_ do Loki](https://grafana.com/docs/loki/latest/send-data/docker-driver/) para que toda a saída dos containers (no _stdout_) seja enviada para o [Grafana](https://log.embrapa.io).
+A máquina também precisa de saída para a internet em HTTP/HTTPS (repositórios do sistema, do Docker e do Grafana, Docker Hub, `loki.embrapa.io` e `prometheus.embrapa.io`) e NTP. A verificação prévia do `cluster.sh` confere cada uma.
 
-Para instalar o _plugin_, execute:
+> **Atenção!** A faixa alta é por onde o roteador da plataforma chega às aplicações. Abri-la também para a internet permite publicar protocolos que não são HTTP (MQTT, CoAP, LoRaWAN, NTRIP…), acessados direto em `host:porta`; prefira sempre a versão com criptografia (MQTTS, CoAPS). Veja a tabela de protocolos no [processo manual]({{ site.baseurl }}/docs/cluster/manual#ports).
+
+No DNS da Unidade, são dois registros (o curinga pode ser um CNAME para um nome que aponte para o _core_):
+
+```
+Nome                       Tipo   Valor
+-----------------------    ----   ----------------------
+io.cnpxx.embrapa.br        A      <IP público da VM>
+*.io.cnpxx.embrapa.br      A      200.202.148.38
+```
+
+O nome do _cluster_ aponta para a máquina; o curinga aponta para o _core_, que recebe os acessos às aplicações (como `app.io.cnpxx.embrapa.br`) e os encaminha ao _cluster_. A recomendação de nome é `io.<sigla>.embrapa.br`; para um segundo _cluster_, `io2.<sigla>` ou `lab.<sigla>`.
+
+## O token do Docker Hub {#dockerhub}
+
+As imagens das aplicações vêm do Docker Hub, que limita os _downloads_ anônimos. Por isso, a instalação faz o _login_ numa conta do NTI com um **_token_ de acesso somente leitura**: no Docker Hub, abra **Account settings → Personal access tokens → Generate new token**, dê uma descrição que lembre o _cluster_ e escolha a permissão **Public Repo Read-only**. O _token_ é digitado no terminal da própria máquina e fica só nela: não passa pela plataforma.
+
+# Cadastro e instalação {#wizard}
+
+## O cadastro na Dashboard
+
+Na Dashboard, o botão **Clusters** (para empregados da Embrapa) lista os _clusters_ do catálogo, com estágios, finalidade e saúde, e os pedidos em andamento. O botão **+ Cluster** abre o cadastro em quatro passos:
+
+1. **Identificação:** Unidade (em branco para universidades e parceiros), instituição, localização, nome do _cluster_, estágios oferecidos, uso (projetos e/ou laboratórios) e a sub-rede de cada estágio.
+2. **Mantenedores e SMTP:** os e-mails institucionais das pessoas que cuidam do servidor e recebem os avisos de saúde e de vulnerabilidades (recomendamos dois ou mais) e, se houver, o servidor de e-mail da Unidade que aceita envios a partir do _cluster_ (_relay_ sem autenticação), oferecido às aplicações nas variáveis `${IO_SMTP_*}`.
+3. **Requisitos:** o tamanho da máquina e, prontos para copiar e mandar ao NTI, o sistema, o disco, a rede, a descrição para o inventário, a tabela do _firewall_, os registros de DNS e a orientação do Docker Hub. Aqui também se informa se a Unidade faz _snapshot_ da VM no hipervisor.
+4. **Comando:** o pedido é criado e a Dashboard mostra o comando, com um _token_ de uso único válido por duas horas:
 
 ```bash
-docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions
+curl -fsSL https://embrapa.io/cluster.sh -o /root/cluster.sh
+sha256sum /root/cluster.sh   # esperado: <o valor mostrado na Dashboard>
+sh /root/cluster.sh setup <token>
 ```
 
-Verifique a instalação utilizando o comando `docker plugin ls`.
+Se o _token_ expirar antes da instalação, o botão **Gerar novo token** cria outro.
 
-Uma vez que o plugin esteja instalado no Docker, edite o arquivo `/etc/docker/daemon.json` (ou `/var/snap/docker/current/config/daemon.json`, se tiver sido instalado pelo [Snap](https://snapcraft.io)) inserindo o seguinte conteúdo:
+## A linha do tempo {#timeline}
 
-{% raw %}
-```json
-{
-  "debug": false,
-  "live-restore": true,
-  "log-driver": "loki",
-  "log-opts": {
-    "loki-url": "https://<username>:<password>@loki.embrapa.io/loki/api/v1/push",
-    "loki-external-labels": "container_name={{.Name}},job=docker",
-    "loki-batch-size": "1048576",
-    "loki-batch-wait": "1s",
-    "loki-retries": "5",
-    "loki-min-backoff": "500ms",
-    "loki-max-backoff": "5s",
-    "loki-timeout": "10s",
-    "mode": "non-blocking",
-    "max-buffer-size": "4m",
-    "keep-file": "false",
-    "max-size": "10m",
-    "max-file": "3"
-  }
-}
-```
-{% endraw %}
+O comando roda na máquina, **como root**, e a linha do tempo da Dashboard acompanha cada etapa, com as evidências e, em caso de falha, o motivo e o que fazer:
 
-O parâmetro `mode` com valor `non-blocking` desacopla os containers do envio de _logs_: quando o _buffer_ (de tamanho `max-buffer-size`) enche — por exemplo, se o Loki estiver lento ou indisponível —, as mensagens excedentes são **descartadas** ao invés de bloquear o container. Isso evita que eventuais problemas no _logging_ afetem a execução das aplicações.
+1. **Cadastro**: os dados do pedido.
+2. **DNS**: o servidor da plataforma confere, de fora, o nome do _cluster_ e o curinga.
+3. **Rede**: o servidor da plataforma alcança a máquina nas portas 22, 80 e na faixa alta.
+4. **Verificação prévia**: o `cluster.sh` confere, sem alterar nada, o sistema, a arquitetura, o processador, a memória, o disco em `/var/io`, as portas, as sub-redes, o relógio e as saídas para a internet.
+5. **Docker Hub**: o _login_ com o _token_ somente leitura.
+6. **Confirmação**: com tudo verificado, o script **espera** um mantenedor clicar em **Confirmar instalação** na Dashboard. Nada é instalado sem essa confirmação.
+7. **Instalação**: sistema (pacotes, nome da máquina, parâmetros do _kernel_, `sudo` clássico), Docker do repositório oficial, usuário `io` (grupo `docker`, `/var/io`, regra do `sudoers` e a chave da plataforma, restrita ao IP do _core_), _driver_ de _log_ do Loki, Grafana Alloy (logs e métricas para o [Grafana da plataforma](https://log.embrapa.io)), Docker Hub, certificado do Let's Encrypt, _Web Terminal_, painel local, CRON e ajustes, e a limpeza (o _token_ deixa de valer).
+8. **Validação a partir do core**: o servidor da plataforma entra na máquina como o usuário `io`, como num _deploy_, e confere o SSH com a chave da plataforma, o Docker e o Compose, o _driver_ de _log_, o `sudo` clássico, as permissões em `/var/io`, a reserva das portas e o Alloy. Por último, sobe um contêiner de teste na faixa alta e o acessa de fora, pelo mesmo caminho das aplicações.
+9. **Termo do mantenedor**: os mantenedores leem e assinam o termo (abaixo).
+10. **Disponível no catálogo**: o _cluster_ entra no catálogo, sem esperar ninguém, e passa a aparecer para as equipes na configuração das _builds_.
 
-> **Atenção!** Os valores de `username` e `password` para a linha acima devem ser solicitados à equipe da plataforma por [e-mail](mailto:io@embrapa.br) ou pela [sala Arquitetos de Soluções no Google Chat](https://chat.google.com/room/AAAA853zctw?cls=11).
+O termo do mantenedor do _cluster_ diz que a Unidade, representada pelos mantenedores cadastrados:
 
-{% raw %}
-O _driver_ já adiciona automaticamente o rótulo `host` (preenchido com o _hostname_ do servidor) a todos os _logs_, portanto não é necessário informá-lo manualmente. Garanta apenas que o _hostname_ do sistema operacional reflita o nome desejado para o _cluster_ — se necessário, ajuste-o com `hostnamectl set-hostname io.cnpgc.embrapa.br`. O rótulo `container_name={{.Name}}` é mantido explicitamente porque, ao informar um valor para `loki-external-labels`, seu padrão seria sobrescrito.
-{% endraw %}
+1. mantém o servidor (sistema operacional, Docker, disco, rede, _firewall_ e _snapshot_) e aplica as atualizações de segurança;
+2. mantém os registros DNS do _cluster_ e avisa a equipe da plataforma antes de mudá-los;
+3. não altera fora da plataforma o usuário `io`, a chave da plataforma, o `daemon.json` nem os _volumes_ em `/var/io`;
+4. atende aos avisos de saúde e de CVE do _cluster_;
+5. mantém o S3 da Unidade, quando houver, e guarda a senha raiz num cofre próprio;
+6. sem S3, declara ciência de que os _backups_ dos projetos ficam sem cópia fora do servidor e de que faz o _backup_ por outro meio;
+7. avisa com antecedência o desligamento do _cluster_, para a migração das _builds_.
 
-Antes de reiniciar o serviço, valide a sintaxe do arquivo de configuração:
+### Integração por SSH {#ssh}
+
+<span id="sudoers"></span>
+
+O `cluster.sh` cria o usuário `io`, coloca-o no grupo `docker`, dá a ele, pelo `sudoers`, a permissão de ajustar dono e permissões das subpastas de `/var/io`, e autoriza a [chave pública da plataforma]({{ site.baseurl }}/docs/cluster/manual#ssh) **só a partir do IP do _core_**. A porta do SSH deve continuar a 22.
+
+### Logs e métricas {#loki}
+
+O _driver_ de _log_ do Docker manda a saída de todos os containers ao Loki da plataforma, e o Grafana Alloy manda o _journal_, os arquivos de `/var/log` e as métricas da máquina (processador, memória, disco). São esses dados que alimentam a aba **Saúde** do _cluster_, os alertas e o [Grafana](https://log.embrapa.io).
+
+# Manutenção {#maintenance}
+
+## O painel local {#panel}
+
+<span id="portainer"></span>
+
+No fim da instalação, o terminal mostra o endereço do painel local, o [Arcane](https://getarcane.app), em `https://<cluster>`, com o usuário (o e-mail de quem cadastrou o _cluster_) e uma senha forte, gerada na hora. Uma cópia fica em `/root/embrapa-io-panel.txt`, legível só pelo root. Pelo painel, os mantenedores veem os contêineres, os _volumes_, as imagens e o consumo do servidor no navegador. Ele se atualiza sozinho toda noite (`/etc/cron.d/embrapa-io-panel`) e volta à versão anterior se a nova não ficar saudável.
+
+## O Web Terminal {#terminal}
+
+O [_Web Terminal_](https://hub.docker.com/r/embrapa/terminal) permite que [membros do projeto com o papel de **Arquitetos da Solução**]({{ site.baseurl }}/docs/squads/#architect) abram o _shell_ dos containers das suas aplicações pela Dashboard. O `cluster.sh` o instala com o `terminal.sh`, que grava um CRON diário (`/etc/cron.d/embrapa-terminal`), mantém o terminal atualizado e volta à versão anterior se a nova falhar. Ele passa a funcionar quando o _cluster_ entra no catálogo. Para conferir, acesse `https://<cluster>:65500/health`.
+
+## Conferir e corrigir: status e repair {#repair}
+
+Tudo o que foi instalado veio do `cluster.sh`, versionado na plataforma, que pode ser rodado de novo a qualquer momento. Por isso, o NTI **não precisa guardar cópias das configurações** que ele gera: uma edição feita à mão seria desfeita na próxima execução.
 
 ```bash
-dockerd --validate --config-file /etc/docker/daemon.json
+sh /root/cluster.sh status   # confere a máquina, item a item, sem alterar nada
+sh /root/cluster.sh repair   # reaplica os ajustes: sysctl, sudo, usuário io, CRONs, Alloy e nginx
 ```
 
-Por fim, faça: `systemctl restart [service]`, onde `[service]` pode ser `docker` ou `snap.docker.dockerd` (se tiver sido instalado via [Snap](https://snapcraft.io)). Caso tenha dúvida sobre o nome exato do serviço, execute `systemctl list-units --type=service | grep docker`. É possível verificar se há algum erro utilizando o comando `journalctl -u [service] | grep loki`. Se configurado com sucesso, deverá ser visto na saída deste último comando algo como "_Using default logging driver loki_".
+Para usar a versão mais recente do script, baixe-o de novo antes (`curl -fsSL https://embrapa.io/cluster.sh -o /root/cluster.sh`).
 
-## 5. Ativação do _Web Terminal_ (opcional) {#terminal}
+> **Atenção!** **Não deixe outra ferramenta de gestão de configuração** (Ansible, Puppet, cópias de um repositório SVN ou Git do NTI etc.) mexer no que o `cluster.sh` instala: `/etc/alloy`, `/etc/nginx`, `/etc/docker/daemon.json`, `/etc/sudoers.d/io`, o usuário `io` e os CRONs `embrapa-*`. Em novembro de 2026, a sincronização automática de configurações de uma Unidade trocou o Alloy e o nginx de um _cluster_ recém-instalado, que parou de mandar _logs_ e métricas à plataforma. O `repair` refaz esses arquivos, mas a ferramenta precisa deixar o servidor de fora.
 
-O recurso de **Web Terminal** permite que [membros do projeto com o papel de **Arquitetos da Solução**]({{ site.baseurl }}/docs/squads/#architect) acessem diretamente o _shell_ dos containers das aplicações (via `ash`, `bash`, `dash` ou `sh`). Este recurso é útil para depurar, realizar manutenções eventuais e fazer intervenções pontuais no container em execução.
+## Ajustes pela aba Dados {#catalog}
 
-![Web Terminal]({{ site.baseurl }}/assets/img/posts/Terminal.gif)
+Depois de publicado, o _cluster_ continua nas mãos dos mantenedores (e dos administradores da plataforma), pela aba **Dados** do _cluster_ na Dashboard, sem pedir a ninguém:
 
-A ativação do **Web Terminal** é um recurso opcional, que a equipe de mantenedores do _cluster_ pode ativar ou não (assim como, p.e., a disponibilização de um SMTP para envio de e-mails). Para ativação do recurso no _cluster_ é necessário ter um [utilitário instalado que foi desenvolvido especificamente para esta finalidade](https://hub.docker.com/r/embrapa/terminal).
+- **Instituição e localização** e o **_snapshot_ da VM**;
+- **Sub-redes**: a troca só é aceita num estágio sem _builds_ implantadas;
+- **Novas implantações**: desligar um estágio faz com que ele não receba _builds_ novas, mas as que já estão no _cluster_ continuam sendo geridas normalmente (inclusive recebendo _deploys_ de novas _tags_);
+- **+ estágio**: libera um estágio novo, com a sua sub-rede (confirme a faixa com o NTI antes);
+- **Finalidade**: projetos e/ou laboratórios. Desligar não afeta o que já está no _cluster_; só deixa de ser ofertado;
+- **Mantenedores**: incluir e remover (o _cluster_ precisa de pelo menos um);
+- **SMTP**: servidor, porta, TLS e remetente.
 
-Para instalá-lo num _cluster_ com **Docker Compose**, execute como `root`:
+Antes de entrar no catálogo, o pedido pode ser apagado em **Desistir do pedido**: o _token_ deixa de valer e o nome fica livre; o que o script já instalou na máquina fica com a Unidade.
 
-```bash
-curl -fsSL https://embrapa.io/terminal.sh -o /root/terminal.sh && sh /root/terminal.sh install
-```
+O catálogo é guardado pela plataforma e espelhado no arquivo `clusters.json` do repositório `io/boilerplate/metadata`, no formato descrito no [processo manual]({{ site.baseurl }}/docs/cluster/manual#catalog).
 
-O _script_ grava um CRON diário (`/etc/cron.d/embrapa-terminal`) e já sobe o terminal. Ele descobre o nome do _cluster_ cruzando o [catálogo de _clusters_]({{ site.baseurl }}/resources/clusters) com os certificados do Let's Encrypt em `/etc/letsencrypt/live/`, lê no catálogo a porta e se o terminal está ativo, usa o `fullchain.pem` e mantém o terminal atualizado: a cada dia baixa a versão mais recente, troca o contêiner só quando ela muda e volta à anterior se a nova não responder. Para conferir o que ele faria, sem mudar nada:
+## Backup e snapshot {#backup}
 
-```bash
-sh /root/terminal.sh status
-```
+O _backup_ das aplicações é feito por projeto, sob demanda ou automático, como descrito nos capítulos de [_backup_]({{ site.baseurl }}/docs/backup) e do [S3]({{ site.baseurl }}/docs/s3). O _snapshot_ da VM no hipervisor, quando a Unidade o faz, protege o _cluster_ inteiro num problema crítico, e é informado no cadastro. O `cluster.sh` grava também uma limpeza diária do _cache_ de _build_ e das imagens sem uso há mais de 24 horas.
 
-Ajustes locais (outro nome de certificado, versão fixa, outro diretório do Let's Encrypt ou um certificado fora dele, como o curinga da Unidade, com `CLUSTER`, `CERT` e `KEY`) vão em `/root/terminal.env`; veja o cabeçalho do próprio _script_. Para verificar se está tudo certo, acesse `https://<cluster>:65500/health` (ou a porta configurada no catálogo), que responde com a versão, o estado do Docker e a validade do certificado.
+## Docker Swarm e registry {#swarm}
 
-> **Atenção!** Versões anteriores desta documentação sugeriam um `/root/terminal.sh` que recriava o contêiner a cada execução, muitas vezes chamado pelo `/etc/cron.daily/io`. O comando acima substitui esse _script_ e, ao instalar, retira a chamada antiga dos arquivos de CRON (com cópia de segurança em `/root`), mantendo o restante, como o _backup_ do _cluster_.
-
-Em _clusters_ com **Docker Swarm**, o _script_ ainda não se aplica. Crie o serviço manualmente, apontando para o diretório do Let's Encrypt e para o `fullchain.pem` (não o `cert.pem`, que vem sem a cadeia intermediária):
-
-```bash
-docker service create --name terminal \
-  --mode=global \
-  --mount=type=bind,src=/etc/letsencrypt,dst=/etc/letsencrypt,readonly \
-  --env SSL_CERT=/etc/letsencrypt/live/<cluster>/fullchain.pem \
-  --env SSL_KEY=/etc/letsencrypt/live/<cluster>/privkey.pem \
-  --mount=type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock,readonly \
-  --publish published=65500,target=5000 \
-  embrapa/terminal
-```
-
-## 6. Instalação de um _Distribution Registry_ (opcional) {#registry}
-
-Como [vimos acima](#swarm), a instalação de um [_Distribution Registry_](https://distribution.github.io/distribution/) local é obrigatória caso esteja utilizando como orquestrador o **Docker Swarm**. Caso contrário, ela é opcional. Porém, mesmo nestes casos, pode ser útil ter um _registry_ local para armazenar as imagens dos seus _builds_ e, desta forma, prover mais agilidade e segurança nos processos de _deploy_.
-
-Para instalar, basta executar o comando:
-
-```bash
-docker run -d -p 5000:5000 --name registry registry:3
-```
-
-> **Atenção!** Este registro deverá ser utilizado apenas localmente e, portanto, **a porta 5000 não deverá ser exposta publicamente no _firewall_**.
-
-## 7. Configuração do Portainer (opcional) {#portainer}
-
-Adicionalmente, é fortemente recomendado que seja [instalado o Portainer](https://docs.portainer.io/start/install) para auxiliar a equipe mantenedora de _clusters_ em [Docker Compose](https://docs.portainer.io/start/install/server/docker/linux), [Docker Swarm](https://docs.portainer.io/start/install/server/swarm/linux) ou [Kubernetes](https://docs.portainer.io/start/install/server/kubernetes/baremetal) em sua gestão. Por padrão, recomenda-se que este seja disponibilizado publicamente no HTTPS (porta 443) da URL do _cluster_, com o HTTP (porta 80) redirecionando para o HTTPS. Desta forma, será necessário abrir também em seu _firewall_ o acesso às portas 80 e 443 do novo _cluster_ (além das portas altas comentadas acima).
-
-Para simplificar a instalação e recorrente atualização do Portainer (quando necessário), crie um _script_ denominado `/root/portainer.sh` com as seguintes instruções:
-
-```bash
-#!/bin/sh
-
-type docker > /dev/null 2>&1 || { echo >&2 "Command 'docker' has not found! Aborting."; exit 1; }
-
-set -x
-
-set +e
-
-docker stop portainer
-
-docker rm portainer
-
-docker volume create portainer_data
-
-set -e
-
-docker pull portainer/portainer-ce:latest
-
-docker run -d --sig-proxy=false -p 8000:8000 -p 127.0.0.1:9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
-
-set +e
-
-for i in 1 2 3 4 5; do
-  sleep 10
-
-  [ -n "$(docker ps -q -f name=^portainer$ -f status=running)" ] && exit 0
-
-  docker start portainer
-done
-
-echo >&2 "Portainer is not running! Check it with 'docker logs portainer'."
-
-exit 1
-```
-
-O parâmetro `--sig-proxy=false` impede que o cliente `docker` repasse ao _container_ sinais que ele próprio receba (p.e., um `SIGTERM` enviado ao _script_ quando executado via `cron`), o que derrubaria o Portainer logo após sua criação. Como uma parada deste tipo é tratada pelo Docker como manual, o `--restart=always` não o traz de volta. Por isso, ao final, o _script_ verifica se o Portainer permanece em execução, tentando reiniciá-lo até 5 vezes, e retorna erro caso não consiga.
-
-Repare também que a porta HTTPS do Portainer (9443) é publicada apenas na interface local (`127.0.0.1`). Assim, ele não fica exposto diretamente na rede e o acesso se dá exclusivamente pelo Nginx, configurado a seguir, que utiliza o certificado válido do domínio.
-
-Além disso, [instale o Nginx](https://www.linuxcapable.com/how-to-install-nginx-on-debian-linux/) e, para a configuração acima do Portainer, especifique um novo site como segue (troque `io.cnpxx.embrapa.br` pelo nome correto do seu _cluster_):
-
-```
-server {
-  listen 80;
-  listen [::]:80;
-
-  server_name io.cnpxx.embrapa.br;
-
-  return 301 https://io.cnpxx.embrapa.br;
-}
-
-server {
-  listen 443 ssl http2;
-  listen [::]:443 ssl http2;
-
-  ssl_certificate /etc/embrapa/wildcard/io.cnpxx.embrapa.br/fullchain.pem;
-  ssl_certificate_key /etc/embrapa/wildcard/io.cnpxx.embrapa.br/privkey.pem;
-  ssl_trusted_certificate /etc/embrapa/wildcard/io.cnpxx.embrapa.br/fullchain.pem;
-  ssl_protocols TLSv1.2 TLSv1.3;
-
-  server_name io.cnpxx.embrapa.br;
-
-  location / {
-    resolver 127.0.0.1 [::1];
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection 'upgrade';
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_cache_bypass $http_upgrade;
-    proxy_ssl_session_reuse off;
-    proxy_pass https://127.0.0.1:9443;
-  }
-}
-```
-
-## 8. Backup e limpeza do cache (opcional) {#backup}
-
-Para _backup_ periódico do _cluster_, além dos processos e protocolos existentes no _data center_ em que está alocado, recomenda-se configurar um _schedular job_ diário utilizando a ferramenta [docker-backup](https://github.com/muesli/docker-backup). Uma vez instalada e devidamente adicionada ao _path_ do sistema operacional, crie um arquivo `.sh` com o seguinte conteúdo:
-
-```bash
-#!/bin/sh
-
-HOSTNAME=$(hostname)
-
-echo "Starting embrapa.io backup process to $HOSTNAME..."
-
-type docker > /dev/null 2>&1 || { echo >&2 "Command 'docker' has not found! Aborting."; exit 1; }
-
-type docker-backup > /dev/null 2>&1 || { echo >&2 "Command 'docker-backup' has not found! See: https://github.com/muesli/docker-backup. Aborting."; exit 1; }
-
-set -e
-
-BKP_PATH="/var/opt/embrapa.io/backup"
-
-mkdir -p $BKP_PATH
-
-[ ! -d $BKP_PATH ] && echo "$BKP_PATH does not exist." && exit 1
-
-BKP_FOLDER="io_cluster_$(date +%Y-%m-%d_%H-%M-%S)"
-
-echo "Deleting old backups (older than 7 days)..."
-
-find $BKP_PATH -type f -name "*.tar.gz" -mtime +7 -exec rm {} \;
-
-echo "Creating backup folder: '$BKP_FOLDER'..."
-
-mkdir -p $BKP_PATH/$BKP_FOLDER/$HOSTNAME
-
-set +e
-
-echo "Starting Docker backup process with 'docker-backup' to all containers..."
-
-cd $BKP_PATH/$BKP_FOLDER/$HOSTNAME
-
-docker-backup backup --all --stopped --tar --verbose
-
-set -e
-
-echo "Compressing backup folder..."
-
-cd /tmp
-
-tar -czvf $BKP_PATH/$BKP_FOLDER.tar.gz -C $BKP_PATH $BKP_FOLDER
-
-rm -rf $BKP_PATH/$BKP_FOLDER
-
-echo "All done! Backup file at: $BKP_PATH/$BKP_FOLDER.tar.gz"
-
-echo "Clean up unused images..."
-
-docker builder prune -af --filter "until=24h"
-
-docker image prune -af --filter "until=24h"
-```
-
-Adicione este arquivo no CRON para ser executado diariamente. Por exemplo, se foi criado um arquivo `/root/embrapa.io/backup/cluster.sh`, crie um _script_ `/etc/cron.daily/io` com o seguinte conteúdo:
-
-```bash
-#!/bin/sh
-
-find /var/log -type f -name "embrapa.io*" -mtime +14 -exec rm {} \;
-
-DATE="$(date +%Y-%m-%d)"
-
-/root/embrapa.io/backup/cluster.sh >> /var/log/embrapa.io-cluster-$DATE.log 2>&1
-```
-
-Em seguida, faça:
-
-```bash
-chmod +x /root/embrapa.io/backup/cluster.sh
-chmod +x /etc/cron.daily/io
-
-/etc/init.d/cron reload
-```
-
-É importante notar as linhas finais do _script_ de _backup_, onde aparecem os comandos:
-
-```bash
-echo "Clean up unused images..."
-
-docker builder prune -af --filter "until=24h"
-
-docker image prune -af --filter "until=24h"
-```
-
-O processo de _build_ do Docker gera uma imensa quantidade de imagens e outros arquivos de _cache_. Isto tende a ocupar rapidamente todo o espaço em disco. Estes comandos garantem que este _cache_ não tenha mais do que 24 horas.
-
-> **Atenção!** Ainda que opte por não configurar o processo de _backup_ sugerido acima, considere criar um _schedular job_ para executar as linhas de limpeza do _cache_ diariamente.
-
-# Disponibilizando no Catálogo {#catalog}
-
-Uma vez configurado o _cluster_, basta montar as configurações em formato JSON e [enviar para a equipe de gestão da plataforma](mailto:io@embrapa.br). O exemplo abaixo demonstra como deverão ser as configurações:
-
-```json
-{
-  "release": [
-    {
-      "host": "io.facom.ufms.br",
-      "ssh":{
-        "user": "devops"
-      },
-      "network": {
-        "subnet": "172.30.0.0"
-      },
-      "local": "Faculdade de Computação da UFMS",
-      "location": "Campo Grande - MS",
-      "orchestrator": "DockerCompose",
-      "storage": {
-        "type": "DockerLocal",
-        "path": "/var/io"
-      },
-      "aliases": [
-        "releases.facom.ufms.br",
-        "agro.facom.ufms.br",
-        "farm.facom.ufms.br",
-        "live.facom.ufms.br",
-      ],
-      "disabled": false,
-      "maintainers": [
-        { "name": "Hercule Poirot", "email": "hercule.poirot@ufms.br", "phone": "+55 (67) 9 8888-7777" },
-        { "name": "Maria Capitolina Santiago", "email": "capitu.santiago@ufms.br", "phone": "+55 (67) 9 6666-5555" }
-      ],
-      "resources": {
-        "smtp": {
-          "active": true,
-          "host": "smtp.facom.ufms.br",
-          "port": 25,
-          "tls": false
-        },
-        "terminal": {
-          "active": true,
-          "port": 65500
-        },
-        "external": {
-          "active": true
-        },
-        "registry": {
-          "active": false
-        },
-        "backup": {
-          "active": true
-        },
-        "snapshot": {
-          "active": true
-        }
-      }
-    },
-    {
-      "host": "cluster.cnpgc.embrapa.br",
-      "ssh":{
-        "user": "io"
-      },
-      "nodes": {
-        "manager": [
-          "manager1.cnpgc.embrapa.br",
-          "manager2.cnpgc.embrapa.br"
-        ],
-        "worker": [
-          "worker1.cnpgc.embrapa.br"
-        ]
-      },
-      "local": "Embrapa Gado de Corte",
-      "location": "Campo Grande - MS",
-      "orchestrator": "DockerSwarm",
-      "storage": {
-        "type": "SwarmNFSv4",
-        "host": "storage.cnpgc.embrapa.br",
-        "path": "/swarm"
-      },
-      "aliases": [
-        "app.cnpgc.embrapa.br",
-        "manager.cnpgc.embrapa.br",
-        "api.cnpgc.embrapa.br",
-        "portal.cnpgc.embrapa.br"
-      ],
-      "disabled": false,
-      "maintainers": [
-        { "name": "Dorothy Gale", "email": "dorothy.gale@embrapa.br", "phone": "+55 (67) 3368-1122" },
-        { "name": "Bras Cubas", "email": "bras.cubas@embrapa.br", "phone": "+55 (67) 3368-3344" },
-        { "name": "Tyler Durden", "email": "tyler.durden@embrapa.br", "phone": "+55 (67) 3368-5566" }
-      ],
-      "resources": {
-        "smtp": {
-          "active": true,
-          "host": "smtp.cnpgc.embrapa.br",
-          "port": 587,
-          "tls": true
-        },
-        "terminal": {
-          "active": false,
-          "port": 65500
-        },
-        "external": {
-          "active": false
-        },
-        "registry": {
-          "active": true
-        },
-        "backup": {
-          "active": true
-        },
-        "snapshot": {
-          "active": true
-        }
-      }
-    }
-  ],
-  "beta": [
-    {
-      "host": "io.facom.ufms.br",
-      "ssh":{
-        "user": "devops"
-      },
-      "network": {
-        "subnet": "172.29.0.0"
-      },
-      "local": "Faculdade de Computação da UFMS",
-      "location": "Campo Grande - MS",
-      "orchestrator": "DockerCompose",
-      "storage": {
-        "type": "DockerLocal",
-        "path": "/var/io"
-      },
-      "aliases": [
-        "test.facom.ufms.br",
-        "beta.facom.ufms.br"
-      ],
-      "disabled": false,
-      "maintainers": [
-        { "name": "Hercule Poirot", "email": "hercule.poirot@ufms.br", "phone": "+55 (67) 9 8888-7777" },
-        { "name": "Maria Capitolina Santiago", "email": "capitu.santiago@ufms.br", "phone": "+55 (67) 9 6666-5555" }
-      ],
-      "resources": {
-        "smtp": {
-          "active": true,
-          "host": "smtp.facom.ufms.br",
-          "port": 25,
-          "tls": false
-        },
-        "terminal": {
-          "active": true,
-          "port": 65500
-        },
-        "external": {
-          "active": true
-        },
-        "registry": {
-          "active": false
-        },
-        "backup": {
-          "active": false
-        },
-        "snapshot": {
-          "active": true
-        }
-      }
-    }
-  ],
-  "alpha": [
-    {
-      "host": "io.facom.ufms.br",
-      "ssh":{
-        "user": "devops"
-      },
-      "network": {
-        "subnet": "172.28.0.0"
-      },
-      "local": "Faculdade de Computação da UFMS",
-      "location": "Campo Grande - MS",
-      "orchestrator": "DockerCompose",
-      "storage": {
-        "type": "DockerLocal",
-        "path": "/var/io"
-      },
-      "aliases": [
-        "sandbox.facom.ufms.br",
-        "alpha.facom.ufms.br"
-      ],
-      "disabled": false,
-      "maintainers": [
-        { "name": "Hercule Poirot", "email": "hercule.poirot@ufms.br", "phone": "+55 (67) 9 8888-7777" },
-        { "name": "Elizabeth Bennet", "email": "elizabeth.bennet@ufms.br", "phone": "+55 (67) 9 4444-3333" },
-        { "name": "Fitzwilliam Darcy", "email": "fitzwilliam.darcy@ufms.br", "phone": "+55 (67) 9 2222-1111" }
-      ],
-      "resources": {
-        "smtp": {
-          "active": true,
-          "host": "smtp.facom.ufms.br",
-          "port": 25,
-          "tls": false
-        },
-        "terminal": {
-          "active": true,
-          "port": 65500
-        },
-        "external": {
-          "active": true
-        },
-        "registry": {
-          "active": false
-        },
-        "backup": {
-          "active": false
-        },
-        "snapshot": {
-          "active": true
-        }
-      }
-    }
-  ]
-```
-
-Repare que o _cluster_ deve ser configurado especificamente para cada estágio da aplicação. Assim, ele pode estar disponível para os estágios _alpha_, _beta_ e/ou _release_, ou seja, não necessariamente para todos. O `host` deverá apontar para o IP real do servidor ou VM. O atributo `ssh.user` permite especificar o [usuário exclusivo para acionar os processos de _deploy_ no _cluster_](#ssh). Já os atributos `local` e `location` indicam a Unidade da Embrapa, instituição ou empresa e a sua localização geográfica.
-
-Para evitar conflitos com outros _hosts_ na rede do _data center_ que abriga as máquinas do _cluster_, deve-se especificar em qual _subnet_ interna (faixa de IPs) o orquestrador irá alocar as redes (do tipo _bridge_) das _stacks_ de containers. O atributo é obrigatório para novos _clusters_ (veja [capacidade do _cluster_](#capacity)). Repare que nas configurações do _cluster_ `io.facom.ufms.br` as _subnets_ estão definidas. Para cada estágio em que a _subnet_ for configurada, será permitido sempre o provisionamento de 255 _stacks_ (ou seja, para o estágio _alpha_ no exemplo acima, será de `172.28.1.0/24` até `172.28.255.0/24`). Em cada _stack_, por sua vez, há 256 endereços (CIDR `/24`), dos quais cerca de 253 ficam disponíveis para os containers. Na prática, cada serviço da _stack_ de containers recebe um destes IPs. É possível verificar se uma _subnet_ está vaga no _host_ com o comando `ip route show` e em todo o _data center_ por meio do comando `nmap` (para a faixa de IPs do exemplo, o comando preciso seria `nmap -sn 172.28.0.0/16`). Normalmente as _subnets_ na faixa de `172.19.0.0/16` a `172.31.0.0/16` são escolhas práticas seguras para as redes dos containers.
-
-O `orchestrator` indica o _driver_ de orquestração que está sendo utilizado. No exemplo acima, o _cluster_ `io.facom.ufms.br` está configurado com o orquestrador **Docker Compose** e, portanto, é composto por um único servidor para _deploy_ dos containers. Já o _cluster_ `cluster.cnpgc.embrapa.br` está configurado com o orquestrador **Docker Swarm** e é, portanto, composto por diversos nós. Neste caso, no atributo `host` deverá ser referenciado um _manager node_ principal, que no nosso exemplo é o `cluster`. No atributo `node` estão declarados explicitamente os demais nós, sendo `manager1` e `manager2` como _manager nodes_ e `worker1` como um _worker node_, totalizando assim os 4 (quatro) nós que formam este _cluster_.
-
-O atributo `storage` contém o _driver_ de _storer_ e atributos relacionados. No exemplo, os três estágios do _cluster_ `io.facom.ufms.br` usam o _driver_ `DockerLocal` e, desta forma, os _volumes_ são criados em disco local, no diretório `/var/io` indicado no atributo `path`. Já o _cluster_ `cluster.cnpgc.embrapa.br`, em **Docker Swarm**, usa o _driver_ `SwarmNFSv4`, com os _volumes_ no diretório remoto indicado em `path`, no _storage_ indicado em `host`. O NFS só deve ser usado com o Docker Swarm e com a [arquitetura adequada](#swarm-architecture).
-
-Os `aliases` são subdomínios configurados pela Unidade da Embrapa, instituição ou empresa parceira que [possibilitam alocar as aplicações em domínios mais condizentes semanticamente com a sua finalidade]({{ site.baseurl }}/docs/build#urls). Estes aliases **devem ser configurados no DNS** da seguinte forma:
-
-1. Para cada _alias_, crie um registro do tipo `CNAME` apontando para `router.embrapa.io`; e
-2. Para cada _alias_, crie um _wildcard subdomain_ (registro do tipo `A`) apontando para o **IP** do `router.embrapa.io` (ou seja, `200.202.148.38`).
-
-Assim, para um _alias_ `app.cnpgc.embrapa.br`, teríamos:
-
-```
-Name                      Type     Value
-----------------------    -----    -----------------
-app.cnpgc.embrapa.br      CNAME    router.embrapa.io
-*.app.cnpgc.embrapa.br    A        200.202.148.38
-```
-
-Vale ressaltar que as aplicações instanciadas estarão sempre expostas por meio das portas atribuídas a elas em cada _cluster_. Em _clusters_ com múltiplos nós (_nodes_), as réplicas em cada nó poderão ser acessadas de forma distinta pelo endereço real do nó e porta específica. O _load balancer_ será automaticamente ativado quando um [_alias_, URL externa ou _subpath_ for configurado]({{ site.baseurl }}/docs/build#urls). Para isso, é utilizado o método [_least connected_ do Nginx](https://nginx.org/en/docs/http/load_balancing.html), onde a próxima solicitação é atribuída ao servidor com o menor número de conexões ativas.
-
-O atributo `resources` irá informar ao usuário, no momento da escolha do _cluster_ para _deploy_ da aplicação durante a [configuração da _build_]({{ site.baseurl }}/docs/build#cluster), quais os recursos que estão disponíveis:
-
-- **SMTP:** Se há um servidor de SMTP para envio de e-mails associado a este _cluster_. Se existir, as informações para conexão serão exibidas ao usuário.
-
-- **IP Público:** Se o _cluster_ possui um IP Público. Caso possua, é possível o acesso direto às portas provisionadas para os serviços e, com isso, disponibilizar nele serviços não-HTTP, tal como _brokers_ IoT (MQTT, CoAP, AMQP, XMPP, etc). Caso não possua, todas as aplicações neste _cluster_ estarão acessíveis apenas pelo provisionamento HTTPS que o **Embrapa I/O** faz (roteando o tráfego pelo balanceador de carga via _virtual proxy_).
-
-- **Web Terminal:** Se o _cluster_ suporta a funcionalidade de [Web Terminal](#terminal).
-
-- **Registro:** Se o _cluster_ possui [registro local para as imagens dos containers](#registry).
-
-- **Backup:** Se existe neste _cluster_ [processo automatizado e individualizado de _backup_ das aplicações](#backup).
-
-- **Snapshot:** Se é realizado o backup do tipo _snapshot_ na(s) VM(s) do _cluster_ em questão.
-
-> **Atenção!** Repare que o recursos de _backup_ difere do recurso de _snapshot_. No primeiro, caso esteja disponível, será possível a recuperação de aplicações específicas, de forma individualizada. No segundo, o _restore_ da VM é realizada em caso de um problema crítico, que afete o _cluster_ como um todo.
-
-Caso o atributo `disabled` esteja setado como `true`, o _cluster_ não aceitará novos _deploys_ naquele _cluster_ para aquele estágio específico (ou seja, ele pode estar `disabled` para o estágio _release_, mas não para _alpha_ e _beta_), porém as _builds_ já instanciadas continuarão sendo geridas normalmente (inclusive recebendo _deploys_ de novas _tags_). Por fim, é possível estabelecer grupos diferentes de mantenedores para o _cluster_ em cada estágio.
+O assistente instala _clusters_ em **Docker Compose**, com um único servidor. Para o [Docker Swarm](https://docs.docker.com/engine/swarm/), indicado para grande volume de acesso ou alta disponibilidade, com várias máquinas e uma arquitetura de aplicação própria, e para um _Distribution Registry_ local<span id="registry"></span>, siga o [processo manual]({{ site.baseurl }}/docs/cluster/manual#swarm) e fale com a equipe da plataforma.
