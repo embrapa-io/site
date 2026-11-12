@@ -29,7 +29,7 @@ if [ -z "${BASH_VERSION:-}" ]; then exec bash "$0" "$@"; fi
 
 set -uo pipefail
 
-VERSION=1.26.11-10
+VERSION=1.26.11-11
 
 [ -f /root/cluster.env ] && . /root/cluster.env
 
@@ -866,7 +866,7 @@ cmd_status () {
   check "Chave da plataforma restrita ao core" bash -c "grep -q '^from=\"' /home/io/.ssh/authorized_keys && grep -q ' embrapa.io\$' /home/io/.ssh/authorized_keys"
   check "Driver de log loki" bash -c "docker info --format '{{.LoggingDriver}}' | grep -qx loki"
   check "Alloy ativo" systemctl is-active --quiet alloy
-  check "Alloy mandando ao Embrapa I/O" grep -q 'embrapa.io' /etc/alloy/config.alloy
+  check "Alloy mandando ao Embrapa I/O" grep -q 'gerado pelo cluster.sh' /etc/alloy/config.alloy
   check "Docker Hub: credencial do io" dockerhub_logged
   check "Certificado do host" bash -c "openssl x509 -checkend 604800 -noout -in /etc/letsencrypt/live/$host/fullchain.pem"
   check "nginx ativo" systemctl is-active --quiet nginx
@@ -880,6 +880,45 @@ cmd_status () {
   return $STATUS_FAIL
 }
 
+# O Alloy e o nginx do cluster são do Embrapa I/O: se outra gestão de configuração (o SVN do NTI, por exemplo) trocar
+# os arquivos, o cluster para de mandar logs e métricas ao log.embrapa.io. O repair os refaz. As credenciais de envio
+# são as mesmas do driver de log do Docker, que já estão no /etc/docker/daemon.json desta VM.
+repair_alloy () {
+  local creds
+  grep -q 'gerado pelo cluster.sh' /etc/alloy/config.alloy 2> /dev/null && systemctl is-active --quiet alloy && return 0
+
+  creds=$(python3 - << 'PY'
+import json, urllib.parse
+u = urllib.parse.urlsplit(json.load(open("/etc/docker/daemon.json"))["log-opts"]["loki-url"])
+print(urllib.parse.unquote(u.username or ""))
+print(urllib.parse.unquote(u.password or ""))
+PY
+  ) || { echo "Sem as credenciais no /etc/docker/daemon.json: rode o setup de novo." >&2; return 1; }
+
+  HOST=${HOST:-$(hostname)}
+  LOKI_URL=https://loki.embrapa.io/loki/api/v1/push
+  PROMETHEUS_URL=https://prometheus.embrapa.io/api/v1/write
+  LOKI_USER=$(echo "$creds" | sed -n 1p); LOKI_PASS=$(echo "$creds" | sed -n 2p)
+  PROMETHEUS_USER=$LOKI_USER; PROMETHEUS_PASS=$LOKI_PASS
+
+  [ -n "$LOKI_USER" ] && [ -n "$LOKI_PASS" ] || { echo "Credenciais vazias no /etc/docker/daemon.json." >&2; return 1; }
+
+  step_alloy
+}
+
+repair_nginx () {
+  command -v nginx > /dev/null 2>&1 || return 0
+
+  HOST=${HOST:-$(hostname)}
+  rm -f /etc/nginx/sites-enabled/default
+  write_nginx_http
+  if [ -f "$PANEL_DIR/compose.yaml" ] && [ -f "/etc/letsencrypt/live/$HOST/fullchain.pem" ]; then
+    PANEL=${PANEL:-arcane}
+    write_nginx_https
+  fi
+  nginx -t && systemctl reload nginx
+}
+
 cmd_repair () {
   need_root
   say "Embrapa I/O — reaplicando os ajustes idempotentes"
@@ -890,6 +929,8 @@ cmd_repair () {
     id alloy > /dev/null 2>&1 && usermod -aG systemd-journal alloy
     apply_cron
     apply_panel_cron
+    repair_alloy
+    repair_nginx
   } >> "$LOG" 2>&1 || die "Falha ao reaplicar (detalhes em $LOG)."
   say ""
   cmd_status
