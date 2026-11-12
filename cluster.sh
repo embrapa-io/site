@@ -29,7 +29,7 @@ if [ -z "${BASH_VERSION:-}" ]; then exec bash "$0" "$@"; fi
 
 set -uo pipefail
 
-VERSION=1.26.11-8
+VERSION=1.26.11-9
 
 [ -f /root/cluster.env ] && . /root/cluster.env
 
@@ -94,9 +94,9 @@ PLATFORM_KEY="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCykAvX7CZmqw1bgOCOmRtgpfr55c
 exec 3>&1
 
 say () { echo "$*" >&3; echo "$(date '+%F %T') $*" >> "$LOG"; }
-ok () { say "  ✅ $*"; }
-bad () { say "  ❌ $*"; }
-die () { say ""; say "❌ $*"; exit 1; }
+ok () { say "  ✅  $*"; }
+bad () { say "  ❌  $*"; }
+die () { say ""; say "❌  $*"; exit 1; }
 
 # JSON sem dependências além do python3 (need_python garante que exista).
 json_get () { python3 -c 'import json,sys
@@ -939,12 +939,12 @@ wait_confirmation () {
   local deadline=$(( $(date +%s) + 1800 )) info status
 
   say ""
-  say "⏳ Aguardando a confirmação na Dashboard (até 30 minutos)…"
+  say "⏳  Aguardando a confirmação na Dashboard (até 30 minutos)…"
   while [ "$(date +%s)" -lt "$deadline" ]; do
     info=$(api GET "/cluster/setup/$TOKEN" 2>> "$LOG") || die "Token inválido ou expirado. Gere outro no assistente da Dashboard."
     status=$(echo "$info" | json_get status)
     case "$status" in
-      INSTALLING) say "  ✅ Confirmado."; return 0 ;;
+      INSTALLING) say "  ✅  Confirmado."; return 0 ;;
       FAILED|DRAFT) die "O pedido foi cancelado ou falhou na Dashboard ($status)." ;;
     esac
     sleep 5
@@ -976,7 +976,7 @@ probe_from_core () {
 d=json.load(sys.stdin)
 for part in ("dns","network"):
     for e in d.get(part,{}).get("evidence",[]):
-        print(("  ✅ " if e.get("ok") else "  ❌ ")+e.get("label","")+": "+e.get("detail",""))
+        print(("  ✅  " if e.get("ok") else "  ❌  ")+e.get("label","")+": "+e.get("detail",""))
 for part in ("dns","network"):
     fix=d.get(part,{}).get("fix")
     if fix: print("     → "+fix)
@@ -1011,11 +1011,11 @@ cmd_setup () {
   sleep 1
 
   say ""
-  say "🌐 Pré-requisitos conferidos a partir do core (DNS, SSH, HTTP e portas altas):"
+  say "🌐  Pré-requisitos conferidos a partir do core (DNS, SSH, HTTP e portas altas):"
   probe_from_core || die "O core não alcança esta VM como precisa. Corrija os itens acima e rode o setup de novo (o token vale até $(date -d "$TOKEN_EXPIRES" '+%H:%M' 2> /dev/null || echo 'o horário mostrado na Dashboard'))."
 
   say ""
-  say "🔎 Verificação prévia (nada é alterado):"
+  say "🔎  Verificação prévia (nada é alterado):"
   local ev; ev=$(mktemp)
   progress preflight "" running
   if ! preflight "$ev"; then
@@ -1040,7 +1040,7 @@ cmd_setup () {
   progress install "" "done"
 
   say ""
-  say "🚀 Instalação concluída. A plataforma agora valida o cluster a partir do core; acompanhe na Dashboard."
+  say "🚀  Instalação concluída. A plataforma agora valida o cluster a partir do core; acompanhe na Dashboard."
   say "   Painel: https://$HOST"
   if [ -f "$STATE/panel-password-new" ] && [ -s "$PANEL_FILE" ]; then
     local who secret
