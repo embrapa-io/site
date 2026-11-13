@@ -25,6 +25,8 @@ Ao cadastrar o _cluster_, a Unidade diz para que ele serve:
 
 O mesmo _cluster_ pode servir às duas finalidades. Um _cluster_ **só de laboratórios** aparece na configuração das _builds_ apenas para consulta: a Dashboard avisa que ele é exclusivo dos laboratórios virtuais e não deixa escolhê-lo para o _deploy_ de um projeto. A finalidade pode ser mudada depois, na aba **Dados** do _cluster_.
 
+![Um cluster só de laboratórios na configuração da build: só para consulta]({{ site.baseurl }}/assets/img/cluster/build-lab-only.png)
+
 ## A máquina {#install}
 
 <span id="docker"></span>
@@ -147,6 +149,9 @@ O comando roda na máquina, **como root**, e a linha do tempo da Dashboard acomp
 6. **Confirmação**: com tudo verificado, o script **espera** um mantenedor clicar em **Confirmar instalação** na Dashboard. Nada é instalado sem essa confirmação.
 7. **Instalação**: sistema (pacotes, nome da máquina, parâmetros do _kernel_, `sudo` clássico), Docker do repositório oficial, usuário `io` (grupo `docker`, `/var/io`, regra do `sudoers` e a chave da plataforma, restrita ao IP do _core_), _driver_ de _log_ do Loki, Grafana Alloy (logs e métricas para o [Grafana da plataforma](https://log.embrapa.io)), Docker Hub, certificado do Let's Encrypt, _Web Terminal_, painel local, CRON e ajustes, e a limpeza (o _token_ deixa de valer).
 8. **Validação a partir do core**: o servidor da plataforma entra na máquina como o usuário `io`, como num _deploy_, e confere o SSH com a chave da plataforma, o Docker e o Compose, o _driver_ de _log_, o `sudo` clássico, as permissões em `/var/io`, a reserva das portas e o Alloy. Por último, sobe um contêiner de teste na faixa alta e o acessa de fora, pelo mesmo caminho das aplicações.
+
+   ![A validação a partir do core, com as evidências]({{ site.baseurl }}/assets/img/cluster/wizard-validation.png)
+
 9. **Termo do mantenedor**: os mantenedores leem e assinam o termo (abaixo).
 10. **Disponível no catálogo**: o _cluster_ entra no catálogo, sem esperar ninguém, e passa a aparecer para as equipes na configuração das _builds_.
 
@@ -161,6 +166,12 @@ O termo do mantenedor do _cluster_ diz que a Unidade, representada pelos mantene
 5. mantém o S3 da Unidade, quando houver, e guarda a senha raiz num cofre próprio;
 6. sem S3, declara ciência de que os _backups_ dos projetos ficam sem cópia fora do servidor e de que faz o _backup_ por outro meio;
 7. avisa com antecedência o desligamento do _cluster_, para a migração das _builds_.
+
+![O termo do mantenedor do cluster]({{ site.baseurl }}/assets/img/cluster/wizard-term.png)
+
+No catálogo, o _cluster_ aparece para as equipes no seletor da configuração da _build_, com a finalidade e a saúde do servidor:
+
+![O cluster novo escolhido na configuração da build]({{ site.baseurl }}/assets/img/cluster/build-cluster-selected.png)
 
 ### Integração por SSH {#ssh}
 
@@ -200,6 +211,9 @@ Para usar a versão mais recente do script, baixe-o de novo antes (`curl -fsSL h
 ## Ajustes pela aba Dados {#catalog}
 
 Depois de publicado, o _cluster_ continua nas mãos dos mantenedores (e dos administradores da plataforma), pela aba **Dados** do _cluster_ na Dashboard, sem pedir a ninguém:
+
+![A aba Dados do cluster]({{ site.baseurl }}/assets/img/cluster/cluster-data-tab.png)
+
 
 - **Instituição e localização** e o **_snapshot_ da VM**;
 - **Sub-redes**: a troca só é aceita num estágio sem _builds_ implantadas;
