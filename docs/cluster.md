@@ -4,6 +4,8 @@ title: Cluster
 subtitle: Configurando e disponibilizando um cluster pela Dashboard
 ---
 
+<iframe width="730" height="410" src="https://www.youtube.com/embed/nFKy_re10Os" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 > **Catálogo:** a lista dos _clusters_ disponíveis, com os recursos de cada um, está em [Recursos → Clusters]({{ site.baseurl }}/resources/clusters); os servidores de inferência acessíveis a partir deles, em [Recursos → GPU Servers]({{ site.baseurl }}/resources/gpus).
 
 Um _cluster_ do catálogo é um servidor (físico ou, mais comumente, uma máquina virtual) de uma Unidade da Embrapa ou de um parceiro, em que a plataforma publica as aplicações das equipes. Ele é de **uso compartilhado**: várias aplicações dividem a mesma máquina. A plataforma faz cada _deploy_ por SSH, e a Unidade, pelos **mantenedores** do _cluster_, cuida da máquina: sistema operacional, disco, rede, _firewall_ e atualizações.
