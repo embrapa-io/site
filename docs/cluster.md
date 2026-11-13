@@ -101,15 +101,25 @@ O nome do _cluster_ aponta para a máquina; o curinga aponta para o _core_, que 
 
 As imagens das aplicações vêm do Docker Hub, que limita os _downloads_ anônimos. Por isso, a instalação faz o _login_ numa conta do NTI com um **_token_ de acesso somente leitura**: no Docker Hub, abra **Account settings → Personal access tokens → Generate new token**, dê uma descrição que lembre o _cluster_ e escolha a permissão **Public Repo Read-only**. O _token_ é digitado no terminal da própria máquina e fica só nela: não passa pela plataforma.
 
+![Criação do token somente leitura no Docker Hub]({{ site.baseurl }}/assets/img/cluster/dockerhub-token.png)
+
 # Cadastro e instalação {#wizard}
 
 ## O cadastro na Dashboard
 
 Na Dashboard, o botão **Clusters** (para empregados da Embrapa) lista os _clusters_ do catálogo, com estágios, finalidade e saúde, e os pedidos em andamento. O botão **+ Cluster** abre o cadastro em quatro passos:
 
+![Cadastro do cluster: identificação]({{ site.baseurl }}/assets/img/cluster/wizard-identification.png)
+
 1. **Identificação:** Unidade (em branco para universidades e parceiros), instituição, localização, nome do _cluster_, estágios oferecidos, uso (projetos e/ou laboratórios) e a sub-rede de cada estágio.
 2. **Mantenedores e SMTP:** os e-mails institucionais das pessoas que cuidam do servidor e recebem os avisos de saúde e de vulnerabilidades (recomendamos dois ou mais) e, se houver, o servidor de e-mail da Unidade que aceita envios a partir do _cluster_ (_relay_ sem autenticação), oferecido às aplicações nas variáveis `${IO_SMTP_*}`.
+
+   ![Cadastro do cluster: mantenedores e SMTP]({{ site.baseurl }}/assets/img/cluster/wizard-maintainers.png)
+
 3. **Requisitos:** o tamanho da máquina e, prontos para copiar e mandar ao NTI, o sistema, o disco, a rede, a descrição para o inventário, a tabela do _firewall_, os registros de DNS e a orientação do Docker Hub. Aqui também se informa se a Unidade faz _snapshot_ da VM no hipervisor.
+
+   ![Cadastro do cluster: requisitos]({{ site.baseurl }}/assets/img/cluster/wizard-requirements.png)
+
 4. **Comando:** o pedido é criado e a Dashboard mostra o comando, com um _token_ de uso único válido por duas horas:
 
 ```bash
@@ -120,9 +130,14 @@ sh /root/cluster.sh setup <token>
 
 Se o _token_ expirar antes da instalação, o botão **Gerar novo token** cria outro.
 
+![O comando de instalação, com o token de uso único]({{ site.baseurl }}/assets/img/cluster/wizard-command.png)
+
 ## A linha do tempo {#timeline}
 
 O comando roda na máquina, **como root**, e a linha do tempo da Dashboard acompanha cada etapa, com as evidências e, em caso de falha, o motivo e o que fazer:
+
+![O cluster.sh no terminal e a linha do tempo na Dashboard, na verificação prévia]({{ site.baseurl }}/assets/img/cluster/wizard-preflight.png)
+
 
 1. **Cadastro**: os dados do pedido.
 2. **DNS**: o servidor da plataforma confere, de fora, o nome do _cluster_ e o curinga.
@@ -134,6 +149,8 @@ O comando roda na máquina, **como root**, e a linha do tempo da Dashboard acomp
 8. **Validação a partir do core**: o servidor da plataforma entra na máquina como o usuário `io`, como num _deploy_, e confere o SSH com a chave da plataforma, o Docker e o Compose, o _driver_ de _log_, o `sudo` clássico, as permissões em `/var/io`, a reserva das portas e o Alloy. Por último, sobe um contêiner de teste na faixa alta e o acessa de fora, pelo mesmo caminho das aplicações.
 9. **Termo do mantenedor**: os mantenedores leem e assinam o termo (abaixo).
 10. **Disponível no catálogo**: o _cluster_ entra no catálogo, sem esperar ninguém, e passa a aparecer para as equipes na configuração das _builds_.
+
+![A instalação concluída: o terminal e a linha do tempo, à espera do termo]({{ site.baseurl }}/assets/img/cluster/wizard-installed.png)
 
 O termo do mantenedor do _cluster_ diz que a Unidade, representada pelos mantenedores cadastrados:
 
