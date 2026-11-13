@@ -95,7 +95,7 @@ io.cnpxx.embrapa.br        A      <IP público da VM>
 *.io.cnpxx.embrapa.br      A      200.202.148.38
 ```
 
-O nome do _cluster_ aponta para a máquina; o curinga aponta para o _core_, que recebe os acessos às aplicações (como `app.io.cnpxx.embrapa.br`) e os encaminha ao _cluster_. A recomendação de nome é `io.<sigla>.embrapa.br`; para um segundo _cluster_, `io2.<sigla>` ou `lab.<sigla>`.
+O nome do _cluster_ aponta para a máquina; o curinga aponta para o _core_, que recebe os acessos às aplicações (como `app.io.cnpxx.embrapa.br`) e os encaminha ao _cluster_. O nome segue um padrão: `io.` mais o **subdomínio da Unidade**. Cada Unidade já tem o seu subdomínio de terceiro nível definido (como `cnpgc.embrapa.br`) e só cria nomes dentro dele; por isso, o _cluster_ da Embrapa Gado de Corte é `io.cnpgc.embrapa.br`. Para um segundo _cluster_, `io2.` ou `lab.` no lugar do `io.` (como `lab.cnpgc.embrapa.br`).
 
 ## O token do Docker Hub {#dockerhub}
 
