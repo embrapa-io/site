@@ -678,6 +678,28 @@ Os atributos `audience` e `summary`, opcionais, dizem **para quem é o _boilerpl
 
 Diferente de `description`, que fala com quem desenvolve (a pilha, as dependências, a arquitetura), o `summary` fala com quem vai usar. Um _boilerplate_ `end-user` também precisa garantir o que a vitrine promete: login próprio com a conta da pessoa criada na subida, _backup_ íntegro (com o teste `test/backup-roundtrip.sh`, [veja acima](#cli:backup)) e nenhuma variável que exija configuração manual para funcionar. O catálogo de _boilerplates_ (repositório `io/boilerplate/metadata`) confere os dois atributos a cada mudança.
 
+<a id="mcp"></a>
+O atributo opcional `mcp` declara o **servidor MCP** ([_Model Context Protocol_](https://modelcontextprotocol.io)) que a aplicação já traz ligado, para que um agente de IA configure a instância ou trabalhe com os dados dela no lugar de cliques na interface. A regra da plataforma é: **se a ferramenta tem um servidor MCP oficial, o _boilerplate_ sobe com ele ligado**, porque queremos que a configuração das instâncias seja feita, sempre que possível, por MCP:
+
+```json
+{
+  "mcp": {
+    "port": "PORT",
+    "path": "/mcp",
+    "token": "MCP_TOKEN",
+    "server": "mcptools (Posit)",
+    "docs": "https://posit-dev.github.io/mcptools/"
+  }
+}
+```
+
+- **`port`**: o nome da variável do tipo `PORT` cujo endereço público serve o MCP. Use a mesma porta da aplicação: o MCP não ganha porta nem domínio próprio e passa pelo roteador da plataforma como o resto da aplicação.
+- **`path`**: o caminho do MCP nesse endereço, começando por `/` (de preferência `/mcp`).
+- **`token`**: o nome da variável do tipo `SECRET` com o _token_ de acesso, sorteado na criação da _build_. Todo pedido ao MCP precisa do cabeçalho `Authorization: Bearer <token>`; sem ele, ou com o _token_ errado, a resposta é `401` e nada chega à ferramenta. **Um MCP sem _token_ não é aceito**: quem o alcança age na instância com os poderes dela, inclusive executar código, em alguns casos.
+- **`server`** e **`docs`**: o nome do servidor MCP e o endereço da documentação dele. Só vale **servidor oficial**, mantido pelo próprio projeto da ferramenta; servidores da comunidade ficam de fora, porque não há garantia de manutenção nem de correção de falhas de segurança.
+
+Nos [laboratórios virtuais do Forge](https://forge.embrapa.io/lab), o painel mostra o endereço do MCP e o _token_, junto do acesso à ferramenta. Lembre que o MCP entrega ao agente os dados da instância: com um modelo de IA externo (Claude, Gemini, ChatGPT), esses dados saem da Embrapa. Para dados internos ou sigilosos, use um agente ligado aos [GPU Servers]({{ site.baseurl }}/resources/gpus) da plataforma, como o Hermes. O catálogo de _boilerplates_ confere o atributo a cada mudança.
+
 Outro exemplo de uso é para setar o _environment_ interno aos arcabouços de programação. Por exemplo, uma aplicação [ASP.NET](https://docs.microsoft.com/pt-br/aspnet/core/) aceita os seguintes valores para a variável `ASPNETCORE_ENVIRONMENT`: `Development`, `Staging`, `Staging_2` e `Production` ([conforme a documentação](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments)). Assim, poderia ser configurado no arquivo `.env.example` do _boilerplate_ a variável `ASPNETCORE_ENVIRONMENT=Development`, de forma que os desenvolvedores, ao renomearem o arquivo para iniciar a customização da aplicação, já usariam o valor correto para o _environment_ de desenvolvimento. Nas configurações de metadados do _boilerplate_ no arquivo `settings.json`, esta variável poderia ser setada no subgrupo `alpha` como `Staging`, em `beta` como `Staging_2` e em `release` como `Production`. A mesma estratégia pode pode ser utilizada para a variável `NODE_ENV`, [comumente utilizada em projetos em JavaScript](https://www.geeksforgeeks.org/what-is-node_env-in-node-js/), e demais correlatas em outras linguagens e arcabouços de programação.
 
 > **Atenção!** Durante a [configuração da _build_]({{ site.baseurl }}/docs/build) os valores padrão para as variáveis definidos aqui, bem como aqueles gerados randomicamente, poderão ser alterados pelo usuário.
