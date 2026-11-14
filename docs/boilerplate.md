@@ -661,6 +661,23 @@ No atributo `variables` são inseridas as _environment variables_ que parametriz
 
 O atributo `stores`, opcional, declara os **pacotes com que a aplicação está publicada nas lojas** de aplicativos, para aplicações nativas: por enquanto só `play` (Google Play), com a lista de pacotes de todos os _flavors_ (produção, homologação etc.) e, opcionalmente, `play_bucket`, o bucket da exportação em massa (só para apps publicados na conta de desenvolvedor de um parceiro; os da conta da Embrapa usam o bucket já configurado na plataforma). É por ele que a [Sentinela]({{ site.baseurl }}/docs/sentinel#play) lê a taxa de _crash_ e de ANR, os erros, as instalações, a nota e as avaliações do aplicativo na loja. Aplicações web não precisam dele.
 
+<a id="audience"></a>
+Os atributos `audience` e `summary`, opcionais, dizem **para quem é o _boilerplate_** e o descrevem para quem não é de TI. Eles alimentam a vitrine dos [laboratórios virtuais do Forge](https://forge.embrapa.io/lab), em que qualquer pessoa da Unidade escolhe ferramentas prontas (RStudio, JupyterLab, Joplin, Metabase etc.) sem configurar nada:
+
+```json
+{
+  "audience": "end-user",
+  "summary": "Um laboratório de análise de dados em R que abre no navegador, sem instalar nada no computador. Exemplo: uma pesquisadora carrega a planilha de pesagens do experimento de suplementação, roda a análise de variância e gera os gráficos do relatório."
+}
+```
+
+- **`audience`**: o público do _boilerplate_. **Use um destes valores**:
+  - `developer` (**padrão**, quando o atributo não é informado): base para uma equipe de desenvolvimento criar e customizar uma aplicação, como os _boilerplates_ de Vue, FastAPI ou Laravel;
+  - `end-user`: ferramenta pronta, que uma pessoa sem conhecimento de TI usa como está, pelo navegador. Só os _boilerplates_ `end-user`, habilitados no [catálogo](#publish), podem aparecer na vitrine dos laboratórios.
+- **`summary`**: **obrigatório quando `audience` é `end-user`**. Texto corrido, sem Markdown e sem jargão, entre 120 e 600 caracteres, em duas partes: o que a ferramenta é, em uma ou duas frases, seguido de `Exemplo:` e de um uso concreto na Embrapa (pesquisa, gestão, comunicação, transferência de tecnologia). A vitrine mostra a primeira parte; o exemplo serve à analista do Forge, que recomenda as ferramentas a partir do que a pessoa precisa.
+
+Diferente de `description`, que fala com quem desenvolve (a pilha, as dependências, a arquitetura), o `summary` fala com quem vai usar. Um _boilerplate_ `end-user` também precisa garantir o que a vitrine promete: login próprio com a conta da pessoa criada na subida, _backup_ íntegro (com o teste `test/backup-roundtrip.sh`, [veja acima](#cli:backup)) e nenhuma variável que exija configuração manual para funcionar. O catálogo de _boilerplates_ (repositório `io/boilerplate/metadata`) confere os dois atributos a cada mudança.
+
 Outro exemplo de uso é para setar o _environment_ interno aos arcabouços de programação. Por exemplo, uma aplicação [ASP.NET](https://docs.microsoft.com/pt-br/aspnet/core/) aceita os seguintes valores para a variável `ASPNETCORE_ENVIRONMENT`: `Development`, `Staging`, `Staging_2` e `Production` ([conforme a documentação](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments)). Assim, poderia ser configurado no arquivo `.env.example` do _boilerplate_ a variável `ASPNETCORE_ENVIRONMENT=Development`, de forma que os desenvolvedores, ao renomearem o arquivo para iniciar a customização da aplicação, já usariam o valor correto para o _environment_ de desenvolvimento. Nas configurações de metadados do _boilerplate_ no arquivo `settings.json`, esta variável poderia ser setada no subgrupo `alpha` como `Staging`, em `beta` como `Staging_2` e em `release` como `Production`. A mesma estratégia pode pode ser utilizada para a variável `NODE_ENV`, [comumente utilizada em projetos em JavaScript](https://www.geeksforgeeks.org/what-is-node_env-in-node-js/), e demais correlatas em outras linguagens e arcabouços de programação.
 
 > **Atenção!** Durante a [configuração da _build_]({{ site.baseurl }}/docs/build) os valores padrão para as variáveis definidos aqui, bem como aqueles gerados randomicamente, poderão ser alterados pelo usuário.
