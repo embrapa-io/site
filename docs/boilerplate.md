@@ -679,7 +679,7 @@ Os atributos `audience` e `summary`, opcionais, dizem **para quem é o _boilerpl
 Diferente de `description`, que fala com quem desenvolve (a pilha, as dependências, a arquitetura), o `summary` fala com quem vai usar. Um _boilerplate_ `end-user` também precisa garantir o que a vitrine promete: login próprio com a conta da pessoa criada na subida, _backup_ íntegro (com o teste `test/backup-roundtrip.sh`, [veja acima](#cli:backup)) e nenhuma variável que exija configuração manual para funcionar. O catálogo de _boilerplates_ (repositório `io/boilerplate/metadata`) confere os dois atributos a cada mudança.
 
 <a id="mcp"></a>
-O atributo opcional `mcp` declara o **servidor MCP** ([_Model Context Protocol_](https://modelcontextprotocol.io)) que a aplicação já traz ligado, para que um agente de IA configure a instância ou trabalhe com os dados dela no lugar de cliques na interface. A regra da plataforma é: **se a ferramenta tem um servidor MCP oficial, o _boilerplate_ sobe com ele ligado**, porque queremos que a configuração das instâncias seja feita, sempre que possível, por MCP:
+O atributo opcional `mcp` declara o **servidor MCP** ([_Model Context Protocol_](https://modelcontextprotocol.io)) que a aplicação já traz ligado, para que um agente de IA configure a instância ou trabalhe com os dados dela no lugar de cliques na interface. A regra da plataforma é: **se a ferramenta tem um servidor MCP oficial, o _boilerplate_ sobe com ele ligado** (servidores da comunidade são aceitos por exceção, [veja abaixo](#mcp-community)), porque queremos que a configuração das instâncias seja feita, sempre que possível, por MCP:
 
 ```json
 {
@@ -696,7 +696,13 @@ O atributo opcional `mcp` declara o **servidor MCP** ([_Model Context Protocol_]
 - **`port`**: o nome da variável do tipo `PORT` cujo endereço público serve o MCP. Use a mesma porta da aplicação: o MCP não ganha porta nem domínio próprio e passa pelo roteador da plataforma como o resto da aplicação.
 - **`path`**: o caminho do MCP nesse endereço, começando por `/` (de preferência `/mcp`).
 - **`token`**: o nome da variável do tipo `SECRET` com o _token_ de acesso, sorteado na criação da _build_. Todo pedido ao MCP precisa do cabeçalho `Authorization: Bearer <token>`; sem ele, ou com o _token_ errado, a resposta é `401` e nada chega à ferramenta. **Um MCP sem _token_ não é aceito**: quem o alcança age na instância com os poderes dela, inclusive executar código, em alguns casos.
-- **`server`** e **`docs`**: o nome do servidor MCP e o endereço da documentação dele. Só vale **servidor oficial**, mantido pelo próprio projeto da ferramenta; servidores da comunidade ficam de fora, porque não há garantia de manutenção nem de correção de falhas de segurança.
+- **`server`** e **`docs`**: o nome do servidor MCP e o endereço da documentação dele.
+- <a id="mcp-community"></a>**`maintainer`** (opcional): `official` (o padrão) ou `community`. A preferência é sempre pelo **servidor oficial**, mantido pelo próprio projeto da ferramenta. Um servidor da comunidade entra só por exceção, quando não há oficial ou quando o oficial é muito limitado, e com estas condições:
+  - **respaldo comprovado**: versão publicada nos últimos seis meses, mais de um mantenedor ou adoção ampla, e licença aberta;
+  - **código revisado** antes de entrar: ele fala só com a própria instância, sem telemetria, sem envio de dados para fora e sem segredos em _log_;
+  - **versão fixada** no _boilerplate_ (exceção à regra do `latest`, porque é código de terceiro com acesso total à instância); cada atualização vem por MR, com a revisão refeita;
+  - **o mesmo contrato do oficial**: mesmo endereço da aplicação, _token_ obrigatório e teste automatizado;
+  - **sinalizado**: o README e o painel do laboratório dizem que é um MCP da comunidade. Quando o servidor oficial passar a atender, ele substitui o da comunidade.
 
 Nos [laboratórios virtuais do Forge](https://forge.embrapa.io/lab), o painel mostra o endereço do MCP e o _token_, junto do acesso à ferramenta. Lembre que o MCP entrega ao agente os dados da instância: com um modelo de IA externo (Claude, Gemini, ChatGPT), esses dados saem da Embrapa. Para dados internos ou sigilosos, use um agente ligado aos [GPU Servers]({{ site.baseurl }}/resources/gpus) da plataforma, como o Hermes. O catálogo de _boilerplates_ confere o atributo a cada mudança.
 
