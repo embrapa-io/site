@@ -18,14 +18,14 @@ O processo anterior, em que a Unidade preparava o servidor à mão e pedia a ent
 
 # Planejamento {#planning}
 
-## Finalidade: projetos e laboratórios virtuais {#purpose}
+## Finalidade: projetos e Hub {#purpose}
 
 Ao cadastrar o _cluster_, a Unidade diz para que ele serve:
 
 - **Projetos**: recebe as _builds_ das aplicações das equipes, como os _clusters_ que a plataforma sempre teve.
-- **Laboratórios**: recebe os **laboratórios virtuais** do [Forge](https://forge.embrapa.io), ferramentas prontas, criadas a partir dos _boilerplates_, para quem trabalha com pesquisa, comunicação ou gestão sem precisar programar.
+- **Laboratórios**: recebe os hubs do [Forge](https://forge.embrapa.io/hub) (o [Hub]({{ site.baseurl }}/docs/boilerplate#hub)), ferramentas prontas, criadas a partir dos _boilerplates_, para quem trabalha com pesquisa, comunicação ou gestão sem precisar programar.
 
-O mesmo _cluster_ pode servir às duas finalidades. Um _cluster_ **só de laboratórios** aparece na configuração das _builds_ apenas para consulta: a Dashboard avisa que ele é exclusivo dos laboratórios virtuais e não deixa escolhê-lo para o _deploy_ de um projeto. A finalidade pode ser mudada depois, na aba **Dados** do _cluster_.
+O mesmo _cluster_ pode servir às duas finalidades. Um _cluster_ **só de laboratórios** aparece na configuração das _builds_ apenas para consulta: a Dashboard avisa que ele é exclusivo do Hub e não deixa escolhê-lo para o _deploy_ de um projeto. A finalidade pode ser mudada depois, na aba **Dados** do _cluster_.
 
 ![Um cluster só de laboratórios na configuração da build: só para consulta]({{ site.baseurl }}/assets/img/cluster/build-lab-only.png)
 

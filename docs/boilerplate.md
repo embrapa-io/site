@@ -661,22 +661,23 @@ No atributo `variables` são inseridas as _environment variables_ que parametriz
 
 O atributo `stores`, opcional, declara os **pacotes com que a aplicação está publicada nas lojas** de aplicativos, para aplicações nativas: por enquanto só `play` (Google Play), com a lista de pacotes de todos os _flavors_ (produção, homologação etc.) e, opcionalmente, `play_bucket`, o bucket da exportação em massa (só para apps publicados na conta de desenvolvedor de um parceiro; os da conta da Embrapa usam o bucket já configurado na plataforma). É por ele que a [Sentinela]({{ site.baseurl }}/docs/sentinel#play) lê a taxa de _crash_ e de ANR, os erros, as instalações, a nota e as avaliações do aplicativo na loja. Aplicações web não precisam dele.
 
-<a id="audience"></a>
-Os atributos `audience` e `summary`, opcionais, dizem **para quem é o _boilerplate_** e o descrevem para quem não é de TI. Eles alimentam a vitrine dos [laboratórios virtuais do Forge](https://forge.embrapa.io/lab), em que qualquer pessoa da Unidade escolhe ferramentas prontas (RStudio, JupyterLab, Joplin, Metabase etc.) sem configurar nada:
+<a id="hub"></a>
+Os _boilerplates_ de ferramentas prontas, que qualquer pessoa da Unidade usa como estão, pelo navegador e sem conhecimento de TI (RStudio, JupyterLab, Joplin, Metabase, n8n, NocoDB etc.), entram no catálogo do **Hub** do [Forge](https://forge.embrapa.io/hub). Cada setor ou comissão monta o seu hub, com título por extenso como «Hub de Automação — CNPGC/CSST», com as ferramentas de que precisa, e pode acrescentar outras depois.
 
-```json
-{
-  "audience": "end-user",
-  "summary": "Um laboratório de análise de dados em R que abre no navegador, sem instalar nada no computador. Exemplo: uma pesquisadora carrega a planilha de pesagens do experimento de suplementação, roda a análise de variância e gera os gráficos do relatório."
-}
-```
+A curadoria do Hub **não fica no `settings.json`**. Cada _boilerplate_ do Hub tem todas as suas informações em só dois lugares:
 
-- **`audience`**: o público do _boilerplate_. **Use um destes valores**:
-  - `developer` (**padrão**, quando o atributo não é informado): base para uma equipe de desenvolvimento criar e customizar uma aplicação, como os _boilerplates_ de Vue, FastAPI ou Laravel;
-  - `end-user`: ferramenta pronta, que uma pessoa sem conhecimento de TI usa como está, pelo navegador. Só os _boilerplates_ `end-user`, habilitados no [catálogo](#publish), podem aparecer na vitrine dos laboratórios.
-- **`summary`**: **obrigatório quando `audience` é `end-user`**. Texto corrido, sem Markdown e sem jargão, entre 120 e 600 caracteres, em duas partes: o que a ferramenta é, em uma ou duas frases, seguido de `Exemplo:` e de um uso concreto na Embrapa (pesquisa, gestão, comunicação, transferência de tecnologia). A vitrine mostra a primeira parte; o exemplo serve à analista do Forge, que recomenda as ferramentas a partir do que a pessoa precisa.
+- **`.embrapa/settings.json` do _boilerplate_**: o contrato técnico, igual ao de qualquer aplicação (as variáveis, com tipo e valor padrão, e o [`mcp`](#mcp)). É ele que a plataforma usa no _deploy_.
+- **`hub.json` do repositório `io/boilerplate/metadata`**: a curadoria e a orquestração da ferramenta no Hub. É ele que o Forge lê.
 
-Diferente de `description`, que fala com quem desenvolve (a pilha, as dependências, a arquitetura), o `summary` fala com quem vai usar. Um _boilerplate_ `end-user` também precisa garantir o que a vitrine promete: login próprio com a conta da pessoa criada na subida, _backup_ íntegro (com o teste `test/backup-roundtrip.sh`, [veja acima](#cli:backup)) e nenhuma variável que exija configuração manual para funcionar. O catálogo de _boilerplates_ (repositório `io/boilerplate/metadata`) confere os dois atributos a cada mudança.
+O que vai no `hub.json`, por ferramenta:
+
+- **o que a ferramenta é** (`summary`) e **um uso concreto na Embrapa** (`example`), em texto corrido, sem Markdown e sem jargão, para quem não é de TI;
+- **o papel** (`role`): quando ela é a escolha e quando não é, com a ferramenta que serve no lugar, para o assistente «Me ajude a montar» não sugerir duas ferramentas para o mesmo papel;
+- **o ícone** ([Lucide](https://lucide.dev/icons/)), os **endereços públicos** (a variável `PORT` que vira domínio e o subdomínio), as **variáveis que o Forge preenche** (URL pública, e-mail e nome de quem criou o hub, fuso da Unidade, SMTP do _cluster_, GPU Server), os segredos de terceiros que se informam depois, **como se entra** (usuário e a variável com a senha inicial) e os **primeiros passos**.
+
+As variáveis citadas no `hub.json` são as do `settings.json`, com o tipo certo (`PORT` nos endereços, `PASSWORD` ou `SECRET` nas senhas, `TEXT` nas que o Forge preenche): mudou uma delas no _boilerplate_, proponha o ajuste no `hub.json` por MR. A referência de cada campo está no [README do metadata](https://git.embrapa.io/io/boilerplate/metadata#hubjson-catálogo-do-hub), e o `validate.py` do mesmo repositório confere o `hub.json` contra o `settings.json` de cada _boilerplate_ a cada mudança.
+
+Para entrar no Hub, o _boilerplate_ precisa garantir o que o Hub promete: login próprio com a conta de quem criou o hub, gerada na subida; _backup_ íntegro (com o teste `test/backup-roundtrip.sh`, [veja acima](#cli:backup)); e nenhuma variável que exija configuração manual para funcionar. Uma ferramenta só fica disponível no Hub com todos os seus _boilerplates_ habilitados no [catálogo](#publish); senão, aparece como «Em breve».
 
 <a id="mcp"></a>
 O atributo opcional `mcp` declara o **servidor MCP** ([_Model Context Protocol_](https://modelcontextprotocol.io)) que a aplicação já traz ligado, para que um agente de IA configure a instância ou trabalhe com os dados dela no lugar de cliques na interface. A regra da plataforma é: **se a ferramenta tem um servidor MCP oficial, o _boilerplate_ sobe com ele ligado** (servidores da comunidade são aceitos por exceção, [veja abaixo](#mcp-community)), porque queremos que a configuração das instâncias seja feita, sempre que possível, por MCP:
@@ -702,9 +703,9 @@ O atributo opcional `mcp` declara o **servidor MCP** ([_Model Context Protocol_]
   - **código revisado** antes de entrar: ele fala só com a própria instância, sem telemetria, sem envio de dados para fora e sem segredos em _log_;
   - **versão fixada** no _boilerplate_ (exceção à regra do `latest`, porque é código de terceiro com acesso total à instância); cada atualização vem por MR, com a revisão refeita;
   - **o mesmo contrato do oficial**: mesmo endereço da aplicação, _token_ obrigatório e teste automatizado;
-  - **sinalizado**: o README e o painel do laboratório dizem que é um MCP da comunidade. Quando o servidor oficial passar a atender, ele substitui o da comunidade.
+  - **sinalizado**: o README e o painel do hub dizem que é um MCP da comunidade. Quando o servidor oficial passar a atender, ele substitui o da comunidade.
 
-Nos [laboratórios virtuais do Forge](https://forge.embrapa.io/lab), o painel mostra o endereço do MCP e o _token_, junto do acesso à ferramenta. Lembre que o MCP entrega ao agente os dados da instância: com um modelo de IA externo (Claude, Gemini, ChatGPT), esses dados saem da Embrapa. Para dados internos ou sigilosos, use um agente ligado aos [GPU Servers]({{ site.baseurl }}/resources/gpus) da plataforma, como o Hermes. O catálogo de _boilerplates_ confere o atributo a cada mudança.
+No [Hub do Forge](https://forge.embrapa.io/hub), o painel mostra o endereço do MCP e o _token_, junto do acesso à ferramenta. Lembre que o MCP entrega ao agente os dados da instância: com um modelo de IA externo (Claude, Gemini, ChatGPT), esses dados saem da Embrapa. Para dados internos ou sigilosos, use um agente ligado aos [GPU Servers]({{ site.baseurl }}/resources/gpus) da plataforma, como o Hermes. O catálogo de _boilerplates_ confere o atributo a cada mudança.
 
 Outro exemplo de uso é para setar o _environment_ interno aos arcabouços de programação. Por exemplo, uma aplicação [ASP.NET](https://docs.microsoft.com/pt-br/aspnet/core/) aceita os seguintes valores para a variável `ASPNETCORE_ENVIRONMENT`: `Development`, `Staging`, `Staging_2` e `Production` ([conforme a documentação](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments)). Assim, poderia ser configurado no arquivo `.env.example` do _boilerplate_ a variável `ASPNETCORE_ENVIRONMENT=Development`, de forma que os desenvolvedores, ao renomearem o arquivo para iniciar a customização da aplicação, já usariam o valor correto para o _environment_ de desenvolvimento. Nas configurações de metadados do _boilerplate_ no arquivo `settings.json`, esta variável poderia ser setada no subgrupo `alpha` como `Staging`, em `beta` como `Staging_2` e em `release` como `Production`. A mesma estratégia pode pode ser utilizada para a variável `NODE_ENV`, [comumente utilizada em projetos em JavaScript](https://www.geeksforgeeks.org/what-is-node_env-in-node-js/), e demais correlatas em outras linguagens e arcabouços de programação.
 
