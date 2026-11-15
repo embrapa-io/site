@@ -662,7 +662,7 @@ No atributo `variables` são inseridas as _environment variables_ que parametriz
 O atributo `stores`, opcional, declara os **pacotes com que a aplicação está publicada nas lojas** de aplicativos, para aplicações nativas: por enquanto só `play` (Google Play), com a lista de pacotes de todos os _flavors_ (produção, homologação etc.) e, opcionalmente, `play_bucket`, o bucket da exportação em massa (só para apps publicados na conta de desenvolvedor de um parceiro; os da conta da Embrapa usam o bucket já configurado na plataforma). É por ele que a [Sentinela]({{ site.baseurl }}/docs/sentinel#play) lê a taxa de _crash_ e de ANR, os erros, as instalações, a nota e as avaliações do aplicativo na loja. Aplicações web não precisam dele.
 
 <a id="hub"></a>
-Os _boilerplates_ de ferramentas prontas, que qualquer pessoa da Unidade usa como estão, pelo navegador e sem conhecimento de TI (RStudio, JupyterLab, Joplin, Metabase, n8n, NocoDB etc.), entram no catálogo do **Hub** do [Forge](https://forge.embrapa.io/hub). Cada setor ou comissão monta o seu hub, com título por extenso como «Hub de Automação — CNPGC/CSST», com as ferramentas de que precisa, e pode acrescentar outras depois.
+Os _boilerplates_ de ferramentas prontas, que qualquer pessoa da Unidade usa como estão, pelo navegador e sem conhecimento de TI (RStudio, JupyterLab, Joplin, Metabase, n8n, NocoDB etc.), entram no catálogo do **Hub** do [Forge](https://forge.embrapa.io/hub). Cada setor ou comissão monta o seu hub (por exemplo, o hub «CNPGC/CSST»), com as ferramentas de que precisa, e pode acrescentar outras depois.
 
 A curadoria do Hub **não fica no `settings.json`**. Cada _boilerplate_ do Hub tem todas as suas informações em só dois lugares:
 

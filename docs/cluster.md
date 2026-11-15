@@ -23,7 +23,7 @@ O processo anterior, em que a Unidade preparava o servidor à mão e pedia a ent
 Ao cadastrar o _cluster_, a Unidade diz para que ele serve:
 
 - **Projetos**: recebe as _builds_ das aplicações das equipes, como os _clusters_ que a plataforma sempre teve.
-- **Hubs**: recebe os Hubs de Automação do [Forge](https://forge.embrapa.io/hub) (o [Hub]({{ site.baseurl }}/docs/boilerplate#hub)), ferramentas prontas, criadas a partir dos _boilerplates_, para quem trabalha com pesquisa, comunicação ou gestão sem precisar programar.
+- **Hubs**: recebe os Hubs do [Forge](https://forge.embrapa.io/hub) (o [Hub]({{ site.baseurl }}/docs/boilerplate#hub)), ferramentas prontas, criadas a partir dos _boilerplates_, para quem trabalha com pesquisa, comunicação ou gestão sem precisar programar.
 
 O mesmo _cluster_ pode servir às duas finalidades. Um _cluster_ **só de hubs** aparece na configuração das _builds_ apenas para consulta: a Dashboard avisa que ele é exclusivo do Hub e não deixa escolhê-lo para o _deploy_ de um projeto. A finalidade pode ser mudada depois, na aba **Dados** do _cluster_. O nome recomendado para um _cluster_ de hubs é `hub.` mais o subdomínio da Unidade, como `hub.cnpgc.embrapa.br` (veja [Firewall e DNS](#ports)).
 
