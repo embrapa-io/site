@@ -23,11 +23,11 @@ O processo anterior, em que a Unidade preparava o servidor à mão e pedia a ent
 Ao cadastrar o _cluster_, a Unidade diz para que ele serve:
 
 - **Projetos**: recebe as _builds_ das aplicações das equipes, como os _clusters_ que a plataforma sempre teve.
-- **Laboratórios**: recebe os hubs do [Forge](https://forge.embrapa.io/hub) (o [Hub]({{ site.baseurl }}/docs/boilerplate#hub)), ferramentas prontas, criadas a partir dos _boilerplates_, para quem trabalha com pesquisa, comunicação ou gestão sem precisar programar.
+- **Hubs**: recebe os Hubs de Automação do [Forge](https://forge.embrapa.io/hub) (o [Hub]({{ site.baseurl }}/docs/boilerplate#hub)), ferramentas prontas, criadas a partir dos _boilerplates_, para quem trabalha com pesquisa, comunicação ou gestão sem precisar programar.
 
-O mesmo _cluster_ pode servir às duas finalidades. Um _cluster_ **só de laboratórios** aparece na configuração das _builds_ apenas para consulta: a Dashboard avisa que ele é exclusivo do Hub e não deixa escolhê-lo para o _deploy_ de um projeto. A finalidade pode ser mudada depois, na aba **Dados** do _cluster_.
+O mesmo _cluster_ pode servir às duas finalidades. Um _cluster_ **só de hubs** aparece na configuração das _builds_ apenas para consulta: a Dashboard avisa que ele é exclusivo do Hub e não deixa escolhê-lo para o _deploy_ de um projeto. A finalidade pode ser mudada depois, na aba **Dados** do _cluster_. O nome recomendado para um _cluster_ de hubs é `hub.` mais o subdomínio da Unidade, como `hub.cnpgc.embrapa.br` (veja [Firewall e DNS](#ports)).
 
-![Um cluster só de laboratórios na configuração da build: só para consulta]({{ site.baseurl }}/assets/img/cluster/build-lab-only.png)
+![Um cluster só de hubs na configuração da build: só para consulta]({{ site.baseurl }}/assets/img/cluster/build-hub-only.png)
 
 ## A máquina {#install}
 
@@ -37,7 +37,7 @@ O mesmo _cluster_ pode servir às duas finalidades. Um _cluster_ **só de labora
 |---|---|---|---|
 | Pequeno | 4 | 16 GB | 200 GB |
 | Médio | 8 | 32 GB | 500 GB |
-| Laboratórios | 16 | 64 GB | 1 TB |
+| Hubs | 16 | 64 GB | 1 TB |
 
 - **Sistema operacional:** [Ubuntu Server 26.04 LTS](https://ubuntu.com/download/server) (preferencial, a versão que a plataforma usa em todos os seus servidores) ou **Debian 13**, comum nos hipervisores das Unidades.
 - **Arquitetura:** <u>obrigatoriamente <b>amd64</b></u>.
@@ -99,7 +99,7 @@ io.cnpxx.embrapa.br        A      <IP público da VM>
 *.io.cnpxx.embrapa.br      A      200.202.148.38
 ```
 
-O nome do _cluster_ aponta para a máquina; o curinga aponta para o _core_, que recebe os acessos às aplicações (como `app.io.cnpxx.embrapa.br`) e os encaminha ao _cluster_. O nome segue um padrão: `io.` mais o **subdomínio da Unidade**. Cada Unidade já tem o seu subdomínio de terceiro nível definido (como `cnpgc.embrapa.br`) e só cria nomes dentro dele; por isso, o _cluster_ da Embrapa Gado de Corte é `io.cnpgc.embrapa.br`. Para um segundo _cluster_, `io2.` ou `lab.` no lugar do `io.` (como `lab.cnpgc.embrapa.br`).
+O nome do _cluster_ aponta para a máquina; o curinga aponta para o _core_, que recebe os acessos às aplicações (como `app.io.cnpxx.embrapa.br`) e os encaminha ao _cluster_. O nome segue um padrão: `io.` mais o **subdomínio da Unidade**. Cada Unidade já tem o seu subdomínio de terceiro nível definido (como `cnpgc.embrapa.br`) e só cria nomes dentro dele; por isso, o _cluster_ da Embrapa Gado de Corte é `io.cnpgc.embrapa.br`. Para um segundo _cluster_ de projetos, `io2.` no lugar do `io.`. Um _cluster_ de hubs leva `hub.` no lugar do `io.`: `hub.cnpgc.embrapa.br` na Embrapa Gado de Corte, `hub.agro.rocks` fora do domínio da Embrapa.
 
 ## O token do Docker Hub {#dockerhub}
 
@@ -115,7 +115,7 @@ Na Dashboard, o botão **Clusters** (para empregados da Embrapa) lista os _clust
 
 ![Cadastro do cluster: identificação]({{ site.baseurl }}/assets/img/cluster/wizard-identification.png)
 
-1. **Identificação:** Unidade (em branco para universidades e parceiros), instituição, localização, nome do _cluster_, estágios oferecidos, uso (projetos e/ou laboratórios) e a sub-rede de cada estágio.
+1. **Identificação:** Unidade (em branco para universidades e parceiros), instituição, localização, nome do _cluster_, estágios oferecidos, uso (projetos e/ou Hubs) e a sub-rede de cada estágio.
 2. **Mantenedores e SMTP:** os e-mails institucionais das pessoas que cuidam do servidor e recebem os avisos de saúde e de vulnerabilidades (recomendamos dois ou mais) e, se houver, o servidor de e-mail da Unidade que aceita envios a partir do _cluster_ (_relay_ sem autenticação), oferecido às aplicações nas variáveis `${IO_SMTP_*}`.
 
    ![Cadastro do cluster: mantenedores e SMTP]({{ site.baseurl }}/assets/img/cluster/wizard-maintainers.png)
@@ -221,7 +221,7 @@ Depois de publicado, o _cluster_ continua nas mãos dos mantenedores (e dos admi
 - **Sub-redes**: a troca só é aceita num estágio sem _builds_ implantadas;
 - **Novas implantações**: desligar um estágio faz com que ele não receba _builds_ novas, mas as que já estão no _cluster_ continuam sendo geridas normalmente (inclusive recebendo _deploys_ de novas _tags_);
 - **+ estágio**: libera um estágio novo, com a sua sub-rede (confirme a faixa com o NTI antes);
-- **Finalidade**: projetos e/ou laboratórios. Desligar não afeta o que já está no _cluster_; só deixa de ser ofertado;
+- **Finalidade**: projetos e/ou Hubs. Desligar não afeta o que já está no _cluster_; só deixa de ser ofertado;
 - **Mantenedores**: incluir e remover (o _cluster_ precisa de pelo menos um);
 - **SMTP**: servidor, porta, TLS e remetente.
 
