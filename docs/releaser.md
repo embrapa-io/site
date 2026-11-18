@@ -36,6 +36,8 @@ Neste diretório serão configuradas as chaves de acesso à plataforma **Embrapa
 
 > **Atenção!** É fortemente recomendado o _backup_ deste diretório sempre que houver alterações nestas configurações.
 
+> **Atenção!** Mantenha este diretório em **disco local** do servidor. Em sistema de arquivos de rede (NFS, CIFS) o **Releaser** funciona, mas uma oscilação do servidor de arquivos interrompe o _deploy_ no meio ([`Stale file handle`](#stale)). O comando `io check` avisa quando o diretório está em rede.
+
 Atualmente a ferramenta **Releaser** funciona com dois orquestradores de containers: [Docker Compose](https://docs.docker.com/compose/) e [Docker Swarm](https://docs.docker.com/engine/swarm/).
 
 ### Docker Compose
@@ -614,6 +616,33 @@ A partir da versão `1.26.9-9` o **Releaser** corrige as permissões a cada exec
 ```bash
 docker exec releaser sh -c 'chmod 600 /root/.ssh/config'
 ```
+
+### _Deploy_ interrompido: `Stale file handle` {#stale}
+
+O erro aparece assim, com o diretório do **Releaser** em NFS ou em outro sistema de arquivos de rede:
+
+```
+cat: can't open '.env.io': Stale file handle
+ERROR > Unable to deploy tag 1.26.11-alpha.4. Error when getting services from docker-compose.yaml!
+```
+
+Ele indica que o diretório da versão (`apps/<projeto>/<app>/<tag>`) foi apagado ou trocado enquanto o _deploy_ o usava. Até a versão `1.26.11-5`, isso acontecia quando um `io deploy` manual rodava junto com o _deploy_ automático (a cada 15 minutos): os dois encontravam a mesma _tag_ nova e clonavam no mesmo diretório. Em geral o segundo terminava bem, e por isso a aplicação subia apesar do erro.
+
+A partir da versão `1.26.11-6` cada _build_ aceita um comando por vez ([atualize a imagem](#update)). Os comandos `deploy`, `rollback`, `restart`, `stop` e `remove` conferem se há outro em andamento na mesma _build_ e, se houver, avisam e a pulam:
+
+```
+WARNING > Another command is running on this build: 'deploy:daemon' since 2026-11-18 02:00:07 (pid 412). Skipping: run it again when that command ends.
+```
+
+No _deploy_ automático, a _build_ ocupada é conferida de novo no ciclo seguinte, sem e-mail.
+
+Se o erro continuar com a versão nova, a causa é o próprio sistema de arquivos de rede. O `io check` mostra onde está o diretório de dados:
+
+```
+WARNING > Storage: network file system (nfs4, servidor:/dados). The Releaser works on it, but a local disk is recommended...
+```
+
+Nesse caso, o recomendado é manter o diretório do **Releaser** em um disco local do servidor.
 
 ### Porta 22 bloqueada: clone por HTTPS {#https}
 
