@@ -237,7 +237,8 @@ Por fim, você deverá configurar as [_builds_ das aplicações]({{ site.baseurl
     "backup": false,
     "sanitize": false,
     "cleaner": false,
-    "cloud": false
+    "cloud": false,
+    "update": false
   },
   "stats": {
     "version": true,
@@ -270,6 +271,8 @@ O atributo `team` lista os e-mails que irão receber os _logs_ do processo de _d
 - ***cleaner***: Executa **diariamente** (logo após o _backup_) a **rotação dos arquivos de _backup_** da _build_, mantendo por padrão os últimos **7 diários, 4 semanais, 3 mensais e 1 anual** (a partir da versão `1.26.10-12`; antes, sem o anual) e apagando o restante. Aceita `false` (padrão, quando ausente), `true` ou `"undated"` — este último inclui na rotação, pela data de modificação, arquivos **sem data no nome** (caso de aplicações que não seguem o [padrão de nome do arquivo de _backup_]({{ site.baseurl }}/docs/boilerplate#cli:backup)). Detalhes na seção [Rotação de _backups_](#cleaner); e
 
 - ***cloud*** (a partir da versão `1.26.10-12`): Executa **diariamente** (logo após o _cleaner_) a **cópia dos arquivos de _backup_** da _build_ para um _bucket_ S3 configurado no `.env`, com rotação própria no _bucket_. Aceita `false` (padrão, quando ausente), `true` ou `"undated"` (que inclui na rotação do _bucket_ os arquivos sem data no nome, como no _cleaner_). Detalhes na seção [Cópia em nuvem (S3)](#cloud).
+
+- ***update*** (a partir da versão `1.26.11-7`): Executa **diariamente** (depois do _backup_, do _cleaner_ e do _cloud_) a **atualização das imagens** da _build_, mantendo a versão implantada: baixa as imagens de registro e recria só os serviços cuja imagem mudou. Vale para as imagens **sem versão exata** (`latest`, `2`, `17-alpine`); imagem com versão exata ou fixada por _digest_ nunca muda. Aceita `false` (padrão, quando ausente) ou `true`. O e-mail só é enviado quando algo foi atualizado ou falhou. Detalhes em [Atualização automática das imagens](#auto-update).
 
 O atributo `stats` define o que a _build_ **reporta à plataforma** (ver [a seção correspondente](#report)): a versão implantada (`version`), as vulnerabilidades das imagens em execução (`cve`) e a saúde dos serviços (`health`). Os três valem `true` por padrão, inclusive quando o atributo está ausente; `"stats": false` desliga os três. O caso típico de desligar é o `cve` num servidor pequeno ou sem acesso ao `ghcr.io`, de onde o Trivy baixa o banco de vulnerabilidades.
 
@@ -308,6 +311,7 @@ Os comandos disponíveis são:
 - ***stop***: Derruba a _stack_ de _containers_ da _build_. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`. Com `--down` (a partir da versão `1.26.10-5`), remove os _containers_ em vez de apenas pará-los (`docker compose down`), **mantendo os volumes**: útil para recriar a _stack_ do zero, por exemplo ao trocar a porta ou a rede (`io stop proj/app@release --down` e, em seguida, `io deploy proj/app@release --force`). A partir da versão `1.26.11-5`, avisa a plataforma: a _build_ aparece como **parada** na _dashboard_ e sai dos alertas de CVE até o próximo `restart` ou _deploy_ (veja [Parar e remover uma _build_](#remove));
 - ***remove*** (a partir da versão `1.26.11-5`): Tira a _build_ deste servidor e da plataforma **sem apagar dados**: remove os _containers_ (como o `stop --down`), pede à plataforma que esqueça a _build_ e desativa o arquivo dela (`.json` vira `.bkp`). Volumes, clones das versões e _backups_ ficam onde estão. Aceita uma lista de _builds_ separadas por vírgula, mas **não** `--all`; pede confirmação e, fora de terminal, exige `--yes`. Detalhes em [Parar e remover uma _build_](#remove);
 - ***restart***: Inicia ou re-inicia a _stack_ de _containers_ da _build_. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`. Com `--upgrade` (ou `--update`, a partir da versão `1.26.10-10`), **renova as imagens** antes de reiniciar, do mesmo jeito que a opção "Atualizar imagens" do _restart_ na _dashboard_ faz nos _clusters_ da plataforma: baixa a versão mais recente das imagens sem versão fixada (`docker compose pull`), reconstrói os serviços com `build:` sobre a imagem-base renovada (`docker compose build --pull`) e recria os _containers_. Em seguida, varre as imagens com o Trivy e reporta as CVEs à plataforma, para que o [alerta de CVEs críticos]({{ site.baseurl }}/docs/cve) reconheça a correção no mesmo ciclo. É a forma de aplicar correções de segurança em aplicações de prateleira (n8n, WordPress etc.), que raramente recebem uma _tag_ nova: `io restart proj/app@release --upgrade`;
+- ***update*** (a partir da versão `1.26.11-7`): Mantém a versão implantada e **atualiza as imagens** de registro, recriando só os serviços cuja imagem mudou (_tags_ sem versão exata, como `latest`, `2` ou `17-alpine`). Antes de recriar, roda o _backup_ da _build_; se o _backup_ falhar, nada é recriado. Não reconstrói os serviços com `build:` nem toca nos serviços sem imagem nova (para isso, use `restart --upgrade`). Aceita uma lista de _builds_ separadas por vírgula ou `--all`, e `--dry-run` para só mostrar o que mudaria. Detalhes em [Atualização automática das imagens](#auto-update);
 - ***rollback***: Executa o rollback da _build_ para uma versão anterior, inserida pelo usuário. Deve-se informar como parâmetro a _build_ e a _tag_ (por exemplo, `my-project/my-app@beta 3.25.9-beta.17`);
 - ***backup***: Gera um _backup_ da _build_ executando o serviço `backup` do `docker-compose.yaml`. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`. _Builds_ sem esse serviço (caso das aplicações de _frontend_) são ignoradas com um aviso, não com erro;
 - ***sanitize***: Executa o processo de higienização/otimização da _build_ (serviço `sanitize`). Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`. _Builds_ sem esse serviço são ignoradas com um aviso;
@@ -400,6 +404,13 @@ docker exec releaser io cli --print | sudo tee /usr/local/bin/io > /dev/null && 
 ```
 
 Nada no diretório `/data` do Releaser muda com o `io cli`.
+
+A partir da versão `1.26.11-7`, o `io cli` funciona **antes da configuração inicial** (sem o arquivo `.env`): o comando `io` pode ser instalado logo depois de criar o _container_, e o primeiro `io` no terminal do servidor abre o assistente de configuração.
+
+```bash
+docker exec releaser io cli --yes
+io
+```
 
 ### _Container_ parado ou removido {#cli-recover}
 
@@ -635,6 +646,8 @@ WARNING > Another command is running on this build: 'deploy:daemon' since 2026-1
 ```
 
 No _deploy_ automático, a _build_ ocupada é conferida de novo no ciclo seguinte, sem e-mail.
+
+A partir da versão `1.26.11-7`, a mesma regra vale para `backup`, `sanitize`, `cleaner`, `cloud`, `restore` e `update`. No modo automático, esses comandos **esperam** o outro terminar (até 30 minutos) em vez de pular a _build_, para que um _deploy_ de poucos minutos não deixe a noite sem _backup_. As opções que só leem (`--dry-run`, `--list`, `--verify`) não dependem disso.
 
 Se o erro continuar com a versão nova, a causa é o próprio sistema de arquivos de rede. O `io check` mostra onde está o diretório de dados:
 
@@ -1243,6 +1256,35 @@ A partir da versão `1.26.10-10`, a forma mais simples de atualizar as imagens d
 ```bash
 docker exec -it releaser io restart publica/camunda@release --upgrade
 ```
+
+#### Atualização automática das imagens {#auto-update}
+
+A partir da versão `1.26.11-7`, o comando `update` mantém as imagens em dia sem reiniciar o que não mudou:
+
+```bash
+io update publica/camunda@release --dry-run   # só mostra o que mudaria
+io update publica/camunda@release
+```
+
+O que ele faz, por _build_:
+
+1. baixa as imagens de registro dos serviços (`docker compose pull`), sem os serviços com `build:`;
+2. compara a imagem de cada _container_ com a que a _tag_ aponta agora. Se nada mudou, termina: nenhum _container_ é tocado e nenhum _backup_ é feito;
+3. roda o serviço `backup` da _build_. Sem esse serviço, segue; se o _backup_ **falhar, nada é recriado**;
+4. recria só os serviços com imagem nova (`docker compose up -d --no-build --no-deps <serviços>`);
+5. varre as imagens com o Trivy e reporta as CVEs à plataforma, como o `restart --upgrade`.
+
+Para rodar toda noite, ligue `"update": true` no atributo `auto` da _build_. O e-mail (`UPDATE SUCCESS` ou `UPDATE ERROR`) só é enviado quando algo foi atualizado ou falhou. _Build_ parada com `io stop` não é atualizada.
+
+| | `io update` | `io restart --upgrade` |
+|---|---|---|
+| Imagens de registro | baixa | baixa |
+| Serviços com `build:` | não reconstrói | reconstrói sem _cache_ |
+| _Containers_ | recria só os de imagem nova | recria todos |
+| _Backup_ antes | sim, e é obrigatório | não |
+| Automático | sim (`auto.update`) | não |
+
+> **Atenção!** A atualização automática só alcança imagens **sem versão exata**. Em serviço com dados (banco), uma _tag_ ampla demais pode saltar de versão maior de madrugada: `postgres:latest` passa de uma versão maior para a seguinte, e o banco não sobe com os dados da anterior. Fixe a versão maior (`postgres:17`, `jc21/nginx-proxy-manager:2`) e deixe o `update` trazer só as correções.
 
 Em versões anteriores, ou para depurar a aplicação, faça o seguinte:
 
