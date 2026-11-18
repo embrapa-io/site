@@ -30,7 +30,7 @@ if [ -z "${BASH_VERSION:-}" ]; then exec bash "$0" "$@"; fi
 
 set -uo pipefail
 
-VERSION=1.26.11-13
+VERSION=1.26.11-14
 
 [ -f /root/cluster.env ] && . /root/cluster.env
 
@@ -279,6 +279,9 @@ preflight () { # grava as evidências em $1; devolve 1 se algum item obrigatóri
 
   # Relógio sincronizado (certificados e tokens dependem dele).
   if [ "$(timedatectl show -p NTPSynchronized --value 2> /dev/null)" = yes ]; then add 1 "Relógio" "sincronizado"
+  elif command -v chronyc > /dev/null 2>&1; then
+    # Ubuntu 26.04: o chrony usa NTS por padrão, que precisa de saída TCP 4460 além da UDP 123 (oapi1 na Sede, 17/11/2026).
+    add 0 "Relógio" "não sincronizado (chrony; veja chronyc -N sources e chronyc -N authdata): o NTS do Ubuntu precisa de saída TCP 4460 além da UDP 123; libere a 4460 ou aponte o chrony para um NTP sem NTS (como a.ntp.br) em /etc/chrony/sources.d/"
   else add 0 "Relógio" "não sincronizado: libere o NTP da Unidade (systemd-timesyncd)"; fi
 
   # Saída para a internet.
@@ -724,6 +727,12 @@ install_arcane () {
   mkdir -p "$PANEL_DIR"
 
   [ -s "$PANEL_DIR/.env" ] || printf 'ENCRYPTION_KEY=%s\n' "$(openssl rand -hex 32)" > "$PANEL_DIR/.env"
+  # Arcane 3 (14/11/2026) não cria mais o admin com a senha padrão arcane-admin: sem ARCANE_DEFAULT_ADMIN_PASSWORD, ele
+  # sorteia uma e exige a troca no primeiro login. A senha é gerada aqui, antes do primeiro start, e só vale na criação
+  # do admin; o arcane_set_password a tira do .env depois.
+  if [ ! -s "$STATE/panel-initialized" ] && ! grep -q '^ADMIN_PASSWORD=' "$PANEL_DIR/.env"; then
+    printf "ADMIN_PASSWORD='%s'\n" "$(panel_secret)" >> "$PANEL_DIR/.env"
+  fi
   chmod 600 "$PANEL_DIR/.env"
 
   cat > "$PANEL_DIR/compose.yaml" << EOF
@@ -731,7 +740,7 @@ install_arcane () {
 name: embrapa-io-panel
 services:
   arcane:
-    image: ghcr.io/getarcaneapp/manager:latest
+    image: ghcr.io/getarcaneapp/manager:v3
     container_name: arcane
     ports:
       - 127.0.0.1:$PANEL_PORT:3552
@@ -739,8 +748,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - arcane-data:/app/data
     environment:
-      - APP_URL=https://$HOST
-      - ENCRYPTION_KEY=\${ENCRYPTION_KEY}
+      - ARCANE_APP_URL=https://$HOST
+      - ARCANE_ENCRYPTION_KEY=\${ENCRYPTION_KEY}
+      - ARCANE_DEFAULT_ADMIN_PASSWORD=\${ADMIN_PASSWORD:-}
     logging:
       driver: json-file
     healthcheck:
@@ -756,7 +766,8 @@ EOF
   docker compose --project-directory "$PANEL_DIR" up -d --wait
   apply_panel_cron
 
-  # Senha inicial: a padrão (arcane / arcane-admin) é trocada aqui, antes de o painel ficar na internet.
+  # Usuário inicial: o admin «arcane» com a senha gerada acima passa a ser quem está configurando, antes de o painel ficar
+  # na internet.
   [ -s "$STATE/panel-initialized" ] && return 0
   arcane_set_password
 }
@@ -805,30 +816,29 @@ EOF
   chmod 644 /etc/cron.d/embrapa-io-panel
 }
 
-# O painel é público: a senha padrão (arcane / arcane-admin) é trocada aqui, antes de o nginx publicá-lo, por uma de 32
-# caracteres, e o usuário passa a ser quem está configurando (login pelo e-mail; o Arcane não aceita @ no nome de
-# usuário, que fica com a parte antes do @).
+# O painel é público: o admin nasce com a senha de 32 caracteres gerada no install_arcane (Arcane 3 lê
+# ARCANE_DEFAULT_ADMIN_PASSWORD; a senha padrão arcane-admin deixou de existir) e o usuário passa a ser quem está
+# configurando (login pelo e-mail; o Arcane não aceita @ no nome de usuário, que fica com a parte antes do @).
 arcane_set_password () {
-  local base=http://127.0.0.1:$PANEL_PORT/api cookies password id
-  cookies=$(mktemp)
-  password=$(panel_secret)
+  local base=http://127.0.0.1:$PANEL_PORT/api password token id
+  password=$(sed -n "s/^ADMIN_PASSWORD='\(.*\)'$/\1/p" "$PANEL_DIR/.env")
+  [ -n "$password" ] || { echo "Arcane: ADMIN_PASSWORD ausente em $PANEL_DIR/.env"; return 1; }
   save_panel_password "${ADMIN_EMAIL:-arcane}" "$password"
 
-  curl -fsS -c "$cookies" -H 'Content-Type: application/json' -d '{"username":"arcane","password":"arcane-admin"}' "$base/auth/login" > /dev/null \
-    || { rm -f "$cookies" "$PANEL_FILE" "$STATE/panel-password-new"; return 1; }
-
-  ARCANE_NEW="$password" python3 -c 'import json,os; print(json.dumps({"currentPassword":"arcane-admin","newPassword":os.environ["ARCANE_NEW"]}))' \
-    | curl -fsS -b "$cookies" -H 'Content-Type: application/json' --data-binary @- "$base/auth/password" > /dev/null \
-    || { rm -f "$cookies" "$PANEL_FILE" "$STATE/panel-password-new"; return 1; }
+  token=$(ARCANE_PW="$password" python3 -c 'import json,os; print(json.dumps({"username":"arcane","password":os.environ["ARCANE_PW"]}))' \
+    | curl -fsS -H 'Content-Type: application/json' --data-binary @- "$base/auth/login" \
+    | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("data", d).get("token", ""))') && [ -n "$token" ] \
+    || { echo "Arcane: login inicial falhou"; rm -f "$PANEL_FILE" "$STATE/panel-password-new"; return 1; }
 
   if [ -n "$ADMIN_EMAIL" ]; then
-    id=$(curl -fsS -b "$cookies" "$base/auth/me" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("data", d)["id"])')
+    id=$(curl -fsS -H "Authorization: Bearer $token" "$base/auth/me" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("data", d)["id"])')
     ADMIN_EMAIL="$ADMIN_EMAIL" ADMIN_NAME="$ADMIN_NAME" python3 -c 'import json,os; e=os.environ["ADMIN_EMAIL"]; print(json.dumps({"username":e.split("@")[0],"email":e,"displayName":os.environ["ADMIN_NAME"] or e.split("@")[0]}))' \
-      | curl -fsS -b "$cookies" -X PUT -H 'Content-Type: application/json' --data-binary @- "$base/users/$id" > /dev/null \
+      | curl -fsS -X PATCH -H "Authorization: Bearer $token" -H 'Content-Type: application/json' --data-binary @- "$base/users/$id" > /dev/null \
       || { echo "Arcane: não foi possível trocar o usuário; o login continua 'arcane'"; save_panel_password arcane "$password"; }
   fi
 
-  rm -f "$cookies"
+  # A senha já está no $PANEL_FILE; no .env ela não serve mais (o Arcane só a lê ao criar o admin).
+  sed -i '/^ADMIN_PASSWORD=/d' "$PANEL_DIR/.env"
   date -Is > "$STATE/panel-initialized"
 }
 
@@ -920,6 +930,19 @@ repair_nginx () {
   nginx -t && systemctl reload nginx
 }
 
+# Painel de antes da 1.26.11-14 (manager:latest, APP_URL/ENCRYPTION_KEY sem o prefixo ARCANE_): o Arcane 3 não sobe com
+# ele, e a atualização noturna volta sempre para a 2.x. Reescreve o compose na v3 e sobe; o admin e os dados ficam no
+# volume. Painel já migrado: só o CRON.
+repair_panel () {
+  [ -f "$PANEL_DIR/compose.yaml" ] || return 0
+  if grep -qE 'manager:latest|- APP_URL=' "$PANEL_DIR/compose.yaml"; then
+    HOST=${HOST:-$(hostname)}
+    install_arcane
+  else
+    apply_panel_cron
+  fi
+}
+
 cmd_repair () {
   need_root
   say "Embrapa I/O — reaplicando os ajustes idempotentes"
@@ -929,7 +952,7 @@ cmd_repair () {
     id io > /dev/null 2>&1 && { usermod -aG docker io; apply_data_dir; apply_sudoers; }
     id alloy > /dev/null 2>&1 && usermod -aG systemd-journal alloy
     apply_cron
-    apply_panel_cron
+    repair_panel
     repair_alloy
     repair_nginx
   } >> "$LOG" 2>&1 || die "Falha ao reaplicar (detalhes em $LOG)."
