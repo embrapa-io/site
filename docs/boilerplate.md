@@ -519,6 +519,22 @@ env $(cat .env.io) docker-compose up --force-recreate --build --remove-orphans -
 
 Em ambientes de _deploy_ que utilizem o _driver_ do Docker Compose o comando será semelhante, porém existem algumas garantias para assegurar que não sejam, por exemplo, chamados serviços do tipo CLI.
 
+#### Regras de segurança do `docker-compose.yaml` {#security}
+
+Um _cluster_ hospeda _builds_ de vários projetos. Por isso o `docker-compose.yaml` passa por uma política de segurança antes de qualquer comando: no **validate**, no **deploy**, no **restart** com atualização de imagens e, também, antes de cada execução dos serviços `backup`, `restore` e `sanitize`. A política vale para **todos os serviços que a plataforma executa**, inclusive os do tipo CLI, e é uma lista do que é aceito: atributo que não está nela é recusado, com uma mensagem dizendo qual.
+
+O que **não** é aceito:
+
+- **Acesso ao _host_ do _cluster_ e aos recursos dele:** `privileged`, `devices`, `device_cgroup_rules`, `gpus`, `runtime`, `tmpfs`, `tty`, `cgroup_parent`, `userns_mode`, `uts`, `oom_score_adj`, `deploy`; _bind mount_ de qualquer caminho (só entram os _volumes_ externos da própria _build_); `pid`, `ipc` e `network_mode` com `host`; `cap_add` além de `NET_ADMIN`, `SYS_NICE`, `IPC_LOCK` e das capacidades que o Docker já concede; `security_opt` diferente de `no-new-privileges:true`; `logging` com _driver_ diferente de `json-file`, `local` ou `none`; `privileged` em `post_start` e `pre_stop`.
+- **Acesso a outras _builds_:** `volumes_from`, `external_links`, `container_name`, `pid`, `ipc` e `network_mode` com `container:…` (com `service:…` de um serviço da própria aplicação são aceitos); _volume_ ou _network_ com nome de outra _build_; porta publicada que não seja uma das alocadas à _build_, escrita uma a uma (faixas como `8000-8010:80` são recusadas).
+- **Nome de imagem de outra _build_:** um serviço com `build` e `image` precisa nomear a imagem começando por `${IO_PROJECT}_${IO_APP}` (como em `127.0.0.1:5000/${IO_PROJECT}_${IO_APP}_${IO_STAGE}_app`), ou simplesmente não ter `image`. Um nome comum, como `backend:1.0` ou `redis:7-alpine`, substituiria no servidor a imagem usada pelas outras _builds_.
+- **Arquivos de fora do repositório:** `build.context`, `build.dockerfile`, `build.additional_contexts`, `env_file`, `extends.file` e `include` só podem apontar para arquivos do próprio repositório, com o caminho escrito literalmente (sem variável); `secrets` e `configs` só com `environment` ou `content` (nunca `file`); `build.ssh`, `build.cache_from`, `build.cache_to`, `build.tags`, `build.privileged` e `build.network: host` são recusados.
+- **Variáveis reservadas:** uma variável da _build_ não pode ter nome iniciado por `COMPOSE_`.
+
+> **Atenção!** A imagem construída por uma _build_ fica no servidor do _cluster_, que é compartilhado. **Não grave segredos na imagem** (senhas em `ARG`, arquivos `.env` copiados no `Dockerfile`): passe-os por variáveis de ambiente, configuradas na _build_.
+
+Os serviços de desenvolvimento (em _profiles_ que a plataforma não ativa, como `development`) e o serviço `test` ficam fora dessa conferência, pois nunca são executados nos _clusters_.
+
 Adicionalmente, repare no exemplo acima o serviço `wordpress`. Este serviço é buildado em tempo de _deploy_, ou seja, existe um arquivo `Dockerfile` para possibilitar sua _build_. Entretanto foi configurada uma imagem com o valor `127.0.0.1:5000/${IO_PROJECT}_${IO_APP}_${IO_STAGE}_wordpress`. Este recurso é utilizado para possibilitar o _deploy_ em outros orquestradores, tal como o **Docker Swarm**. Neste caso, além de realizar a _build_, o **Docker Compose** irá registrar a imagem gerada no [servidor de registro local do _cluster_](https://docs.docker.com/registry/), possibilitando o _deploy_ no _swarm_ na sequência.
 
 ## 8. Implemente os "serviços-padrões" {#cli}
