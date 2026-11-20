@@ -264,7 +264,7 @@ O atributo `team` lista os e-mails que irão receber os _logs_ do processo de _d
 
 - ***deploy***: Executa a cada **15 minutos** a busca por novas versões, ou seja, _tags_ na _branch_ do estágio da _build_. Caso encontre, executa o processo de _deploy_ da nova _tag_ e envia um e-mail de _log_ (informando o sucesso ou eventuais erros no procedimento);
 
-- ***backup***: Executa **diariamente** o serviço de _backup_ da _stack_ de _containers_ da _build_. É fundamental que o [serviço de _backup_]({{ site.baseurl }}/docs/backup) esteja corretamente configurado na aplicação. Os arquivos de backup serão salvos no volume externo de _backup_;
+- ***backup***: Executa **diariamente** o serviço de _backup_ da _stack_ de _containers_ da _build_. É fundamental que o [serviço de _backup_]({{ site.baseurl }}/docs/backup) esteja corretamente configurado na aplicação. Os arquivos de backup serão salvos no volume externo de _backup_. A partir da versão `1.26.11-9`, quando o _backup_ diário de uma _build_ **não é feito** (o serviço falhou, ou outro comando ocupou a _build_ por mais de 30 minutos), o **Releaser** envia um e-mail `<build> - BACKUP ERROR` para o `LOG_MAIL` e para o `team`, com a saída do comando. O _backup_ que dá certo não gera e-mail;
 
 - ***sanitize***: Executa **mensalmente** o serviço de sanitização, caso esteja corretamenta configurado na _stack_ de _containers_ da _build_. Mais informações sobre os processos de higienização/otimização dos _containers_ podem ser encontradas [no tutorial de criação de _boilerplates_]({{ site.baseurl }}/docs/boilerplate).;
 
