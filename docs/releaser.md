@@ -310,8 +310,8 @@ Os comandos disponíveis são:
 - ***deploy***: Valida, prepara (criando, p.e., a rede) e faz o _deploy_ da _build_ para a última versão. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`. Também aceita o parâmetro `--force`, que irá forçar o _re-deploy_ mesmo que não exista uma nova _tag_ (relendo o `builds.json` e regenerando o `.env` — é a forma de aplicar mudanças de variáveis de ambiente);
 - ***stop***: Derruba a _stack_ de _containers_ da _build_. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`. Com `--down` (a partir da versão `1.26.10-5`), remove os _containers_ em vez de apenas pará-los (`docker compose down`), **mantendo os volumes**: útil para recriar a _stack_ do zero, por exemplo ao trocar a porta ou a rede (`io stop proj/app@release --down` e, em seguida, `io deploy proj/app@release --force`). A partir da versão `1.26.11-5`, avisa a plataforma: a _build_ aparece como **parada** na _dashboard_ e sai dos alertas de CVE até o próximo `restart` ou _deploy_ (veja [Parar e remover uma _build_](#remove));
 - ***remove*** (a partir da versão `1.26.11-5`): Tira a _build_ deste servidor e da plataforma **sem apagar dados**: remove os _containers_ (como o `stop --down`), pede à plataforma que esqueça a _build_ e desativa o arquivo dela (`.json` vira `.bkp`). Volumes, clones das versões e _backups_ ficam onde estão. Aceita uma lista de _builds_ separadas por vírgula, mas **não** `--all`; pede confirmação e, fora de terminal, exige `--yes`. Detalhes em [Parar e remover uma _build_](#remove);
-- ***restart***: Inicia ou re-inicia a _stack_ de _containers_ da _build_. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`. Com `--upgrade` (ou `--update`, a partir da versão `1.26.10-10`), **renova as imagens** antes de reiniciar, do mesmo jeito que a opção "Atualizar imagens" do _restart_ na _dashboard_ faz nos _clusters_ da plataforma: baixa a versão mais recente das imagens sem versão fixada (`docker compose pull`), reconstrói os serviços com `build:` sobre a imagem-base renovada (`docker compose build --pull`) e recria os _containers_. Em seguida, varre as imagens com o Trivy e reporta as CVEs à plataforma, para que o [alerta de CVEs críticos]({{ site.baseurl }}/docs/cve) reconheça a correção no mesmo ciclo. É a forma de aplicar correções de segurança em aplicações de prateleira (n8n, WordPress etc.), que raramente recebem uma _tag_ nova: `io restart proj/app@release --upgrade`;
-- ***update*** (a partir da versão `1.26.11-7`): Mantém a versão implantada e **atualiza as imagens** de registro, recriando só os serviços cuja imagem mudou (_tags_ sem versão exata, como `latest`, `2` ou `17-alpine`). Antes de recriar, roda o _backup_ da _build_; se o _backup_ falhar, nada é recriado. Não reconstrói os serviços com `build:` nem toca nos serviços sem imagem nova (para isso, use `restart --upgrade`). Aceita uma lista de _builds_ separadas por vírgula ou `--all`, e `--dry-run` para só mostrar o que mudaria. Detalhes em [Atualização automática das imagens](#auto-update);
+- ***restart***: Inicia ou re-inicia a _stack_ de _containers_ da _build_. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`. Com `--upgrade` (ou `--update`, a partir da versão `1.26.10-10`), **renova as imagens** antes de reiniciar, do mesmo jeito que a opção "Atualizar imagens" do _restart_ na _dashboard_ faz nos _clusters_ da plataforma: baixa a versão mais recente das imagens sem versão fixada (`docker compose pull`), reconstrói os serviços com `build:` sobre a imagem-base renovada (`docker compose build --pull`) e recria os _containers_. Em seguida, varre as imagens com o Trivy e reporta as CVEs à plataforma, para que o [alerta de CVEs críticos]({{ site.baseurl }}/docs/cve) reconheça a correção no mesmo ciclo. É a forma de aplicar correções de segurança em aplicações de prateleira (n8n, WordPress etc.), que raramente recebem uma _tag_ nova: `io restart proj/app@release --upgrade`. A partir da versão `1.26.11-8`, o `--upgrade` roda o _backup_ da _build_ antes de recriar os _containers_ e aceita `--no-backup` para dispensá-lo (veja [_Backup_ antes de trocar as imagens](#backup-before));
+- ***update*** (a partir da versão `1.26.11-7`): Mantém a versão implantada e **atualiza as imagens** de registro, recriando só os serviços cuja imagem mudou (_tags_ sem versão exata, como `latest`, `2` ou `17-alpine`). Antes de recriar, roda o _backup_ da _build_; se o _backup_ falhar, nada é recriado (veja [_Backup_ antes de trocar as imagens](#backup-before)). Não reconstrói os serviços com `build:` nem toca nos serviços sem imagem nova (para isso, use `restart --upgrade`). Aceita uma lista de _builds_ separadas por vírgula ou `--all`, `--dry-run` para só mostrar o que mudaria e, a partir da versão `1.26.11-8`, `--no-backup`. Detalhes em [Atualização automática das imagens](#auto-update);
 - ***rollback***: Executa o rollback da _build_ para uma versão anterior, inserida pelo usuário. Deve-se informar como parâmetro a _build_ e a _tag_ (por exemplo, `my-project/my-app@beta 3.25.9-beta.17`);
 - ***backup***: Gera um _backup_ da _build_ executando o serviço `backup` do `docker-compose.yaml`. Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`. _Builds_ sem esse serviço (caso das aplicações de _frontend_) são ignoradas com um aviso, não com erro;
 - ***sanitize***: Executa o processo de higienização/otimização da _build_ (serviço `sanitize`). Aceita como parâmetro uma lista de _builds_ separadas por vírgula ou `--all`. _Builds_ sem esse serviço são ignoradas com um aviso;
@@ -1270,7 +1270,7 @@ O que ele faz, por _build_:
 
 1. baixa as imagens de registro dos serviços (`docker compose pull`), sem os serviços com `build:`;
 2. compara a imagem de cada _container_ com a que a _tag_ aponta agora. Se nada mudou, termina: nenhum _container_ é tocado e nenhum _backup_ é feito;
-3. roda o serviço `backup` da _build_. Sem esse serviço, segue; se o _backup_ **falhar, nada é recriado**;
+3. roda o serviço `backup` da _build_. Sem esse serviço, segue; se o _backup_ **falhar, nada é recriado** (veja [abaixo](#backup-before));
 4. recria só os serviços com imagem nova (`docker compose up -d --no-build --no-deps <serviços>`);
 5. varre as imagens com o Trivy e reporta as CVEs à plataforma, como o `restart --upgrade`.
 
@@ -1281,10 +1281,32 @@ Para rodar toda noite, ligue `"update": true` no atributo `auto` da _build_. O e
 | Imagens de registro | baixa | baixa |
 | Serviços com `build:` | não reconstrói | reconstrói sem _cache_ |
 | _Containers_ | recria só os de imagem nova | recria todos |
-| _Backup_ antes | sim, e é obrigatório | não |
+| _Backup_ antes | sim | sim, a partir da versão `1.26.11-8` |
 | Automático | sim (`auto.update`) | não |
 
 > **Atenção!** A atualização automática só alcança imagens **sem versão exata**. Em serviço com dados (banco), uma _tag_ ampla demais pode saltar de versão maior de madrugada: `postgres:latest` passa de uma versão maior para a seguinte, e o banco não sobe com os dados da anterior. Fixe a versão maior (`postgres:17`, `jc21/nginx-proxy-manager:2`) e deixe o `update` trazer só as correções.
+
+#### _Backup_ antes de trocar as imagens {#backup-before}
+
+Trocar a imagem por baixo dos dados é o momento de maior risco de uma atualização: a versão nova de um banco pode não subir com os dados gravados pela anterior. Por isso, a partir da versão `1.26.11-8`, o `io update` e o `io restart --upgrade` seguem a mesma regra:
+
+1. imediatamente antes de recriar os _containers_ (no `restart --upgrade`, depois de baixar e construir as imagens), rodam o serviço `backup` da _build_. _Build_ sem esse serviço segue normalmente;
+2. se o _backup_ **falhar, nada é recriado**. Em um terminal, o comando pergunta se deve continuar sem o _backup_; fora de terminal (em _scripts_, por exemplo), ele para e indica a opção `--no-backup`;
+3. com `--no-backup`, o _backup_ é dispensado. Use quando acabou de fazer um, ou quando a _build_ está quebrada e o serviço de _backup_ não consegue rodar:
+
+```bash
+io restart publica/camunda@release --upgrade --no-backup
+io update publica/camunda@release --no-backup
+```
+
+Dois casos à parte:
+
+- o `restart --upgrade` de uma _build_ **sem nenhum _container_ em execução** (parada com `io stop` ou caída) segue sem _backup_, com um aviso: não há de onde tirá-lo, e o objetivo ali é trazer a aplicação de volta;
+- na atualização automática (`auto.update`), o _backup_ é sempre obrigatório: se falhar, a _build_ não é atualizada e a equipe recebe o e-mail `UPDATE ERROR`.
+
+O `io restart` sem `--upgrade` não muda as imagens e não faz _backup_.
+
+> **Atenção!** Ao atualizar o Releaser para a `1.26.11-8`, o `restart --upgrade` passa a levar também o tempo do _backup_, e uma _build_ cujo serviço `backup` está falhando deixa de ser renovada até o _backup_ ser corrigido (ou até você usar `--no-backup`). Rode `io backup` na _build_ para conferir.
 
 Em versões anteriores, ou para depurar a aplicação, faça o seguinte:
 
