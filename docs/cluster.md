@@ -210,6 +210,45 @@ Para usar a versão mais recente do script, baixe-o de novo antes (`curl -fsSL h
 
 > **Atenção!** **Não deixe outra ferramenta de gestão de configuração** (Ansible, Puppet, cópias de um repositório SVN ou Git do NTI etc.) mexer no que o `cluster.sh` instala: `/etc/alloy`, `/etc/nginx`, `/etc/docker/daemon.json`, `/etc/sudoers.d/io`, o usuário `io` e os CRONs `embrapa-*`. Em novembro de 2026, a sincronização automática de configurações de uma Unidade trocou o Alloy e o nginx de um _cluster_ recém-instalado, que parou de mandar _logs_ e métricas à plataforma. O `repair` refaz esses arquivos, mas a ferramenta precisa deixar o servidor de fora.
 
+## Cluster preparado à mão: migrate {#migrate}
+
+Os _clusters_ que entraram no catálogo antes do assistente foram preparados pelo [processo manual]({{ site.baseurl }}/docs/cluster/manual), e por isso o `status` e o `repair` não servem para eles. O comando `migrate` leva um desses servidores ao padrão do `cluster.sh` **com as _builds_ no ar**: ele não conversa com a Dashboard nem pede _token_, porque o _cluster_ já está no catálogo.
+
+```bash
+curl -fsSL https://embrapa.io/cluster.sh -o /root/cluster.sh
+sh /root/cluster.sh migrate <cluster>           # só diagnostica: nada é alterado
+sh /root/cluster.sh migrate <cluster> --apply   # aplica o que o diagnóstico marcou com 🔧
+```
+
+O `<cluster>` é o nome do servidor no catálogo (por exemplo, `io.cnpxx.embrapa.br`). O diagnóstico marca cada item com ✅ (já no padrão), 🔧 (o `--apply` ajusta), ⚠️ (pendência que o comando não resolve) ou ❌ (recusa: precisa ser resolvido antes). **Rode sempre o diagnóstico primeiro** e leia a lista.
+
+O que o `--apply` faz:
+
+- instala só os pacotes que faltam (nginx, certbot, cron, unattended-upgrades), **sem atualizar o sistema**;
+- ajusta o _hostname_ para o nome do catálogo, o `sysctl` (reserva das portas 49152 a 65535) e o `sudo`;
+- põe o usuário `io` no grupo `docker`, regrava o `/etc/sudoers.d/io` e deixa `/var/io` com o dono `io` e o modo 700 (as subpastas não mudam);
+- restringe a chave da plataforma ao IP do core, mas só quando todos os acessos dos últimos 14 dias vieram dele;
+- instala o **Grafana Alloy** com as credenciais que já estão no `/etc/docker/daemon.json`;
+- **remove o Portainer**: o contêiner sai, o `/root/portainer.sh` é desativado (para o CRON não recriá-lo) e o site dele no nginx dá lugar ao do painel. Os volumes do Portainer ficam;
+- emite o certificado do servidor pelo Let's Encrypt, se ainda não houver (o que já existe é aproveitado, e a renovação passa a ser feita pelo nginx), e instala o painel **Arcane** em `https://<cluster>`, com a senha mostrada uma única vez no fim (informe quem administra o painel com `ADMIN_EMAIL` e `ADMIN_NAME`);
+- instala o [_Web Terminal_](#terminal), a limpeza diária e as atualizações automáticas de segurança.
+
+Tudo o que é substituído fica copiado antes em `/root/embrapa-io-migrate-<data>`, legível só pelo `root`. As etapas podem ser repetidas: se alguma falhar, corrija e rode de novo.
+
+O que o `migrate` **recusa**, porque é trabalho para uma janela de manutenção:
+
+- Docker instalado pelo `snap`, ou _cluster_ em Docker Swarm;
+- volumes das aplicações fora de `/var/io` ou em NFS;
+- servidor sem o usuário `io` (o core entra por outro usuário, e a troca envolve o catálogo);
+- nginx servindo outros sites, ou as portas 80 e 443 em uso por outra coisa.
+
+Dois pontos ficam de fora de propósito, como pendência:
+
+- **O Docker não é reiniciado.** Se o `daemon.json` difere do padrão, o diagnóstico lista as chaves e o arquivo fica como está. Para ajustá-lo, numa janela, acrescente `--restart-docker`: o Docker reinicia e as _builds_ caem e voltam.
+- **O sistema não é atualizado.** O `migrate` aceita também o Ubuntu 22.04 e o 24.04, que os _clusters_ antigos ainda usam, e o `status` passa a mostrar o sistema como aviso. A atualização para o Ubuntu 26.04 continua necessária e exige reinício.
+
+> **Atenção!** Depois da adoção, valem as mesmas regras de um _cluster_ novo: o `status` e o `repair` funcionam, e nenhuma outra ferramenta deve mexer no que o `cluster.sh` instalou.
+
 ## Ajustes pela aba Dados {#catalog}
 
 Depois de publicado, o _cluster_ continua nas mãos dos mantenedores (e dos administradores da plataforma), pela aba **Dados** do _cluster_ na Dashboard, sem pedir a ninguém:

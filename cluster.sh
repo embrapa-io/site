@@ -13,11 +13,21 @@
 #
 # O setup é idempotente: se falhar ou o token expirar, gere outro na Dashboard e rode de novo.
 #
+# Cluster antigo, preparado à mão (antes do assistente), já no catálogo e com builds rodando:
+#
+#   sh /root/cluster.sh migrate <host>            # diagnostica o que falta para o padrão, sem mudar nada
+#   sh /root/cluster.sh migrate <host> --apply    # aplica: sai o Portainer, entram o nginx, o certificado e o painel
+#
+# O migrate não atualiza o sistema nem reinicia o Docker (só com --restart-docker, numa janela) e recusa o que é
+# trabalho de janela: Docker pelo snap, dados fora de /var/io (NFS) e cluster sem o usuário io. O que ele substitui
+# fica copiado em /root/embrapa-io-migrate-<data>. Aceita também o Ubuntu 22.04 e o 24.04, como pendência.
+#
 # Variáveis opcionais (ambiente ou /root/cluster.env):
 #
 #   IO_API=https://core.embrapa.io      API da plataforma
 #   PANEL=arcane|none                   painel local (padrão: o escolhido no assistente, senão arcane)
 #   DOCKERHUB_USER e DOCKERHUB_TOKEN    login no Docker Hub sem pergunta (token só leitura do NTI)
+#   ADMIN_EMAIL e ADMIN_NAME            no migrate, quem administra o painel (login pelo e-mail; sem eles, usuário arcane)
 #   IO_TEST=1                           laboratório: aceita pouco espaço em disco, certificado autoassinado, sem Web Terminal
 #   IO_TEST_DOCKERHUB=ask               no laboratório, pede o login do Docker Hub (sem ele, a subetapa é pulada)
 #
@@ -30,13 +40,15 @@ if [ -z "${BASH_VERSION:-}" ]; then exec bash "$0" "$@"; fi
 
 set -uo pipefail
 
-VERSION=1.26.11-14
+VERSION=1.26.11-15
 
 [ -f /root/cluster.env ] && . /root/cluster.env
 
 IO_API=${IO_API:-https://core.embrapa.io}
 IO_TEST=${IO_TEST:-0}
 PANEL=${PANEL:-}
+ADMIN_EMAIL=${ADMIN_EMAIL:-}
+ADMIN_NAME=${ADMIN_NAME:-}
 
 LOG=/var/log/embrapa.io-cluster-setup.log
 STATE=/etc/embrapa-io
@@ -152,7 +164,13 @@ print(json.dumps(b, ensure_ascii=False))')
 
 need_root () { [ "$(id -u)" = 0 ] || die "Rode como root (sudo -i)."; }
 
-os_ok () { . /etc/os-release; { [ "${ID:-}" = ubuntu ] && [ "${VERSION_ID:-}" = 26.04 ]; } || { [ "${ID:-}" = debian ] && [ "${VERSION_ID:-}" = 13 ]; }; }
+# Em subshell: o /etc/os-release define VERSION, que aqui é a versão do script.
+os_ok () { ( . /etc/os-release; { [ "${ID:-}" = ubuntu ] && [ "${VERSION_ID:-}" = 26.04 ]; } || { [ "${ID:-}" = debian ] && [ "${VERSION_ID:-}" = 13 ]; } ); }
+
+os_pretty () { ( . /etc/os-release; echo "${PRETTY_NAME:-${ID:-?} ${VERSION_ID:-}}" ); }
+
+# Só na adoção (migrate) e na conferência: clusters antigos em LTS anteriores do Ubuntu, com a atualização como pendência.
+os_legacy () { ( . /etc/os-release; [ "${ID:-}" = ubuntu ] && { [ "${VERSION_ID:-}" = 22.04 ] || [ "${VERSION_ID:-}" = 24.04 ]; } ); }
 
 docker_snap () { snap list docker > /dev/null 2>&1; }
 
@@ -321,10 +339,12 @@ apply_sudo () {
   sudo_classic
 }
 
+sudoers_line () { echo "io ALL=(ALL) NOPASSWD: /bin/chown * $DATA/*, /bin/chmod * $DATA/*, /usr/bin/chown * $DATA/*, /usr/bin/chmod * $DATA/*"; }
+
 apply_sudoers () {
   local f=/etc/sudoers.d/io tmp
   tmp=$(mktemp)
-  echo "io ALL=(ALL) NOPASSWD: /bin/chown * $DATA/*, /bin/chmod * $DATA/*, /usr/bin/chown * $DATA/*, /usr/bin/chmod * $DATA/*" > "$tmp"
+  sudoers_line > "$tmp"
   visudo -cf "$tmp" > /dev/null
   install -m 440 "$tmp" "$f"
   rm -f "$tmp"
@@ -365,18 +385,22 @@ APT::Periodic::Unattended-Upgrade "1";
 EOF
 }
 
-step_system () {
-  apt_q update
-  apt_q upgrade
-  apt_q dist-upgrade
-  apt_q install ca-certificates curl gnupg python3 cron logrotate unattended-upgrades nginx certbot
-
+apply_hostname () {
   hostnamectl set-hostname "$HOST"
   if grep -q '^127\.0\.1\.1' /etc/hosts; then
     sed -i "s/^127\.0\.1\.1.*/127.0.1.1 $HOST ${HOST%%.*}/" /etc/hosts
   else
     echo "127.0.1.1 $HOST ${HOST%%.*}" >> /etc/hosts
   fi
+}
+
+step_system () {
+  apt_q update
+  apt_q upgrade
+  apt_q dist-upgrade
+  apt_q install ca-certificates curl gnupg python3 cron logrotate unattended-upgrades nginx certbot
+
+  apply_hostname
 
   apply_sysctl
   apply_sudo
@@ -418,12 +442,9 @@ step_user () {
   chmod 600 /home/io/.ssh/authorized_keys
 }
 
-step_loki () {
-  docker plugin inspect loki > /dev/null 2>&1 || docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions
-
-  local f=/etc/docker/daemon.json tmp
-  tmp=$(mktemp)
-  LOKI_URL="$LOKI_URL" LOKI_USER="$LOKI_USER" LOKI_PASS="$LOKI_PASS" python3 - "$f" > "$tmp" << 'PY'
+# O daemon.json do padrão: o atual (argumento) com o driver de log e as opções do Embrapa I/O por cima.
+loki_daemon_json () {
+  LOKI_URL="$LOKI_URL" LOKI_USER="$LOKI_USER" LOKI_PASS="$LOKI_PASS" python3 - "$1" << 'PY'
 import json, os, sys, urllib.parse
 path = sys.argv[1]
 try:
@@ -447,6 +468,14 @@ cfg.update({
 })
 print(json.dumps(cfg, indent=2))
 PY
+}
+
+step_loki () {
+  docker plugin inspect loki > /dev/null 2>&1 || docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions
+
+  local f=/etc/docker/daemon.json tmp
+  tmp=$(mktemp)
+  loki_daemon_json "$f" > "$tmp"
   dockerd --validate --config-file "$tmp"
 
   if ! cmp -s "$tmp" "$f"; then
@@ -582,16 +611,24 @@ EOF
   ln -sf /etc/nginx/sites-available/embrapa-io /etc/nginx/sites-enabled/embrapa-io
 }
 
+# A diretiva «http2 on;» existe desde o nginx 1.25.1. Antes disso (1.18 do Ubuntu 22.04, 1.24 do 24.04, em clusters
+# adotados pelo migrate), o http2 vai no listen.
+nginx_has_http2_directive () {
+  local v; v=$(nginx -v 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+  [ -n "$v" ] && [ "$(printf '%s\n' 1.25.1 "$v" | sort -V | head -1)" = 1.25.1 ]
+}
+
 write_nginx_https () {
-  local live=/etc/letsencrypt/live/$HOST
+  local live=/etc/letsencrypt/live/$HOST h2_listen='' h2_line='http2 on;'
+  nginx_has_http2_directive || { h2_listen=' http2'; h2_line='# http2 no listen: nginx anterior ao 1.25.1'; }
   cat > /etc/nginx/sites-available/embrapa-io-panel << EOF
 # Embrapa I/O (cluster.sh): painel local ($PANEL) em https://$HOST.
 map \$http_upgrade \$connection_upgrade { default upgrade; '' close; }
 
 server {
-  listen 443 ssl default_server;
-  listen [::]:443 ssl default_server;
-  http2 on;
+  listen 443 ssl$h2_listen default_server;
+  listen [::]:443 ssl$h2_listen default_server;
+  $h2_line
   server_name $HOST;
 
   ssl_certificate $live/fullchain.pem;
@@ -865,7 +902,13 @@ cmd_status () {
   say "Embrapa I/O — conferência do cluster $host (cluster.sh $VERSION)"
   say ""
   check "Hostname com domínio ($host)" bash -c "[[ '$host' == *.* ]]"
-  check "Ubuntu 26.04 ou Debian 13, amd64" os_amd64
+  if os_legacy; then
+    # Cluster adotado pelo migrate: o sistema antigo é pendência conhecida, não falha da instalação.
+    say "  ⚠️  Sistema: $(os_pretty) (aceito na adoção; atualize para o Ubuntu 26.04 LTS numa janela)"
+    check "Arquitetura amd64" bash -c '[ "$(uname -m)" = x86_64 ]'
+  else
+    check "Ubuntu 26.04 ou Debian 13, amd64" os_amd64
+  fi
   check "Reserva de portas $PORT_RANGE" bash -c "sysctl -n net.ipv4.ip_local_reserved_ports | grep -q '$PORT_RANGE'"
   check "Sudo clássico (não o sudo-rs)" sudo_classic
   check "Docker do repositório oficial (sem snap)" bash -c "dpkg -s docker-ce > /dev/null && ! snap list docker > /dev/null 2>&1"
@@ -1111,22 +1154,642 @@ cmd_setup () {
   say ""
   say "🚀  Instalação concluída. A plataforma agora valida o cluster a partir do core; acompanhe na Dashboard."
   say "   Painel: https://$HOST"
-  if [ -f "$STATE/panel-password-new" ] && [ -s "$PANEL_FILE" ]; then
-    local who secret
-    who=$(sed -n 2p "$PANEL_FILE"); secret=$(sed -n 3p "$PANEL_FILE")
-    # A senha só vai para a tela: o log fica com o usuário e a indicação do arquivo.
-    echo "   $who · $secret" >&3
-    echo "$(date '+%F %T')    $who · Senha: (em $PANEL_FILE)" >> "$LOG"
-    say "   (anote agora; uma cópia ficou em $PANEL_FILE, só para o root)"
-    rm -f "$STATE/panel-password-new"
-  fi
+  show_panel_password
   say "   Conferência local, a qualquer momento: sh /root/cluster.sh status"
+}
+
+# A senha nova do painel (primeira instalação) aparece uma vez, só na tela: o log fica com o usuário e o arquivo.
+show_panel_password () {
+  [ -f "$STATE/panel-password-new" ] && [ -s "$PANEL_FILE" ] || return 0
+  local who secret
+  who=$(sed -n 2p "$PANEL_FILE"); secret=$(sed -n 3p "$PANEL_FILE")
+  echo "   $who · $secret" >&3
+  echo "$(date '+%F %T')    $who · Senha: (em $PANEL_FILE)" >> "$LOG"
+  say "   (anote agora; uma cópia ficou em $PANEL_FILE, só para o root)"
+  rm -f "$STATE/panel-password-new"
+}
+
+# --------------------------------------------------------------------------------------------------------------------
+# Adoção (migrate): cluster preparado à mão, pelo roteiro antigo (docs/cluster/manual), levado ao padrão do cluster.sh
+# --------------------------------------------------------------------------------------------------------------------
+#
+# Sem --apply, só diagnostica. O migrate cuida do que dá para fazer com as builds no ar: pacotes que faltam, hostname,
+# sysctl, sudo, usuário io, Alloy, nginx, certificado, painel (sai o Portainer, entra o Arcane), Web Terminal e CRONs.
+# Ele recusa o que é trabalho de janela (Docker pelo snap, dados fora de /var/io, cluster sem o usuário io), não roda
+# upgrade do sistema e só troca o daemon.json (o que reinicia o Docker e as builds) com --restart-docker. As credenciais
+# do Loki e do Prometheus vêm do daemon.json da própria VM: não há token nem conversa com a Dashboard.
+
+MIG_BLOCK=0
+MIG_PLAN=()
+MIG_PENDING=()
+MIG_BACKUP=
+MIG_RESTART_DOCKER=0
+
+m_ok () { ok "$1: $2"; }
+m_do () { say "  🔧  $1: $2"; MIG_PLAN+=("$1: $2"); }
+m_warn () { say "  ⚠️  $1: $2"; MIG_PENDING+=("$1: $2"); }
+m_block () { bad "$1: $2"; MIG_BLOCK=1; }
+
+MIG_OUTBOUND=(
+  "Repositório do sistema|$OS_REPO"
+  "Repositório do Grafana (Alloy)|https://apt.grafana.com/"
+  "Let's Encrypt|https://acme-v02.api.letsencrypt.org/directory"
+  "Imagem do painel (ghcr.io)|https://ghcr.io/v2/"
+  "Site do Embrapa I/O|https://embrapa.io/"
+)
+
+pkg_installed () { [ "$(dpkg-query -W -f '${db:Status-Status}' "$1" 2> /dev/null)" = installed ]; }
+
+# Pacotes do padrão que faltam. O nginx e o certbot contam pelo comando: podem ter vindo de outro lugar (snap, nginx.org).
+pkgs_missing () {
+  local p out=''
+  for p in ca-certificates curl gnupg cron logrotate unattended-upgrades; do pkg_installed "$p" || out="$out $p"; done
+  for p in nginx certbot; do command -v "$p" > /dev/null 2>&1 || out="$out $p"; done
+  echo "${out# }"
+}
+
+port_owner () { ss -Hltnp "sport = :$1" 2> /dev/null | grep -o 'users:(("[^"]*"' | head -1 | cut -d'"' -f2; }
+
+# Contêineres do Portainer (servidor ou agente), pela imagem ou pelo nome do roteiro antigo.
+portainer_containers () {
+  docker ps -a --format '{{.Names}}|{{.Image}}' 2> /dev/null \
+    | awk -F'|' '$1 == "portainer" || $2 ~ /(^|\/)portainer\/(portainer|portainer-ce|portainer-ee|agent)(:|@|$)/ { print $1 }'
+  true
+}
+
+CRON_PLACES="/etc/crontab /etc/cron.d /etc/cron.daily /etc/cron.hourly /etc/cron.weekly /var/spool/cron/crontabs"
+
+# Scripts que recriam o Portainer (o /root/portainer.sh do roteiro antigo, em geral chamado pelo /etc/cron.daily/io).
+portainer_scripts () {
+  local f
+  { [ -f /root/portainer.sh ] && echo /root/portainer.sh
+    grep -rhoE '/[A-Za-z0-9_./-]*portainer[A-Za-z0-9_.-]*\.sh' $CRON_PLACES 2> /dev/null
+  } | sort -u | while read -r f; do
+    [ -f "$f" ] && ! grep -q 'Desativado pelo cluster.sh' "$f" && echo "$f"
+  done
+  true
+}
+
+# Arquivos de CRON que citam o Portainer sem ser por um desses scripts: o migrate não mexe neles, só avisa.
+portainer_cron_inline () {
+  local f
+  grep -rlE 'portainer' $CRON_PLACES 2> /dev/null | while read -r f; do
+    grep -vE '^[[:space:]]*#' "$f" | grep -vE 'portainer[A-Za-z0-9_.-]*\.sh' | grep -q portainer && echo "$f"
+  done
+  true
+}
+
+nginx_site_files () { ls -1 /etc/nginx/sites-enabled/* /etc/nginx/conf.d/*.conf 2> /dev/null; true; }
+
+# Site do Portainer (o do roteiro antigo): tem proxy_pass, e todos apontam para o Portainer desta máquina.
+nginx_is_portainer () {
+  local targets
+  targets=$(grep -vE '^[[:space:]]*#' "$1" 2> /dev/null | grep -oE 'proxy_pass[[:space:]]+[^;]+' | awk '{ print $2 }')
+  [ -n "$targets" ] || return 1
+  ! echo "$targets" | grep -qvE '^https?://(127\.0\.0\.1|localhost|\[::1\]|portainer):(9443|9000)(/.*)?$'
+}
+
+nginx_portainer_sites () {
+  local f
+  for f in $(nginx_site_files); do nginx_is_portainer "$f" && echo "$f"; done
+  true
+}
+
+# Sites que não são do cluster.sh nem do Portainer: outra coisa usa o nginx desta máquina, e o migrate recusa. O site
+# «default» do pacote sai sem aviso, mas só se ninguém o editou para servir uma aplicação.
+nginx_foreign_sites () {
+  local f
+  for f in $(nginx_site_files); do
+    case "$(basename "$f")" in
+      embrapa-io|embrapa-io-panel) continue ;;
+      default) grep -vE '^[[:space:]]*#' "$f" 2> /dev/null | grep -qE '(proxy|fastcgi|uwsgi|scgi|grpc)_pass' || continue ;;
+    esac
+    nginx_is_portainer "$f" || echo "$f"
+  done
+  true
+}
+
+# Como o certbot renova o certificado do host, olhando /etc/letsencrypt/renewal/<host>.conf:
+#   ok        plugin do nginx, ou webroot em /var/www/html (a pasta que o nginx do cluster.sh serve)
+#   reissue   standalone, ou webroot em outra pasta: para de renovar quando o nginx do cluster.sh assume a porta 80
+#   none      não há renovação configurada (certificado copiado, ou autoassinado de laboratório)
+#   <nome>    outro autenticador (manual, dns-…): fora do alcance do migrate
+cert_renewal () {
+  local conf=/etc/letsencrypt/renewal/$HOST.conf auth
+  [ -f "$conf" ] || { echo none; return 0; }
+  auth=$(sed -n 's/^authenticator[[:space:]]*=[[:space:]]*//p' "$conf" | head -1)
+  case "$auth" in
+    nginx) echo ok ;;
+    webroot) if grep -q '/var/www/html' "$conf"; then echo ok; else echo reissue; fi ;;
+    standalone) echo reissue ;;
+    '') echo none ;;
+    *) echo "$auth" ;;
+  esac
+}
+
+# Volumes do Docker fora do padrão: em rede (NFS, CIFS) ou com a pasta fora de $DATA. $1: false = em uso por algum
+# contêiner, true = sobrando. Saída: "<quantos> <até três exemplos>".
+volumes_outside () {
+  local names
+  names=$(docker volume ls -q --filter "dangling=$1" 2> /dev/null)
+  [ -n "$names" ] || { echo 0; return 0; }
+  echo "$names" | xargs docker volume inspect 2> /dev/null | DATA="$DATA" python3 -c '
+import json, os, sys
+data = os.environ["DATA"].rstrip("/") + "/"
+text = sys.stdin.read(); dec = json.JSONDecoder(); pos = 0; out = []
+while True:
+    while pos < len(text) and text[pos].isspace(): pos += 1
+    if pos >= len(text): break
+    arr, pos = dec.raw_decode(text, pos)
+    for v in arr:
+        o = v.get("Options") or {}
+        dev = o.get("device") or ""; typ = (o.get("type") or "").lower(); opt = o.get("o") or ""
+        if typ.startswith("nfs") or typ == "cifs" or "addr=" in opt: out.append("%s (%s)" % (v["Name"], typ or "rede"))
+        elif dev.startswith("/") and not (dev.rstrip("/") + "/").startswith(data): out.append("%s em %s" % (v["Name"], dev))
+print(len(out), ", ".join(out[:3]))'
+}
+
+# Lê do daemon.json o driver de log e a URL do Loki (com o usuário e a senha que o roteiro antigo punha nela).
+LOKI_DRIVER=''; LOKI_HOST=''
+load_loki_from_daemon () {
+  local out
+  out=$(python3 - << 'PY' 2> /dev/null
+import json, urllib.parse
+c = json.load(open("/etc/docker/daemon.json"))
+u = urllib.parse.urlsplit((c.get("log-opts") or {}).get("loki-url", ""))
+print(c.get("log-driver", ""))
+print(u.hostname or "")
+print(urllib.parse.unquote(u.username or ""))
+print(urllib.parse.unquote(u.password or ""))
+PY
+  ) || return 1
+  LOKI_DRIVER=$(echo "$out" | sed -n 1p); LOKI_HOST=$(echo "$out" | sed -n 2p)
+  LOKI_USER=$(echo "$out" | sed -n 3p); LOKI_PASS=$(echo "$out" | sed -n 4p)
+  LOKI_URL=https://loki.embrapa.io/loki/api/v1/push
+  PROMETHEUS_URL=https://prometheus.embrapa.io/api/v1/write
+  PROMETHEUS_USER=$LOKI_USER; PROMETHEUS_PASS=$LOKI_PASS
+}
+
+# Chaves do daemon.json que diferem do padrão (só os nomes: a URL do Loki leva a senha).
+daemon_json_diff () {
+  local f=/etc/docker/daemon.json
+  loki_daemon_json "$f" | python3 -c '
+import json, sys
+new = json.load(sys.stdin)
+try: cur = json.load(open(sys.argv[1]))
+except Exception: cur = {}
+out = []
+for k in new:
+    if k == "log-opts":
+        a, b = cur.get(k) or {}, new[k]
+        out += ["log-opts." + x for x in sorted(set(a) | set(b)) if a.get(x) != b.get(x)]
+    elif cur.get(k) != new[k]: out.append(k)
+print(", ".join(out))' "$f"
+}
+
+# De onde o core entrou como io nos últimos 14 dias (journal do sshd e, se houver, o auth.log).
+core_login_ips () {
+  { journalctl -t sshd -t sshd-session --since '-14 days' --no-pager -o cat 2> /dev/null
+    cat /var/log/auth.log.1 /var/log/auth.log 2> /dev/null
+  } | grep -oE 'Accepted publickey for io from [0-9A-Fa-f.:]+' | awk '{ print $6 }' | sort -u | tr '\n' ' ' | sed 's/ $//'
+  true
+}
+
+# Estado da chave da plataforma no authorized_keys do io:
+#   missing    a chave não está lá (o core não entra como io)
+#   standard   já restrita por from="…"
+#   restrict   sem restrição, e todos os acessos recentes vieram do IP do core: o migrate põe o from=
+#   open …     sem restrição, e não dá para afirmar de onde o core entra (segue a lista de IPs vistos, se houver)
+key_state () {
+  local f=/home/io/.ssh/authorized_keys body ips
+  body=$(echo "$PLATFORM_KEY" | awk '{ print $2 }')
+  [ -f "$f" ] && grep -qF "$body" "$f" || { echo missing; return 0; }
+  if grep -F "$body" "$f" | grep -q '^from="'; then echo standard; return 0; fi
+  ips=$(core_login_ips)
+  if [ "$ips" = "$CORE_IP_DEFAULT" ]; then echo restrict; else echo "open $ips"; fi
+}
+
+key_restrict () {
+  local f=/home/io/.ssh/authorized_keys
+  KEY_BODY=$(echo "$PLATFORM_KEY" | awk '{ print $2 }') CORE="$CORE_IP_DEFAULT" python3 - "$f" << 'PY'
+import os, sys
+path = sys.argv[1]; body = os.environ["KEY_BODY"]; core = os.environ["CORE"]; out = []
+for line in open(path):
+    s = line.strip()
+    if body in s and not s.startswith("#") and 'from="' not in s.split(body)[0]:
+        s = ('from="%s" %s' if s.startswith(("ssh-", "ecdsa-", "sk-")) else 'from="%s",%s') % (core, s)
+        line = s + "\n"
+    out.append(line)
+open(path, "w").write("".join(out))
+PY
+  chown io:io "$f"
+  chmod 600 "$f"
+}
+
+RENEW_HOOK=/etc/letsencrypt/renewal-hooks/deploy/embrapa-io-nginx
+
+migrate_diagnose () {
+  local arch pretty; pretty=$(os_pretty); arch=$(uname -m)
+
+  if os_ok; then m_ok "Sistema" "$pretty"
+  elif os_legacy; then m_warn "Sistema" "$pretty: aceito na adoção, mas fora do padrão; atualize para o Ubuntu 26.04 LTS numa janela (com reinício)"
+  else m_block "Sistema" "$pretty: a adoção aceita o Ubuntu 22.04, 24.04 e 26.04 e o Debian 13"; fi
+
+  if [ "$arch" = x86_64 ]; then m_ok "Arquitetura" "amd64"; else m_block "Arquitetura" "$arch (é preciso amd64)"; fi
+
+  if [ "$(hostname)" = "$HOST" ]; then m_ok "Hostname" "$HOST"
+  else m_do "Hostname" "$(hostname) → $HOST (nos logs e nas métricas, o servidor passa a aparecer com o nome do catálogo)"; fi
+
+  local missing; missing=$(pkgs_missing)
+  if [ -z "$missing" ]; then m_ok "Pacotes" "os do padrão já estão instalados"
+  else m_do "Pacotes" "instala $missing (sem upgrade do sistema)"; fi
+
+  # Docker: tem de ser o do repositório oficial e estar no ar. O resto do diagnóstico que depende dele só roda assim.
+  local docker_up=0
+  if docker_snap; then m_block "Docker" "instalado pelo snap: a troca para o repositório oficial é trabalho de janela"
+  elif ! docker_apt; then m_block "Docker" "sem o docker-ce do repositório oficial: o migrate é para cluster que já roda builds (servidor novo usa o setup)"
+  elif ! docker info > /dev/null 2>&1; then m_block "Docker" "o daemon não responde"
+  else
+    docker_up=1
+    m_ok "Docker" "docker-ce $(dpkg-query -W -f '${Version}' docker-ce)"
+    if docker compose version > /dev/null 2>&1; then m_ok "Docker Compose" "$(docker compose version --short 2> /dev/null)"
+    else m_block "Docker Compose" "falta o plugin (apt-get install docker-compose-plugin)"; fi
+    if [ "$(docker info --format '{{.Swarm.LocalNodeState}}' 2> /dev/null)" = active ]; then
+      m_block "Orquestrador" "Docker Swarm ativo: o cluster.sh só cuida de clusters em Docker Compose"
+    fi
+  fi
+
+  # Dados: disco local em $DATA. NFS e volumes em outra pasta ficam para a janela de migração dos dados.
+  local fstype n examples
+  if [ ! -d "$DATA" ]; then
+    m_block "Dados" "$DATA não existe: os volumes deste cluster estão em outro lugar, e levá-los para $DATA é trabalho de janela"
+  else
+    fstype=$(findmnt -n -o FSTYPE --target "$DATA" 2> /dev/null)
+    case "$fstype" in
+      nfs*|cifs|smb*|fuse.sshfs|glusterfs|ceph) m_block "Dados" "$DATA está em $fstype: o padrão é disco local, e sair do NFS é trabalho de janela" ;;
+      *) m_ok "Dados" "$DATA em disco local${fstype:+ ($fstype)}" ;;
+    esac
+  fi
+  if [ "$docker_up" = 1 ]; then
+    read -r n examples <<< "$(volumes_outside false)"
+    if [ "${n:-0}" != 0 ]; then m_block "Volumes" "$n em uso fora de $DATA ou em rede ($examples): levá-los para $DATA é trabalho de janela"
+    else m_ok "Volumes" "nenhum em uso fora de $DATA"; fi
+    read -r n examples <<< "$(volumes_outside true)"
+    [ "${n:-0}" != 0 ] && m_warn "Volumes" "$n sem uso fora de $DATA ou em rede ($examples): sobras, confira e remova à mão"
+  fi
+
+  # Usuário io: é por ele que o core entra. Sem ele, o acesso é por outro usuário e muda junto com o catálogo.
+  local key
+  if ! id io > /dev/null 2>&1; then
+    m_block "Usuário io" "não existe: o core entra neste cluster por outro usuário; criar o io e trocar o acesso no catálogo vem antes"
+  else
+    if id -nG io | tr ' ' '\n' | grep -qx docker; then m_ok "Usuário io" "no grupo docker"; else m_do "Usuário io" "entra no grupo docker"; fi
+
+    if [ -d "$DATA" ]; then
+      if [ "$(stat -c '%U %a' "$DATA")" = 'io 700' ]; then m_ok "Pasta de dados" "$DATA do io, modo 700"
+      else m_do "Pasta de dados" "$DATA passa a ser do io, modo 700 (hoje: $(stat -c '%U %a' "$DATA"); as subpastas não mudam)"; fi
+    fi
+
+    if [ "$(cat /etc/sudoers.d/io 2> /dev/null)" = "$(sudoers_line)" ]; then m_ok "Sudoers do io" "no padrão"
+    else m_do "Sudoers do io" "regrava /etc/sudoers.d/io no padrão (chown e chmod em $DATA/*)"; fi
+
+    key=$(key_state)
+    case "$key" in
+      missing) m_block "Chave da plataforma" "não está no authorized_keys do io: o core não entra por ele" ;;
+      standard) m_ok "Chave da plataforma" "restrita por origem" ;;
+      restrict) m_do "Chave da plataforma" "passa a aceitar só o core ($CORE_IP_DEFAULT), de onde vieram todos os acessos dos últimos 14 dias" ;;
+      'open ') m_warn "Chave da plataforma" "sem restrição de origem, e sem acesso do core nos últimos 14 dias para confirmar o IP: ponha o from=\"<IP do core>\" à mão" ;;
+      *) m_warn "Chave da plataforma" "sem restrição de origem; o core entrou por ${key#open } (esperado: $CORE_IP_DEFAULT): ponha o from=\"…\" à mão" ;;
+    esac
+  fi
+
+  if [ "$(sysctl -n net.ipv4.ip_local_reserved_ports 2> /dev/null)" = "$PORT_RANGE" ] && grep -qs 'cluster.sh' /etc/sysctl.d/99-embrapa-io.conf; then
+    m_ok "sysctl" "reserva das portas $PORT_RANGE"
+  else m_do "sysctl" "reserva das portas $PORT_RANGE e limites do padrão (/etc/sysctl.d/99-embrapa-io.conf)"; fi
+
+  if sudo_classic; then m_ok "Sudo" "clássico"; else m_do "Sudo" "volta para o sudo clássico (o sudo-rs recusa a regra do io)"; fi
+
+  # Loki: o plugin e as credenciais já estão na VM. São elas que o Alloy passa a usar.
+  local diff creds_ok=0
+  if [ "$docker_up" = 1 ]; then
+    if ! docker plugin inspect loki --format '{{.Enabled}}' 2> /dev/null | grep -qx true; then
+      m_block "Loki" "plugin 'loki' ausente ou desligado: instale-o pelo roteiro da documentação antes"
+    elif ! load_loki_from_daemon || [ "$LOKI_DRIVER" != loki ]; then
+      m_block "Loki" "o log-driver do /etc/docker/daemon.json não é o loki"
+    elif [ "$LOKI_HOST" != loki.embrapa.io ]; then
+      m_block "Loki" "os logs vão para ${LOKI_HOST:-outro lugar}, não para o loki.embrapa.io"
+    elif [ -z "$LOKI_USER" ] || [ -z "$LOKI_PASS" ]; then
+      m_block "Loki" "a loki-url do daemon.json não traz usuário e senha: o migrate não tem de onde tirar as credenciais"
+    else
+      creds_ok=1
+      m_ok "Loki" "plugin ativo, enviando ao loki.embrapa.io"
+      diff=$(daemon_json_diff)
+      if [ -z "$diff" ]; then m_ok "daemon.json" "no padrão"
+      elif [ "$MIG_RESTART_DOCKER" = 1 ]; then m_do "daemon.json" "ajusta $diff e REINICIA o Docker (as builds caem e voltam)"
+      else m_warn "daemon.json" "difere do padrão em $diff e fica como está: ajustar reinicia o Docker e as builds (numa janela, rode com --restart-docker)"; fi
+    fi
+  fi
+
+  if grep -qs 'gerado pelo cluster.sh' /etc/alloy/config.alloy && systemctl is-active --quiet alloy; then m_ok "Alloy" "ativo, com a configuração do cluster.sh"
+  elif [ "$creds_ok" != 1 ]; then :
+  elif pkg_installed alloy; then m_do "Alloy" "regrava a configuração no padrão (métricas e journal para o Embrapa I/O)"
+  else m_do "Alloy" "instala pelo repositório do Grafana e passa a mandar métricas e o journal ao Embrapa I/O"; fi
+
+  # Portainer: sai o contêiner e é desativado o script que o recria. Os volumes ficam.
+  local pc ps pi
+  pc=$(portainer_containers | tr '\n' ' '); ps=$(portainer_scripts | tr '\n' ' '); pi=$(portainer_cron_inline | tr '\n' ' ')
+  [ -n "$pc" ] && m_do "Portainer" "remove o contêiner ${pc% } (os volumes ficam)"
+  [ -n "$ps" ] && m_do "Portainer" "desativa ${ps% }, para o CRON não recriar o contêiner"
+  [ -n "$pi" ] && m_warn "Portainer" "o CRON ainda cita o Portainer em ${pi% }: confira à mão"
+  [ -z "$pc$ps$pi" ] && m_ok "Portainer" "não há"
+
+  # nginx e portas 80 e 443: ficam com o painel e o desafio do certificado.
+  local foreign psites port who names name mine
+  foreign=$(nginx_foreign_sites | tr '\n' ' '); psites=$(nginx_portainer_sites | tr '\n' ' ')
+  if [ -n "$foreign" ]; then
+    m_block "nginx" "já serve outros sites (${foreign% }): as portas 80 e 443 desta máquina são do painel"
+  elif [ -n "$psites" ]; then
+    m_do "nginx" "sai o site do Portainer (${psites% }) e entram o da porta 80 e o do painel"
+  elif grep -qs "server_name $HOST;" /etc/nginx/sites-enabled/embrapa-io; then
+    m_ok "nginx" "site da porta 80 no padrão"
+  else
+    m_do "nginx" "entra o site da porta 80 (desafio do certificado), no lugar do site padrão"
+  fi
+  for port in 80 443; do
+    who=$(port_owner "$port")
+    case "$who" in
+      '') m_ok "Porta $port" "livre" ;;
+      nginx) m_ok "Porta $port" "com o nginx" ;;
+      docker-proxy)
+        names=$(docker ps --filter "publish=$port" --format '{{.Names}}' 2> /dev/null | tr '\n' ' '); mine=1
+        for name in $names; do echo " $pc" | grep -q " $name " || mine=0; done
+        if [ -n "$names" ] && [ "$mine" = 1 ]; then m_ok "Porta $port" "com o Portainer, que sai"
+        else m_block "Porta $port" "publicada pelo contêiner ${names% }: o painel e o certificado precisam dela"; fi ;;
+      *) m_block "Porta $port" "em uso por $who: o painel e o certificado precisam dela" ;;
+    esac
+  done
+
+  local live=/etc/letsencrypt/live/$HOST renewal
+  if openssl x509 -checkend 604800 -noout -in "$live/fullchain.pem" > /dev/null 2>&1; then
+    renewal=$(cert_renewal)
+    case "$renewal" in
+      ok) m_ok "Certificado" "$live, válido, com renovação automática" ;;
+      reissue) m_do "Certificado" "reemite pelo nginx (webroot): a renovação de hoje deixa de funcionar com o nginx do cluster.sh na porta 80" ;;
+      none)
+        m_ok "Certificado" "$live, válido"
+        [ "$IO_TEST" = 1 ] || m_warn "Certificado" "o certbot não tem a renovação dele (/etc/letsencrypt/renewal/$HOST.conf): confira como é renovado" ;;
+      *)
+        m_ok "Certificado" "$live, válido"
+        m_warn "Certificado" "renovado por '$renewal': confira que continua funcionando com o nginx nas portas 80 e 443" ;;
+    esac
+  elif [ "$IO_TEST" = 1 ]; then m_do "Certificado" "autoassinado de laboratório em $live"
+  elif ! getent ahosts "$HOST" > /dev/null 2>&1; then m_block "Certificado" "$HOST não resolve no DNS: o Let's Encrypt não tem como validar"
+  else m_do "Certificado" "emite pelo Let's Encrypt em $live (a porta 80 precisa chegar da internet)"; fi
+  [ -x "$RENEW_HOOK" ] || m_do "Certificado" "a renovação passa a recarregar o nginx ($RENEW_HOOK)"
+
+  case "$PANEL" in
+    none) m_ok "Painel" "nenhum (PANEL=none)" ;;
+    arcane)
+      if [ -f "$PANEL_DIR/compose.yaml" ]; then m_ok "Painel" "Arcane do cluster.sh em $PANEL_DIR"
+      elif [ "$docker_up" = 1 ] && [ -n "$(docker ps -aq --filter 'name=^arcane$' 2> /dev/null)" ]; then
+        m_block "Painel" "já existe um contêiner 'arcane' que não é do cluster.sh: remova-o ou rode com PANEL=none"
+      elif [ -n "$(port_owner "$PANEL_PORT")" ]; then
+        m_block "Painel" "a porta $PANEL_PORT (interna do painel) está em uso por $(port_owner "$PANEL_PORT")"
+      else
+        m_do "Painel" "instala o Arcane em https://$HOST (administrador: ${ADMIN_EMAIL:-usuário arcane}; a senha aparece no fim)"
+      fi ;;
+    *) m_block "Painel" "desconhecido: $PANEL (use arcane ou none)" ;;
+  esac
+
+  if [ -f /etc/cron.d/embrapa-terminal ]; then m_ok "Web Terminal" "CRON do terminal.sh"
+  elif [ "$IO_TEST" = 1 ]; then m_ok "Web Terminal" "pulado no laboratório"
+  else m_do "Web Terminal" "instala o terminal.sh e o CRON dele (só sobe se o catálogo o habilitar)"; fi
+
+  if [ "$(stat -c %a /etc/cron.d/embrapa-io-cleanup 2> /dev/null)" = 644 ] && grep -qs docker-ce /etc/apt/apt.conf.d/52embrapa-io-unattended; then
+    m_ok "CRON e ajustes" "limpeza diária e unattended-upgrades no padrão"
+  else m_do "CRON e ajustes" "limpeza diária de imagens sem uso, logrotate e unattended-upgrades só de segurança (Docker retido)"; fi
+
+  if id io > /dev/null 2>&1 && dockerhub_logged; then m_ok "Docker Hub" "o io tem credencial"
+  elif [ -n "${DOCKERHUB_USER:-}" ] && [ -n "${DOCKERHUB_TOKEN:-}" ]; then m_do "Docker Hub" "login do io com a conta $DOCKERHUB_USER"
+  else m_warn "Docker Hub" "o io não tem credencial (pull anônimo tem limite): rode com DOCKERHUB_USER e DOCKERHUB_TOKEN (token só leitura do NTI)"; fi
+
+  if [ "$(timedatectl show -p NTPSynchronized --value 2> /dev/null)" = yes ]; then m_ok "Relógio" "sincronizado"
+  else m_warn "Relógio" "não sincronizado: confira o NTP da Unidade (certificados dependem dele)"; fi
+
+  local item url code
+  for item in "${MIG_OUTBOUND[@]}"; do
+    name=${item%%|*}; url=${item#*|}
+    [ "$PANEL" != arcane ] && [[ "$url" == *ghcr.io* ]] && continue
+    code=$(curl -s -o /dev/null --max-time 10 -w '%{http_code}' "$url" 2>> "$LOG")
+    if [ "$code" != 000 ]; then m_ok "Saída: $name" "HTTP $code"; else m_block "Saída: $name" "$url sem resposta: libere a saída no firewall"; fi
+  done
+}
+
+# ---- Etapas do --apply. Cada uma roda num subshell com set -e e a saída no log; todas são idempotentes.
+
+mig_backup () {
+  local f
+  install -d -m 700 "$MIG_BACKUP"
+  for f in /etc/hostname /etc/hosts /etc/sudoers.d/io /etc/sysctl.d/99-embrapa-io.conf /etc/docker/daemon.json \
+           /etc/alloy/config.alloy /etc/systemd/system/alloy.service.d/override.conf /home/io/.ssh/authorized_keys \
+           /etc/cron.d/embrapa-io-cleanup /etc/logrotate.d/embrapa-io /etc/apt/apt.conf.d/52embrapa-io-unattended \
+           /etc/apt/apt.conf.d/20auto-upgrades /etc/nginx/nginx.conf /etc/nginx/sites-available /etc/nginx/sites-enabled \
+           /etc/nginx/conf.d; do
+    if [ -e "$f" ]; then cp -a --parents "$f" "$MIG_BACKUP/"; fi
+  done
+}
+
+mig_portainer () {
+  local c f
+  for c in $(portainer_containers); do docker rm -f "$c"; done
+  for f in $(portainer_scripts); do
+    cp -a --parents "$f" "$MIG_BACKUP/"
+    cat > "$f" << EOF
+#!/bin/sh
+# Desativado pelo cluster.sh migrate em $(date +%F): o painel deste cluster passou a ser o Arcane (https://$HOST).
+# O script anterior, que recriava o Portainer, está em $MIG_BACKUP$f.
+exit 0
+EOF
+  done
+}
+
+mig_system () {
+  local missing f
+  missing=$(pkgs_missing)
+  if [ -n "$missing" ]; then
+    apt_q update
+    # shellcheck disable=SC2086
+    apt_q install $missing
+  fi
+
+  if [ "$(hostname)" != "$HOST" ]; then apply_hostname; fi
+  apply_sysctl
+  apply_sudo
+
+  # O nginx passa a ser do cluster.sh: sai o site do Portainer (a cópia está em $MIG_BACKUP) e o site padrão.
+  for f in $(nginx_portainer_sites); do rm -f "$f"; done
+  rm -f /etc/nginx/sites-enabled/default
+  write_nginx_http
+  systemctl enable --now nginx
+  nginx -t
+  systemctl reload nginx
+}
+
+mig_user () {
+  usermod -aG docker io
+  apply_data_dir
+  apply_sudoers
+  if [ "$(key_state)" = restrict ]; then key_restrict; fi
+}
+
+mig_loki () {
+  if [ "$MIG_RESTART_DOCKER" != 1 ]; then echo "daemon.json: mantido (sem --restart-docker)"; return 0; fi
+  if [ -z "$(daemon_json_diff)" ]; then echo "daemon.json: já no padrão"; return 0; fi
+  step_loki
+}
+
+mig_dockerhub () {
+  if [ -z "${DOCKERHUB_USER:-}" ] || [ -z "${DOCKERHUB_TOKEN:-}" ]; then echo "Docker Hub: sem DOCKERHUB_USER e DOCKERHUB_TOKEN, nada a fazer"; return 0; fi
+  step_dockerhub
+}
+
+mig_certificate () {
+  # Certificado que já existia não ganha o --deploy-hook do certbot: o gancho geral garante o reload a cada renovação.
+  install -d -m 755 "$(dirname "$RENEW_HOOK")"
+  printf '#!/bin/sh\n# Embrapa I/O (cluster.sh): o nginx relê o certificado renovado.\nsystemctl reload nginx\n' > "$RENEW_HOOK"
+  chmod 755 "$RENEW_HOOK"
+  mkdir -p /var/www/html
+
+  # Certificado que já existia e era renovado sem o nginx (standalone, ou webroot em outra pasta): uma renovação
+  # forçada pelo webroot do cluster.sh, que o certbot grava como o jeito de renovar dali em diante. Se a porta 80 não
+  # chegar da internet, falha agora, e não daqui a dois meses, com o certificado vencido.
+  if [ "$(cert_renewal)" = reissue ]; then
+    certbot renew --cert-name "$HOST" --force-renewal --webroot -w /var/www/html --non-interactive \
+      --deploy-hook "systemctl reload nginx"
+    if [ "$(cert_renewal)" != ok ]; then
+      echo "O certbot renovou, mas não gravou o webroot em /etc/letsencrypt/renewal/$HOST.conf: ajuste o arquivo à mão."
+      return 1
+    fi
+    return 0
+  fi
+
+  step_certificate
+}
+
+mig_terminal () {
+  if [ -f /etc/cron.d/embrapa-terminal ]; then echo "Web Terminal: CRON já instalado"; return 0; fi
+  step_terminal
+}
+
+mig_state () {
+  date -Is > "$STATE/migrated"
+  echo "cluster.sh $VERSION" >> "$STATE/migrated"
+}
+
+run_mig () { # run_mig rótulo função
+  local label=$1; shift
+
+  say "  … $label"
+  if ! ( set -e; "$@" ) >> "$LOG" 2>&1; then
+    bad "$label"
+    die "A adoção parou em «$label». Detalhes em $LOG; o que foi substituído está em $MIG_BACKUP. Corrija e rode de novo: as etapas são idempotentes."
+  fi
+  ok "$label"
+}
+
+cmd_migrate () {
+  need_root
+  command -v python3 > /dev/null || die "O migrate usa o python3: instale-o (apt-get install -y python3) e rode de novo."
+
+  local usage="Uso: sh cluster.sh migrate <host> [--apply] [--restart-docker]"
+  local apply=0 arg host='' item
+  for arg in "$@"; do
+    case "$arg" in
+      --apply) apply=1 ;;
+      --restart-docker) MIG_RESTART_DOCKER=1 ;;
+      -*) die "Opção desconhecida: $arg. $usage" ;;
+      *) [ -z "$host" ] || die "Mais de um host informado. $usage"; host=$arg ;;
+    esac
+  done
+
+  touch "$LOG"; chmod 600 "$LOG"
+
+  # O nome é o do catálogo. Sem argumento, vale o hostname, se já tiver domínio.
+  HOST=${host:-$(hostname)}
+  [[ "$HOST" =~ ^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$ ]] \
+    || die "Informe o nome do cluster no catálogo (o hostname desta máquina é '$(hostname)'). $usage"
+  PANEL=${PANEL:-arcane}
+  if [ -n "$ADMIN_EMAIL" ] && ! [[ "$ADMIN_EMAIL" =~ ^[a-z0-9._-]+@([a-z0-9-]+\.)+[a-z]+$ ]]; then die "ADMIN_EMAIL inválido: '$ADMIN_EMAIL'."; fi
+
+  say "Embrapa I/O — adoção de cluster preparado à mão (cluster.sh $VERSION)"
+  say "Cluster: $HOST · painel: $PANEL"
+  [ "$IO_TEST" = 1 ] && echo "$(date '+%F %T') Laboratório (IO_TEST=1)" >> "$LOG"
+  say ""
+  say "🔎  Diagnóstico (nada é alterado):"
+  migrate_diagnose
+
+  if [ "$MIG_BLOCK" = 1 ]; then
+    die "O migrate não segue: os itens com ❌ precisam ser resolvidos antes (alguns são trabalho de janela; veja https://embrapa.io/docs/cluster/#migrate)."
+  fi
+  say ""
+
+  if [ ${#MIG_PENDING[@]} -gt 0 ]; then
+    say "⚠️  Fica como pendência (o migrate não resolve):"
+    for item in "${MIG_PENDING[@]}"; do say "  • $item"; done
+    say ""
+  fi
+
+  if [ ${#MIG_PLAN[@]} -eq 0 ]; then
+    say "Nada a aplicar: o cluster já está no padrão do cluster.sh."
+    say ""
+    cmd_status
+    return
+  fi
+
+  if [ "$apply" != 1 ]; then
+    say "🛠  O --apply faz os ${#MIG_PLAN[@]} itens com 🔧 acima, sem parar as builds$([ "$MIG_RESTART_DOCKER" = 1 ] && echo ' (exceto pelo reinício do Docker)')."
+    say "   O que for substituído fica copiado em /root/embrapa-io-migrate-<data>."
+    say ""
+    say "Para aplicar: sh /root/cluster.sh migrate $HOST --apply$([ "$MIG_RESTART_DOCKER" = 1 ] && echo ' --restart-docker')"
+    return 0
+  fi
+
+  MIG_BACKUP=/root/embrapa-io-migrate-$(date +%Y%m%d-%H%M%S)
+  mkdir -p "$STATE"; chmod 700 "$STATE"
+
+  say "🛠  Adoção:"
+  run_mig "Cópia do que será substituído ($MIG_BACKUP)" mig_backup
+  run_mig "Portainer (contêiner e script que o recria)" mig_portainer
+  run_mig "Sistema (pacotes que faltam, hostname, sysctl, sudo, nginx)" mig_system
+  run_mig "Usuário io (grupo docker, $DATA, sudoers, chave)" mig_user
+  run_mig "Loki (daemon.json)" mig_loki
+  run_mig "Grafana Alloy (métricas e journal)" repair_alloy
+  run_mig "Login no Docker Hub" mig_dockerhub
+  run_mig "Certificado do host" mig_certificate
+  run_mig "Painel local" step_panel
+  run_mig "Web Terminal" mig_terminal
+  run_mig "CRON e ajustes (limpeza, unattended-upgrades)" step_cron
+  run_mig "Registro da adoção" mig_state
+
+  say ""
+  say "🚀  Adoção concluída. O que foi substituído está em $MIG_BACKUP."
+  if [ "$PANEL" = arcane ]; then
+    say "   Painel: https://$HOST"
+    show_panel_password
+  fi
+  if [ ${#MIG_PENDING[@]} -gt 0 ]; then
+    say "   Pendências que ficaram:"
+    for item in "${MIG_PENDING[@]}"; do say "   • $item"; done
+  fi
+  say ""
+  cmd_status
 }
 
 case "${1:-help}" in
   setup) shift; cmd_setup "$@" ;;
+  migrate) shift; cmd_migrate "$@" ;;
   status) touch "$LOG" 2> /dev/null; cmd_status ;;
   repair) touch "$LOG" 2> /dev/null; cmd_repair ;;
   version) echo "$VERSION" ;;
-  *) sed -n '2,25p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+  *) sed -n '2,34p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac
