@@ -245,6 +245,9 @@ Por fim, você deverá configurar as [_builds_ das aplicações]({{ site.baseurl
     "cve": true,
     "health": true
   },
+  "allow": {
+    "socket": false
+  },
   "env": {
     "PORT": "49152",
     "VUE_APP_API": "https://test.cnpgc.embrapa.br/pasto-certo/api",
@@ -253,6 +256,8 @@ Por fim, você deverá configurar as [_builds_ das aplicações]({{ site.baseurl
   }
 }
 ```
+
+O atributo `allow` (a partir da versão `1.26.11-10`) guarda o que **quem administra o servidor** autoriza à _build_; hoje, só `socket`, a montagem do _socket_ do Docker (veja [O que a aplicação pode montar](#mounts)). O padrão é `false`.
 
 Outras _builds_ do mesmo servidor ficam em outros arquivos (`builds/andro-certo_api_beta.json` etc.). O nome do arquivo precisa bater com `project`, `app` e `stage` do conteúdo, senão o Releaser recusa; e a mesma _build_ em dois arquivos é erro, não há precedência silenciosa.
 
@@ -365,9 +370,10 @@ docker exec -it releaser io install
 1. Lista os **projetos** da plataforma a que o dono do `GITLAB_TOKEN` tem acesso (pelo menos _Developer_), depois as **_apps_** do projeto escolhido e, por fim, o **estágio**. Também aceita a _build_ direto como parâmetro: `io install pasto-certo/pwa@release`.
 2. Pergunta à plataforma o que só ela sabe sobre essa _build_: a **equipe** (que vira o `team`), o **DSN do Sentry**, o **site e o _token_ do Matomo** (criados na hora, se ainda não existirem) e as **variáveis** do `.embrapa/settings.json` da _tag_ mais recente do estágio. Se o estágio já for implantado pela própria plataforma num _cluster_, o comando para: um estágio é da plataforma **ou** do Releaser, nunca dos dois.
 3. Gera os valores por tipo de variável: `PASSWORD` e `SECRET` aleatórios (ou digitados, se você preferir; os marcados com `"mask": "empty"` no `settings.json`, segredos que vêm de fora, são sempre pedidos — a partir da versão `1.26.11-2` o `io install` respeita o atributo [`mask`]({{ site.baseurl }}/docs/boilerplate#mask)), `PORT` com a **próxima porta livre** a partir da base informada (conferindo as portas em uso no servidor e as já reservadas em outros arquivos de `builds/`), `VOLUME` com o sufixo padrão e `TEXT` com o valor padrão do _boilerplate_, sempre com a chance de alterar.
-4. Grava `builds/<projeto>_<app>_<estágio>.json` com `auto` e `stats` nos valores padrão e mostra o comando do primeiro _deploy_.
+4. A partir da versão `1.26.11-10`, lê o `docker-compose.yaml` da aplicação e, **se ele monta o _socket_ do Docker** (caso de um painel de _containers_), explica o risco e pergunta `Authorize this build to mount the Docker socket? (y/N)`. O padrão é **não**; a resposta vai para o atributo `allow.socket` (veja [O que a aplicação pode montar](#mounts)).
+5. Grava `builds/<projeto>_<app>_<estágio>.json` com `auto`, `stats` e `allow` e mostra o comando do primeiro _deploy_.
 
-Com `--yes` não há perguntas: valem os padrões (senhas aleatórias, próxima porta a partir de `49152`, valores do _boilerplate_). Os **volumes externos** citados pela aplicação ainda precisam ser criados por você antes do primeiro _deploy_ (`docker volume create <projeto>_<app>_<estágio>_<nome>`); o comando mostra **só os que ainda não existem** no servidor. Para o volume de _backup_ (`<projeto>_<app>_<estágio>_backup`, padrão dos _boilerplates_), a partir da versão `1.26.10-13` ele orienta a criá-lo ligado à pasta `BACKUP_DIR` (veja a [configuração inicial](#setup)):
+Com `--yes` não há perguntas: valem os padrões (senhas aleatórias, próxima porta a partir de `49152`, valores do _boilerplate_) e o _socket_ do Docker **não** é autorizado, a não ser que você acrescente `--allow-socket` (`io install projeto/app@release --yes --allow-socket`). Os **volumes externos** citados pela aplicação ainda precisam ser criados por você antes do primeiro _deploy_ (`docker volume create <projeto>_<app>_<estágio>_<nome>`); o comando mostra **só os que ainda não existem** no servidor. Para o volume de _backup_ (`<projeto>_<app>_<estágio>_backup`, padrão dos _boilerplates_), a partir da versão `1.26.10-13` ele orienta a criá-lo ligado à pasta `BACKUP_DIR` (veja a [configuração inicial](#setup)):
 
 ```bash
 mkdir -p /root/backup
@@ -376,6 +382,48 @@ docker volume create --driver local --opt type=none --opt o=bind \
 ```
 
 A pasta é **compartilhada por todas as _builds_** do servidor: o `cleaner` e o `cloud` só tocam nos arquivos com o prefixo de cada _build_. Se a aplicação não tem o serviço `backup`, o volume não é necessário. O `io install` não altera _builds_ já configuradas: edite o arquivo diretamente ou remova-o antes.
+
+## O que a aplicação pode montar {#mounts}
+
+A validação do `docker-compose.yaml`, feita a cada _deploy_ (e no `io validate`), confere o que os serviços montam:
+
+- **Só volumes externos da própria _build_.** Todo volume declarado tem `external: true` e nome começando por `<projeto>_<app>_<estágio>_`. É o que garante que os dados sobrevivem ao _deploy_ e entram no _backup_.
+- **Nenhum caminho do servidor escrito no `docker-compose.yaml`** (_bind mount_): `/etc:/host`, `./config.js:/app/config.js` e `/root/backup:/backup` são recusados, em **qualquer serviço**. A partir da versão `1.26.11-10` isso vale também para os serviços `backup`, `restore`, `sanitize` e `test` (e para os serviços de apoio que eles iniciam), que antes não eram conferidos.
+- **Uma exceção, com autorização:** o _socket_ do Docker (`/var/run/docker.sock:/var/run/docker.sock`), descrito abaixo.
+
+Para usar uma pasta do servidor, **quem administra o servidor cria um volume externo ligado a ela**, e a aplicação monta esse volume pelo nome. É assim com o volume de _backup_:
+
+```bash
+mkdir -p /root/backup
+docker volume create --driver local --opt type=none --opt o=bind \
+  --opt device=/root/backup projeto_app_estagio_backup
+```
+
+O que se proíbe é o caminho escrito no `docker-compose.yaml`; o volume criado no servidor vale sempre, mesmo ligado a uma pasta. A decisão de expor uma pasta fica com quem responde pelo servidor, e não com quem escreve o repositório.
+
+> **Atenção!** Ao atualizar para a versão `1.26.11-10`, a _build_ cujo serviço `backup`, `restore` ou `sanitize` monta um caminho do servidor terá o **próximo _deploy_ recusado** (a versão em execução não é tocada). O caso comum é o _script_ montado por caminho relativo (`./docker/backup.sh:/backup.sh`), que pelo Releaser já não funcionava: o caminho não existe no servidor, o Docker cria uma pasta vazia no lugar do arquivo e o _backup_ termina "com sucesso" sem ter feito nada. Leve o _script_ para dentro do `command:` do serviço ou para a imagem (`COPY` num `Dockerfile`). Rode `io validate --all` depois de atualizar para ver se alguma _build_ é afetada.
+
+### _Socket_ do Docker {#socket}
+
+Quem controla um _container_ que monta o `/var/run/docker.sock` controla **o servidor inteiro**, como _root_: todos os _containers_, todos os volumes e o próprio _host_. Só um painel de _containers_ (como o _boilerplate_ `arcane`) precisa disso.
+
+Por isso a montagem só é aceita na _build_ que **quem administra o servidor** autorizou, no arquivo dela:
+
+```json
+"allow": {
+  "socket": true
+}
+```
+
+- Sem a autorização, o _deploy_ é recusado com `ERROR > Service '…' mounts the Docker socket (/var/run/docker.sock), and this build is not authorized to`, e a mensagem diz o que pôr no arquivo.
+- Com ela, o _deploy_ passa com um `WARNING`. Mantenha o painel fora da internet aberta e dê acesso só a quem administra o servidor.
+- Só o valor `true` autoriza, e a autorização não abre nenhum outro caminho do servidor: o _socket_ só passa no caminho padrão dos dois lados.
+- O [`io install`](#install) faz a pergunta quando a aplicação monta o _socket_; para autorizar depois, edite o arquivo da _build_ e rode `io deploy projeto/app@estágio --force`. O `io info` mostra as _builds_ autorizadas.
+- Tirar a autorização vale a partir do _deploy_ seguinte. Para derrubar na hora, use `io stop projeto/app@estágio --down`.
+
+A autorização fica no servidor, fora do repositório: quem publica uma _tag_ da aplicação não a concede a si mesmo. Ela não substitui o cuidado com quem pode publicar versões das aplicações do servidor, porque o `docker-compose.yaml` tem outros meios de alcançar o _host_ (como `privileged`) que a validação não confere.
+
+Nos [_clusters_ compartilhados]({{ site.baseurl }}/resources/clusters) da plataforma, a montagem do _socket_ é sempre recusada.
 
 ## O comando `io` no servidor {#cli}
 
