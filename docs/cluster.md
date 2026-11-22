@@ -240,7 +240,8 @@ O que o `migrate` **recusa**, porque é trabalho para uma janela de manutenção
 - Docker instalado pelo `snap`, ou _cluster_ em Docker Swarm;
 - volumes das aplicações fora de `/var/io` ou em NFS;
 - servidor sem o usuário `io` (o core entra por outro usuário, e a troca envolve o catálogo);
-- nginx servindo outros sites, ou as portas 80 e 443 em uso por outra coisa.
+- nginx servindo outros sites, ou as portas 80 e 443 em uso por outra coisa;
+- falta de saída para um destino de que a adoção depende (por exemplo, o repositório do sistema quando há pacote a instalar). Cada destino é tentado três vezes; se a adoção não depende dele, a falta de resposta fica como pendência.
 
 Dois pontos ficam de fora de propósito, como pendência:
 

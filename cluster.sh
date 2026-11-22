@@ -40,7 +40,7 @@ if [ -z "${BASH_VERSION:-}" ]; then exec bash "$0" "$@"; fi
 
 set -uo pipefail
 
-VERSION=1.26.11-15
+VERSION=1.26.11-16
 
 [ -f /root/cluster.env ] && . /root/cluster.env
 
@@ -79,6 +79,18 @@ OUTBOUND=(
   "Site do Embrapa I/O|https://embrapa.io/"
   "Repositório do Grafana (Alloy)|https://apt.grafana.com/"
 )
+
+# Código HTTP de um destino, em até três tentativas: os espelhos do archive.ubuntu.com (vários IPs atrás de um nome)
+# e os firewalls das Unidades falham de vez em quando, e uma tentativa só já recusou cluster bom. 000 = sem resposta.
+outbound_code () {
+  local code=000 try
+  for try in 1 2 3; do
+    code=$(curl -s -o /dev/null --connect-timeout 5 --max-time 10 -w '%{http_code}' "$1" 2>> "$LOG")
+    [ "$code" != 000 ] && break
+    [ "$try" = 3 ] || sleep 2
+  done
+  echo "$code"
+}
 
 # Etapas da instalação, na ordem da Dashboard (contrato: backend/docs/cluster-api.md, etapa `install`).
 SUBSTEPS=(system docker user loki alloy dockerhub certificate terminal panel cron cleanup)
@@ -306,7 +318,7 @@ preflight () { # grava as evidências em $1; devolve 1 se algum item obrigatóri
   local item name url code
   for item in "${OUTBOUND[@]}"; do
     name=${item%%|*}; url=${item#*|}
-    code=$(curl -s -o /dev/null --max-time 10 -w '%{http_code}' "$url" 2>> "$LOG")
+    code=$(outbound_code "$url")
     if [ "$code" != 000 ]; then add 1 "Saída: $name" "$url (HTTP $code)"; else add 0 "Saída: $name" "$url sem resposta: libere a saída no firewall"; fi
   done
 
@@ -1190,13 +1202,26 @@ m_do () { say "  🔧  $1: $2"; MIG_PLAN+=("$1: $2"); }
 m_warn () { say "  ⚠️  $1: $2"; MIG_PENDING+=("$1: $2"); }
 m_block () { bad "$1: $2"; MIG_BLOCK=1; }
 
+# Destinos de saída do migrate: nome|URL|função que diz se ESTA execução depende dele. Sem depender (os pacotes já
+# estão instalados, o certificado já existe…), a falta de resposta é pendência, e não recusa: só as atualizações
+# futuras usam o destino.
 MIG_OUTBOUND=(
-  "Repositório do sistema|$OS_REPO"
-  "Repositório do Grafana (Alloy)|https://apt.grafana.com/"
-  "Let's Encrypt|https://acme-v02.api.letsencrypt.org/directory"
-  "Imagem do painel (ghcr.io)|https://ghcr.io/v2/"
-  "Site do Embrapa I/O|https://embrapa.io/"
+  "Repositório do sistema|$OS_REPO|need_os_repo"
+  "Repositório do Grafana (Alloy)|https://apt.grafana.com/|need_grafana_repo"
+  "Let's Encrypt|https://acme-v02.api.letsencrypt.org/directory|need_letsencrypt"
+  "Imagem do painel (ghcr.io)|https://ghcr.io/v2/|need_panel_image"
+  "Site do Embrapa I/O|https://embrapa.io/|need_site"
 )
+
+need_os_repo () { [ -n "$(pkgs_missing)" ]; }
+need_grafana_repo () { ! pkg_installed alloy || ! grep -rqs "apt.grafana.com" /etc/apt/sources.list /etc/apt/sources.list.d/; }
+need_letsencrypt () {
+  [ "$IO_TEST" = 1 ] && return 1
+  [ -f "/etc/letsencrypt/live/$HOST/fullchain.pem" ] || return 0
+  [ "$(cert_renewal)" = reissue ]
+}
+need_panel_image () { [ "$PANEL" = arcane ] && [ ! -f "$PANEL_DIR/compose.yaml" ]; }
+need_site () { [ "$IO_TEST" != 1 ] && [ ! -f /etc/cron.d/embrapa-terminal ]; }
 
 pkg_installed () { [ "$(dpkg-query -W -f '${db:Status-Status}' "$1" 2> /dev/null)" = installed ]; }
 
@@ -1576,12 +1601,14 @@ migrate_diagnose () {
   if [ "$(timedatectl show -p NTPSynchronized --value 2> /dev/null)" = yes ]; then m_ok "Relógio" "sincronizado"
   else m_warn "Relógio" "não sincronizado: confira o NTP da Unidade (certificados dependem dele)"; fi
 
-  local item url code
+  local item name url need code
   for item in "${MIG_OUTBOUND[@]}"; do
-    name=${item%%|*}; url=${item#*|}
+    IFS='|' read -r name url need <<< "$item"
     [ "$PANEL" != arcane ] && [[ "$url" == *ghcr.io* ]] && continue
-    code=$(curl -s -o /dev/null --max-time 10 -w '%{http_code}' "$url" 2>> "$LOG")
-    if [ "$code" != 000 ]; then m_ok "Saída: $name" "HTTP $code"; else m_block "Saída: $name" "$url sem resposta: libere a saída no firewall"; fi
+    code=$(outbound_code "$url")
+    if [ "$code" != 000 ]; then m_ok "Saída: $name" "HTTP $code"
+    elif "$need"; then m_block "Saída: $name" "$url sem resposta em três tentativas, e esta adoção depende dele: libere a saída no firewall"
+    else m_warn "Saída: $name" "$url sem resposta em três tentativas: a adoção não depende dele agora, mas as atualizações sim; confira a saída no firewall"; fi
   done
 }
 
