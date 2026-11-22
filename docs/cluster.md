@@ -222,6 +222,8 @@ sh /root/cluster.sh migrate <cluster> --apply   # aplica o que o diagnóstico ma
 
 O `<cluster>` é o nome do servidor no catálogo (por exemplo, `io.cnpxx.embrapa.br`). O diagnóstico marca cada item com ✅ (já no padrão), 🔧 (o `--apply` ajusta), ⚠️ (pendência que o comando não resolve) ou ❌ (recusa: precisa ser resolvido antes). **Rode sempre o diagnóstico primeiro** e leia a lista.
 
+O comando é o mesmo em qualquer _cluster_. Depois do diagnóstico e antes de mudar qualquer coisa, o `--apply` pergunta no terminal o e-mail e o nome de quem vai administrar o painel (com Enter, o administrador fica sendo o usuário `arcane`) e o usuário e o _token_ só de leitura do Docker Hub (com Enter, o Docker Hub fica como pendência).
+
 O que o `--apply` faz:
 
 - instala só os pacotes que faltam (nginx, certbot, cron, unattended-upgrades), **sem atualizar o sistema**;
@@ -230,7 +232,7 @@ O que o `--apply` faz:
 - restringe a chave da plataforma ao IP do core, mas só quando todos os acessos dos últimos 14 dias vieram dele;
 - instala o **Grafana Alloy** com as credenciais que já estão no `/etc/docker/daemon.json`;
 - **remove o Portainer**: o contêiner sai, o `/root/portainer.sh` é desativado (para o CRON não recriá-lo) e o site dele no nginx dá lugar ao do painel. Os volumes do Portainer ficam;
-- emite o certificado do servidor pelo Let's Encrypt, se ainda não houver (o que já existe é aproveitado, e a renovação passa a ser feita pelo nginx), e instala o painel **Arcane** em `https://<cluster>`, com a senha mostrada uma única vez no fim (informe quem administra o painel com `ADMIN_EMAIL` e `ADMIN_NAME`);
+- emite o certificado do servidor pelo Let's Encrypt, se ainda não houver (o que já existe é aproveitado, e a renovação passa a ser feita pelo nginx), e instala o painel **Arcane** em `https://<cluster>`, com a senha mostrada uma única vez no fim;
 - instala o [_Web Terminal_](#terminal), a limpeza diária e as atualizações automáticas de segurança.
 
 Tudo o que é substituído fica copiado antes em `/root/embrapa-io-migrate-<data>`, legível só pelo `root`. As etapas podem ser repetidas: se alguma falhar, corrija e rode de novo.

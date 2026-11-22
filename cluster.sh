@@ -27,7 +27,7 @@
 #   IO_API=https://core.embrapa.io      API da plataforma
 #   PANEL=arcane|none                   painel local (padrão: o escolhido no assistente, senão arcane)
 #   DOCKERHUB_USER e DOCKERHUB_TOKEN    login no Docker Hub sem pergunta (token só leitura do NTI)
-#   ADMIN_EMAIL e ADMIN_NAME            no migrate, quem administra o painel (login pelo e-mail; sem eles, usuário arcane)
+#   ADMIN_EMAIL e ADMIN_NAME            no migrate, quem administra o painel, sem pergunta (o --apply pergunta no terminal)
 #   IO_TEST=1                           laboratório: aceita pouco espaço em disco, certificado autoassinado, sem Web Terminal
 #   IO_TEST_DOCKERHUB=ask               no laboratório, pede o login do Docker Hub (sem ele, a subetapa é pulada)
 #
@@ -40,7 +40,7 @@ if [ -z "${BASH_VERSION:-}" ]; then exec bash "$0" "$@"; fi
 
 set -uo pipefail
 
-VERSION=1.26.11-16
+VERSION=1.26.11-17
 
 [ -f /root/cluster.env ] && . /root/cluster.env
 
@@ -1220,7 +1220,8 @@ need_letsencrypt () {
   [ -f "/etc/letsencrypt/live/$HOST/fullchain.pem" ] || return 0
   [ "$(cert_renewal)" = reissue ]
 }
-need_panel_image () { [ "$PANEL" = arcane ] && [ ! -f "$PANEL_DIR/compose.yaml" ]; }
+panel_missing () { [ "$PANEL" = arcane ] && [ ! -f "$PANEL_DIR/compose.yaml" ]; }
+need_panel_image () { panel_missing; }
 need_site () { [ "$IO_TEST" != 1 ] && [ ! -f /etc/cron.d/embrapa-terminal ]; }
 
 pkg_installed () { [ "$(dpkg-query -W -f '${db:Status-Status}' "$1" 2> /dev/null)" = installed ]; }
@@ -1581,7 +1582,7 @@ migrate_diagnose () {
       elif [ -n "$(port_owner "$PANEL_PORT")" ]; then
         m_block "Painel" "a porta $PANEL_PORT (interna do painel) está em uso por $(port_owner "$PANEL_PORT")"
       else
-        m_do "Painel" "instala o Arcane em https://$HOST (administrador: ${ADMIN_EMAIL:-usuário arcane}; a senha aparece no fim)"
+        m_do "Painel" "instala o Arcane em https://$HOST (administrador: $(admin_label); a senha aparece no fim)"
       fi ;;
     *) m_block "Painel" "desconhecido: $PANEL (use arcane ou none)" ;;
   esac
@@ -1596,7 +1597,7 @@ migrate_diagnose () {
 
   if id io > /dev/null 2>&1 && dockerhub_logged; then m_ok "Docker Hub" "o io tem credencial"
   elif [ -n "${DOCKERHUB_USER:-}" ] && [ -n "${DOCKERHUB_TOKEN:-}" ]; then m_do "Docker Hub" "login do io com a conta $DOCKERHUB_USER"
-  else m_warn "Docker Hub" "o io não tem credencial (pull anônimo tem limite): rode com DOCKERHUB_USER e DOCKERHUB_TOKEN (token só leitura do NTI)"; fi
+  else m_warn "Docker Hub" "o io não tem credencial (pull anônimo tem limite): o --apply pede o login no terminal (token só leitura do NTI)"; fi
 
   if [ "$(timedatectl show -p NTPSynchronized --value 2> /dev/null)" = yes ]; then m_ok "Relógio" "sincronizado"
   else m_warn "Relógio" "não sincronizado: confira o NTP da Unidade (certificados dependem dele)"; fi
@@ -1610,6 +1611,68 @@ migrate_diagnose () {
     elif "$need"; then m_block "Saída: $name" "$url sem resposta em três tentativas, e esta adoção depende dele: libere a saída no firewall"
     else m_warn "Saída: $name" "$url sem resposta em três tentativas: a adoção não depende dele agora, mas as atualizações sim; confira a saída no firewall"; fi
   done
+}
+
+# ---- Perguntas do --apply. O comando é o mesmo em todo cluster (sh cluster.sh migrate <host> --apply): o que só uma
+# pessoa sabe (quem administra o painel, o login do Docker Hub) é perguntado no terminal, depois do diagnóstico e antes
+# de qualquer mudança. As variáveis de ambiente continuam valendo (automação); sem terminal, nada é perguntado.
+can_ask () { [ -t 0 ] && [ -r /dev/tty ]; }
+
+ask () { # ask rótulo [-s]: lê uma linha do terminal; a resposta não vai para o log
+  local answer=''
+  printf '    %s' "$1" > /dev/tty
+  if [ "${2:-}" = -s ]; then read -r -s answer < /dev/tty; printf '\n' > /dev/tty; else read -r answer < /dev/tty; fi
+  printf '%s' "$answer"
+}
+
+admin_label () {
+  if [ -n "$ADMIN_EMAIL" ]; then echo "$ADMIN_EMAIL"
+  elif can_ask; then echo "o --apply pergunta o e-mail"
+  else echo "usuário arcane"; fi
+}
+
+migrate_ask () {
+  can_ask || return 0
+  local email='' name user token try item kept=()
+
+  if panel_missing && [ -z "$ADMIN_EMAIL" ]; then
+    say "👤  Administrador do painel (o login no Arcane é pelo e-mail):"
+    for try in 1 2 3; do
+      email=$(ask "E-mail (Enter para ficar com o usuário «arcane»): " | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
+      [ -z "$email" ] && break
+      [[ "$email" =~ ^[a-z0-9._-]+@([a-z0-9-]+\.)+[a-z]+$ ]] && break
+      say "    E-mail inválido: '$email'."
+      email=''
+      [ "$try" = 3 ] && die "Três e-mails inválidos. Nada foi alterado; rode de novo."
+    done
+    if [ -n "$email" ]; then
+      name=$(ask "Nome: " | tr -d '[:cntrl:]' | cut -c1-80)
+      ADMIN_EMAIL=$email; ADMIN_NAME=${name:-${email%%@*}}
+      say "    Administrador: $ADMIN_NAME <$ADMIN_EMAIL>"
+    else
+      say "    Sem e-mail: o administrador será o usuário «arcane»."
+    fi
+    say ""
+  fi
+
+  if ! dockerhub_logged && { [ -z "${DOCKERHUB_USER:-}" ] || [ -z "${DOCKERHUB_TOKEN:-}" ]; } \
+     && { [ "$IO_TEST" != 1 ] || [ "${IO_TEST_DOCKERHUB:-}" = ask ]; }; then
+    say "🐳  Login no Docker Hub (conta do NTI), para o io baixar imagens sem o limite do pull anônimo:"
+    say "    Crie um token de acesso (read-only) em «Personal Access Tokens» em https://app.docker.com (o token fica só nesta VM)"
+    user=$(ask "Usuário (Enter para deixar como pendência): " | tr -d '[:space:]')
+    token=''
+    [ -n "$user" ] && token=$(ask "Token: " -s)
+    if [ -n "$user" ] && [ -n "$token" ]; then
+      DOCKERHUB_USER=$user; DOCKERHUB_TOKEN=$token
+      for item in ${MIG_PENDING[@]+"${MIG_PENDING[@]}"}; do [[ "$item" == "Docker Hub:"* ]] || kept+=("$item"); done
+      MIG_PENDING=(${kept[@]+"${kept[@]}"})
+      MIG_PLAN+=("Docker Hub: login do io com a conta $user")
+      say "    Login do io com a conta $user, na etapa do Docker Hub."
+    else
+      say "    Sem login: o Docker Hub fica como pendência."
+    fi
+    say ""
+  fi
 }
 
 # ---- Etapas do --apply. Cada uma roda num subshell com set -e e a saída no log; todas são idempotentes.
@@ -1759,6 +1822,8 @@ cmd_migrate () {
     die "O migrate não segue: os itens com ❌ precisam ser resolvidos antes (alguns são trabalho de janela; veja https://embrapa.io/docs/cluster/#migrate)."
   fi
   say ""
+
+  if [ "$apply" = 1 ]; then migrate_ask; fi
 
   if [ ${#MIG_PENDING[@]} -gt 0 ]; then
     say "⚠️  Fica como pendência (o migrate não resolve):"
