@@ -37,6 +37,8 @@ Para remover uma aplicação é necessário:
 
 Se ainda houver instâncias no ar, [remova as _builds_]({{ site.baseurl }}/docs/health) de todos os estágios antes de prosseguir — a plataforma recusa a remoção enquanto existir qualquer uma.
 
+A _build_ implantada pelo [Releaser]({{ site.baseurl }}/docs/releaser), em servidor da própria equipe, só impede a remoção **enquanto o Releaser a relata** à plataforma. Se ela estiver parada (`io stop`), tiver sido removida (`io remove`) ou o Releaser estiver sem contato há mais de 15 minutos, a aplicação pode ser removida: a plataforma apenas esquece a _build_, e nada muda no servidor (contêineres, volumes e _backups_ continuam lá). Com o Releaser ainda relatando, a remoção é recusada com o nome do servidor: [pare ou remova a _build_]({{ site.baseurl }}/docs/releaser#remove) nele e tente de novo.
+
 ## Removendo a aplicação {#passos}
 
 No _card_ do projeto, deixe em foco a aplicação que será removida e acesse a opção **Remover** no menu contextual, na seção "Avançado". O nome da aplicação em foco aparece no próprio item do menu, para não haver dúvida sobre qual delas será retirada.
