@@ -1,11 +1,11 @@
 ---
 layout: post
-title: "20 videoaulas novas no canal do Embrapa I/O"
-subtitle: Em oito dias, o canal ganhou vinte vídeos curtos, em 4K e num formato novo, que mostram na prática cada recurso da plataforma, do primeiro deploy aos agentes de inteligência artificial.
+title: "23 videoaulas novas no canal do Embrapa I/O"
+subtitle: Em onze dias, o canal ganhou 23 vídeos curtos, em 4K e num formato novo, que mostram na prática cada recurso da plataforma, do primeiro deploy aos agentes de inteligência artificial.
 tags: [ videos ]
 ---
 
-Desde 29 de outubro, o [canal do **Embrapa I/O** no YouTube](https://www.youtube.com/@embrapa-io) recebeu vinte videoaulas novas. Cada uma ensina, passo a passo, um recurso da plataforma: o que ele resolve, onde fica e como usar, com os botões e os comandos reais em destaque. A maioria tem entre três e oito minutos.
+Desde 29 de outubro, o [canal do **Embrapa I/O** no YouTube](https://www.youtube.com/@embrapa-io) recebeu 23 videoaulas novas. Cada uma ensina, passo a passo, um recurso da plataforma: o que ele resolve, onde fica e como usar, com os botões e os comandos reais em destaque. A maioria tem entre três e oito minutos.
 
 <iframe width="730" height="410" src="https://www.youtube.com/embed/YouJi3eZB6E" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
@@ -74,6 +74,12 @@ A série **Agente da Pecuária com n8n** constrói, do zero, um agente que respo
 - [Vídeo 2: a base de conhecimento com RAG e Qdrant](https://youtu.be/K3-AAjCHrEI)
 - [Vídeo 3: o agente com RAG, CAG e o Pasto Certo](https://youtu.be/bt63NRuh8sE)
 - [Vídeo 4: o agente no ar, na web e no Telegram](https://youtu.be/GeLt1_jh8gI)
+
+A série **Hermes e Joplin na pesquisa** coloca um agente de IA autônomo de código aberto, o **Hermes Agent**, para acompanhar oportunidades a partir dos dados do SEG e entregar o resultado em notas no **Joplin**, com os próximos passos para submeter:
+
+- [Vídeo 1: montando o agente e as notas](https://youtu.be/7EHr0GsnY-0): as duas ferramentas e como colocá-las no ar pelas telas da plataforma.
+- [Vídeo 2: chamadas de periódicos e sugestões de artigo](https://youtu.be/xzbW08EEB24): o agente confere as chamadas abertas no navegador e sugere artigos a partir do perfil do pesquisador.
+- [Vídeo 3: editais de fomento e continuidade de projetos](https://youtu.be/sjyeQ2L-Eew): os editais aderentes aos projetos, quem pode coordenar e o caminho até a submissão.
 
 [_Playlist_ IA](https://www.youtube.com/playlist?list=PLBTsCa6Rsuz1vsofd7jNhVIMatKfArMpj) · [_Playlist_ Agente da Pecuária com n8n](https://www.youtube.com/playlist?list=PLRFN_Ap6U0vE)
 
