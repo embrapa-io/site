@@ -24,6 +24,35 @@ O primeiro vídeo da série mostra a instalação e o primeiro _deploy_, numa m�
 
 <iframe width="730" height="410" src="https://www.youtube.com/embed/HIPg-lgIgcs" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
+## Preparação do servidor {#server}
+
+Numa VM nova, o _script_ `releaser.sh` faz de uma vez o que as seções seguintes descrevem passo a passo: instala o Docker do repositório oficial, o _plugin_ do Loki e o Grafana Alloy (logs e métricas no Grafana da plataforma), sobe o _container_ do **Releaser** com a _tag_ exata da versão mais nova e instala o [comando `io`](#cli) no servidor. É uma variação do [`cluster.sh`]({{ site.baseurl }}/docs/cluster#install) para servidores fora da rede de _clusters_: não conversa com a _dashboard_, não cria o usuário `io`, não instala painel nem _proxy_, e as portas 80 e 443 ficam livres para as aplicações.
+
+Na VM (**Ubuntu Server 26.04 LTS** ou **Debian 13**, amd64, instalação mínima, **sem o Docker**), como `root`:
+
+```bash
+curl -fsSL https://embrapa.io/releaser.sh -o /root/releaser.sh
+sh /root/releaser.sh setup
+```
+
+O _script_ pergunta no terminal o nome do servidor (com domínio: vira o _hostname_ e o rótulo `host` dos _logs_ e das métricas) e as credenciais do Grafana do **Embrapa I/O** (as mesmas da seção [_logging_](#loki); peça por [e-mail](mailto:io@embrapa.br)), faz uma verificação prévia sem mudar nada (sistema, memória, disco local, relógio e saída para a internet) e instala. Ao terminar, mostra `Run now: io`: o primeiro `io` abre o [assistente da configuração inicial](#setup). As respostas ficam em `/root/releaser.env` (só o `root` lê) e valem para o `status`, o `repair` e um `setup` seguinte.
+
+| Comando | Faz |
+|---|---|
+| `setup` | verificação prévia, perguntas e instalação; idempotente (rode de novo depois de corrigir o que ele apontou) |
+| `status` | confere item a item, inclusive o `io check` do Releaser já configurado, sem mudar nada |
+| `repair` | reaplica os ajustes idempotentes (`sysctl`, `daemon.json`, Alloy, CRON) e confere |
+
+O que fica configurado, além do **Releaser** em `/root/releaser` (montado em `/data`) e da pasta de _backups_ `/root/backup`:
+
+- `/etc/docker/daemon.json` com o _driver_ de _log_ do Loki, `live-restore` e `default-address-pools` (`172.30.0.0/16`, uma `/24` por rede): a rede de cada _stack_ e as demais redes do Docker saem dessa faixa, sem conflitar com a VPN ou a rede da Unidade. Para outra faixa, `DOCKER_POOL=10.200.0.0/16 sh /root/releaser.sh setup`;
+- `sysctl` com a reserva das portas `49152–65535`, para uma conexão de saída não ocupar a porta publicada de uma _build_;
+- limpeza diária do _cache_ e das imagens sem uso, `logrotate` e atualizações automáticas só de segurança, sem reinício e com o Docker retido.
+
+Painel do Docker e _proxy_ com certificados, quando necessários, **não** são instalados pelo _script_: entram como _apps_ do catálogo, com o monitoramento e o _backup_ da plataforma, pelos _boilerplates_ **Arcane** (`io install … --allow-socket`, veja [_socket_ do Docker](#socket)) e **Nginx Proxy Manager** (portas 80 e 443). O _script_ também não faz _login_ no Docker Hub: o **Releaser** baixa as imagens pelo próprio _container_, sem credencial do servidor.
+
+Servidores já em uso, instalações em **Docker Swarm** e ambientes fora do padrão seguem o roteiro manual das seções seguintes. O _log_ completo fica em `/var/log/embrapa.io-releaser-setup.log`, e as variáveis aceitas estão no cabeçalho do próprio _script_ (`sh /root/releaser.sh` sem argumentos as mostra).
+
 ## Instalação
 
 A ferramenta está [disponível publicamente como uma imagem no **Docker Hub**](https://hub.docker.com/r/embrapa/releaser). Para utilizá-la, primeiramente **crie um diretório** onde serão colocados os **arquivos de configuração**:
